@@ -71,3 +71,38 @@ v3.hypofriend.de
 web.hypofriend.de
 wildcard.hypofriend.de
 www.hypofriend.de
+
+## PASSIVE RECON 2026-09-02 (read-only, non-intrusive)
+
+> Recon observations only. These are NOT confirmed vulnerabilities; ownership/in-scope of each host must be confirmed against the program scope before any active testing. Hosts resolve + serve HTTP — investigation requires scoped authorization.
+
+**Probed:** 71 hosts | **Live HTTP:** 10
+
+| Host | Status | Server/Tech |
+|---|---|---|
+| `kajsa.local.hypofriend.de` | 404 | - |
+| `laurence.local.hypofriend.de` | 404 | - |
+| `email.m.hypofriend.de` | 404 | - |
+| `pavel.local.hypofriend.de` | 404 | - |
+| `tiago.local.hypofriend.de` | 404 | - |
+| `sofia.local.hypofriend.de` | 404 | - |
+| `email.m2.hypofriend.de` | 404 | - |
+| `bonava.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+| `myne.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+| `evernest.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+
+**CNAME review signals (14):**
+- `accentro.hypofriend.de` -> `flow.heyflow.domains`
+- `berater-suche.hypofriend.de` -> `flow.heyflow.domains`
+- `kajsa.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `laurence.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `email.m.hypofriend.de` -> `eu.mailgun.org`
+- `pavel.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `heyflow.hypofriend.de` -> `flow.heyflow.domains`
+- `sparplan.hypofriend.de` -> `flow.heyflow.domains`
+- `tiago.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `sofia.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `email.m2.hypofriend.de` -> `eu.mailgun.org`
+- `bonava.hypofriend.de` -> `flow.heyflow.domains`
+- `myne.hypofriend.de` -> `flow.heyflow.domains`
+- `evernest.hypofriend.de` -> `flow.heyflow.domains`
