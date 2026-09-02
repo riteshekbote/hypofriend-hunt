@@ -106,3 +106,46 @@ www.hypofriend.de
 - `bonava.hypofriend.de` -> `flow.heyflow.domains`
 - `myne.hypofriend.de` -> `flow.heyflow.domains`
 - `evernest.hypofriend.de` -> `flow.heyflow.domains`
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `bonava.hypofriend.de` | **Ports:** [80, 443, 2082, 2083, 2086, 2087, 8080, 8443]
+**Non-web ports observed:** [2082, 2083, 2086, 2087, 8080, 8443]
+> NOTE: repeated identical non-web port sets (e.g. 2082,2083,2086,2087,8080,8443) across many hosts and wide port sets are likely a shared edge/proxy answering EOF, NOT confirmed real services. Verify with a proper port scanner (e.g. nmap) under authorization before treating as real. These are surface-map hints only, not findings.
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `email.m.hypofriend.de` | **Ports:** [80, 443]
+**Web surface only:** [80, 443]
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `email.m2.hypofriend.de` | **Ports:** [80, 443]
+**Web surface only:** [80, 443]
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `evernest.hypofriend.de` | **Ports:** [80, 443, 2082, 2083, 2086, 2087, 8080, 8443]
+**Non-web ports observed:** [2082, 2083, 2086, 2087, 8080, 8443]
+> NOTE: repeated identical non-web port sets (e.g. 2082,2083,2086,2087,8080,8443) across many hosts and wide port sets are likely a shared edge/proxy answering EOF, NOT confirmed real services. Verify with a proper port scanner (e.g. nmap) under authorization before treating as real. These are surface-map hints only, not findings.
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `kajsa.local.hypofriend.de` | **Ports:** [80, 443]
+**Web surface only:** [80, 443]
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `laurence.local.hypofriend.de` | **Ports:** [80, 443]
+**Web surface only:** [80, 443]
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `myne.hypofriend.de` | **Ports:** [80, 443, 2082, 2083, 2086, 2087, 8080, 8443]
+**Non-web ports observed:** [2082, 2083, 2086, 2087, 8080, 8443]
+> NOTE: repeated identical non-web port sets (e.g. 2082,2083,2086,2087,8080,8443) across many hosts and wide port sets are likely a shared edge/proxy answering EOF, NOT confirmed real services. Verify with a proper port scanner (e.g. nmap) under authorization before treating as real. These are surface-map hints only, not findings.
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `pavel.local.hypofriend.de` | **Ports:** [80, 443]
+**Web surface only:** [80, 443]
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `sofia.local.hypofriend.de` | **Ports:** [80, 443]
+**Web surface only:** [80, 443]
+
+## DEEP SERVICE SCAN 2026-09-02 (read-only connect+banner)
+**Host:** `tiago.local.hypofriend.de` | **Ports:** [80, 443]
+**Web surface only:** [80, 443]
