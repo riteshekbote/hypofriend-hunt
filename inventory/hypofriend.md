@@ -187,3 +187,11 @@ www.hypofriend.de
 - NEW Exposed Nuxt config — Sentry DSN, Amplitude key, Flagsmith env, GTM, FB Pixel, advisorEndpoint in window.__NUXT__
 - CHANGED api.hypofriend.de, core-api.hypofriend.de, graph.hypofriend.de, graph-rates.hypofriend.de — Previously unprobed, now confirmed unresponsive (503/000)
 - CHANGED login.hypofriend.de, sso.hypofriend.de, portal.hypofriend.de, dashboard.hypofriend.de, billing.hypofriend.de, offer.hypofriend.de, documents.hypofriend.de, my.hypofriend.de, profile.hypofriend.de, acc
+
+## 2026-09-03 21:38:24 UTC
+- NEW hypofriend.de — Primary API surface consolidated on main domain (Nuxt SPA); subdomain APIs (api.*, core-api.*, graph.*) confirmed dead (503/000/timeout)
+- NEW /api/v3/advisors — Live endpoint requiring HTTP Basic auth (401), only confirmed API endpoint; `www-authenticate: Basic realm="Application"` header present
+- NEW Exposed Nuxt config in `window.__NUXT__` — Sentry DSN (o128333.ingest.sentry.io), Amplitude API key, Flagsmith env ID (cqupGKF7Y3f5i2g62Zwbsv), GTM, FB Pixel, `advisorEndpoint: "/api/v3/advisors"`
+- NEW /property-search-api — Returns HTTP 400 (expects parameters), dedicated API per Nuxt config
+- CHANGED api.hypofriend.de, core-api.hypofriend.de, graph.hypofriend.de, graph-rates.hypofriend.de — Previously unprobed, now confirmed unresponsive (timeout/503/000)
+- CHANGED login.hypofriend.de, sso.hypofriend.de, portal.hypofriend.de, dashboard.hypofriend.de, billing.hypofriend.de, offer.hypofriend.de, documents.hypofriend.de, my.hypofriend.de, profile.hypofriend.de, acc

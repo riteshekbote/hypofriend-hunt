@@ -41,3 +41,11 @@ https://api.hypofriend.de/api/swagger -> ERR <urlopen error timed out>
 https://api.hypofriend.de/api/openapi.json -> ERR <urlopen error timed out>
 https://api.hypofriend.de/api/docs -> ERR <urlopen error timed out>
 https://admin.hypofriend.de/ -> HTTP 503
+
+## 2026-09-03 21:38:34 UTC
+https://hypofriend.de/api/v3/advisors -> HTTP 401
+https://hypofriend.de/property-search-api?q=test&id=1&user_id=1&search_id=1 -> HTTP 400
+https://hypofriend.de/property-search-api?url=http://169.254.169.254/latest/meta-data/ -> HTTP 400
+https://hypofriend.de/property-search-api -> HTTP 400
+https://auth.hypofriend.de/.well-known/openid-configuration -> HTTP 503
+https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid -> HTTP 503
