@@ -19,3 +19,16 @@
 - LEARN: ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
 - LEARN: ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
 - LEARN: ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+
+## RANKED HYPOTHESES 2026-09-03 19:11:58 UTC
+- [68] api.hypofriend.de: API versioning/bypass on api.hypofriend.de (from art/lead_bigpickle.txt)
+- [65] hypofriend.de/api/v3/advisors: HTTP Basic Auth Credential Reuse on Advisors API (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://api.hypofriend.de/, GET https://api.hypofriend.de/api/, GET https://api.hypofriend.de/api/v1/, GET https://api.hypofriend.de/api/v2/, GET htt
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://o128333.ingest.sentry.io/api/0/projects/ with Authorization: DSN from window.__NUXT__ (public key only)
+- LEARN: ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- LEARN: ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- LEARN: ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfigurat
+- LEARN: REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- LEARN: REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive tes

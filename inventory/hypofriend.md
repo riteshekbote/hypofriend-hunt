@@ -180,3 +180,10 @@ www.hypofriend.de
 - NEW profile.hypofriend.de — profile API unprobed
 - NEW account.hypofriend.de — account API unprobed
 - CHANGED bonava.hypofriend.de, myne.hypofriend.de, evernest.hypofriend.de — confirmed live (200) but CNAME to Heyflow (marketing), not core API
+
+## 2026-09-03 19:11:58 UTC
+- NEW hypofriend.de — Primary API surface consolidated on main domain (Nuxt SPA), subdomain APIs (api.*, core-api.*, graph.*) returning 503/000
+- NEW /api/v3/advisors — Live endpoint requiring HTTP Basic auth (401), only confirmed API endpoint
+- NEW Exposed Nuxt config — Sentry DSN, Amplitude key, Flagsmith env, GTM, FB Pixel, advisorEndpoint in window.__NUXT__
+- CHANGED api.hypofriend.de, core-api.hypofriend.de, graph.hypofriend.de, graph-rates.hypofriend.de — Previously unprobed, now confirmed unresponsive (503/000)
+- CHANGED login.hypofriend.de, sso.hypofriend.de, portal.hypofriend.de, dashboard.hypofriend.de, billing.hypofriend.de, offer.hypofriend.de, documents.hypofriend.de, my.hypofriend.de, profile.hypofriend.de, acc
