@@ -159,3 +159,24 @@ www.hypofriend.de
 ## 2026-09-03 06:29:54 UTC
 
 ## 2026-09-03 11:43:38 UTC
+
+## 2026-09-03 15:49:44 UTC
+- NEW api.hypofriend.de — primary API endpoint unprobed
+- NEW core-api.hypofriend.de — internal/core API unprobed
+- NEW graph.hypofriend.de — GraphQL endpoint unprobed
+- NEW graph-rates.hypofriend.de — GraphQL rates API unprobed
+- NEW v3.hypofriend.de — versioned API unprobed
+- NEW auth.hypofriend.de — auth/OAuth endpoint unprobed
+- NEW login.hypofriend.de — login endpoint unprobed
+- NEW sso.hypofriend.de — SSO endpoint unprobed
+- NEW admin.hypofriend.de — admin panel unprobed
+- NEW admin.app.hypofriend.de — admin app unprobed
+- NEW portal.hypofriend.de — customer portal unprobed
+- NEW dashboard.hypofriend.de — dashboard unprobed
+- NEW billing.hypofriend.de — billing/financial API unprobed
+- NEW offer.hypofriend.de — mortgage offer API unprobed
+- NEW documents.hypofriend.de — document API unprobed
+- NEW my.hypofriend.de — user portal unprobed
+- NEW profile.hypofriend.de — profile API unprobed
+- NEW account.hypofriend.de — account API unprobed
+- CHANGED bonava.hypofriend.de, myne.hypofriend.de, evernest.hypofriend.de — confirmed live (200) but CNAME to Heyflow (marketing), not core API
