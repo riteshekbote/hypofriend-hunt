@@ -48,3 +48,17 @@
 - LEARN: REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfigurat
 - LEARN: REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls.
 - LEARN: REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503.
+
+## RANKED HYPOTHESES 2026-09-03 23:35:33 UTC
+- [75] hypofriend.de/property-search-api: GraphQL IDOR on Property Search API via expose/exposes/leadId (from art/lead_nemotron3.txt)
+- [60] auth.hypofriend.de: OAuth redirect_uri open-redirect / code-interception on auth.hypofriend.de (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://hypofriend.de/property-search-api {"query":"{ exposes(id: \"1\", limit: 20) { id title price city address } }"} — enumerate expose IDs 1-100
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://auth.hypofriend.de/.well-known/openid-configuration ; GET https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misco
+- LEARN: REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- LEARN: REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- LEARN: REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive tes
+- LEARN: REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).

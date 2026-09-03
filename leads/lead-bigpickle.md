@@ -114,3 +114,18 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls.
 [LEARN] REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503.
 [RISK] hypofriend: 85 High business value (financial platform), primary attack surface consolidated on main domain, API endpoint with basic auth. SSRF/IDOR on financial flows would be critical.
+## 2026-09-03 23:31:16 UTC [target] (model bigpickle)
+[PRIO] auth.hypofriend.de,7.9,attack_surface=8 business_value=9 tech_exposure=8(OAuth/JWT) gate_ease=6 cloud_surface=7 freshness=6
+[PRIO] hypofriend.de/property-search-api,7.0,attack_surface=7 business_value=8 tech_exposure=6 gate_ease=7 cloud_surface=6 freshness=8
+[HYP] OAuth redirect_uri open-redirect / code-interception on auth.hypofriend.de
+class: OATH
+asset: auth.hypofriend.de
+confidence: 60
+reasoning: Auth subdomain with expected OAuth/OpenID flow; main domain uses Nuxt SPA + Flagsmith/Sentry, implying SSO infra. redirect_uri misvalidation is a common HIGH-severity flaw.
+evidence_needed: Discovery of OAuth client endpoints / redirect_uri validation behavior (accepts attacker domain, returns 302 Location to it).
+verify_steps: GET https://auth.hypofriend.de/.well-known/openid-configuration, GET https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid (read-only, ≤1rps), HEAD https://auth.hypofriend.de/oauth/authorize
+impact: OAuth authorization-code theft via open redirect -> account takeover. Severity: HIGH
+testability: PASSIVE
+[NEXT] PROBE: GET https://auth.hypofriend.de/.well-known/openid-configuration ; GET https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid (passive, ≤1 rps; check for 302 to example.com = open redirect)
+[LEARN] REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).
+[RISK] hypofriend: 85 High business value (financial platform); primary live API surface is `/api/v3/advisors` (Basic auth) + property-search-api on main domain; auth/SSO surface consolidates on auth.hypofriend.de. OAuth redirect_uri / IDOR on financial+advisor flows would be critical.

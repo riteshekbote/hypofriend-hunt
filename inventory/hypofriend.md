@@ -195,3 +195,7 @@ www.hypofriend.de
 - NEW /property-search-api — Returns HTTP 400 (expects parameters), dedicated API per Nuxt config
 - CHANGED api.hypofriend.de, core-api.hypofriend.de, graph.hypofriend.de, graph-rates.hypofriend.de — Previously unprobed, now confirmed unresponsive (timeout/503/000)
 - CHANGED login.hypofriend.de, sso.hypofriend.de, portal.hypofriend.de, dashboard.hypofriend.de, billing.hypofriend.de, offer.hypofriend.de, documents.hypofriend.de, my.hypofriend.de, profile.hypofriend.de, acc
+
+## 2026-09-03 23:35:33 UTC
+- NEW hypofriend.de/property-search-api — GraphQL endpoint with full introspection enabled; rich schema (Query/Mutation/Expose/Lead types); `expose(id: ID!)`, `exposes(id: ID!)`, `favoritedExposes(leadId: I
+- CHANGED hypofriend.de/property-search-api — Previously "400 expects parameters"; now confirmed GraphQL with introspection, not REST
