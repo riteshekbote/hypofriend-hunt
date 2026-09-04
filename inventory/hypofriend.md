@@ -250,3 +250,5 @@ www.hypofriend.de
 - NEW hypofriend.de/property-search-api: Full search lifecycle auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` returns 
 - NEW hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String
 - CHANGED hypofriend.de/property-search-api: Risk escalated from 88→92 (CRITICAL) — auth-free read (favoritedExposes, expose/exposes) + auth-free write (favoriteExpose, informationRequest) + Ruby stack-trace di
+
+## 2026-09-04 23:06:55 UTC

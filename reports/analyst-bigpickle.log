@@ -3499,3 +3499,117 @@ testability: HUMAN_ONLY
 
 **STEP 7 — RISK**
 - [RISK] hypofriend: 90 — Unauthenticated production GraphQL API (full introspection, auth-free enumeration propertySearch→exposes→expose with live-200 on a real UUID, auth-free read favoritedExposes and write favoriteExpose over arbitrary leadId, Expose/PII schema, Ruby stack-trace disclosure) plus unsolicited-contact email oracle (informationRequest) and a 5-host dangling ngrok edge under company DNS. Boundary-level IDOR R/W is CONFIRMED; a HUMAN-approved PII read or real-lead-UUID escalation would be a cross-tenant PII dump / account-modification — HIGH severity on a financial mortgage platform.
+===== ANALYST bigpickle 2026-09-04 23:06:55 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdig +short kajsa.local.hypofriend.de CNAME; echo "---A---"; dig +short kajsa.local.hypofriend.de A
+jtkfqjar.cname.eu.ngrok.io.
+---A---
+jtkfqjar.cname.eu.ngrok.io.
+3.17.7.232
+3.134.125.175
+3.22.30.40
+3.149.150.174
+3.14.182.203
+3.134.39.220
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - --max-time 15 https://kajsa.local.hypofriend.de/ -w 'HTTP %{http_code}\n'
+HTTP 000
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/gq_get.txt -D - --max-time 20 'https://hypofriend.de/property-search-api?query=%7B__typename%7D' -w 'HTTP %{http_code}\n'; echo '---BODY---'; head -c 600 /tmp/opencode/gq_get.txt
+HTTP/2 400 
+content-type: application/json
+content-length: 97
+date: Fri, 04 Sep 2026 23:04:51 GMT
+vary: Origin
+x-cache: Error from cloudfront
+via: 1.1 eba72e9ef5d52e5c9659501b5baf75e8.cloudfront.net (CloudFront)
+x-amz-cf-pop: ORD58-P16
+alt-svc: h3=":443"; ma=86400
+x-amz-cf-id: CHQFeAPXb5doAdDnSxcpSqu1nfZHjjyr81dtpMNVfnP8QAhtPH1-Tw==
+
+HTTP 400
+---BODY---
+{"error":{"details":"this endpoint exclusively POST requests containing valid JSON in the body"}}
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - --max-time 15 https://auth.hypofriend.de/ -w 'HTTP %{http_code}\n'; echo '==='; curl -s -o /dev/null -D - --max-time 15 https://graph.hypofriend.de/ -w 'HTTP %{http_code}\n'
+HTTP/2 503 
+server: awselb/2.0
+date: Fri, 04 Sep 2026 23:04:51 GMT
+content-type: text/html
+content-length: 162
+
+HTTP 503
+===
+HTTP/2 503 
+server: awselb/2.0
+date: Fri, 04 Sep 2026 23:04:52 GMT
+content-type: text/html
+content-length: 162
+
+HTTP 503
+[0m
+<!-- run 2026-09-04 23:04 UTC; passive probes executed: DNS+HEAD on *.local (ngrok), GET on /property-search-api (GraphQL-over-GET), HEAD on auth/graph (503 recheck) -->
+
+STEP 1 — DELTA:
+- [CHANGED] hypofriend.de/property-search-api: edge surfaced as CloudFront (via 1.1 ...cloudfront.net, x-cache: Error from cloudfront, x-amz-cf-pop: ORD58-P16) with `Vary: Origin`; GET on endpoint → 400 `{"error":{"details":"this endpoint exclusively POST requests containing valid JSON in the body"}}` — GraphQL enforced POST-only at edge.
+- [CHANGED] kajsa.local.hypofriend.de: CNAME jtkfqjar.cname.eu.ngrok.io persists (resolves 3.17/3.134/3.149/3.22 AWS), HTTPS endpoint still offline (HTTP 000) — ngrok orphan candidate unchanged.
+- [CHANGED] auth.hypofriend.de / graph.hypofriend.de: still 503 behind awselb/2.0 (re-verified 23:04 UTC) — prior REJECT stands.
+
+STEP 2 — PRIORITIZE:
+- [PRIO] hypofriend.de/property-search-api,9.55,attack_surface=9 business_value=10 tech_exposure=10(GraphQL+introspection+PII schema) gate_ease=10(no auth across propertySearch/exposes/expose) cloud_surface=8(CloudFront) freshness=10(live evidence today)
+- [PRIO] *.local.hypofriend.de,5.0,attack_surface=4 business_value=7 tech_exposure=6(takeover profile) gate_ease=3(HUMAN ngrok-account claim) cloud_surface=4 freshness=4
+- [PRIO] hypofriend.de/api/v3/advisors,6.9,unchanged(boundary 401 only, cred testing out of passive scope)
+
+STEP 3 — HYPOTHESES:
+[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 90
+reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 with live title/price/street/propertyType, zero creds, zero leadId (confirmed 18:34/21:05 UTC). IDs enumerable via auth-free propertySearch→exposes chain. Same auth-free object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. Edge=CloudFront, POST-only, no GET cache surface (re-verified today).
+evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID — converts to CONFIRMED full-auth-free PII dump primitive. HUMAN (PII) authorization required.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN approval.
+impact: broker/owner contact PII + company attribution for every listing in the DB via enumerated auth-free IDs on a financial platform. Severity: HIGH.
+testability: AUTH_HELPED
+
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (re-verified 23:04 UTC, resolves AWS ranges); HTTPS serves ngrok edge ERR_NGROK_3200 "endpoint offline" while an LE wildcard SAN cert for all five domains is issued — domain binding provisioned, tunnel gone = orphaned-edge takeover profile. Direct connect today still HTTP 000.
+evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation the edge is abandoned — HUMAN-only.
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert capture is the POC seed. Report LOW-MED candidate, not escalated.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
+testability: HUMAN_ONLY
+
+[HYP] CloudFront shared-cache leak of auth-free GraphQL responses across origins
+class: MISCONFIG
+asset: hypofriend.de/property-search-api
+confidence: 45
+reasoning: edge confirmed CloudFront (via 1.1 ...cloudfront.net, x-cache: Error from cloudfront, x-amz-cf-pop) with `Vary: Origin`; GraphQL is POST-only enforced (GET→400) so no GET persistence; if any cache policy keys success responses for favoriteExposes/expose, one lead-scoped PII body could be served to a different Origin/client within TTL.
+evidence_needed: duplicated POST responses showing Age/x-cache Hit with different Origin headers — demonstrating cross-origin shared cache of auth-free reads.
+verify_steps: paired OPTIONS/HEAD + duplicated POST probes AFTER the active HUMAN hold on this asset is lifted.
+impact: cross-customer PII spray via shared CDN cache of auth-free DB reads. Severity: MEDIUM if confirmed.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE:
+- [PARKED] informationRequest email-oracle: write-guarded external email side-effect, HUMAN only (conf 55).
+- [PARKED] /api/v3/advisors HTTP Basic credential reuse: boundary 401 only; live-cred testing out of passive scope (conf 65).
+- [PARKED] OAuth redirect_uri @ auth.hypofriend.de: host 503 behind awselb/2.0 re-verified today (conf 60).
+- [PARKED] *.local ngrok takeover: no passive confirmation path; kept at 50 (FINAL below, not escalated).
+- [FINAL] 1. expose(id) full Expose PII dump [90] — live data confirmed on real UUID; PII pull pending HUMAN
+- [FINAL] 2. GraphQL BOLA favoritedExposes/favoriteExpose arbitrary-leadId R/W [88]
+- [FINAL] 3. Full introspection + meta(id) Ruby stack-trace leak [72] — ACCEPTED tooling
+- [FINAL] 4. ngrok *.local orphan claim candidate [50]
+- [FINAL] 5. CloudFront cache-objection on auth-free reads [45]
+
+STEP 5 — NEXT ACTION:
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `{expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21"){id title price providerEmail propertyOwnerLastName}}` — to convert expose(id) [90] into CONFIRMED HIGH; hold all further live reads on property-search-api until then (today's side-find: edge=CloudFront POST-only, no GET-cache surface).
+
+STEP 6 — LEARNING:
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: production edge is CloudFront (via/x-cache/x-amz-cf-pop, Vary: Origin) and GraphQL is enforced POST-only at the edge (GET → 400 "exclusively POST requests containing valid JSON") — closes GraphQL-over-GET/CSRF-cache angle, opens shared-CDN-cache angle on auth-free reads.
+- [LEARN] REJECTED OTHER @ auth.hypofriend.de & graph.hypofriend.de: still 503 behind awselb/2.0 (re-verified 23:04 UTC) — not passively reachable, prior REJECT stands.
+
+STEP 7 — RISK:
+[RISK] hypofriend: 92 — Unchanged: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a REAL enumerated UUID, auth-free read (favoritedExposes) and write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure, unsolicited-contact email oracle (informationRequest). Edge=CloudFront with POST-only enforcement (no GET-cache surface). Conversion to CONFIRMED HIGH (cross-tenant PII dump / account modification on a mortgage platform) is gated solely on the pending HUMAN PII authorization.
