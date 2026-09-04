@@ -35,3 +35,17 @@
 - 2026-09-04 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (`error:"expose does not exist"` proves code path reachable) — cross-tenant write primitive.
 - 2026-09-04 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure.
 - 2026-09-04 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively.
+- 2026-09-04 FIRST_RUN — no prior hypotheses to accept/reject; baseline established from passive DNS/CT inventory
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout), not a misconfiguration
+- 2026-09-04 ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- 2026-09-04 ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- 2026-09-04 ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- 2026-09-04 ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- 2026-09-04 ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- 2026-09-04 ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable.
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration.
+- 2026-09-04 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls.
+- 2026-09-04 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503.
+- 2026-09-04 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).

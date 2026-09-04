@@ -213,3 +213,4 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively.
 [RISK] hypofriend: 88 Unauthenticated production GraphQL API with full introspection, auth-free read (favoritedExposes) and auth-free write (favoriteExpose) over leadId, an unsolicited contact-request oracle (informationRequest), all carrying broker/owner PII (phone/email/surname) on a financial mortgage platform, plus Ruby stack-trace disclosure. Boundary-level IDOR read+write is confirmed; a real-lead-UUID escalation would be a cross-tenant PII dump / account-modification, HIGH severity.
 ## 2026-09-04 11:31:03 UTC [target] (model bigpickle)
+## 2026-09-04 15:12:59 UTC [target] (model bigpickle)

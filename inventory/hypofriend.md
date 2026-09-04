@@ -205,3 +205,37 @@ www.hypofriend.de
 ## 2026-09-04 06:05:04 UTC
 
 ## 2026-09-04 11:31:13 UTC
+
+## 2026-09-04 15:22:38 UTC
+- NEW api.hypofriend.de — primary API endpoint unprobed
+- NEW core-api.hypofriend.de — internal/core API unprobed
+- NEW graph.hypofriend.de — GraphQL endpoint unprobed
+- NEW graph-rates.hypofriend.de — GraphQL rates API unprobed
+- NEW v3.hypofriend.de — versioned API unprobed
+- NEW auth.hypofriend.de — auth/OAuth endpoint unprobed
+- NEW login.hypofriend.de — login endpoint unprobed
+- NEW sso.hypofriend.de — SSO endpoint unprobed
+- NEW admin.hypofriend.de — admin panel unprobed
+- NEW admin.app.hypofriend.de — admin app unprobed
+- NEW portal.hypofriend.de — customer portal unprobed
+- NEW dashboard.hypofriend.de — dashboard unprobed
+- NEW billing.hypofriend.de — billing/financial API unprobed
+- NEW offer.hypofriend.de — mortgage offer API unprobed
+- NEW documents.hypofriend.de — document API unprobed
+- NEW my.hypofriend.de — user portal unprobed
+- NEW profile.hypofriend.de — profile API unprobed
+- NEW account.hypofriend.de — account API unprobed
+- CHANGED bonava.hypofriend.de, myne.hypofriend.de, evernest.hypofriend.de — confirmed live (200) but CNAME to Heyflow (marketing), not core API
+- NEW hypofriend.de — Primary API surface consolidated on main domain (Nuxt SPA), subdomain APIs (api.*, core-api.*, graph.*) returning 503/000
+- NEW /api/v3/advisors — Live endpoint requiring HTTP Basic auth (401), only confirmed API endpoint
+- NEW Exposed Nuxt config — Sentry DSN, Amplitude key, Flagsmith env, GTM, FB Pixel, advisorEndpoint in window.__NUXT__
+- CHANGED api.hypofriend.de, core-api.hypofriend.de, graph.hypofriend.de, graph-rates.hypofriend.de — Previously unprobed, now confirmed unresponsive (503/000)
+- CHANGED login.hypofriend.de, sso.hypofriend.de, portal.hypofriend.de, dashboard.hypofriend.de, billing.hypofriend.de, offer.hypofriend.de, documents.hypofriend.de, my.hypofriend.de, profile.hypofriend.de, acc
+- NEW hypofriend.de — Primary API surface consolidated on main domain (Nuxt SPA); subdomain APIs (api.*, core-api.*, graph.*) confirmed dead (503/000/timeout)
+- NEW /api/v3/advisors — Live endpoint requiring HTTP Basic auth (401), only confirmed API endpoint; `www-authenticate: Basic realm="Application"` header present
+- NEW Exposed Nuxt config in `window.__NUXT__` — Sentry DSN (o128333.ingest.sentry.io), Amplitude API key, Flagsmith env ID (cqupGKF7Y3f5i2g62Zwbsv), GTM, FB Pixel, `advisorEndpoint: "/api/v3/advisors"`
+- NEW /property-search-api — Returns HTTP 400 (expects parameters), dedicated API per Nuxt config
+- CHANGED api.hypofriend.de, core-api.hypofriend.de, graph.hypofriend.de, graph-rates.hypofriend.de — Previously unprobed, now confirmed unresponsive (timeout/503/000)
+- CHANGED login.hypofriend.de, sso.hypofriend.de, portal.hypofriend.de, dashboard.hypofriend.de, billing.hypofriend.de, offer.hypofriend.de, documents.hypofriend.de, my.hypofriend.de, profile.hypofriend.de, acc
+- NEW hypofriend.de/property-search-api — GraphQL endpoint with full introspection enabled; rich schema (Query/Mutation/Expose/Lead types); `expose(id: ID!)`, `exposes(id: ID!)`, `favoritedExposes(leadId: I
+- CHANGED hypofriend.de/property-search-api — Previously "400 expects parameters"; now confirmed GraphQL with introspection, not REST
