@@ -225,3 +225,10 @@
 - LEARN: REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
 - LEARN: REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
 - LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+
+## RANKED HYPOTHESES 2026-09-04 21:05:40 UTC
+- [95] hypofriend.de/property-search-api: GraphQL BOLA/IDOR on property-search-api via expose/exposes — unauthenticated PII enumeration (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://hypofriend.de/property-search-api {"query":"{ expose(id: \"ad1d572e-...\") { id title price city propertyOwnerLastName providerEmail provide
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId in
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO le
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastN

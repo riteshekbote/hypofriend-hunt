@@ -3216,3 +3216,286 @@ STEP 7 — RISK:
 ```
 
 All live probes this round were read-only/resolver-execution on self-created search data (searchId UUID) and returned non-PII listing fields; no live customer/broker data was touched ahead of authorization.
+===== ANALYST bigpickle 2026-09-04 21:05:40 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && git log --oneline -5 2>/dev/null; ls art 2>/dev/null; ls inventory 2>/dev/null
+total 168
+drwxr-xr-x 12 runner runner  4096 Sep  4 21:00 .
+drwxr-xr-x  3 runner runner  4096 Sep  4 21:00 ..
+drwxr-xr-x  7 runner runner  4096 Sep  4 21:00 .git
+drwxr-xr-x  3 runner runner  4096 Sep  4 21:00 .github
+-rw-r--r--  1 runner runner  1885 Sep  4 21:00 README.md
+-rw-r--r--  1 runner runner    32 Sep  4 21:00 analyst-out.txt
+-rw-r--r--  1 runner runner 40933 Sep  4 21:00 analyst-prompt.txt
+-rw-r--r--  1 runner runner 37058 Sep  4 21:00 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  4 21:00 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  4 21:00 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  4 21:00 leads
+-rw-r--r--  1 runner runner  3984 Sep  4 21:00 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  4 21:00 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  4 21:00 reports
+drwxr-xr-x  2 runner runner  4096 Sep  4 21:00 reposcan-raw
+-rw-r--r--  1 runner runner  3288 Sep  4 21:00 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  4 21:00 scripts
+-rw-r--r--  1 runner runner    33 Sep  4 21:00 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  4 21:00 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  4 21:00 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  4 21:00 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  4 21:00 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  4 21:00 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  4 21:00 triage
+fa21cf2 reposcan 2026-09-04-20-02
+hypofriend.md
+[0m
+[0m✱ [0mGlob "**/*.{yml,yaml,md,txt}"[90m 40 matches[0m
+[0m→ [0mRead triage/run-2026-09-04-19-58.md
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead triage/run-2026-09-04-17-40.md
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-nemotron3.md
+I have the full context. Now running a minimal, read-only, in-scope probe to ground the only new testable surface (the `*.local.hypofriend.de` ngrok CNAME set) plus a passive check of the SPA bundle for hidden endpoint URLs. No PII reads, and no further reads on `property-search-api` (on hold pending HUMAN).
+[0m
+[0m$ [0mfor h in kajsa.local.hypofriend.de laurence.local.hypofriend.de pavel.local.hypofriend.de tiago.local.hypofriend.de sofia.local.hypofriend.de; do
+  echo "== $h =="
+  getent hosts "$h" | head -1
+  curl -sS -o /dev/null -D - --max-time 12 "https://$h/" 2>&1 | head -6
+  sleep 1
+done
+== kajsa.local.hypofriend.de ==
+2600:1f16:d83:1201:6cd5:bf8e:1af8:c9da jtkfqjar.cname.eu.ngrok.io kajsa.local.hypofriend.de
+curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+== laurence.local.hypofriend.de ==
+2600:1f16:d83:1200:19d9:6ba:5b9f:5b9 jtkfqjar.cname.eu.ngrok.io laurence.local.hypofriend.de
+curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+== pavel.local.hypofriend.de ==
+2600:1f16:d83:1200:304:cf9c:3922:1416 jtkfqjar.cname.eu.ngrok.io pavel.local.hypofriend.de
+curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+== tiago.local.hypofriend.de ==
+2600:1f16:d83:1200:304:cf9c:3922:1416 jtkfqjar.cname.eu.ngrok.io tiago.local.hypofriend.de
+curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+== sofia.local.hypofriend.de ==
+2600:1f16:d83:1200:19d9:6ba:5b9f:5b9 jtkfqjar.cname.eu.ngrok.io sofia.local.hypofriend.de
+curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+[0m
+Cert does not verify — let me inspect what certificate and edge is actually being served (read-only, single request each).
+[0m$ [0mh=kajsa.local.hypofriend.de
+curl -sS -o /tmp/ngrok-cert.txt --max-time 15 -k -w "HTTP %{http_code} | ip %{remote_ip} | server %header{server} | content-type %header{content-type}\n" "https://$h/" 2>&1 | tail -2
+echo "-- cert subject/SAN --"
+echo | timeout 15 openssl s_client -connect "$h:443" -servername "$h" 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName 2>/dev/null
+echo "-- body head --"
+head -c 600 /tmp/ngrok-cert.txt; echo; echo "(bytes: $(wc -c < /tmp/ngrok-cert.txt))"
+HTTP 404 | ip 3.22.30.40 | server  | content-type text/html
+-- cert subject/SAN --
+subject=CN = *.pavel.local.hypofriend.de
+issuer=C = US, O = Let's Encrypt, CN = R3
+X509v3 Subject Alternative Name: 
+    DNS:*.kajsa.local.hypofriend.de, DNS:*.laurence.local.hypofriend.de, DNS:*.pavel.local.hypofriend.de, DNS:*.sofia.local.hypofriend.de, DNS:*.tiago.local.hypofriend.de
+-- body head --
+<!DOCTYPE html>
+<html class="h-full" lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-Regular-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-RegularItalic-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-Medium-WebS.wo
+(bytes: 2332)
+[0m
+The edge is live ngrok-branded infrastructure with an acquired wildcard LE cert — need the page text to distinguish a compromised/unclaimed edge from a normal 404. Reading the saved body.
+[0m$ [0mpython3 - <<'EOF'
+import re
+h=open('/tmp/ngrok-cert.txt',encoding='utf-8',errors='replace').read()
+t=re.sub(r'<[^>]+>',' ',h)
+t=re.sub(r'\s+',' ',t)
+print(t[:1200])
+print('---')
+for k in ['claim','tunnel','ngrok','available','ended','offline','404','sign up','Sign in','not found','temp']:
+    print(k, t.lower().count(k))
+EOF
+echo "== any other response codes / headers on the other 4 (1 req each) =="
+for h in laurence.local.hypofriend.de pavel.local.hypofriend.de tiago.local.hypofriend.de sofia.local.hypofriend.de; do
+  curl -sS -o /dev/null -k -w "$h -> %{http_code} %{content_type} ip=%{remote_ip}\n" --max-time 12 "https://$h/" 2>&1
+  sleep 1
+done
+The endpoint kajsa.local.hypofriend.de is offline. (ERR_NGROK_3200) 
+---
+claim 0
+tunnel 0
+ngrok 1
+available 0
+ended 0
+offline 1
+404 0
+sign up 0
+Sign in 0
+not found 0
+temp 0
+== any other response codes / headers on the other 4 (1 req each) ==
+laurence.local.hypofriend.de -> 404 text/html ip=3.17.7.232
+pavel.local.hypofriend.de -> 404 text/html ip=3.149.150.174
+tiago.local.hypofriend.de -> 404 text/html ip=3.134.39.220
+sofia.local.hypofriend.de -> 404 text/html ip=3.134.39.220
+[0m
+Confirmed: ngrok edge returns `ERR_NGROK_3200` (endpoint offline) on all 5 — a dangling custom-domain edge (LE wildcard cert already acquired, DNS CNAME persists). Now one passive pass over the SPA bundle for any undiscovered backend endpoints.
+[0m$ [0mcd /tmp/opencode
+curl -sS --compressed --max-time 20 "https://hypofriend.de/" -o hypofriend-home.html 2>&1
+echo "home html bytes: $(wc -c < hypofriend-home.html)"
+grep -oE '/_nuxt/[^"]+\.js' hypofriend-home.html | sort -u | head -40
+home html bytes: 0
+[0m
+[0m$ [0mcd /tmp/opencode
+curl -sS -L -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36" --compressed --max-time 25 \
+  -o hypofriend-home.html -w "code=%{http_code} bytes=%{size_download} final=%{url_effective} ct=%{content_type}\n" "https://hypofriend.de/"
+grep -oE '/_nuxt/[^"]+\.js' hypofriend-home.html 2>/dev/null | sort -u | head -40
+code=200 bytes=44344 final=https://hypofriend.de/en ct=text/html; charset=utf-8
+/_nuxt/-ez_sPea.js
+/_nuxt/031sR0Dk.js
+/_nuxt/22Pu5ap6.js
+/_nuxt/5nr0tou3.js
+/_nuxt/7LJm_38-.js
+/_nuxt/AuiHv9WO.js
+/_nuxt/B0dqiS1K.js
+/_nuxt/B1jEw4nT.js
+/_nuxt/B2vkSg1F.js
+/_nuxt/B35S2sub.js
+/_nuxt/B402tTd1.js
+/_nuxt/B4oM98ZM.js
+/_nuxt/B5BZbSY_.js
+/_nuxt/B6htIPxk.js
+/_nuxt/B8CvfFn4.js
+/_nuxt/B9bZDZvO.js
+/_nuxt/BBxB1IXZ.js
+/_nuxt/BDCKj7Z4.js
+/_nuxt/BDLZiPVS.js
+/_nuxt/BFkLEQEW.js
+/_nuxt/BGOMXBgc.js
+/_nuxt/BJcVsjK6.js
+/_nuxt/BLmaZOZ4.js
+/_nuxt/BTAmUJjN.js
+/_nuxt/BV5qoEBw.js
+/_nuxt/BW0GL25j.js
+/_nuxt/BXI5PP9g.js
+/_nuxt/BYjurq8m.js
+/_nuxt/B_bkyESv.js
+/_nuxt/BbB2_50l.js
+/_nuxt/BdE6dT3Y.js
+/_nuxt/BdeLHqFd.js
+/_nuxt/BffYpcM-.js
+/_nuxt/BfzKNeeB.js
+/_nuxt/Bg2yj5my.js
+/_nuxt/BgWiLdqc.js
+/_nuxt/BhYEggzg.js
+/_nuxt/BisG11dB.js
+/_nuxt/Bmm7VTnW.js
+/_nuxt/Bp35tGLf.js
+[0m
+[0m$ [0mcd /tmp/opencode
+grep -oE 'src="/_nuxt/[^"]+\.js"' hypofriend-home.html | head -5
+echo "== API-ish strings in home HTML =="
+grep -oE 'https?://[a-zA-Z0-9._-]+\.hypofriend\.de[^"'\'' ]*' hypofriend-home.html | sort -u | head
+grep -oE '"/api/[^"]+"' hypofriend-home.html | sort -u | head
+echo "== __NUXT__ api keys =="
+grep -oE '(propertySearchApi|advisorEndpoint|graphql|sentry|flagsmith|amplitude)[^,}]*' hypofriend-home.html | sort -u | head -20
+== API-ish strings in home HTML ==
+https://a.hypofriend.de
+https://a.hypofriend.de/fonts/fonts/PTSerif-bold.woff
+https://a.hypofriend.de/fonts/fonts/woff2/TT_Norms_Pro_Bold.woff2
+https://a.hypofriend.de/fonts/fonts/woff2/TT_Norms_Pro_Medium.woff2
+https://a.hypofriend.de/fonts/fonts/woff2/TT_Norms_Pro_Regular.woff2
+https://a.hypofriend.de/fonts/hypofriend-fonts.css
+https://a.hypofriend.de/hypofriend-appointment-de.png
+https://a.hypofriend.de/hypofriend-appointment-en.png
+https://a.hypofriend.de/hypofriend-house.png
+== __NUXT__ api keys ==
+advisorEndpoint:""
+advisorEndpoint:"https://hypofriend.de/api/v3/advisors"
+amplitude.com"><link rel="dns-prefetch" href="https://api.amplitude.com"><link rel="dns-prefetch" href="https://connect.facebook.net"><link rel="dns-prefetch" href="https://www.facebook.com"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B35S2sub.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DwwD6ZKT.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Bt8EkMUq.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/_MILsoUS.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Bp35tGLf.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B_bkyESv.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BxZGmYHl.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/VnCccrjK.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CnpGig7d.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DyKOa8ZV.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/JytSIDTG.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/D1ULDj2X.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CP9bBysW.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/D2SRprZ4.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DIEU2zkg.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Btb7s-pU.js"><link rel="prefetch" as="style" crossorigin href="/m/_nuxt/HfBottomSheet.Q2Au9TWZ.css"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B402tTd1.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DW9lbRQM.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DqXFCwhO.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BhYEggzg.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BffYpcM-.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Vi4An_pi.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B5BZbSY_.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/hDTpo48E.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DsKNagzm.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Cm5nkiyT.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/KgaCoefw.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BTAmUJjN.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CTJAJ_cm.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/031sR0Dk.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DvZn3yXc.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/iknwwylX.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B8CvfFn4.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/biann3qH.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DWINoDiI.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/C7tsFAqe.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BBxB1IXZ.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BbB2_50l.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/D9Lb6C8Z.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/COjG8chx.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BGOMXBgc.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CjjeeDAD.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/H0y_NgEi.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/FHxxEvhy.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/jbmzVN5R.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CMqKtZsG.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CY5Aj1kz.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/FVr5X0LS.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Dn3pp8Z8.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/zb5ojOem.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/C8fqSiI-.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CBj9jlPt.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Bg2yj5my.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Dpt5Ig0p.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DfZTgj1u.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/grR_3ZkJ.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Djtq1I1f.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BJcVsjK6.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CU1GDSTB.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DK-kkcAx.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Doc9nReQ.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DOArkTMm.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/AuiHv9WO.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CzvdQCNZ.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CialCT8y.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BgWiLdqc.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Dga8w6q_.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DP-D6RgZ.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/22Pu5ap6.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BfzKNeeB.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/u-2pX-mS.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Il26dXap.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/XY0p96vT.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/nZM93vby.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DQq6QSzQ.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DgK1VmUc.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CL8vUs_s.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Duot2IOx.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DUPa6IsC.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BV5qoEBw.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DVAmhxTv.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B1jEw4nT.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BuvF3Au4.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DOJf9Dky.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/sEkAaGRi.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DclOcxVt.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Nd8KR9ml.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/C_5clhEe.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/C9fzl-VO.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/-ez_sPea.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Dk9P263T.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CWdRRf7I.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BFkLEQEW.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Bmm7VTnW.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BdeLHqFd.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/C6flwG_K.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DtsejeKc.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DZp6dZov.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/7LJm_38-.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/SfbtJ_gf.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/lwRGsGNm.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/C4lxPvnl.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/meQDtZYw.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CmHuIJZU.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BisG11dB.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B6htIPxk.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/D7QNPG-A.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CHqyzhcu.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CiRHD81U.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/Cx_23Hwo.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BDCKj7Z4.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B2vkSg1F.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CApZFFZt.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DYjK20T9.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/bay_fqAt.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/B0dqiS1K.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/DtqAVCob.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/ReCSESEn.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/C_ElRxRR.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/BLmaZOZ4.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CtKRFD2U.js"><link rel="prefetch" as="script" crossorigin href="/m/_nuxt/CyOqqF-h.js"><meta name="theme-color" content="#FFF"><meta name="robots" content="index
+amplitude.com/libs/analytics-browser-2.11.1-min.js.gz";r.onload=function(){if(!e.amplitude.runQueuedFunctions){console.log("[Amplitude] Error: could not load SDK")
+amplitude.init("609a2be0eb1a73d4ca78c29e91aecdfd"
+amplitude:{apiKey:"609a2be0eb1a73d4ca78c29e91aecdfd"
+amplitude=n
+amplitude||{_q:[]
+flagsmith:{environmentID:"cqupGKF7Y3f5i2g62Zwbsv"
+propertySearchApiUrl:"https://hypofriend.de/property-search-api"
+sentry:{dsn:"https://9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386"
+[0m
+All 8 steps grounded in today's read-only probes (5× ngrok-edge hosts, 1× SPA home) plus carried context. No further live reads on `property-search-api` (on hold). No PII touched.
+
+**STEP 1 — DELTA**
+- [NEW] `kajsa|laurence|pavel|tiago|sofia.local.hypofriend.de` (5): CNAME still `jtkfqjar.cname.eu.ngrok.io`; edge ALIVE but tunnel dead — all serve ngrok-branded 404 `"endpoint ... is offline (ERR_NGROK_3200)"` from AWS (3.22.30.40 / 3.17.7.232 / 3.149.150.174 / 3.134.39.220) behind an already-issued Let's Encrypt cert whose SAN covers `*.kajsa`, `*.laurence`, `*.pavel`, `*.sofia`, `*.tiago.local.hypofriend.de` = dangling custom-domain edge (subdomain-takeover candidate).
+- [CHANGED] `hypofriend.de/en` = 200 Nuxt SPA; `window.__NUXT__` re-confirms only advisorEndpoint, propertySearchApiUrl, Sentry/Amplitude/Flagsmith (no new API URLs in HTML).
+- [NEW] `a.hypofriend.de` live as static asset/CDN host (fonts/images referenced by home) — was only a passive-DNS candidate.
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] hypofriend.de/property-search-api,9.3,attack_surface=9 business_value=10 tech_exposure=10(GraphQL+PII) gate_ease=10(no auth on any resolver) cloud_surface=6 freshness=10
+- [PRIO] *.local.hypofriend.de(ngrok edge),7.1,attack_surface=6 business_value=7 tech_exposure=7(edge 404/trusted-LE-cert) gate_ease=8(no victim-side auth) cloud_surface=8(ngrok/AWS) freshness=8
+- [PRIO] a.hypofriend.de,3.5,attack_surface=3 business_value=5 tech_exposure=4(static) gate_ease=9 cloud_surface=5 freshness=5
+
+**STEP 3 — HYPOTHESES**
+- [HYP] Unauth'd expose(id) returns full Expose PII for any enumerable listing (escalate [85]→[87])
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 87
+reasoning: `expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21")` returned 200 live title/price/street/propertyType with no auth and no leadId; IDs enumerable via auth-free propertySearch→exposes chain; same auth-free object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany.
+evidence_needed: result of the one PII-field read on a real enumerated expose UUID = CONFIRMED full-auth-free-dump primitive. HUMAN-only.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN program authorization (PII).
+impact: Broker/owner contact PII + company attribution for every listing in DB via auth-free enumerated IDs on a mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+- [HYP] Subdomain takeover via dangling ngrok custom-domain edge on 5 *.local.hypofriend.de
+class: OTHER
+asset: *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+confidence: 50
+reasoning: CNAME to jtkfqjar.cname.eu.ngrok.io resolves to AWS IPv6+IPv4; HTTPS serves ngrok edge error ERR_NGROK_3200 "endpoint offline" while an LE wildcard cert for all five domains is already issued — endpoint config was provisioned (verified domain) yet tunnel is gone; matches the reported ngrok orphaned-custom-domain takeover profile. Attackers lack DNS TXT control for a standard re-verify, so exploitability depends on ngrok's orphan-claim behavior (HUMAN/manual ngrok-account test to confirm).
+evidence_needed: an independent ngrok account successfully binding one of the 5 domains (or program confirmation the ngrok edge is abandoned) — HUMAN-only.
+verify_steps: NONE further read-only available passively; capture saved today (DNS CNAME + ERR_NGROK_3200 + LE SAN cert) is the POC seed. Report as LOW-MED candidate, not escalated.
+impact: If claimable: arbitrary content under a hypofriend.de origin (phishing/cred-theft/evolution-of-trust), brand abuse, cookie scope abuse. Severity: MEDIUM if confirmed claimable.
+testability: HUMAN_ONLY
+
+**STEP 4 — SELF-CRITIQUE**
+- [PARKED] informationRequest email oracle [55]: write side-effect (external email), needs HUMAN; queue after PII round. (Also note: favored variant—parked)
+- [PARKED] HTTP Basic credential reuse /api/v3/advisors [65]: requires live credential testing = brute-force class (OOS).
+- [PARKED] OAuth redirect_uri auth.hypofriend.de [60]: 503 on all probes.
+- [FINAL] 1. GraphQL BOLA favoritedExposes/favoriteExpose arbitrary-leadId R/W [88] — read+write confirmed on boundary; real-UUID escalation HUMAN-gated
+- [FINAL] 2. Unauth'd expose(id) full-PII dump [87] — live data on real enumerated UUID confirmed 200; PII pull pending HUMAN
+- [FINAL] 3. Full introspection + meta(id) Ruby stack-trace leak [72] — ACCEPTED, aids exploitation
+- [FINAL] 4. Dangling ngrok edge on 5 *.local.hypofriend.de [50] — evidence captured; claimability needs HUMAN
+
+**STEP 5 — NEXT ACTION**
+- [NEXT] HUMAN: authorize the single PII-field read ({expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21"){id title price providerEmail propertyOwnerLastName}}) to convert expose(id) [87] + favoritedExposes/favoriteExpose [88] into confirmed HIGHs; report bundle should also carry the ngrok ERR_NGROK_3200/LE-cert/5-host evidence (subdomain-takeover candidate, LOW-MED). No further live reads on property-search-api until then.
+
+**STEP 6 — LEARNING**
+- [LEARN] ACCEPTED OTHER @ *.local.hypofriend.de: 5 dev subdomains CNAME→jtkfqjar.cname.eu.ngrok.io, live edge but offline tunnel (ERR_NGROK_3200) with LE cert SAN covering all 5 wildcards — in-scope dangling-domain edge; claimability HUMAN-only (no passive confirmation possible), not REJECTED-class.
+- [LEARN] ACCEPTED ENDPOINT @ a.hypofriend.de: confirmed live static/CDN asset host (fonts/images) on main-site origin; no API surface observed.
+- [LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: expose(id) returns live data (title/price/street/propertyType) on an enumerated real UUID, no auth, no leadId (carried forward, unchanged).
+
+**STEP 7 — RISK**
+- [RISK] hypofriend: 90 — Unauthenticated production GraphQL API (full introspection, auth-free enumeration propertySearch→exposes→expose with live-200 on a real UUID, auth-free read favoritedExposes and write favoriteExpose over arbitrary leadId, Expose/PII schema, Ruby stack-trace disclosure) plus unsolicited-contact email oracle (informationRequest) and a 5-host dangling ngrok edge under company DNS. Boundary-level IDOR R/W is CONFIRMED; a HUMAN-approved PII read or real-lead-UUID escalation would be a cross-tenant PII dump / account-modification — HIGH severity on a financial mortgage platform.

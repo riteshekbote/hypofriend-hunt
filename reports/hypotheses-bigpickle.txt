@@ -1,43 +1,17 @@
-## 2026-09-04 18:34:09 UTC [target] (model bigpickle)
-[CHANGED] hypofriend.de/property-search-api `expose(id)` resolver: previously boundary-only ("99999999 -> not found"); NOW confirmed live on a real enumerated expose UUID (200, returns title/price/street/propertyType) with NO auth and NO leadId
-[NEW] hypofriend.de/property-search-api: full search lifecycle is auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` returns real expose UUIDs -> exposure IDs are enumerable without auth
-[NEW] Expose type PII surface confirmed on same auth-free object: cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String scalars)
-[PRIO] hypofriend.de/property-search-api,9.3,attack_surface=9 business_value=10 tech_exposure=10(GraphQL+PII schema) gate_ease=10(no auth across propertySearch/exposes/expose) cloud_surface=6 freshness=10(live evidence today)
-[PRIO] hypofriend.de/api/v3/advisors,6.9,attack_surface=6 business_value=8 tech_exposure=6(Basic) gate_ease=3 cloud_surface=6 freshness=6
-[HYP] Unauth'd expose(id) returns full PII of any enumerated listing (provider phone/email, owner surname, companies)
+## 2026-09-04 21:05:32 UTC [target] (model bigpickle)
 class: IDOR
 asset: hypofriend.de/property-search-api
-confidence: 85
-reasoning: `expose(id:"<real-uuid>")` returned 200 + live data (title/price/street/propertyType) with no auth and no leadId. Real UUIDs enumerable via auth-free propertySearch()->exposes() chain. Same Expose object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany.
-evidence_needed: pull providerEmail/propertyOwnerLastName/cellPhoneNumber for one real enumerated expose UUID -> confirmed PII dump primitive. HUMAN authorization required (PII).
-verify_steps: POST {"query":"{expose(id:\"<real-uuid>\"){id title price phoneNumber cellPhoneNumber propertyOwnerLastName providerEmail ownerCompany}}"} — only after HUMAN approval.
-impact: Broker/owner contact PII + company attribution for every property in the DB via auth-free enumerated IDs. Severity: HIGH.
+confidence: 87
+reasoning: `expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21")` returned 200 live title/price/street/propertyType with no auth and no leadId; IDs enumerable via auth-free propertySearch→exposes chain; same auth-free object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany.
+evidence_needed: result of the one PII-field read on a real enumerated expose UUID = CONFIRMED full-auth-free-dump primitive. HUMAN-only.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN program authorization (PII).
+impact: Broker/owner contact PII + company attribution for every listing in DB via auth-free enumerated IDs on a mortgage platform. Severity: HIGH.
 testability: AUTH_HELPED
-[HYP] GraphQL BOLA read+write on favoritedExposes/favoriteExpose arbitrary leadId
-class: IDOR
-asset: hypofriend.de/property-search-api
-confidence: 88
-reasoning: Read resolver returns 200 populated shapes for zero-UUID & random-UUID leadId with no credential binding; write mutation executes real handler for arbitrary leadId ("expose does not exist" proves reachable). Expose type carries PII schema. Confirmed on boundary; real-lead-UUID escalation requires HUMAN auth.
-evidence_needed: valid customer leadId returns victim favorites+PII, or favoriteExpose modifies victim favorites. HUMAN confirmation for real-UUID.
-verify_steps: POST {"query":"{favoritedExposes(leadId:\"<valid-lead-uuid>\"){id title price street providerEmail propertyOwnerLastName}}"} (HUMAN auth).
-impact: Cross-tenant PII read + cross-tenant write on mortgage platform. Severity: HIGH.
-testability: AUTH_HELPED
-[HYP] informationRequest mutation = unsolicited contact-request email oracle (spoofable leadId/providerId/exposeId)
-class: IDOR
-asset: hypofriend.de/property-search-api
-confidence: 55
-reasoning: Mutation signature `informationRequest(leadId!, providerId!, exposeId!, email, name, message, viewingTime, requests*)` is auth-free by same gate; likely dispatches email to the provider with forged lead fields. Not yet probed.
-evidence_needed: invoke with synthetic leadId+real exposeId/providerId and observe provider-side email receipt — HUMAN/auth required (side effect = external email send).
-verify_steps: NONE read-only; requires HUMAN decision. Parked until PII-confirm round clears.
-impact: forged spam/phishing contact-requests to brokers under victim lead identity. Severity: MEDIUM-HIGH.
+class: OTHER
+asset: *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+confidence: 50
+reasoning: CNAME to jtkfqjar.cname.eu.ngrok.io resolves to AWS IPv6+IPv4; HTTPS serves ngrok edge error ERR_NGROK_3200 "endpoint offline" while an LE wildcard cert for all five domains is already issued — endpoint config was provisioned (verified domain) yet tunnel is gone; matches the reported ngrok orphaned-custom-domain takeover profile. Attackers lack DNS TXT control for a standard re-verify, so exploitability depends on ngrok's orphan-claim behavior (HUMAN/manual ngrok-account test to confirm).
+evidence_needed: an independent ngrok account successfully binding one of the 5 domains (or program confirmation the ngrok edge is abandoned) — HUMAN-only.
+verify_steps: NONE further read-only available passively; capture saved today (DNS CNAME + ERR_NGROK_3200 + LE SAN cert) is the POC seed. Report as LOW-MED candidate, not escalated.
+impact: If claimable: arbitrary content under a hypofriend.de origin (phishing/cred-theft/evolution-of-trust), brand abuse, cookie scope abuse. Severity: MEDIUM if confirmed claimable.
 testability: HUMAN_ONLY
-[FINAL] 1. GraphQL BOLA favoritedExposes/favoriteExpose arbitrary-leadId R/W [88] — auth-free read+write confirmed on boundary
-[FINAL] 2. Unauth'd expose(id) full Expose PII [85] — live data returned on enumerated real UUID; PII pull pending HUMAN
-[FINAL] 3. Full introspection + meta(id) Ruby stack-trace leak [72] — ACCEPTED, aids exploitation
-[PARKED] informationRequest email oracle [55] — write-guarded side effect, needs HUMAN
-[PARKED] HTTP Basic credential reuse on /api/v3/advisors [65] — needs live credential testing (out of passive scope); boundary 401 only
-[PARKED] OAuth redirect_uri on auth.hypofriend.de [60] — host 503 on all probes
-[NEXT] HUMAN: authorize one PII-field read (providerEmail, propertyOwnerLastName, cellPhoneNumber, ownerCompany) on a single real enumerated expose UUID (e.g. ad1d572e-8c01-5d07-a8ff-14b1a3af7d21) to convert expose(id) [85] into a CONFIRMED HIGH; no further live reads on this asset until then.
-[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain.
-[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: entire search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive.
-[RISK] hypofriend: 90 Unauthenticated production GraphQL API with full introspection, auth-free search/enumeration (propertySearch->exposes->expose live-confirmed 200 on real UUID), auth-free read (favoritedExposes) and write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure, plus an unsolicited-contact email oracle (informationRequest). Boundary-level IDOR R/W + live expose(id) read are confirmed; a HUMAN-approved PII pull or real-lead-UUID escalation would be a cross-tenant PII dump / account-modification, HIGH severity on a financial mortgage platform.

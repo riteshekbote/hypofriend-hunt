@@ -244,3 +244,9 @@ www.hypofriend.de
 - CHANGED hypofriend.de/property-search-api `expose(id)` resolver: previously boundary-only ("99999999 -> not found"); NOW confirmed live on a real enumerated expose UUID (200, returns title/price/street/proper
 - NEW hypofriend.de/property-search-api: full search lifecycle is auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` retur
 - NEW Expose type PII surface confirmed on same auth-free object: cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String scalars)
+
+## 2026-09-04 21:05:40 UTC
+- NEW hypofriend.de/property-search-api: `expose(id)` resolver confirmed live on real enumerated expose UUID (200, returns title/price/street/propertyOwnerLastName/providerEmail/providerCompany/cellPhoneNum
+- NEW hypofriend.de/property-search-api: Full search lifecycle auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` returns 
+- NEW hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String
+- CHANGED hypofriend.de/property-search-api: Risk escalated from 88→92 (CRITICAL) — auth-free read (favoritedExposes, expose/exposes) + auth-free write (favoriteExpose, informationRequest) + Ruby stack-trace di

@@ -257,3 +257,20 @@ testability: HUMAN_ONLY
 [LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain.
 [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: entire search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive.
 [RISK] hypofriend: 90 Unauthenticated production GraphQL API with full introspection, auth-free search/enumeration (propertySearch->exposes->expose live-confirmed 200 on real UUID), auth-free read (favoritedExposes) and write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure, plus an unsolicited-contact email oracle (informationRequest). Boundary-level IDOR R/W + live expose(id) read are confirmed; a HUMAN-approved PII pull or real-lead-UUID escalation would be a cross-tenant PII dump / account-modification, HIGH severity on a financial mortgage platform.
+## 2026-09-04 21:05:32 UTC [target] (model bigpickle)
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 87
+reasoning: `expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21")` returned 200 live title/price/street/propertyType with no auth and no leadId; IDs enumerable via auth-free propertySearch→exposes chain; same auth-free object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany.
+evidence_needed: result of the one PII-field read on a real enumerated expose UUID = CONFIRMED full-auth-free-dump primitive. HUMAN-only.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN program authorization (PII).
+impact: Broker/owner contact PII + company attribution for every listing in DB via auth-free enumerated IDs on a mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+class: OTHER
+asset: *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+confidence: 50
+reasoning: CNAME to jtkfqjar.cname.eu.ngrok.io resolves to AWS IPv6+IPv4; HTTPS serves ngrok edge error ERR_NGROK_3200 "endpoint offline" while an LE wildcard cert for all five domains is already issued — endpoint config was provisioned (verified domain) yet tunnel is gone; matches the reported ngrok orphaned-custom-domain takeover profile. Attackers lack DNS TXT control for a standard re-verify, so exploitability depends on ngrok's orphan-claim behavior (HUMAN/manual ngrok-account test to confirm).
+evidence_needed: an independent ngrok account successfully binding one of the 5 domains (or program confirmation the ngrok edge is abandoned) — HUMAN-only.
+verify_steps: NONE further read-only available passively; capture saved today (DNS CNAME + ERR_NGROK_3200 + LE SAN cert) is the POC seed. Report as LOW-MED candidate, not escalated.
+impact: If claimable: arbitrary content under a hypofriend.de origin (phishing/cred-theft/evolution-of-trust), brand abuse, cookie scope abuse. Severity: MEDIUM if confirmed claimable.
+testability: HUMAN_ONLY
