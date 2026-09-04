@@ -239,3 +239,8 @@ www.hypofriend.de
 - CHANGED login.hypofriend.de, sso.hypofriend.de, portal.hypofriend.de, dashboard.hypofriend.de, billing.hypofriend.de, offer.hypofriend.de, documents.hypofriend.de, my.hypofriend.de, profile.hypofriend.de, acc
 - NEW hypofriend.de/property-search-api — GraphQL endpoint with full introspection enabled; rich schema (Query/Mutation/Expose/Lead types); `expose(id: ID!)`, `exposes(id: ID!)`, `favoritedExposes(leadId: I
 - CHANGED hypofriend.de/property-search-api — Previously "400 expects parameters"; now confirmed GraphQL with introspection, not REST
+
+## 2026-09-04 18:34:20 UTC
+- CHANGED hypofriend.de/property-search-api `expose(id)` resolver: previously boundary-only ("99999999 -> not found"); NOW confirmed live on a real enumerated expose UUID (200, returns title/price/street/proper
+- NEW hypofriend.de/property-search-api: full search lifecycle is auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` retur
+- NEW Expose type PII surface confirmed on same auth-free object: cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String scalars)

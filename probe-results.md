@@ -80,3 +80,6 @@ https://api.hypofriend.de/api/ -> ERR <urlopen error timed out>
 https://api.hypofriend.de/api/v1/ -> ERR <urlopen error timed out>
 https://api.hypofriend.de/api/v2/ -> ERR <urlopen error timed out>
 https://api.hypofriend.de/api/beta/ -> ERR <urlopen error timed out>
+
+## 2026-09-04 18:34:22 UTC
+https://hypofriend.de/property-search-api -> HTTP 400
