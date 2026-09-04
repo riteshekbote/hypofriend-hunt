@@ -199,3 +199,5 @@ www.hypofriend.de
 ## 2026-09-03 23:35:33 UTC
 - NEW hypofriend.de/property-search-api — GraphQL endpoint with full introspection enabled; rich schema (Query/Mutation/Expose/Lead types); `expose(id: ID!)`, `exposes(id: ID!)`, `favoritedExposes(leadId: I
 - CHANGED hypofriend.de/property-search-api — Previously "400 expects parameters"; now confirmed GraphQL with introspection, not REST
+
+## 2026-09-04 01:25:05 UTC

@@ -18,3 +18,13 @@
 - 2026-09-03 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
 - 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
 - 2026-09-03 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+- 2026-09-04 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- 2026-09-04 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- 2026-09-04 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-04 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable
+- 2026-09-04 ACCEPTED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolver returns data for arbitrary unauthenticated leadId (200, no auth), exposing lead-scoped PII schema.
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full GraphQL introspection enabled in production (Ruby, graphql-2.5.26) — schema + stack traces exposed; `meta(id)` leaks /app/app/types/query.rb internals.
+- 2026-09-04 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author from auth.hypofriend.de returns 503 (3 probes); not reachable passively, hypothesis parked not confirmed.

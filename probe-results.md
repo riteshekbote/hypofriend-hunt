@@ -56,3 +56,7 @@ https://hypofriend.de/api/v3/advisors -> HTTP 401
 https://auth.hypofriend.de/.well-known/openid-configuration -> HTTP 503
 https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid -> HTTP 503
 https://auth.hypofriend.de/oauth/authorize -> HTTP 503
+
+## 2026-09-04 01:25:08 UTC
+https://hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/api/v3/advisors -> HTTP 401

@@ -62,3 +62,19 @@
 - LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
 - LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive tes
 - LEARN: REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).
+
+## RANKED HYPOTHESES 2026-09-04 01:25:05 UTC
+- [82] hypofriend.de/property-search-api: GraphQL IDOR/BOLA on favoritedExposes(leadId) — cross-user favorites enumeration (from art/lead_bigpickle.txt)
+- [75] hypofriend.de/property-search-api: GraphQL IDOR on Property Search API via expose/exposes/leadId (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://hypofriend.de/property-search-api {"query":"{ exposes(id: \"1\", limit: 20) { id title price city address } }"} — enumerate expose IDs 1-100
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST https://hypofriend.de/property-search-api {"query":"{exposeSeen(leadId:\"00000000-0000-0000-0000-000000000000\",exposeId:\"1\"){seen}}"} and {"query
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misco
+- LEARN: REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- LEARN: REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- LEARN: REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive tes
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolver returns data for arbitrary unauthenticated leadId (200, no auth), exposin
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full GraphQL introspection enabled in production (Ruby, graphql-2.5.26) — schema + stack traces exposed;
+- LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author from auth.hypofriend.de returns 503 (3 probes); not reachable passively, hypothesis parked not confirmed
