@@ -929,3 +929,145 @@ testability: PASSIVE
 ### STEP 7 — RISK
 
 [RISK] hypofriend: 78 — High-value mortgage/financial platform with consolidated API surface on main domain; GraphQL introspection + IDOR surface on property-search-api (leadId/exposeId params confirmed exploitable); Nuxt config exposes Sentry/Amplitude/Flagsmith credentials; /api/v3/advisors live with HTTP Basic auth; subdomain APIs decommissioned/WAF-protected; financial PII and mortgage data at risk; GraphQL IDOR is highest-confidence passive vector with direct business impact; introspection stack traces leak internal Ruby source paths
+===== ANALYST nemotron3 2026-09-04 11:31:13 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la /home/runner/work/hypofriend-hunt/hypofriend-hunt/
+total 156
+drwxr-xr-x 12 runner runner  4096 Sep  4 11:23 .
+drwxr-xr-x  3 runner runner  4096 Sep  4 11:23 ..
+drwxr-xr-x  7 runner runner  4096 Sep  4 11:23 .git
+drwxr-xr-x  3 runner runner  4096 Sep  4 11:23 .github
+-rw-r--r--  1 runner runner  1885 Sep  4 11:23 README.md
+-rw-r--r--  1 runner runner    43 Sep  4 11:23 analyst-out.txt
+-rw-r--r--  1 runner runner 34604 Sep  4 11:23 analyst-prompt.txt
+-rw-r--r--  1 runner runner 30729 Sep  4 11:23 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  4 11:23 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  4 11:23 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  4 11:23 leads
+-rw-r--r--  1 runner runner  2936 Sep  4 11:23 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  4 11:23 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  4 11:23 reports
+drwxr-xr-x  2 runner runner  4096 Sep  4 11:23 reposcan-raw
+-rw-r--r--  1 runner runner  3288 Sep  4 11:23 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  4 11:23 scripts
+-rw-r--r--  1 runner runner    33 Sep  4 11:23 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  4 11:23 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  4 11:23 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  4 11:23 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  4 11:23 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  4 11:23 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  4 11:23 triage
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead inventory/hypofriend.md
+[0m→ [0mRead probe-results.md
+[0m✱ [0mGlob "leads/**/*"[90m 7 matches[0m
+[0m✱ [0mGlob "knowledge/**/*"[90m 1 match[0m
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-nemotron3.md
+Now I have a complete picture. Let me execute the 8-step analysis.
+
+---
+
+## STEP 1 — DELTA
+
+**NEW:**
+- `hypofriend.de/property-search-api` — GraphQL introspection + IDOR surface CONFIRMED (favoritedExposes read oracle, favoriteExpose write primitive, meta() stack traces, full schema exposed)
+- `hypofriend.de` Nuxt config — Sentry DSN (o128333.ingest.sentry.io), Amplitude key, Flagsmith env ID (cqupGKF7Y3f5i2g62Zwbsv) exposed in window.__NUXT__
+
+**CHANGED:**
+- `api.hypofriend.de`, `core-api.hypofriend.de`, `graph.hypofriend.de`, `graph-rates.hypofriend.de` — Previously unprobed, now CONFIRMED dead (timeout/503/000)
+- `auth.hypofriend.de` — OAuth/OpenID endpoints return 503 (3+ probes), not reachable
+- `hypofriend.de/api/v3/advisors` — Only live API endpoint on main domain, HTTP Basic auth confirmed (401)
+
+---
+
+## STEP 2 — PRIORITIZE
+
+| Asset | Score | attack_surface | business_value | tech_exposure | gate_ease | cloud_surface | freshness |
+|-------|-------|----------------|----------------|---------------|-----------|---------------|-----------|
+| hypofriend.de/property-search-api | **8.9** | 9 | 10 | 10 | 10 | 6 | 9 |
+| hypofriend.de/api/v3/advisors | **6.8** | 7 | 9 | 6 | 3 | 6 | 8 |
+| hypofriend.de (Nuxt config) | **6.5** | 6 | 7 | 8 | 10 | 5 | 8 |
+
+[PRIO] hypofriend.de/property-search-api,8.9,attack_surface=9,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=6,freshness=9  
+[PRIO] hypofriend.de/api/v3/advisors,6.8,attack_surface=7,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=6,freshness=8  
+[PRIO] hypofriend.de (Nuxt config exposure),6.5,attack_surface=6,business_value=7,tech_exposure=8,gate_ease=10,cloud_surface=5,freshness=8
+
+---
+
+## STEP 3 — HYPOTHESES
+
+[HYP] GraphQL BOLA/IDOR on property-search-api via favoritedExposes/favoriteExpose — arbitrary leadId read+write
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: Confirmed on boundary IDs. Read: favoritedExposes(leadId:"<any-uuid-format>") returns 200 populated shapes with NO auth/credential binding; both zero-UUID and random UUID accepted. Write: mutation favoriteExpose(leadId,exposeId) executes a real handler unauth'd for arbitrary leadId (error:"expose does not exist" = code path reached). Schema Expose exposes PII (cellPhoneNumber,phoneNumber,propertyOwnerLastName,providerEmail,providerCompany). Resolver probes are HARD evidence the resolvers are auth-free.
+evidence_needed: Supply a valid customer leadId returns that lead's favorited properties + provider PII; or use favoriteExpose to modify victim's favorites (cross-tenant write). Boundary proves auth-free oracle.
+verify_steps: POST https://hypofriend.de/property-search-api {"query":"{favoritedExposes(leadId:\"<valid-lead-uuid>\"){id title price street providerEmail propertyOwnerLastName}}"} and {"query":"mutation{favoriteExpose(leadId:\"<victim-uuid>\",exposeId:\"<real-expose>\"){error message}}"} — HUMAN confirmation required for real-UUID to avoid live PII.
+impact: Cross-tenant PII read (other customers' saved listings + broker/owner contact) and cross-tenant write, message-send oracle spoof. Severity: HIGH (PII on financial mortgage platform)
+testability: AUTH_HELPED
+
+[HYP] Sentry DSN Abuse for PII Extraction via Error Traces
+class: MISCONFIG
+asset: hypofriend.de (Nuxt config → Sentry DSN)
+confidence: 70
+reasoning: window.__NUXT__ exposes Sentry DSN with public key (o128333.ingest.sentry.io); Sentry API allows querying project issues/events with DSN auth (public key only); mortgage platform error traces likely contain PII (emails, names, financial data, offer IDs).
+evidence_needed: Sentry API returns issue list with PII in error contexts; event payloads contain mortgage application data, user identifiers, financial figures.
+verify_steps: GET https://o128333.ingest.sentry.io/api/0/projects/ with Authorization: DSN <public_key_from_nuxt>; GET https://o128333.ingest.sentry.io/api/0/issues/ with same auth; Inspect event JSON for PII fields (email, name, offer_id, amount, property_address).
+impact: Passive PII extraction from production errors → email, names, mortgage amounts, property addresses, user IDs → GDPR violation, social engineering enablement.
+testability: PASSIVE
+
+[HYP] GraphQL Introspection Stack Trace Leakage on property-search-api
+class: MISCONFIG
+asset: hypofriend.de/property-search-api
+confidence: 75
+reasoning: Full introspection enabled in production (Ruby, graphql-2.5.26); meta(id) resolver leaks /app/app/types/query.rb internals (file paths, line numbers); Ruby stack traces exposed via GraphQL errors; internal code structure disclosure.
+evidence_needed: Introspection query returns __schema with all types; error responses include Ruby stack traces with source paths.
+verify_steps: POST https://hypofriend.de/property-search-api {"query":"{ __schema { types { name fields { name } } } }"}; POST {"query":"{ meta(id: \"test\") { id } }"} to trigger error leakage.
+impact: Source code paths, internal architecture, Ruby gem versions, attack surface mapping for further exploits.
+testability: PASSIVE
+
+---
+
+## STEP 4 — SELF-CRITIQUE
+
+[PARKED] HTTP Basic Auth Weak/Default Credentials on Advisors API: confidence 60 but gate_ease=3 (auth required) and no credential source; purely speculative without leaked creds or password spray (out of scope: brute-force/rate-limit/lockout policy)
+[PARKED] OAuth redirect_uri open-redirect on auth.hypofriend.de: auth.hypofriend.de returns 503 (3+ probes); not reachable passively, hypothesis parked not confirmed
+
+[FINAL] 1. GraphQL BOLA/IDOR on property-search-api via favoritedExposes/favoriteExpose — confidence 88, AUTH_HELPED
+[FINAL] 2. GraphQL Introspection Stack Trace Leakage on property-search-api — confidence 75, PASSIVE
+[FINAL] 3. Sentry DSN Abuse for PII Extraction via Error Traces — confidence 70, PASSIVE
+
+---
+
+## STEP 5 — NEXT ACTION
+
+[NEXT] PROBE: POST https://hypofriend.de/property-search-api {"query":"{ exposes(id: \"1\", limit: 20) { id title price city address } }"} — enumerate expose IDs 1-100 to find valid property listings and test IDOR on expose/exposes/favoritedExposes/informationRequest
+
+---
+
+## STEP 6 — LEARNING
+
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+[LEARN] ACCEPTED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolver returns data for arbitrary unauthenticated leadId (200, no auth), exposing lead-scoped PII schema
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full GraphQL introspection enabled in production (Ruby, graphql-2.5.26) — schema + stack traces exposed; `meta(id)` leaks /app/app/types/query.rb internals
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable
+[LEARN] ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolves for arbitrary unauthenticated leadId (200, zero-UUID and random-UUID accepted), lead-scoped PII schema — auth-free read oracle
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (`error:"expose does not exist"` proves code path reachable) — cross-tenant write primitive
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure
+[LEARN] REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+[LEARN] REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+[LEARN] REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+[LEARN] REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+[LEARN] REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+
+---
+
+## STEP 7 — RISK
+
+[RISK] hypofriend: 88 — Unauthenticated production GraphQL API with full introspection, auth-free read (favoritedExposes) and auth-free write (favoriteExpose) over leadId, an unsolicited contact-request oracle (informationRequest), all carrying broker/owner PII (phone/email/surname) on a financial mortgage platform, plus Ruby stack-trace disclosure. Boundary-level IDOR read+write is confirmed; a real-lead-UUID escalation would be a cross-tenant PII dump / account-modification, HIGH severity.

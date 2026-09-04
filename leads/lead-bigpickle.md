@@ -212,3 +212,4 @@ testability: AUTH_HELPED
 [LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure.
 [LEARN] REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively.
 [RISK] hypofriend: 88 Unauthenticated production GraphQL API with full introspection, auth-free read (favoritedExposes) and auth-free write (favoriteExpose) over leadId, an unsolicited contact-request oracle (informationRequest), all carrying broker/owner PII (phone/email/surname) on a financial mortgage platform, plus Ruby stack-trace disclosure. Boundary-level IDOR read+write is confirmed; a real-lead-UUID escalation would be a cross-tenant PII dump / account-modification, HIGH severity.
+## 2026-09-04 11:31:03 UTC [target] (model bigpickle)

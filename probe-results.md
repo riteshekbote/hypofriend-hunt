@@ -63,3 +63,6 @@ https://hypofriend.de/api/v3/advisors -> HTTP 401
 
 ## 2026-09-04 06:05:05 UTC
 https://hypofriend.de/property-search-api -> HTTP 400
+
+## 2026-09-04 11:31:15 UTC
+https://hypofriend.de/property-search-api -> HTTP 400
