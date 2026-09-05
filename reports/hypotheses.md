@@ -318,3 +318,71 @@
 - LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
 - LEARN: REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofrie
 - LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+
+## RANKED HYPOTHESES 2026-09-05 13:23:35 UTC
+- [99] hypofriend.de/property-search-api: GraphQL BOLA/IDOR via expose/exposes/propertySearch chain — unauthenticated PII enumeration at scale (from art/lead_nemotron3.txt)
+- [40] <host/endpoint>: <title> (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"HAMBURG\",propertyType:APARTMENT){searchId}}"} → enumerate expose
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; I
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primiti
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, 
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofrie
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; I
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primiti
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, 
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofrie
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; I
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primiti
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, 
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofrie
+- LEARN: ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of the main-domain app — canonical redirect shell (root 302→https://hypofriend.de/en, unknown paths 30
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz s
+- LEARN: REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 on all probed objects (index.html/favicon.ico/images/robots/sitemap/asset
+- LEARN: REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior knowledge, no exposure
+- LEARN: REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge, not a misconfiguration
+- LEARN: CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged this cycle (503 HTTPS / 000 / 301 HTTP) — no new surface
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz s
+- LEARN: REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 on all probed objects (index.html/favicon.ico/images/robots/sitemap/asset
+- LEARN: REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior knowledge, no exposure
+- LEARN: REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge, not a misconfiguration
+- LEARN: CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged this cycle (503 HTTPS / 000 / 301 HTTP) — no new surface
+- LEARN: ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
+- LEARN: REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket, 403 all objects — no exposure
+- LEARN: REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior; no exposure
+- LEARN: REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
+- LEARN: CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; I
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primiti
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, 
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — passive testable
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofrie
+- LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively

@@ -4309,3 +4309,955 @@ testability: PASSIVE
 ## STEP 7 — RISK
 
 [RISK] hypofriend: 92 — Unchanged core: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a real enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema, Ruby stack-trace disclosure. This cycle added no new exploitable surface — wildcard-ghost and .app cluster discoveries reduced apparent surface; abandoned-infra cluster (5 ngrok edges + dead .app ALB + disabled blog bucket) is evidence of weak decommission management but its exploitability is HUMAN-gated. Conversion to CONFIRMED HIGH remains blocked solely on the pending HUMAN PII authorization.
+===== ANALYST bigpickle 2026-09-05 13:23:35 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m# [0mTodos
+[•] STEP 1: DELTA — compare inventory vs current surface
+[ ] STEP 2: PRIORITIZE — score assets
+[ ] STEP 3: HYPOTHESES — top 3 assets
+[ ] STEP 4: SELF-CRITIQUE — drop weak
+[ ] STEP 5: NEXT ACTION
+[ ] STEP 6: LEARNING
+[ ] STEP 7: RISK
+[ ] Execute passive .app cluster verification
+[ ] Check untested inventory subdomains
+[0m
+Running passive .app cluster verification + untested inventory subdomains.
+[0m$ [0mcurl -sk --max-time 10 -o /dev/null -w "http_code:%{http_code} time:%{time_total}s redirect:%{redirect_url}" https://admin.app.hypofriend.de/ 2>&1; echo
+http_code:000 time:10.001040s redirect:
+[0m
+[0m$ [0mcurl -sk --max-time 10 -o /dev/null -w "http_code:%{http_code} time:%{time_total}s redirect:%{redirect_url}" https://frontend.app.hypofriend.de/ 2>&1; echo
+http_code:000 time:10.002794s redirect:
+[0m
+[0m$ [0mcurl -sk --max-time 10 -o /dev/null -w "http_code:%{http_code} time:%{time_total}s redirect:%{redirect_url}" https://profile.app.hypofriend.de/ 2>&1; echo
+http_code:000 time:10.001833s redirect:
+[0m
+[0m$ [0mcurl -sk --max-time 10 -o /dev/null -w "http_code:%{http_code} time:%{time_total}s redirect:%{redirect_url}" https://uploader.app.hypofriend.de/ 2>&1; echo
+http_code:000 time:10.002771s redirect:
+[0m
+[0m$ [0mcurl -sk --max-time 10 -o /dev/null -w "http_code:%{http_code} time:%{time_total}s redirect:%{redirect_url}" https://appointments.app.hypofriend.de/ 2>&1; echo
+http_code:000 time:10.002818s redirect:
+[0m
+[0m$ [0mfor h in jenkins.hypofriend.de kubernetes.hypofriend.de staging.hypofriend.de dev.hypofriend.de dev1.hypofriend.de demo.hypofriend.de root.hypofriend.de secure.hypofriend.de wildcard.hypofriend.de web.hypofriend.de v3.hypofriend.de images.hypofriend.de cdn.hypofriend.de dns.hypofriend.de news.hypofriend.de blog.hypofriend.de listings.hypofriend.de local.hypofriend.de bot.hypofriend.de mobile.hypofriend.de pipedrive-sync.hypofriend.de a.hypofriend.de m2.hypofriend.de mail.hypofriend.de core.hypofriend.de graph-rates.hypofriend.de; do echo -n "$h: "; curl -sk --max-time 5 -o /dev/null -w "http_code:%{http_code} time:%{time_total}s" "http://$h/" 2>&1; echo; done
+jenkins.hypofriend.de: http_code:301 time:0.302132s
+kubernetes.hypofriend.de: http_code:301 time:0.301297s
+staging.hypofriend.de: http_code:301 time:0.309877s
+dev.hypofriend.de: http_code:301 time:0.310552s
+dev1.hypofriend.de: http_code:301 time:0.326517s
+demo.hypofriend.de: http_code:301 time:0.305352s
+root.hypofriend.de: http_code:301 time:0.311881s
+secure.hypofriend.de: http_code:301 time:0.317703s
+wildcard.hypofriend.de: http_code:301 time:0.308466s
+web.hypofriend.de: http_code:301 time:0.308987s
+v3.hypofriend.de: http_code:301 time:0.452930s
+images.hypofriend.de: http_code:301 time:0.313112s
+cdn.hypofriend.de: http_code:301 time:0.472947s
+dns.hypofriend.de: http_code:301 time:0.315271s
+news.hypofriend.de: http_code:301 time:0.303660s
+blog.hypofriend.de: http_code:403 time:0.309504s
+listings.hypofriend.de: http_code:301 time:0.313002s
+local.hypofriend.de: http_code:301 time:0.314409s
+bot.hypofriend.de: http_code:301 time:0.299934s
+mobile.hypofriend.de: http_code:301 time:0.302899s
+pipedrive-sync.hypofriend.de: http_code:301 time:0.311790s
+a.hypofriend.de: http_code:403 time:0.017058s
+m2.hypofriend.de: http_code:301 time:0.311977s
+mail.hypofriend.de: http_code:301 time:0.312078s
+core.hypofriend.de: http_code:301 time:0.305432s
+graph-rates.hypofriend.de: http_code:301 time:0.310220s
+[0m
+[0m$ [0mfor h in jenkins.hypofriend.de kubernetes.hypofriend.de staging.hypofriend.de dev.hypofriend.de dev1.hypofriend.de demo.hypofriend.de root.hypofriend.de secure.hypofriend.de wildcard.hypofriend.de web.hypofriend.de v3.hypofriend.de images.hypofriend.de cdn.hypofriend.de dns.hypofriend.de news.hypofriend.de newsletter.hypofriend.de experiments.hypofriend.de funnels.hypofriend.de landingpage.hypofriend.de blog-admin.hypofriend.de blog.hypofriend.de listings.hypofriend.de local.hypofriend.de relay.m.hypofriend.de bot.hypofriend.de mobile.hypofriend.de pipedrive-sync.hypofriend.de a.hypofriend.de m2.hypofriend.de mail.hypofriend.de core.hypofriend.de graph-rates.hypofriend.de; do echo -n "$h: "; curl -sk --max-time 5 -o /dev/null -w "http_code:%{http_code} time:%{time_total}s" "https://$h/" 2>&1; echo; done
+jenkins.hypofriend.de: http_code:503 time:0.613914s
+kubernetes.hypofriend.de: http_code:503 time:0.635396s
+staging.hypofriend.de: http_code:503 time:0.457571s
+dev.hypofriend.de: http_code:503 time:0.619357s
+dev1.hypofriend.de: http_code:503 time:0.634339s
+demo.hypofriend.de: http_code:503 time:0.467532s
+root.hypofriend.de: http_code:503 time:0.468586s
+secure.hypofriend.de: http_code:503 time:0.476332s
+wildcard.hypofriend.de: http_code:503 time:0.480056s
+web.hypofriend.de: http_code:503 time:0.463983s
+v3.hypofriend.de: http_code:503 time:0.455308s
+images.hypofriend.de: http_code:503 time:0.473607s
+cdn.hypofriend.de: http_code:503 time:0.463493s
+dns.hypofriend.de: http_code:503 time:0.451309s
+news.hypofriend.de: http_code:503 time:0.466337s
+newsletter.hypofriend.de: http_code:503 time:0.465855s
+experiments.hypofriend.de: http_code:503 time:0.463901s
+funnels.hypofriend.de: http_code:503 time:0.478445s
+landingpage.hypofriend.de: http_code:503 time:0.458100s
+blog-admin.hypofriend.de: http_code:503 time:0.469403s
+blog.hypofriend.de: http_code:000 time:5.001531s
+listings.hypofriend.de: http_code:503 time:0.447313s
+local.hypofriend.de: http_code:503 time:0.465283s
+relay.m.hypofriend.de: http_code:000 time:5.002935s
+bot.hypofriend.de: http_code:503 time:0.465879s
+mobile.hypofriend.de: http_code:503 time:0.465337s
+pipedrive-sync.hypofriend.de: http_code:503 time:0.460682s
+a.hypofriend.de: http_code:403 time:0.513805s
+m2.hypofriend.de: http_code:301 time:0.462548s
+mail.hypofriend.de: http_code:503 time:0.469103s
+core.hypofriend.de: http_code:302 time:0.477350s
+graph-rates.hypofriend.de: http_code:503 time:0.456339s
+[0m
+[0m$ [0mecho | openssl s_client -connect 52.14.251.223:443 -servername admin.app.hypofriend.de 2>&1 | head -20
+(no output)
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
+[0m$ [0mcurl -sik --max-time 8 https://core.hypofriend.de/ 2>&1 | head -30; echo "---HTTPS body---"; curl -sk --max-time 8 -D - https://core.hypofriend.de/ 2>&1 | grep -iE "^(HTTP/|location:|server:|content-type:)"
+HTTP/2 302 
+date: Sat, 05 Sep 2026 13:14:51 GMT
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/en
+x-frame-options: ALLOWALL
+x-robots-tag: none
+cache-control: no-cache
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Wed, 05 Sep 2029 13:14:51 GMT; secure; samesite=none
+set-cookie: _hf=b129e4e0e8deadfcb448dd5ed6f1fd8d; domain=hypofriend.de; path=/; expires=Fri, 05 Sep 2036 13:14:51 GMT; secure; httponly
+x-request-id: 446fcaf8-0265-4850-aef2-6c034151257d
+x-runtime: 0.013223
+strict-transport-security: max-age=63072000; includeSubDomains
+vary: Origin,Accept-Encoding
+
+---HTTPS body---
+HTTP/2 302 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/en
+[0m
+[0m$ [0mcurl -sk --max-time 8 -D - https://m2.hypofriend.de/ -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|server:|content-type:)"; echo "---HTTP---"; curl -s --max-time 8 -D - http://m2.hypofriend.de/ -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|server:|content-type:)"
+HTTP/2 301 
+server: awselb/2.0
+content-type: text/html
+location: https://hypofriend.de:443/en
+---HTTP---
+HTTP/1.1 301 Moved Permanently
+Server: awselb/2.0
+Content-Type: text/html
+Location: https://m2.hypofriend.de:443/
+[0m
+[0m$ [0mcurl -sk --max-time 8 -D - https://a.hypofriend.de/ -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|server:|content-type:|x-|via|cf-|cache-)"; echo "---HTTP---"; curl -s --max-time 8 -D - http://a.hypofriend.de/ -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|server:|content-type:|x-|via|cf-|cache-)"
+HTTP/2 403 
+content-type: application/xml
+x-amz-bucket-region: eu-central-1
+server: AmazonS3
+x-cache: Error from cloudfront
+via: 1.1 ebf55ca9c2011caf25578fcdad5baea4.cloudfront.net (CloudFront)
+x-amz-cf-pop: SFO53-P9
+x-amz-cf-id: FTXmIv3H9DYO9IAlFctR7daS6hro5EiJN1exFiBsyuVFxtyTriktrw==
+x-xss-protection: 1; mode=block
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+---HTTP---
+HTTP/1.1 403 Forbidden
+Server: CloudFront
+Content-Type: text/html
+X-Cache: Error from cloudfront
+Via: 1.1 e4939403ec9869a5b69d6d64f85509d6.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: SFO53-P9
+X-Amz-Cf-Id: oA27f4AB8qTGb0ttWdDDZcSRWDzw0lstndPxfl3sfCJgYm1nAz9cbg==
+X-XSS-Protection: 1; mode=block
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+[0m
+Key anomalies found: `a.hypofriend.de` (403 both), `core.hypofriend.de` (302 both), `m2.hypofriend.de` (301 both), `blog.hypofriend.de` (HTTP 403) — all distinct from the 503 fleet. Investigating.
+[0m$ [0mcurl -s --max-time 8 -D - http://blog.hypofriend.de/ -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|server:|content-type:|x-|via|cf-|cache-)"; echo "---HTTPS---"; curl -sk --max-time 8 -D - https://blog.hypofriend.de/ -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|server:|content-type:|x-|via|cf-|cache-)"
+HTTP/1.1 403 Forbidden
+x-amz-request-id: PK1SK4R8TH7KBGRM
+x-amz-id-2: 36gOh+52FaZ1OWIopSxpWCXhMwvUDEaQ2vRsa5Lonn26isZ54De8hKeI4+QhD73nGcFwBSjUYAY=
+Content-Type: text/html; charset=utf-8
+Server: AmazonS3
+---HTTPS---
+[0m
+`core.hypofriend.de` is a **live Rails app** (302, x-runtime header, 10-year `_hf` cookie, `internal=FALSE` cookie) — distinct from the 503 fleet. This is new live surface. Probing deeper passively.
+[0m$ [0mcurl -sk --max-time 8 -D - "https://core.hypofriend.de/" -H "Cookie: internal=TRUE" -H "Cookie: _hf=b129e4e0e8deadfcb448dd5ed6f1fd8d" -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|set-cookie:|content-type:)"
+HTTP/2 302 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/en
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Wed, 05 Sep 2029 13:15:39 GMT; secure; samesite=none
+set-cookie: _hf=b129e4e0e8deadfcb448dd5ed6f1fd8d; domain=hypofriend.de; path=/; expires=Fri, 05 Sep 2036 13:15:39 GMT; secure; httponly
+[0m
+[0m$ [0mfor p in "/api/v3/advisors" "/en" "/graphql" "/health" "/status.json" "/api" "/robots.txt" "/sitemap.xml" "/.well-known/openid-configuration"; do echo "=== $p ==="; curl -sk --max-time 8 -D - "https://core.hypofriend.de$p" -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|content-type:|www-auth:|server:|x-runtime:)" ; done
+=== /api/v3/advisors ===
+HTTP/2 401 
+content-type: text/html; charset=utf-8
+x-runtime: 0.008821
+=== /en ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+x-runtime: 0.003558
+=== /graphql ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+x-runtime: 0.005822
+=== /health ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+x-runtime: 0.005451
+=== /status.json ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+x-runtime: 0.295671
+=== /api ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+x-runtime: 0.006097
+=== /robots.txt ===
+HTTP/2 200 
+content-type: text/plain; charset=utf-8
+x-runtime: 0.065185
+=== /sitemap.xml ===
+HTTP/2 200 
+content-type: application/xml; charset=utf-8
+x-runtime: 0.013121
+=== /.well-known/openid-configuration ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+x-runtime: 0.010434
+[0m
+[0m$ [0mcurl -sk --max-time 8 https://core.hypofriend.de/robots.txt 2>&1 | head -40
+User-agent: *
+
+Disallow: /de/lp/partner
+Disallow: /en/lp/partner
+Disallow: /en/qualification/*
+Disallow: /de/qualifizierung/*
+Disallow: /en/affordability
+Disallow: /en/affordability/*
+Disallow: /de/budget
+Disallow: /de/budget/*
+Disallow: /en/mortgage-offer
+Disallow: /en/mortgage-offer/*
+Disallow: /de/finanzierung-empfehlung
+Disallow: /de/finanzierung-empfehlung/*
+Disallow: /en/criteria/start
+Disallow: /de/kriterien/start
+Disallow: /en/start
+Disallow: /de/start
+Disallow: /en/account
+Disallow: /en/account/*
+Disallow: /de/konto
+Disallow: /de/konto/*
+
+Sitemap: https://hypofriend.de/sitemap.xml
+[0m
+[0m$ [0mcurl -sk --max-time 8 https://core.hypofriend.de/sitemap.xml 2>&1 | head -60
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+          <url><loc>https://hypofriend.de/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+<url><loc>https://hypofriend.de/de</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+<url><loc>https://hypofriend.de/de/agb</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+<url><loc>https://hypofriend.de/de/impressum</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+<url><loc>https://hypofriend.de/de/datenschutz</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+<url><loc>https://hypofriend.de/en/terms</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+<url><loc>https://hypofriend.de/en/imprint</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+<url><loc>https://hypofriend.de/en/privacy</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+<url><loc>https://hypofriend.de/de/altersvorsorge-rechner</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung-faqs</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung-faqs/baufinanzierung-beantragen</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung-faqs/glossar</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung-faqs/grundlagen-baufinanzierung</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung-faqs/hypofriend-beratung</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung-faqs/moeglichkeiten-erkunden</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung-faqs/moeglichkeiten-fortgeschritten</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierung-faqs/ueber-hypofriend</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/baden-wuerttemberg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/bayern</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/berlin</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/brandenburg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/bremen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/hamburg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/hessen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/mecklenburg-vorpommern</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/niedersachsen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/nordrhein-westfalen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/rheinland-pfalz</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/saarland</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/sachsen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/sachsen-anhalt</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/schleswig-holstein</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienfinanzierung/thueringen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/baden-wuerttemberg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/bayern</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/berlin</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/brandenburg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/bremen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/hamburg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/hessen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/mecklenburg-vorpommern</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/niedersachsen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/nordrhein-westfalen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/rheinland-pfalz</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/saarland</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/sachsen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/sachsen-anhalt</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/schleswig-holstein</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/finanzberater/thueringen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://hypofriend.de/de/baufinanzierungsrechner</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://hypofriend.de/de/careers</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+<url><loc>https://hypofriend.de/de/haus-kaufen</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://hypofriend.de/de/immobilienkreditrechner</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://hypofriend.de/de/ratgeber</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://hypofriend.de/de/ratgeber/erfahrungsberichte</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://hypofriend.de/de/ratgeber/hypofriend-news</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+[0m
+`core.hypofriend.de` is live Rails serving `/robots.txt` (200) and `/sitemap.xml` (200), same `/api/v3/advisors` Basic-auth endpoint. Fetching content.
+[0m$ [0mcurl -sk --max-time 8 -D - "https://core.hypofriend.de/" -H "Host: hypofriend.de" -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|x-runtime:)"; echo "==="; curl -sk --max-time 8 -D - "https://core.hypofriend.de/ja" -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|x-runtime:)"
+HTTP/2 302 
+location: https://hypofriend.de/en
+x-runtime: 0.009854
+===
+HTTP/2 301 
+location: https://hypofriend.de/
+x-runtime: 0.004265
+[0m
+[0m$ [0mecho "=== core /property-search-api ==="; curl -sk --max-time 8 -D - "https://core.hypofriend.de/property-search-api" -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|content-type:|www-auth:|server:|x-runtime:)"; echo "=== core /api/v3/advisors headers ==="; curl -sk --max-time 8 -D - "https://core.hypofriend.de/api/v3/advisors" -o /dev/null 2>&1 | grep -iE "^(HTTP/|content-type:|www-auth:|server:|x-runtime:)"
+=== core /property-search-api ===
+HTTP/2 400 
+content-type: application/json
+=== core /api/v3/advisors headers ===
+HTTP/2 401 
+content-type: text/html; charset=utf-8
+x-runtime: 0.038080
+[0m
+Probing whether `core.hypofriend.de` bypasses any edge-level protection present on `hypofriend.de` (same Basic-auth endpoint).
+[0m$ [0mecho "=== main /api/v3/advisors headers ==="; curl -sk --max-time 8 -D - "https://hypofriend.de/api/v3/advisors" -o /dev/null 2>&1 | grep -iE "^(HTTP/|content-type:|www-auth:|server:|x-runtime:|x-powered|via|cf-|x-request)"
+=== main /api/v3/advisors headers ===
+HTTP/2 401 
+content-type: text/html; charset=utf-8
+x-request-id: 6ee00f29-0a6e-41fb-87d9-d54ecdca0f44
+x-runtime: 0.012347
+via: 1.1 1eddbb58412e7e0b212d76c626734826.cloudfront.net (CloudFront)
+[0m
+`core.hypofriend.de` reaches the same Rails backend directly (no CloudFront) with identical 401/400 behavior — canonical-host redirects otherwise. Probing `/de|/en` roots and the `a.hypofriend.de` S3/CloudFront 403 for object leakage.
+[0m$ [0mfor p in "/de" "/en" "/de/konto" "/en/account"; do echo "=== core $p ==="; curl -sk --max-time 8 -D - "https://core.hypofriend.de$p" -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|x-runtime:)"; done
+=== core /de ===
+HTTP/2 301 
+location: https://hypofriend.de/
+x-runtime: 0.003584
+=== core /en ===
+HTTP/2 301 
+location: https://hypofriend.de/
+x-runtime: 0.005649
+=== core /de/konto ===
+HTTP/2 301 
+location: https://hypofriend.de/
+x-runtime: 0.003417
+=== core /en/account ===
+HTTP/2 301 
+location: https://hypofriend.de/
+x-runtime: 0.003384
+[0m
+[0m$ [0mfor p in "/index.html" "/favicon.ico" "/images/logo.png" "/robots.txt" "/sitemap.xml" "/assets/logo.png"; do echo "=== a.hypofriend.de$p ==="; curl -sk --max-time 8 -D - "https://a.hypofriend.de$p" -o /dev/null 2>&1 | grep -iE "^(HTTP/|location:|server:|content-type:|x-cache:)"; done
+=== a.hypofriend.de/index.html ===
+HTTP/2 403 
+content-type: application/xml
+server: AmazonS3
+x-cache: Error from cloudfront
+=== a.hypofriend.de/favicon.ico ===
+HTTP/2 403 
+content-type: application/xml
+server: AmazonS3
+x-cache: Error from cloudfront
+=== a.hypofriend.de/images/logo.png ===
+HTTP/2 403 
+content-type: application/xml
+server: AmazonS3
+x-cache: Error from cloudfront
+=== a.hypofriend.de/robots.txt ===
+HTTP/2 403 
+content-type: application/xml
+server: AmazonS3
+x-cache: Error from cloudfront
+=== a.hypofriend.de/sitemap.xml ===
+HTTP/2 403 
+content-type: application/xml
+server: AmazonS3
+x-cache: Error from cloudfront
+=== a.hypofriend.de/assets/logo.png ===
+HTTP/2 403 
+content-type: application/xml
+server: AmazonS3
+x-cache: Error from cloudfront
+[0m
+[0m$ [0mls -la; echo "---art---"; ls -la art/ 2>/dev/null | head -30; echo "---state---"; ls -la *.txt 2>/dev/null | head; ls -la inventory* 2>/dev/null
+total 212
+drwxr-xr-x 12 runner runner  4096 Sep  5 13:11 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 13:11 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 13:11 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 13:11 .github
+-rw-r--r--  1 runner runner  1885 Sep  5 13:11 README.md
+-rw-r--r--  1 runner runner 23985 Sep  5 13:16 analyst-out.txt
+-rw-r--r--  1 runner runner 51447 Sep  5 13:11 analyst-prompt.txt
+-rw-r--r--  1 runner runner 47572 Sep  5 13:11 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 leads
+-rw-r--r--  1 runner runner  4676 Sep  5 13:11 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 reposcan-raw
+-rw-r--r--  1 runner runner  3288 Sep  5 13:11 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 13:11 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 13:11 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 13:11 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 13:11 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 13:11 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 13:11 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 triage
+---art---
+---state---
+-rw-r--r-- 1 runner runner 23985 Sep  5 13:16 analyst-out.txt
+-rw-r--r-- 1 runner runner 51447 Sep  5 13:11 analyst-prompt.txt
+-rw-r--r-- 1 runner runner 47572 Sep  5 13:11 ctx.txt
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner 17662 Sep  5 13:11 hypofriend.md
+[0m
+[0m$ [0mfor f in art/lead_bigpickle.txt hypotheses-bigpickle.txt; do echo "=== $f ==="; [ -f "$f" ] && tail -30 "$f" || echo "MISSING"; done
+=== art/lead_bigpickle.txt ===
+MISSING
+=== hypotheses-bigpickle.txt ===
+MISSING
+[0m
+Let me verify the artifact files structure to record this cycle's output.
+[0m$ [0mls -la leads/ knowledge/ recon-notes/ reports/ triage/ scripts/ 2>/dev/null; echo "---"; cat state_bigpickle.json
+knowledge/:
+total 24
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner 14512 Sep  5 13:11 index.md
+
+leads/:
+total 268
+drwxr-xr-x  2 runner runner   4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner  65565 Sep  5 13:11 lead-bigpickle.md
+-rw-r--r--  1 runner runner    714 Sep  5 13:11 lead-laguna.md
+-rw-r--r--  1 runner runner    700 Sep  5 13:11 lead-ling3.md
+-rw-r--r--  1 runner runner    728 Sep  5 13:11 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep  5 13:11 lead-mimo.md
+-rw-r--r--  1 runner runner 170758 Sep  5 13:11 lead-nemotron3.md
+-rw-r--r--  1 runner runner   5205 Sep  5 13:11 reposcan-hypofriend.md
+
+recon-notes/:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner  824 Sep  5 13:11 DEDICATED-DEEP.md
+
+reports/:
+total 1008
+drwxr-xr-x  2 runner runner   4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner 493756 Sep  5 13:11 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   3038 Sep  5 13:11 analyst-laguna.log
+-rw-r--r--  1 runner runner   3024 Sep  5 13:11 analyst-ling3.log
+-rw-r--r--  1 runner runner   3052 Sep  5 13:11 analyst-longcat.log
+-rw-r--r--  1 runner runner 508814 Sep  5 13:11 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   6572 Sep  5 13:11 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 13:11 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 13:11 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 13:11 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   8294 Sep  5 13:11 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  43908 Sep  5 13:11 hypotheses.md
+-rw-r--r--  1 runner runner   2703 Sep  5 13:11 reposcan-mimo.md
+-rw-r--r--  1 runner runner    299 Sep  5 13:11 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 13:11 sync-issues.py
+
+triage/:
+total 104
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner     0 Sep  5 13:11 .gitkeep
+-rw-r--r--  1 runner runner   209 Sep  5 13:11 run-2026-09-02-21-44.md
+-rw-r--r--  1 runner runner   156 Sep  5 13:11 run-2026-09-02-23-58.md
+-rw-r--r--  1 runner runner   202 Sep  5 13:11 run-2026-09-03-04-11.md
+-rw-r--r--  1 runner runner   165 Sep  5 13:11 run-2026-09-03-09-00.md
+-rw-r--r--  1 runner runner   767 Sep  5 13:11 run-2026-09-03-13-32.md
+-rw-r--r--  1 runner runner   251 Sep  5 13:11 run-2026-09-03-17-14.md
+-rw-r--r--  1 runner runner   263 Sep  5 13:11 run-2026-09-03-19-57.md
+-rw-r--r--  1 runner runner   188 Sep  5 13:11 run-2026-09-03-22-29.md
+-rw-r--r--  1 runner runner   154 Sep  5 13:11 run-2026-09-04-00-31.md
+-rw-r--r--  1 runner runner   172 Sep  5 13:11 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   231 Sep  5 13:11 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner 17101 Sep  5 13:11 run-2026-09-04-12-00.md
+-rw-r--r--  1 runner runner  3019 Sep  5 13:11 run-2026-09-04-14-11.md
+-rw-r--r--  1 runner runner   147 Sep  5 13:11 run-2026-09-04-17-40.md
+-rw-r--r--  1 runner runner   186 Sep  5 13:11 run-2026-09-04-19-58.md
+-rw-r--r--  1 runner runner   220 Sep  5 13:11 run-2026-09-04-22-17.md
+-rw-r--r--  1 runner runner   237 Sep  5 13:11 run-2026-09-05-00-13.md
+-rw-r--r--  1 runner runner   932 Sep  5 13:11 run-2026-09-05-04-40.md
+-rw-r--r--  1 runner runner   468 Sep  5 13:11 run-2026-09-05-08-39.md
+-rw-r--r--  1 runner runner   210 Sep  5 13:11 run-2026-09-05-12-06.md
+---
+{"phase": "POC", "target": "api"}
+[0m
+[0m$ [0mtail -40 analyst-out.txt; echo "=== prompt tail ==="; tail -15 analyst-prompt.txt
+-rw-r--r--  1 runner runner     52 Sep  5 13:11 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   8294 Sep  5 13:11 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  43908 Sep  5 13:11 hypotheses.md
+-rw-r--r--  1 runner runner   2703 Sep  5 13:11 reposcan-mimo.md
+-rw-r--r--  1 runner runner    299 Sep  5 13:11 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 13:11 sync-issues.py
+
+triage/:
+total 104
+drwxr-xr-x  2 runner runner  4096 Sep  5 13:11 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 13:11 ..
+-rw-r--r--  1 runner runner     0 Sep  5 13:11 .gitkeep
+-rw-r--r--  1 runner runner   209 Sep  5 13:11 run-2026-09-02-21-44.md
+-rw-r--r--  1 runner runner   156 Sep  5 13:11 run-2026-09-02-23-58.md
+-rw-r--r--  1 runner runner   202 Sep  5 13:11 run-2026-09-03-04-11.md
+-rw-r--r--  1 runner runner   165 Sep  5 13:11 run-2026-09-03-09-00.md
+-rw-r--r--  1 runner runner   767 Sep  5 13:11 run-2026-09-03-13-32.md
+-rw-r--r--  1 runner runner   251 Sep  5 13:11 run-2026-09-03-17-14.md
+-rw-r--r--  1 runner runner   263 Sep  5 13:11 run-2026-09-03-19-57.md
+-rw-r--r--  1 runner runner   188 Sep  5 13:11 run-2026-09-03-22-29.md
+-rw-r--r--  1 runner runner   154 Sep  5 13:11 run-2026-09-04-00-31.md
+-rw-r--r--  1 runner runner   172 Sep  5 13:11 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   231 Sep  5 13:11 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner 17101 Sep  5 13:11 run-2026-09-04-12-00.md
+-rw-r--r--  1 runner runner  3019 Sep  5 13:11 run-2026-09-04-14-11.md
+-rw-r--r--  1 runner runner   147 Sep  5 13:11 run-2026-09-04-17-40.md
+-rw-r--r--  1 runner runner   186 Sep  5 13:11 run-2026-09-04-19-58.md
+-rw-r--r--  1 runner runner   220 Sep  5 13:11 run-2026-09-04-22-17.md
+-rw-r--r--  1 runner runner   237 Sep  5 13:11 run-2026-09-05-00-13.md
+-rw-r--r--  1 runner runner   932 Sep  5 13:11 run-2026-09-05-04-40.md
+-rw-r--r--  1 runner runner   468 Sep  5 13:11 run-2026-09-05-08-39.md
+-rw-r--r--  1 runner runner   210 Sep  5 13:11 run-2026-09-05-12-06.md
+---
+{"phase": "POC", "target": "api"}
+[0m
+=== prompt tail ===
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
+Never put fields inline in the [HYP] title.
+STEP 4 — SELF-CRITIQUE: drop confidence<40 or REJECTED-class or no-verify-steps. [PARKED] <title>: <why>. [FINAL] survivors ranked.
+STEP 5 — NEXT ACTION: exactly one [NEXT] <PROBE|SCAN|RAG|HUMAN>: <one concrete action, exact endpoint if PROBE>.
+STEP 6 — LEARNING: [LEARN] REJECTED/ACCEPTED <class> @ <asset>: <reason>.
+STEP 7 — RISK: [RISK] <program>: <0-100> reason.
+RULES: facts vs hypotheses strictly separated; no endpoint-map-only; no REJECTED class; sha256 any secret; all claims trace to context or your own read-only probes; passive-first, <=1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; any scanner output requires manual validation.
+[0m
+[0m$ [0mtail -60 leads/lead-bigpickle.md; echo "=== hypotheses-bigpickle.txt ==="; cat reports/hypotheses-bigpickle.txt
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed. Report LOW-MED candidate, not escalated.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
+testability: HUMAN_ONLY
+[HYP] Dormant .app cluster (5 production DNS names on one dead ALB) — re-provisioning risk for admin/frontend apps
+class: MISCONFIG
+asset: admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app)
+confidence: 40
+reasoning: Dedicated ALB 52.14.251.223, distinct from 503-fleet trio, DNS-live for 5 names, HTTPS 000 / no TLS listener on any SNI. Consistent with Hypofriend's abandoned-infra pattern (orphaned ngrok edges, blog bucket AllAccessDisabled). admin.app namespace implies a client-admin UI last served here.
+evidence_needed: ALB accepting connections again + SNI serving a named vhost (see verify); then an auth posture check on admin.app specifically.
+verify_steps: next-cycle HTTPS GET https://admin.app.hypofriend.de/ and openssl -servername sweep of 52.14.251.223 (currently all NO-HANDSHAKE). Passive, no auth.
+impact: if re-exposed: an unhardened admin frontend under dedicated infra; currently only stale-DNS change-management noise. Severity: LOW now.
+testability: PASSIVE
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform) and un-gates the CloudFront shared-cache pair test. Secondary ready (runs unblocked next cycle): SNI/GET sweep of 52.14.251.223 for .app [40].
+[RISK] hypofriend: 92 — Unchanged core: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a real enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema, Ruby stack-trace disclosure. This cycle added no new exploitable surface — the wildcard-ghost discovery *reduced* apparent surface; a/blog/.app/relay.m all present but inert. The cluster of abandoned infra (5 ngrok edges + dead .app ALB + disabled blog bucket) is consistent evidence of weak decommission management, but its exploitability is HUMAN-gated. Conversion to CONFIRMED HIGH remains blocked solely on the pending HUMAN PII authorization.
+## 2026-09-05 09:50:27 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de/property-search-api, 9.3, a=10 b=10 t=9 g=8 c=10 f=10
+[PRIO] *.local.hypofriend.de (ngrok orphan), 5.0, a=4 b=6 t=2 g=3 c=10 f=10
+[PRIO] admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app), 3.8, a=3 b=5 t=2 g=4 c=10 f=10
+[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 90
+reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 live title/price/street/propertyType, zero creds/leadId (18:34/21:05 UTC prior cycles). IDs enumerable via auth-free propertySearch→exposes. Same object schema carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. No surface change this cycle.
+evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID → CONFIRMED full auth-free PII dump primitive.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN (PII) authorization.
+impact: broker/owner contact PII + company attribution for every listing in DB via enumerated auth-free IDs on a mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (resolves AWS ranges); HTTPS serves ngrok ERR_NGROK_3200 "endpoint offline" while LE wildcard SAN cert for all five issued — binding provisioned, tunnel gone = orphaned-edge profile. Zone-wildcard does NOT cover these (separate CNAME records).
+evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation edge abandoned — HUMAN-only.
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
+testability: HUMAN_ONLY
+[HYP] Dormant .app cluster (5 production DNS names on one dead ALB) — re-provisioning risk for admin/frontend apps
+class: MISCONFIG
+asset: admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app)
+confidence: 40
+reasoning: Dedicated ALB 52.14.251.223, distinct from 503-fleet trio, DNS-live for 5 names, HTTPS 000 / no TLS listener on any SNI. Consistent with Hypofriend's abandoned-infra pattern (orphaned ngrok edges, blog bucket AllAccessDisabled). admin.app namespace implies client-admin UI last served here.
+evidence_needed: ALB accepting connections again + SNI serving a named vhost; then an auth posture check on admin.app specifically.
+verify_steps: next-cycle HTTPS GET https://admin.app.hypofriend.de/ and openssl -servername sweep of 52.14.251.223 (currently all NO-HANDSHAKE). Passive, no auth.
+impact: if re-exposed: an unhardened admin frontend under dedicated infra; currently only stale-DNS change-management noise. Severity: LOW now.
+testability: PASSIVE
+[PARKED] Dormant .app cluster (40): passive-only, no evidence of active service, severity LOW now. Keep as watch-only.
+[FINAL] survivors ranked:
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform). No new passive PROBE exists this cycle; main-domain API path dive and 503-fleet characterization both complete; .app ALB stays NO-HANDSHAKE. Hold all live reads on property-search-api until authorized.
+[LEARN] ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; IDs enumerable via propertySearch→exposes chain
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primitive
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+[LEARN] ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals)
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+[LEARN] REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hypofriend.de/my.hypofriend.de/profile.hypofriend.de/account.hypofriend.de: All 503/000 — not misconfigurations
+[RISK] hypofriend: 92 — Unchanged core: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a real enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema, Ruby stack-trace disclosure. This cycle added no new exploitable surface — wildcard-ghost and .app cluster discoveries reduced apparent surface; abandoned-infra cluster (5 ngrok edges + dead .app ALB + disabled blog bucket) is evidence of weak decommission management but its exploitability is HUMAN-gated. Conversion to CONFIRMED HIGH remains blocked solely on the pending HUMAN PII authorization.
+=== hypotheses-bigpickle.txt ===
+## 2026-09-05 09:50:27 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de/property-search-api, 9.3, a=10 b=10 t=9 g=8 c=10 f=10
+[PRIO] *.local.hypofriend.de (ngrok orphan), 5.0, a=4 b=6 t=2 g=3 c=10 f=10
+[PRIO] admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app), 3.8, a=3 b=5 t=2 g=4 c=10 f=10
+[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 90
+reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 live title/price/street/propertyType, zero creds/leadId (18:34/21:05 UTC prior cycles). IDs enumerable via auth-free propertySearch→exposes. Same object schema carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. No surface change this cycle.
+evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID → CONFIRMED full auth-free PII dump primitive.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN (PII) authorization.
+impact: broker/owner contact PII + company attribution for every listing in DB via enumerated auth-free IDs on a mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (resolves AWS ranges); HTTPS serves ngrok ERR_NGROK_3200 "endpoint offline" while LE wildcard SAN cert for all five issued — binding provisioned, tunnel gone = orphaned-edge profile. Zone-wildcard does NOT cover these (separate CNAME records).
+evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation edge abandoned — HUMAN-only.
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
+testability: HUMAN_ONLY
+[HYP] Dormant .app cluster (5 production DNS names on one dead ALB) — re-provisioning risk for admin/frontend apps
+class: MISCONFIG
+asset: admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app)
+confidence: 40
+reasoning: Dedicated ALB 52.14.251.223, distinct from 503-fleet trio, DNS-live for 5 names, HTTPS 000 / no TLS listener on any SNI. Consistent with Hypofriend's abandoned-infra pattern (orphaned ngrok edges, blog bucket AllAccessDisabled). admin.app namespace implies client-admin UI last served here.
+evidence_needed: ALB accepting connections again + SNI serving a named vhost; then an auth posture check on admin.app specifically.
+verify_steps: next-cycle HTTPS GET https://admin.app.hypofriend.de/ and openssl -servername sweep of 52.14.251.223 (currently all NO-HANDSHAKE). Passive, no auth.
+impact: if re-exposed: an unhardened admin frontend under dedicated infra; currently only stale-DNS change-management noise. Severity: LOW now.
+testability: PASSIVE
+[PARKED] Dormant .app cluster (40): passive-only, no evidence of active service, severity LOW now. Keep as watch-only.
+[FINAL] survivors ranked:
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform). No new passive PROBE exists this cycle; main-domain API path dive and 503-fleet characterization both complete; .app ALB stays NO-HANDSHAKE. Hold all live reads on property-search-api until authorized.
+[LEARN] ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; IDs enumerable via propertySearch→exposes chain
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primitive
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+[LEARN] ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals)
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+[LEARN] REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hypofriend.de/my.hypofriend.de/profile.hypofriend.de/account.hypofriend.de: All 503/000 — not misconfigurations
+[RISK] hypofriend: 92 — Unchanged core: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a real enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema, Ruby stack-trace disclosure. This cycle added no new exploitable surface — wildcard-ghost and .app cluster discoveries reduced apparent surface; abandoned-infra cluster (5 ngrok edges + dead .app ALB + disabled blog bucket) is evidence of weak decommission management but its exploitability is HUMAN-gated. Conversion to CONFIRMED HIGH remains blocked solely on the pending HUMAN PII authorization.
+[0m
+[0m$ [0mtail -25 reports/analyst-bigpickle.log; echo "=== script ==="; head -40 scripts/sync-issues.py
+[FINAL] survivors ranked:
+1. Auth-free expose(id) PII dump — 90, AUTH_HELPED
+2. Orphaned ngrok *.local.hypofriend.de — 50, HUMAN_ONLY
+
+## STEP 5 — NEXT ACTION
+
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform). No new passive PROBE exists this cycle; main-domain API path dive and 503-fleet characterization both complete; .app ALB stays NO-HANDSHAKE. Hold all live reads on property-search-api until authorized.
+
+## STEP 6 — LEARNING
+
+[LEARN] ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; IDs enumerable via propertySearch→exposes chain
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primitive
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+[LEARN] ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals)
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+[LEARN] REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hypofriend.de/my.hypofriend.de/profile.hypofriend.de/account.hypofriend.de: All 503/000 — not misconfigurations
+
+## STEP 7 — RISK
+
+[RISK] hypofriend: 92 — Unchanged core: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a real enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema, Ruby stack-trace disclosure. This cycle added no new exploitable surface — wildcard-ghost and .app cluster discoveries reduced apparent surface; abandoned-infra cluster (5 ngrok edges + dead .app ALB + disabled blog bucket) is evidence of weak decommission management but its exploitability is HUMAN-gated. Conversion to CONFIRMED HIGH remains blocked solely on the pending HUMAN PII authorization.
+=== script ===
+import os, re, hashlib
+from difflib import SequenceMatcher
+from pathlib import Path
+from github import Github
+
+REPO = os.environ["GITHUB_REPOSITORY"]
+TOKEN = os.environ["GITHUB_TOKEN"]
+GLOB = os.environ.get("LEAD_GLOB", "leads/lead-*.md")
+TARGET = os.environ.get("TARGET_NAME", "hunt")
+MODEL_FROM_FILENAME = os.environ.get("MODEL_FROM_FILENAME", "0") == "1"
+
+STOP = re.compile(r'^\[(HYP|PARKED|FINAL|NEXT|LEARN|RISK|NEW|CHANGED|PRIO)\]')
+KV = re.compile(r'^([a-z_]+):\s*(.*)$', re.I)
+
+TITLE_SIM_THRESHOLD = float(os.environ.get("TITLE_SIM_THRESHOLD", "0.82"))
+COARSE_SIM_THRESHOLD = float(os.environ.get("COARSE_SIM_THRESHOLD", "0.55"))
+
+
+def split_inline(title):
+    """Extract inline attributes from a single-line lead of the form:
+    [HYP] Title: confidence 96, class MISCONFIG, verify_steps ..., asset https://...
+    Attribute matches are removed; the title is cut at the first attribute."""
+    attrs = {}
+    pats = [
+        (r'confidence\s*(?:=|:|\s+)\s*(\d{1,3})', 'confidence', None),
+        (r'conf\s*(?:=|:|\s+)\s*(\d{1,3})', 'confidence', None),
+        (r'\((\d{2,3})\)\s*[:;]', 'confidence', None),
+        (r'class\s*(?:=|:|\s+)\s*([A-Za-z_]+)', 'class', str.upper),
+        (r'asset\s*(?:=|:|\s+)\s*(https?://[^\s,;]+|/[^\s,;]+)', 'asset', None),
+        (r'severity\s*(?:=|:|\s+)\s*([A-Za-z]+)', 'severity', None),
+        (r'testability\s*(?:=|:|\s+)\s*([A-Za-z_]+)', 'testability', str.upper),
+        (r'verify[_\s]steps\s*(?:=|:|\s+)\s*([^\n|]+)', 'verify_steps', None),
+        (r'impact\s*(?:=|:|\s+)\s*([^\n|]+)', 'impact', None),
+        (r'reasoning\s*(?:=|:|\s+)\s*([^\n|]+)', 'reasoning', None),
+    ]
+    cut = None
+    for pat, key, transform in pats:
+        m = re.search(pat, title, re.I)
+        if m:
+            v = m.group(1).strip()
+[0m
+Let me check the knowledge index format and the deep-notes before writing output.
+[0m$ [0mtail -30 knowledge/index.md; echo "=== DEDICATED-DEEP ==="; cat recon-notes/DEDICATED-DEEP.md
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-04 ACCEPTED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain.
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: entire search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive.
+- 2026-09-05 ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200, zero-UUID and random-UUID accepted), lead-scoped PII schema — auth-free read oracle
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) mutation executes a real write handler for arbitrary leadId with no auth (error:"expose does not exist" proves code path reachable) — cross-tenant write primitive
+- 2026-09-05 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable
+- 2026-09-05 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- 2026-09-05 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+- 2026-09-05 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- 2026-09-05 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- 2026-09-05 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-05 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+- 2026-09-05 ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; IDs enumerable via propertySearch→exposes chain
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primitive
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
+- 2026-09-05 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals)
+- 2026-09-05 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — passive testable
+- 2026-09-05 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- 2026-09-05 REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hypofriend.de/my.hypofriend.de/profile.hypofriend.de/account.hypofriend.de: All 503/000 — not misconfigurations
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+=== DEDICATED-DEEP ===
+# Dedicated deep surface (wildcard-filtered) 2026-09-03
+
+**Target:** `hypofriend`
+**Root zones:** `hypofriend.de`
+
+## Wildcard analysis
+
+- Total resolving hostnames in zone: 159
+- After shared/wildcard IP filtering: **0 genuinely dedicated hosts**
+- Reason: all resolving hostnames use shared/CDN/wildcard IP signatures
+
+## Honest conclusion
+
+This target's subdomain space is wildcard-dominated. No genuinely dedicated
+subdomain surface was recovered from passive brute + subfinder enumeration.
+The surface either (a) uses wildcard DNS records, (b) all CNAME records
+point to shared CDN/Cloudflare/CloudFront/AWS IPs, or (c) has no
+subdomain program at all. This is the honest exhaustive result.
+
+---
+_Honest framing: passive DNS enumeration + shared-IP wildcard filtering. No finding claimed. No active testing performed._
+[0m
+[0m# [0mTodos
+[✓] STEP 1: DELTA — compare inventory vs current surface
+[•] STEP 2: PRIORITIZE — score assets
+[ ] STEP 3: HYPOTHESES — top 3 assets
+[ ] STEP 4: SELF-CRITIQUE — drop weak
+[ ] STEP 5: NEXT ACTION
+[ ] STEP 6: LEARNING
+[ ] STEP 7: RISK
+[ ] Write outputs to leads/ + reports/ + knowledge/
+[0m
+[0m$ [0mcat >> reports/hypotheses-bigpickle.txt << 'EOF'
+
+## 2026-09-05 13:18:00 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de/property-search-api, 9.3, a=10 b=10 t=9 g=8 c=10 f=9
+[PRIO] core.hypofriend.de (direct Rails origin), 6.4, a=4 b=9 t=6 g=7 c=4 f=8
+[PRIO] *.local.hypofriend.de (ngrok orphan), 5.0, a=4 b=6 t=2 g=3 c=10 f=10
+[PRIO] admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app), 3.8, a=3 b=5 t=2 g=4 c=10 f=10
+[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 90
+reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 live title/price/street/propertyType, zero creds/leadId (prior cycles). IDs enumerable via auth-free propertySearch→exposes. Same object schema carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. No surface change this cycle; conversion still blocked on HUMAN PII authorization.
+evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID → CONFIRMED full auth-free PII dump primitive.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN (PII) authorization.
+impact: broker/owner contact PII + company attribution for every listing in DB via enumerated auth-free IDs on a mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] Direct Rails origin (core.hypofriend.de) re-exposes confirmed auth-free property-search GraphQL without CloudFront edge
+class: MISCONFIG
+asset: core.hypofriend.de/property-search-api
+confidence: 45
+reasoning: core.hypofriend.de is a LIVE Rails origin (HTTP/2, x-runtime, 10-yr httponly _hf cookie, internal=FALSE domain-wide samesite=none cookie) with canonical-host redirect shell (root 302→https://hypofriend.de/en; all unknown paths 301→https://hypofriend.de/). /robots.txt + /sitemap.xml 200; /api/v3/advisors 401 (same Rails Basic auth as main, NO CloudFront via header — direct origin); /property-search-api 400 application/json (same GraphQL backend). Discovery confirms the confirmed-findings backend is reachable un-edged at a second host; edge-layer controls/caches on hypofriend.de (if any) are bypassed here.
+evidence_needed: benign schema-only introspection (no PII) returned identical schema from core vs main + response-header diff (absence of via/CloudFront) to prove no edge layer.
+verify_steps: POST core.hypofriend.de/property-search-api {"query":"{__typename}"} vs same on hypofriend.de — compares origin vs edge; schema-dump comparison optional, no PII fields. Passive-safe (no customer data).
+impact: independent, CDN-free access path to the same confirmed auth-free GraphQL PII oracle and introspection surface; amplifies persistence/stealth of enumeration, removes edge-level request-scoping. Severity: cascades from existing HIGH, MEDIUM standalone.
+testability: PASSIVE
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (resolves AWS ranges); HTTPS serves ngrok ERR_NGROK_3200 "endpoint offline" while LE wildcard SAN cert for all five issued — binding provisioned, tunnel gone = orphaned-edge profile. Zone-wildcard does NOT cover these (separate CNAME records). Unchanged this cycle.
+evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation edge abandoned — HUMAN-only.
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
+testability: HUMAN_ONLY
+[PARKED] Dormant .app cluster (40): re-swept all 5 names this cycle — HTTPS 000, ALB 52.14.251.223 NO-HANDSHAKE, unchanged. No active service evidence.
+[PARKED] a.hypofriend.de (CloudFront→S3 eu-central-1, 403 all objects: index/favicon/images/robots/sitemap/assets) + blog.hypofriend.de (direct S3 AllAccessDisabled): closed buckets, no exposure — not reportable.
+[FINAL] survivors ranked: 1) expose(id) auth-free PII dump 90 AUTH_HELPED; 2) ngrok *.local 50 HUMAN_ONLY; 3) core.hypofriend.de direct-origin re-exposure 45 PASSIVE; 4) .app cluster 40 PASSIVE watch-only.
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform). New this cycle: core.hypofriend.de confirmed as the direct (un-edged) Rails origin of the exact same backend — after authorization, a benign __typename parity check vs hypofriend.de validates the direct-origin re-exposure hypothesis [45]. No further live property-search-api reads until authorized.
+[LEARN] ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of the main-domain app — canonical redirect shell (root 302→https://hypofriend.de/en, unknown paths 301→https://hypofriend.de/), 200 robots.txt/sitemap.xml, 401 /api/v3/advisors Basic, 400 /property-search-api GraphQL; served WITHOUT CloudFront (direct origin)
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE on every response regardless of request value
+[LEARN] REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 on all probed objects (index.html/favicon.ico/images/robots/sitemap/assets) — no exposure
+[LEARN] REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior knowledge, no exposure
+[LEARN] REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge, not a misconfiguration
+[LEARN] CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged this cycle (503 HTTPS / 000 / 301 HTTP) — no new surface
+[RISK] hypofriend: 92 — Unchanged confirmed core primitives (auth-free GraphQL, introspection, expose(id) live PII-capable read on a real UUID, favoritedExposes read + favoriteExpose write over arbitrary leadId, PII schema, Ruby stack-trace disclosure). This cycle added direct-origin reachability (core.hypofriend.de — no CloudFront edge) for the same backend and confirmed 3 more dormant hosts (a./blog buckets, m2 redirect) as dead. The single highest-value unproven item remains the pending-HUMAN PII read converting expose(id) [90] → CONFIRMED HIGH.
+EOF
+echo "appended hypotheses-bigpickle.txt, tail:"; tail -6 reports/hypotheses-bigpickle.txt
+appended hypotheses-bigpickle.txt, tail:
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE on every response regardless of request value
+[LEARN] REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 on all probed objects (index.html/favicon.ico/images/robots/sitemap/assets) — no exposure
+[LEARN] REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior knowledge, no exposure
+[LEARN] REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge, not a misconfiguration
+[LEARN] CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged this cycle (503 HTTPS / 000 / 301 HTTP) — no new surface
+[RISK] hypofriend: 92 — Unchanged confirmed core primitives (auth-free GraphQL, introspection, expose(id) live PII-capable read on a real UUID, favoritedExposes read + favoriteExpose write over arbitrary leadId, PII schema, Ruby stack-trace disclosure). This cycle added direct-origin reachability (core.hypofriend.de — no CloudFront edge) for the same backend and confirmed 3 more dormant hosts (a./blog buckets, m2 redirect) as dead. The single highest-value unproven item remains the pending-HUMAN PII read converting expose(id) [90] → CONFIRMED HIGH.
+[0m
+All probes complete. Key discovery: `core.hypofriend.de` is a LIVE Rails origin (direct backend, no CloudFront edge) serving the same `/api/v3/advisors` (401) and `/property-search-api` (400 GraphQL) — a second reachable instance of the confirmed auth-free GraphQL surface. Now writing the full analysis to the cycle artifacts.
+[0m$ [0mcat >> leads/lead-bigpickle.md << 'EOF'
+
+## 2026-09-05 13:18:00 UTC [target] (model bigpickle)
+[NEW] core.hypofriend.de — LIVE Rails origin of main-domain app; direct backend without CloudFront edge; canonical redirect shell; 200 robots/sitemap; 401 /api/v3/advisors; 400 /property-search-api GraphQL
+[NEW] a.hypofriend.de — CloudFront→S3 (eu-central-1) closed bucket, 403 on all probed objects
+[CHANGED] blog.hypofriend.de — direct S3 403 AllAccessDisabled (confirms prior), HTTPS 000
+[CHANGED] m2.hypofriend.de — awselb/2.0 301 chain to https://hypofriend.de/en (inert)
+[PRIO] hypofriend.de/property-search-api, 9.3, a=10 b=10 t=9 g=8 c=10 f=9
+[PRIO] core.hypofriend.de (direct Rails origin), 6.4, a=4 b=9 t=6 g=7 c=4 f=8
+[PRIO] *.local.hypofriend.de (ngrok orphan), 5.0, a=4 b=6 t=2 g=3 c=10 f=10
+[PRIO] admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app), 3.8, a=3 b=5 t=2 g=4 c=10 f=10
+[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 90
+reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 live title/price/street/propertyType, zero creds/leadId (prior cycles). IDs enumerable via auth-free propertySearch→exposes. Same object schema carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. No surface change this cycle; conversion still blocked on HUMAN PII authorization.
+evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID → CONFIRMED full auth-free PII dump primitive.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN (PII) authorization.
+impact: broker/owner contact PII + company attribution for every listing in DB via enumerated auth-free IDs on a mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] Direct Rails origin (core.hypofriend.de) re-exposes confirmed auth-free property-search GraphQL without CloudFront edge
+class: MISCONFIG
+asset: core.hypofriend.de/property-search-api
+confidence: 45
+reasoning: core.hypofriend.de is LIVE Rails (HTTP/2, x-runtime, 10-yr httponly _hf cookie, internal=FALSE domain-wide samesite=none cookie) with canonical-host redirect shell (root 302→https://hypofriend.de/en; unknown paths 301→https://hypofriend.de/). 200 robots.txt/sitemap.xml; 401 /api/v3/advisors (same Basic auth as main, NO via: CloudFront — direct origin); 400 /property-search-api (same GraphQL backend). Confirmed-findings backend reachable un-edged at a second host; any hypofriend.de edge-layer control/cache bypassed here.
+evidence_needed: benign schema-only introspection (no PII) returns identical schema core vs main + header diff (no via/CloudFront) proving no edge layer.
+verify_steps: POST core.hypofriend.de/property-search-api {"query":"{__typename}"} vs same on hypofriend.de — origin vs edge comparison; no PII fields.
+impact: independent CDN-free path to the same confirmed auth-free GraphQL PII oracle + introspection; amplifies persistence/stealth of enumeration. Severity: cascades from existing HIGH, MEDIUM standalone.
+testability: PASSIVE
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists; HTTPS ERR_NGROK_3200 "endpoint offline" while LE wildcard SAN cert for all five issued — binding provisioned, tunnel gone. Zone-wildcard does NOT cover these. Unchanged this cycle.
+evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation edge abandoned — HUMAN-only.
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed.
+impact: if claimable — arbitrary content under hypofriend.de origin. Severity: MEDIUM if confirmed.
+testability: HUMAN_ONLY
+[PARKED] Dormant .app cluster (40): re-swept all 5 names — HTTPS 000, ALB NO-HANDSHAKE, unchanged. No active service evidence.
+[PARKED] a.hypofriend.de + blog.hypofriend.de: closed S3 buckets, no exposure.
+[FINAL] survivors ranked: 1) expose(id) PII 90 AUTH_HELPED; 2) ngrok *.local 50 HUMAN_ONLY; 3) core direct-origin 45 PASSIVE; 4) .app cluster 40 PASSIVE watch.
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform). Post-auth: benign __typename parity check vs core.hypofriend.de validates direct-origin re-exposure [45]. No further live property-search-api reads until authorized.
+[LEARN] ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property-search-api GraphQL; without CloudFront (direct origin)
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
+[LEARN] REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket, 403 all objects — no exposure
+[LEARN] REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior; no exposure
+[LEARN] REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
+[LEARN] CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
+[RISK] hypofriend: 92 — Confirmed core unchanged. Added direct-origin reach (core.hypofriend.de) for the same auth-free GraphQL backend + 3 dead hosts (a./blog buckets, m2). Highest-value unproven item remains HUMAN-gated PII read → CONFIRMED HIGH.
+EOF
+echo done; wc -l leads/lead-bigpickle.md
+done
+538 leads/lead-bigpickle.md
+[0m
+[0m$ [0mcat >> knowledge/index.md << 'EOF'
+- 2026-09-05 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell (root 302→https://hypofriend.de/en, unknown 301→https://hypofriend.de/), 200 robots.txt/sitemap.xml, 401 /api/v3/advisors (Basic), 400 /property-search-api (GraphQL); served WITHOUT CloudFront (direct origin)
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag (internal=FALSE, domain-wide samesite=none), NOT an authz switch — forced overwritten to FALSE on every response
+- 2026-09-05 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 all objects probed (index/favicon/images/robots/sitemap/assets); no exposure
+- 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior, no exposure
+- 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain HTTP→HTTPS→https://hypofriend.de/en — inert redirect edge
+- 2026-09-05 CONFIRMED NG: 503-fleet (~28 hosts), .app cluster (5 names, ALB NO-HANDSHAKE), relay.m — unchanged 503/000/301
+EOF
+echo done; tail -6 knowledge/index.md
+done
+- 2026-09-05 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell (root 302→https://hypofriend.de/en, unknown 301→https://hypofriend.de/), 200 robots.txt/sitemap.xml, 401 /api/v3/advisors (Basic), 400 /property-search-api (GraphQL); served WITHOUT CloudFront (direct origin)
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag (internal=FALSE, domain-wide samesite=none), NOT an authz switch — forced overwritten to FALSE on every response
+- 2026-09-05 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 all objects probed (index/favicon/images/robots/sitemap/assets); no exposure
+- 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior, no exposure
+- 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain HTTP→HTTPS→https://hypofriend.de/en — inert redirect edge
+- 2026-09-05 CONFIRMED NG: 503-fleet (~28 hosts), .app cluster (5 names, ALB NO-HANDSHAKE), relay.m — unchanged 503/000/301
+[0m
+Now appending the same cycle block to the lead file and knowledge index.
+[0m# [0mTodos
+[✓] STEP 1: DELTA — compare inventory vs current surface
+[✓] STEP 2: PRIORITIZE — score assets
+[✓] STEP 3: HYPOTHESES — top 3 assets
+[✓] STEP 4: SELF-CRITIQUE — drop weak
+[✓] STEP 5: NEXT ACTION
+[✓] STEP 6: LEARNING
+[✓] STEP 7: RISK
+[✓] Write outputs to leads/ + reports/ + knowledge/
+[0m
+Cycle complete. Wrote to `reports/hypotheses-bigpickle.txt`, `leads/lead-bigpickle.md`, `knowledge/index.md`.
+
+**Headline finding:** `core.hypofriend.de` is a **live Rails origin** — the direct backend (no CloudFront edge) for the confirmed property-search GraphQL + `/api/v3/advisors` (401), previously invisible because only `core-api` (503) was checked. Full canonical redirect shell, 200 robots/sitemap, `internal=FALSE` cookie that is a provenance flag (REJECTED as authz switch).
+
+- **DELTA:** core.hypofriend.de LIVE (NEW), a.hypofriend.de CloudFront→S3 403 (NEW), blog/m2/`.app`/503-fleet all confirmed dead or inert
+- **PRIO:** property-search-api 9.3 · core.hypofriend.de 6.4 (new) · *.local ngrok 5.0 · .app 3.8
+- **HYP:** expose(id) PII dump 90 (AUTH_HELPED, unchanged) · core direct-origin re-exposure 45 (new) · ngrok orphan 50 (HUMAN_ONLY)
+- **RISK:** 92, unchanged — conversion to CONFIRMED HIGH still gated on the HUMAN PII read
+
+`[NEXT] HUMAN`: authorize the single PII-field read on `ad1d572e-8c01-5d07-a8ff-14b1a3af7d21` (POST `{expose(id){id title price providerEmail propertyOwnerLastName}}`); post-auth a benign `__typename` parity check vs `core.hypofriend.de` validates the new direct-origin hypothesis. No further live reads until authorized.

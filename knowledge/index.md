@@ -82,3 +82,20 @@
 - 2026-09-05 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
 - 2026-09-05 REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hypofriend.de/my.hypofriend.de/profile.hypofriend.de/account.hypofriend.de: All 503/000 — not misconfigurations
 - 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+- 2026-09-05 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of the main-domain app — canonical redirect shell (root 302→https://hypofriend.de/en, unknown paths 301→https://hypofriend.de/), 200 robots.txt/sitemap.xml, 401 /api/v3/advisors Basic, 400 /property-search-api GraphQL; served WITHOUT CloudFront (direct origin)
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE on every response regardless of request value
+- 2026-09-05 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 on all probed objects (index.html/favicon.ico/images/robots/sitemap/assets) — no exposure
+- 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior knowledge, no exposure
+- 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge, not a misconfiguration
+- 2026-09-05 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged this cycle (503 HTTPS / 000 / 301 HTTP) — no new surface
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE on every response regardless of request value
+- 2026-09-05 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 on all probed objects (index.html/favicon.ico/images/robots/sitemap/assets) — no exposure
+- 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior knowledge, no exposure
+- 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge, not a misconfiguration
+- 2026-09-05 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged this cycle (503 HTTPS / 000 / 301 HTTP) — no new surface
+- 2026-09-05 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property-search-api GraphQL; without CloudFront (direct origin)
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
+- 2026-09-05 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket, 403 all objects — no exposure
+- 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior; no exposure
+- 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
+- 2026-09-05 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
