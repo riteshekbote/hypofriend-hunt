@@ -100,3 +100,9 @@
 - 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
 - 2026-09-05 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
 - 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE each response
+- 2026-09-05 CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin (no CloudFront) serves FULL identical GraphQL schema — read-side enum primary path bypasses edge (header diff proven)
+- 2026-09-05 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination(id,offset,limit)/exposes(id,offset,limit)/exposesInBounds(id,bounds)/mapExposes(id,bounds) are auth-free crawl primitives (offset+limit + geo-bounds exist in schema)
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and returnMissing (delisted records) args exposed auth-free
+- 2026-09-05 REJECTED MISCONFIG @ hypofriend.de/property-search-api: meta/informationRequest stack traces are out-of-scope class (descriptive errors) — evidence only
+- 2026-09-05 REJECTED MISCONFIG @ hypofriend.de: Nuxt Sentry DSN/Amplitude/Flagsmith env IDs are public client keys by design — no standalone vuln
+- 2026-09-05 CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, graph-rates, v3, login, sso, portal, dashboard, billing, offer, documents, my, profile, account) + a./blog/m2 buckets: unchanged 503/000/301/403 — no new surface

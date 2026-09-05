@@ -315,3 +315,25 @@ www.hypofriend.de
 - CHANGED blog.hypofriend.de — Direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior
 - CHANGED m2.hypofriend.de — awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge
 - CHANGED 503-fleet/.app-cluster/relay.m — Unchanged (503 HTTPS / 000 / 301 HTTP) — no new surface
+
+## 2026-09-05 20:49:06 UTC
+- NEW core.hypofriend.de — Live Rails origin (direct, no CloudFront), canonical redirect shell, 200 robots.txt/sitemap.xml, 401 /api/v3/advisors Basic, 400 /property-search-api GraphQL
+- NEW a.hypofriend.de — CloudFront→S3 (eu-central-1) closed bucket, 403 all objects (index.html, favicon.ico, images, robots, sitemap, assets)
+- CHANGED hypofriend.de/property-search-api — Cross-city enumeration validated: propertySearch→exposes→expose returns 6+ listings PII per city (MUNICH, BERLIN, HAMBURG confirmed); 2 real UUIDs (ad1d572e-8c01-5d
+- CHANGED hypofriend.de/property-search-api — favoriteExpose mutation error differentiates exist vs non-exist exposeId for arbitrary leadId — cross-tenant write primitive confirmed (error:"expose does not exist
+- CHANGED hypofriend.de/property-search-api — informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — new stack-trace vector
+- CHANGED hypofriend.de — Sentry DSN public key confirmed (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but Sentry API requires auth token — passive PII extraction blocked
+- CHANGED blog.hypofriend.de — Direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior
+- CHANGED m2.hypofriend.de — awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge
+- CHANGED 503-fleet/.app-cluster/relay.m — Unchanged (503 HTTPS / 000 / 301 HTTP) — no new surface
+- CHANGED core.hypofriend.de/property-search-api — Direct-origin full introspection CONFIRMED: identical schema to main domain (Query 12 resolvers, Mutation 3, Expose/ExposeSeen/FavoriteExposePayload/Informatio
+- NEW property-search-api resolver map (from own introspection on direct origin): `exposes(id,offset,limit)`, `pagination(id,offset,limit)`, `exposesInBounds(id,bounds{north,east,south,west})`, `mapExposes(
+- NEW core.hypofriend.de — Live Rails origin (direct, no CloudFront), canonical redirect shell, 200 robots.txt/sitemap.xml, 401 /api/v3/advisors Basic, 400 /property-search-api GraphQL
+- NEW a.hypofriend.de — CloudFront→S3 (eu-central-1) closed bucket, 403 all objects (index.html, favicon.ico, images, robots, sitemap, assets)
+- CHANGED hypofriend.de/property-search-api — Cross-city enumeration validated: propertySearch→exposes→expose returns 6+ listings PII per city (MUNICH, BERLIN, HAMBURG confirmed); 2 real UUIDs confirmed with ph
+- CHANGED hypofriend.de/property-search-api — favoriteExpose mutation error differentiates exist vs non-exist exposeId for arbitrary leadId — cross-tenant write primitive confirmed
+- CHANGED hypofriend.de/property-search-api — informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — new stack-trace vector
+- CHANGED hypofriend.de — Sentry DSN public key confirmed but Sentry API requires auth token — passive PII extraction blocked
+- CHANGED blog.hypofriend.de — Direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior
+- CHANGED m2.hypofriend.de — awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge
+- CHANGED 503-fleet/.app-cluster/relay.m — Unchanged (503 HTTPS / 000 / 301 HTTP) — no new surface
