@@ -72,3 +72,19 @@ reasoning: The _generate() method grants Manager-role users full API access via 
 impact: Medium — Manager-role users could access Admin-only API endpoints if deployed as-is. Depends on whether Hypofriend customized auth.service.js before deployment.
 verify_steps: 1) Check if Hypofriend has a live Amazon Connect voicemail deployment (probe for voicemail-related subdomains or paths). 2) If a Manager JWT can be obtained, attempt Admin-only endpoints (e.g., POST /global/settings, POST /contact/flow). 3) Review if Hypofriend's deployment customized auth.service.js (requires access to their deployment, not passive).
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 17:28:00 UTC
+[HYP] Hardcoded GCP Project Number in Google Meet Add-on
+class: MISCONFIG
+asset: HypoFriend/advisor-couching/main.js:17
+confidence: 35
+reasoning: >-
+impact: LOW — GCP project numbers are not secrets. No credential exposure.
+verify_steps: >-
+[HYP] Google Maps API Key in gmap-vue Documentation (Upstream Test Key)
+class: OTHER
+asset: HypoFriend/gmap-vue/packages/documentation/docs/vue-2-version/guide/*.md
+confidence: 10
+reasoning: >-
+impact: INFO — Not a secret. Standard upstream example key.
+verify_steps: N/A — Upstream documentation key, not actionable.
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
