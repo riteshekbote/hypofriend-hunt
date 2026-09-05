@@ -56,3 +56,19 @@ TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-05 12:13:22 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-05 15:22:08 UTC
+[HYP] Hardcoded GCP Project Number in Google Meet Add-on
+class: SECRET
+asset: HypoFriend/advisor-couching/main.js:17
+confidence: 85
+reasoning: CLOUD_PROJECT_NUMBER = "910242124570" is hardcoded in client-side JS committed by pavel@hypofriend.de (single commit "Add google project"). This is Hypofriend's OWN code (not a fork). The GCP project number identifies the specific Google Cloud project backing their Google Meet advisor-couching add-on. Used at lines 27 and 43 to initialize meet.addon.createAddonSession(). Enables targeted recon against the GCP project (enumerate APIs, service accounts, IAM bindings via gcloud CLI).
+impact: Medium — enables targeted GCP project enumeration; not a direct credential leak but a building block for further attacks.
+verify_steps: 1) Browse https://github.com/HypoFriend/advisor-couching/blob/master/main.js:17. 2) Passively confirm project existence: gcloud projects describe 910242124570 (requires auth). 3) Check if the Meet add-on is live at https://hypofriend.github.io/advisor-couching/MainStage.html.
+[HYP] Manager-Role Auth Bypass (allowAllMethods) in Amazon Connect Voicemail
+class: IDOR
+asset: HypoFriend/voicemail-for-amazon-connect/aws-connect-vm-serverless/src/service/auth.service.js:119-121
+confidence: 60
+reasoning: The _generate() method grants Manager-role users full API access via policy.allowAllMethods() despite a TODO comment indicating it should be restricted to POST /manager/* endpoints. Code: "// TODO: Allow only manager specific endpoints | policy.allowMethod("POST", "/manager/*"); policy.allowAllMethods();". This is a FORK of amazon-connect/voicemail-for-amazon-connect (upstream author: Dave Lemons). If Hypofriend deployed this template without fixing the TODO, Manager users can invoke all API endpoints including Admin-only routes (agent management, global settings, contact flow building).
+impact: Medium — Manager-role users could access Admin-only API endpoints if deployed as-is. Depends on whether Hypofriend customized auth.service.js before deployment.
+verify_steps: 1) Check if Hypofriend has a live Amazon Connect voicemail deployment (probe for voicemail-related subdomains or paths). 2) If a Manager JWT can be obtained, attempt Admin-only endpoints (e.g., POST /global/settings, POST /contact/flow). 3) Review if Hypofriend's deployment customized auth.service.js (requires access to their deployment, not passive).
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
