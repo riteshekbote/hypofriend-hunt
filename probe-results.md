@@ -109,3 +109,9 @@ https://hypofriend.de/property-search-api -> HTTP 400
 https://admin.app.hypofriend.de/ -> ERR <urlopen error timed out>
 https://hypofriend.de/en -> 200 len=227301
 https://hypofriend.de/ -> 200 len=227301
+
+## 2026-09-05 16:26:56 UTC
+https://hypofriend.de/en -> 200 len=227301
+https://hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/robots.txt -> 200 len=0
+https://core.hypofriend.de/property-search-api -> HTTP 400

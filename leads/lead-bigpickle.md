@@ -710,3 +710,4 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
 [LEARN] CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
 [RISK] hypofriend: 92 — Confirmed core unchanged. Added direct-origin reach (core.hypofriend.de) for the same auth-free GraphQL backend + 3 dead hosts (a./blog buckets, m2). Highest-value unproven item remains HUMAN-gated PII read → CONFIRMED HIGH.
+## 2026-09-05 16:26:41 UTC [target] (model bigpickle)

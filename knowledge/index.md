@@ -99,3 +99,4 @@
 - 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior; no exposure
 - 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
 - 2026-09-05 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE each response
