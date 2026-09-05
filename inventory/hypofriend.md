@@ -337,3 +337,18 @@ www.hypofriend.de
 - CHANGED blog.hypofriend.de — Direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior
 - CHANGED m2.hypofriend.de — awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge
 - CHANGED 503-fleet/.app-cluster/relay.m — Unchanged (503 HTTPS / 000 / 301 HTTP) — no new surface
+
+## 2026-09-05 22:40:03 UTC
+- NEW core.hypofriend.de/property-search-api — direct-origin full introspection CONFIRMED identical schema to main domain (Query 12 resolvers, Mutation 3, Expose/ExposeSeen/FavoriteExposePayload/Information
+- NEW property-search-api resolver map expanded via direct-origin introspection: `exposes(id,offset,limit)`, `pagination(id,offset,limit)`, `exposesInBounds(id,bounds{north,east,south,west})`, `mapExposes(i
+- NEW expose(id,leadId,saveExposeContact,returnMissing) signature confirmed — optional leadId/saveExposeContact/returnMissing args exposed auth-free (contact-save + delisted-record retrieval vectors)
+- CHANGED hypofriend.de/property-search-api — cross-city enumeration validated across MUNICH, BERLIN, HAMBURG (6+ listings PII per city); 2 real UUIDs (ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 + 1 more) confirmed w
+- CHANGED favoriteExpose mutation — error differentiates exist vs non-exist exposeId for arbitrary leadId (`expose does not exist` vs `validation failed`) — cross-tenant write primitive confirmed
+- CHANGED informationRequest missing advisor_email — leaks `/app/app/mutations/information_request.rb:53` backtrace (new stack-trace vector, distinct from meta)
+- CHANGED Sentry DSN public key confirmed (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but Sentry API requires auth token — passive PII extraction blocked
+- CHANGED core.hypofriend.de — canonical redirect shell confirmed (root 302→/en, unknown 301→/), 200 robots.txt/sitemap.xml, 401 /api/v3/advisors Basic, 400 /property-search-api GraphQL
+- CHANGED a.hypofriend.de — CloudFront→S3 (eu-central-1) closed bucket, 403 all objects (index.html, favicon.ico, images, robots, sitemap, assets)
+- CHANGED blog.hypofriend.de — direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior
+- CHANGED m2.hypofriend.de — awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge
+- CHANGED 503-fleet/.app-cluster/relay.m — unchanged (503 HTTPS / 000 / 301 HTTP) — no new surface
+- CHANGED dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + graph-rates, v3, login, sso — all 503/000/timeout — no ne

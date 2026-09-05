@@ -534,3 +534,31 @@
 - LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
 - LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — passive testable
 - LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+
+## RANKED HYPOTHESES 2026-09-05 22:40:03 UTC
+- [99] hypofriend.de/property-search-api: GraphQL BOLA/IDOR at scale via propertySearch→exposes→expose pagination crawl (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/property-search-api {"query":"{__schema{types{name fields{name type{name kind ofType{name}}}}}}"} — confirm identical ful
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; I
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primiti
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, 
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — passive testable
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofrie
+- LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+- LEARN: ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz s
+- LEARN: REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket, 403 all objects — no exposure
+- LEARN: REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior; no exposure
+- LEARN: REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
+- LEARN: CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
+- LEARN: CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin (no CloudFront) serves FULL identical GraphQL schema — read-side enum primary path bypass
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination(id,offset,limit)/exposes(id,offset,limit)/exposesInBounds(id,bounds)/mapExposes(id,bounds) are aut
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissin
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/property-search-api: meta/informationRequest stack traces are out-of-scope class (descriptive errors) — evidence only
+- LEARN: REJECTED MISCONFIG @ hypofriend.de: Nuxt Sentry DSN/Amplitude/Flagsmith env IDs are public client keys by design — no standalone vuln
+- LEARN: CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, graph-rates, v3, login, sso, portal, dashboard, billing, offer, documents, my, profile, 
