@@ -54,3 +54,19 @@
 - 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive
 - 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
 - 2026-09-04 ACCEPTED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain.
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: entire search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive.
+- 2026-09-05 ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200, zero-UUID and random-UUID accepted), lead-scoped PII schema — auth-free read oracle
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) mutation executes a real write handler for arbitrary leadId with no auth (error:"expose does not exist" proves code path reachable) — cross-tenant write primitive
+- 2026-09-05 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable
+- 2026-09-05 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- 2026-09-05 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+- 2026-09-05 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- 2026-09-05 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- 2026-09-05 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-05 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively

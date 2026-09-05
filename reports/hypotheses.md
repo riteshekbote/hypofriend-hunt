@@ -250,3 +250,25 @@
 - LEARN: REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
 - LEARN: REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
 - LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+
+## RANKED HYPOTHESES 2026-09-05 01:04:07 UTC
+- [98] hypofriend.de/property-search-api: GraphQL BOLA/IDOR on property-search-api via expose/exposes/propertySearch chain — unauthenticated PII enumeration at scale (from art/lead_nemotron3.txt)
+- [90] hypofriend.de/property-search-api: Auth-free expose(id) returns full broker/owner PII for any enumerated listing (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `{expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21"){id title price provider
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://hypofriend.de/property-search-api {"query":"{ expose(id: \"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\") { id title price city propertyOwnerLastNa
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO le
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: entire search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId 
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadI
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId in
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastN
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200, zero-UUID and random-UUID accep
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) mutation executes a real write handler for arbitrary leadId with no auth (er
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive tes
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misco
+- LEARN: REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- LEARN: REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- LEARN: REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively

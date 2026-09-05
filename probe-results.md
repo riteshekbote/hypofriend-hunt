@@ -91,3 +91,7 @@ https://hypofriend.de/api/v3/advisors -> HTTP 401
 ## 2026-09-04 23:06:58 UTC
 https://hypofriend.de/property-search-api -> HTTP 400
 https://hypofriend.de/api/v3/advisors -> HTTP 401
+
+## 2026-09-05 01:04:10 UTC
+https://hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/api/v3/advisors -> HTTP 401

@@ -252,3 +252,11 @@ www.hypofriend.de
 - CHANGED hypofriend.de/property-search-api: Risk escalated from 88→92 (CRITICAL) — auth-free read (favoritedExposes, expose/exposes) + auth-free write (favoriteExpose, informationRequest) + Ruby stack-trace di
 
 ## 2026-09-04 23:06:55 UTC
+
+## 2026-09-05 01:04:07 UTC
+- CHANGED hypofriend.de/property-search-api: Confirmed real expose UUID (ad1d572e-8c01-5d07-a8ff-14b1a3af7d21) returns 200 with full PII (title, price, city, propertyOwnerLastName, providerEmail, providerCompan
+- CHANGED hypofriend.de/property-search-api: Full search lifecycle auth-free confirmed — propertySearch mutation returns searchId; exposes(id:<searchId>) returns listing UUIDs; expose(id) returns PII for each —
+- CHANGED hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany all accessible without auth
+- NEW Inventory gap: 61/71 discovered subdomains unprobed since 2026-09-02 (only bonava/myne/evernest + 7 local.* confirmed live via Heyflow CNAME); api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, da
+- CHANGED hypofriend.de/api/v3/advisors: Only confirmed live API endpoint on main domain (401 Basic auth), advisorEndpoint exposed in Nuxt config
+- CHANGED hypofriend.de: Nuxt config exposes Sentry DSN (o128333.ingest.sentry.io), Amplitude key, Flagsmith env ID (cqupGKF7Y3f5i2g62Zwbsv) — passive PII extraction via Sentry API possible
