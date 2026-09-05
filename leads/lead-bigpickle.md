@@ -412,3 +412,33 @@ impact: if claimable — arbitrary content under hypofriend.de origin (phishing/
 testability: HUMAN_ONLY
 [NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `{"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` POST to hypofriend.de/property-search-api — to convert expose(id) [90] into CONFIRMED HIGH; no new passive PROBE exists this cycle (main-domain API path dive and 503-fleet characterization both complete, dead ends); hold all live reads on property-search-api until authorizied.
 [RISK] hypofriend: 92 — Unchanged: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a REAL enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure (meta(id)), unsolicited-contact email oracle (informationRequest). This cycle closed the two residual breadth questions (main-domain versioned API: none; 503 fleet: ALB-level bounce) with no new surface. Conversion to CONFIRMED HIGH (cross-tenant PII dump / account modification on a mortgage platform) is gated solely on the pending HUMAN PII authorization.
+## 2026-09-05 05:54:17 UTC [target] (model bigpickle)
+[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 90
+reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 live title/price/street/propertyType, zero creds/leadId (18:34 / 21:05 UTC, re-confirmed prior cycle). IDs enumerable via auth-free propertySearch→exposes. Same object schema carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. No surface change this cycle.
+evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID → CONFIRMED full auth-free PII dump primitive.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN (PII) authorization.
+impact: broker/owner contact PII + company attribution for every listing in DB via enumerated auth-free IDs on a mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (resolves AWS ranges); HTTPS serves ngrok ERR_NGROK_3200 "endpoint offline" while LE wildcard SAN cert for all five issued — binding provisioned, tunnel gone = orphaned-edge profile. This cycle re-confirmed the zone-wildcard does NOT cover these (they carry their own CNAME), so they are genuinely separate records.
+evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation the edge is abandoned — HUMAN-only.
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed. Report LOW-MED candidate, not escalated.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
+testability: HUMAN_ONLY
+[HYP] Dormant .app cluster (5 production DNS names on one dead ALB) — re-provisioning risk for admin/frontend apps
+class: MISCONFIG
+asset: admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app)
+confidence: 40
+reasoning: Dedicated ALB 52.14.251.223, distinct from 503-fleet trio, DNS-live for 5 names, HTTPS 000 / no TLS listener on any SNI. Consistent with Hypofriend's abandoned-infra pattern (orphaned ngrok edges, blog bucket AllAccessDisabled). admin.app namespace implies a client-admin UI last served here.
+evidence_needed: ALB accepting connections again + SNI serving a named vhost (see verify); then an auth posture check on admin.app specifically.
+verify_steps: next-cycle HTTPS GET https://admin.app.hypofriend.de/ and openssl -servername sweep of 52.14.251.223 (currently all NO-HANDSHAKE). Passive, no auth.
+impact: if re-exposed: an unhardened admin frontend under dedicated infra; currently only stale-DNS change-management noise. Severity: LOW now.
+testability: PASSIVE
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform) and un-gates the CloudFront shared-cache pair test. Secondary ready (runs unblocked next cycle): SNI/GET sweep of 52.14.251.223 for .app [40].
+[RISK] hypofriend: 92 — Unchanged core: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a real enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema, Ruby stack-trace disclosure. This cycle added no new exploitable surface — the wildcard-ghost discovery *reduced* apparent surface; a/blog/.app/relay.m all present but inert. The cluster of abandoned infra (5 ngrok edges + dead .app ALB + disabled blog bucket) is consistent evidence of weak decommission management, but its exploitability is HUMAN-gated. Conversion to CONFIRMED HIGH remains blocked solely on the pending HUMAN PII authorization.

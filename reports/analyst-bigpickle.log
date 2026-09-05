@@ -3940,3 +3940,298 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 92 — Unchanged: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a REAL enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure (meta(id)), unsolicited-contact email oracle (informationRequest). This cycle closed the two residual breadth questions (main-domain versioned API: none; 503 fleet: ALB-level bounce) with no new surface. Conversion to CONFIRMED HIGH (cross-tenant PII dump / account modification on a mortgage platform) is gated solely on the pending HUMAN PII authorization.
+===== ANALYST bigpickle 2026-09-05 06:00:39 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mwhich dig host nslookup 2>/dev/null; echo "---"; dig +short a.account.hypofriend.de 2>&1 | head -3
+/usr/bin/dig
+/usr/bin/host
+/usr/bin/nslookup
+---
+3.79.67.81
+51.102.161.196
+3.78.178.6
+[0m
+dig is available. Running passive DNS CNAME sweep of the 57+ unprobed inventory hosts to hunt dangling-CNAME takeover candidates (a held-only-on-property-search-api, so DNS checks are fine).
+[0m$ [0mfor h in a account admin admin.app api app appointments.app auth billing blog blog-admin bot cdn core core-api dashboard demo dev dev1 dns documents experiments frontend.app funnels graph-rates graph images jenkins kubernetes landingpage listings; do
+  c=$(dig +short CNAME $h.hypofriend.de 2>/dev/null | head -1)
+  a=$(dig +short A $h.hypofriend.de 2>/dev/null | head -3 | tr '\n' ',')
+  printf "%-28s CNAME=%-35s A=%s\n" "$h" "${c:-none}" "${a:-none}"
+done
+a                            CNAME=none                                A=65.8.180.110,65.8.180.97,65.8.180.65,
+account                      CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+admin                        CNAME=none                                A=52.29.34.130,
+admin.app                    CNAME=none                                A=52.14.251.223,
+api                          CNAME=none                                A=52.15.184.3,
+app                          CNAME=none                                A=3.69.95.128,18.184.250.128,
+appointments.app             CNAME=none                                A=52.14.251.223,
+auth                         CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+billing                      CNAME=none                                A=3.78.178.6,51.102.161.196,3.79.67.81,
+blog                         CNAME=none                                A=52.219.171.228,3.5.134.108,3.5.139.194,
+blog-admin                   CNAME=none                                A=3.78.178.6,3.79.67.81,51.102.161.196,
+bot                          CNAME=none                                A=3.78.178.6,3.79.67.81,51.102.161.196,
+cdn                          CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+core                         CNAME=none                                A=63.185.234.44,63.187.208.139,63.184.175.212,
+core-api                     CNAME=none                                A=51.102.161.196,3.78.178.6,3.79.67.81,
+dashboard                    CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+demo                         CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+dev                          CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+dev1                         CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+dns                          CNAME=none                                A=51.102.161.196,3.78.178.6,3.79.67.81,
+documents                    CNAME=none                                A=51.102.161.196,3.78.178.6,3.79.67.81,
+experiments                  CNAME=none                                A=3.78.178.6,51.102.161.196,3.79.67.81,
+frontend.app                 CNAME=none                                A=52.14.251.223,
+funnels                      CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+graph-rates                  CNAME=none                                A=3.78.178.6,51.102.161.196,3.79.67.81,
+graph                        CNAME=none                                A=51.102.161.196,3.78.178.6,3.79.67.81,
+images                       CNAME=none                                A=3.79.67.81,3.78.178.6,51.102.161.196,
+jenkins                      CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+kubernetes                   CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+landingpage                  CNAME=none                                A=3.78.178.6,3.79.67.81,51.102.161.196,
+listings                     CNAME=none                                A=3.79.67.81,3.78.178.6,51.102.161.196,
+[0m
+All resolve but most share an ALB pool (3.79.67.81/51.102.161.196/3.78.178.6 — the 503 fleet). Distinct signals: `blog`→S3-region IPs (3.5.x), `core`→63.185.x, `admin.app`/`appointments.app`→52.14.251.223. Running second batch + SOA/TXT for takeover vectors.
+[0m$ [0mfor h in local login m2 mail mobile my news newsletter offer pipedrive-sync portal profile profile.app relay.m root secure sso staging support test uploader.app v3 web wildcard www; do
+  c=$(dig +short CNAME $h.hypofriend.de 2>/dev/null | head -1)
+  a=$(dig +short A $h.hypofriend.de 2>/dev/null | head -3 | tr '\n' ',')
+  printf "%-28s CNAME=%-35s A=%s\n" "$h" "${c:-none}" "${a:-none}"
+done; echo "=== TARGETED ==="; dig +short TXT blog.hypofriend.de | head -2; echo "blog SOA:"; dig +short SOA blog.hypofriend.de; echo "app MX/SOA:"; dig +short SOA app.hypofriend.de
+local                        CNAME=none                                A=3.78.178.6,51.102.161.196,3.79.67.81,
+login                        CNAME=none                                A=51.102.161.196,3.78.178.6,3.79.67.81,
+m2                           CNAME=none                                A=63.185.234.44,63.184.175.212,63.187.208.139,
+mail                         CNAME=none                                A=3.78.178.6,3.79.67.81,51.102.161.196,
+mobile                       CNAME=none                                A=52.29.34.130,
+my                           CNAME=none                                A=51.102.161.196,3.78.178.6,3.79.67.81,
+news                         CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+newsletter                   CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+offer                        CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+pipedrive-sync               CNAME=none                                A=3.78.178.6,51.102.161.196,3.79.67.81,
+portal                       CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+profile                      CNAME=none                                A=51.102.161.196,3.78.178.6,3.79.67.81,
+profile.app                  CNAME=none                                A=52.14.251.223,
+relay.m                      CNAME=none                                A=141.193.32.132,
+root                         CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+secure                       CNAME=none                                A=3.78.178.6,3.79.67.81,51.102.161.196,
+sso                          CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+staging                      CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+support                      CNAME=none                                A=3.79.67.81,51.102.161.196,3.78.178.6,
+test                         CNAME=none                                A=51.102.161.196,3.79.67.81,3.78.178.6,
+uploader.app                 CNAME=none                                A=52.14.251.223,
+v3                           CNAME=none                                A=3.79.67.81,3.78.178.6,51.102.161.196,
+web                          CNAME=none                                A=3.79.67.81,3.78.178.6,51.102.161.196,
+wildcard                     CNAME=none                                A=51.102.161.196,3.78.178.6,3.79.67.81,
+www                          CNAME=none                                A=52.29.34.130,
+=== TARGETED ===
+blog SOA:
+app MX/SOA:
+[0m
+Trio (3.79.67.81/51.102.161.196/3.78.178.6) appears across ~35 hosts — likely a zone wildcard or catch-all, not 35 real services. Testing wildcard behavior + authoritative SOA to separate real hosts from DNS ghosts.
+[0m$ [0mecho "wildcard test:"; dig +short A zzqx9k2m4random.hypofriend.de; echo "---"; echo "apex SOA:"; dig +short SOA hypofriend.de; echo "---"; echo "apex NS:"; dig +short NS hypofriend.de; echo "---"; echo "blog HTTPS/SRV:"; dig +short CNAME blog.hypofriend.de; dig +short A blog.hypofriend.de | tr '\n' ','; echo; echo "---"; echo "relay.m:"; dig +short CNAME relay.m.hypofriend.de; dig +short MX relay.m.hypofriend.de | head -2
+wildcard test:
+51.102.161.196
+3.78.178.6
+3.79.67.81
+---
+apex SOA:
+ns-1056.awsdns-04.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400
+---
+apex NS:
+ns-1056.awsdns-04.org.
+ns-1655.awsdns-14.co.uk.
+ns-259.awsdns-32.com.
+ns-927.awsdns-51.net.
+---
+blog HTTPS/SRV:
+3.5.137.110,3.5.120.66,3.5.122.61,3.5.134.221,3.5.120.83,3.5.122.47,3.5.136.163,3.5.120.50,
+---
+relay.m:
+[0m
+**Wildcard confirmed**: random host `zzqx9k2m4random.hypofriend.de` resolves to the same trio — so ~35 inventory hosts are DNS wildcard ghosts matching a catch-all ALB, not real services. Distinct real A records: `a`(65.8.x CloudFront), `admin`/`mobile`/`www`(52.29.34.130), `.app.x` cluster(52.14.251.223), `api`(52.15.184.3), `app`(3.69.95.128), `blog`(S3-region range, no CNAME), `core`+`m2`(63.185.x), `relay.m`(141.193.32.132). Probing the genuinely distinct hosts passively (<=1 rps).
+[0m$ [0mfor h in a.hypofriend.de blog.hypofriend.de relay.m.hypofriend.de; do
+  echo "=== $h ==="
+  curl -skI -m 8 --resolve $h:443:$([[ "$h" == "blog.hypofriend.de" ]] && echo 3.5.134.221) "https://$h/" -H "User-Agent: Mozilla/5.0" 2>&1 | head -12
+  sleep 1
+done
+=== a.hypofriend.de ===
+=== blog.hypofriend.de ===
+=== relay.m.hypofriend.de ===
+[0m
+[0m$ [0mfor h in a.hypofriend.de blog.hypofriend.de relay.m.hypofriend.de; do
+  echo "=== $h ==="
+  timeout 10 curl -skI -m 8 "https://$h/" -o /tmp/hdr_$h.txt -w "HTTP=%{http_code} size=%{size_download} time=%{time_total}\n" 2>&1
+  head -8 /tmp/hdr_$h.txt 2>/dev/null
+  sleep 1
+done
+=== a.hypofriend.de ===
+HTTP=403 size=0 time=0.493125
+HTTP/2 403 
+content-type: application/xml
+x-amz-bucket-region: eu-central-1
+server: AmazonS3
+date: Sat, 05 Sep 2026 05:49:50 GMT
+x-cache: Error from cloudfront
+via: 1.1 301344113dc05dc15d7b460113c8b8a4.cloudfront.net (CloudFront)
+x-amz-cf-pop: SFO53-P9
+=== blog.hypofriend.de ===
+HTTP=000 size=0 time=8.002328
+=== relay.m.hypofriend.de ===
+HTTP=000 size=0 time=8.002372
+[0m
+`a.hypofriend.de` → real S3 bucket (eu-central-1) behind CloudFront, 403 XML. `blog`/`relay.m` time out (as their S3/mail-IP surface implies DNS only, no live web). Pulling the 403 body and probing likely object paths on the `a` bucket (passive GET).
+[0m$ [0mecho "=== a.hypofriend.de 403 body ==="; curl -sk -m 8 "https://a.hypofriend.de/" -H "User-Agent: Mozilla/5.0" | head -20; echo; sleep 1; echo "=== common object paths ==="; for p in index.html _nuxt/ favicon.ico robots.txt public/ app/ main.js; do
+  code=$(curl -sk -m 8 -o /tmp/a_obj -w "%{http_code}|%{size_download}" "https://a.hypofriend.de/$p" -H "User-Agent: Mozilla/5.0")
+  echo "$p -> $code"; sleep 1
+done
+=== a.hypofriend.de 403 body ===
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message><RequestId>VXYCWQE9XZ8R90DT</RequestId><HostId>AGhgQMcBzXfAwsW9msU0p9By/U3qu20s/CGOSyEtGgecrgUszQo1hBp7rEQsTdOdYR5OWYHTAKM=</HostId></Error>
+=== common object paths ===
+index.html -> 403|263
+_nuxt/ -> 403|243
+favicon.ico -> 403|243
+robots.txt -> 403|263
+public/ -> 403|263
+app/ -> 403|263
+main.js -> 403|263
+[0m
+`a.hypofriend.de` bucket is private (AccessDenied on all paths) — not a finding. Checking whether `blog.hypofriend.de` maps to the S3 *website* endpoint IPs (potential static-site bucket) and testing port 80.
+[0m$ [0mecho "s3-website eu-central-1 IPs:"; dig +short A s3-website.eu-central-1.amazonaws.com | tr '\n' ','; echo; echo "blog IPs:"; dig +short A blog.hypofriend.de | tr '\n' ','; echo; echo "=== blog port 80 ==="; timeout 8 curl -s -m 6 -D - "http://blog.hypofriend.de/" 2>&1 | head -8; echo "rc=$?"
+s3-website eu-central-1 IPs:
+3.5.135.227,3.5.121.99,3.5.120.110,3.5.138.78,3.5.136.152,3.5.137.98,3.5.134.98,52.219.171.248,
+blog IPs:
+3.5.138.5,3.5.137.160,3.5.121.108,3.5.122.131,3.5.139.91,3.5.120.92,3.5.135.18,3.5.120.154,
+=== blog port 80 ===
+HTTP/1.1 403 Forbidden
+x-amz-request-id: ARBT86614PQBWMQ2
+x-amz-id-2: YFXKUV2I8AL0XnsK26ChnZcygge7h+F6tBFLbcOtRJp578Tickn5hFeo2SncIqT7GYcjA2r0NzGaq1AvqrGvtyb9G6vFTVTm
+Content-Type: text/html; charset=utf-8
+Content-Length: 358
+Date: Sat, 05 Sep 2026 05:50:57 GMT
+Server: AmazonS3
+
+rc=0
+[0m
+[0m$ [0mecho "=== blog port 80 body ==="; timeout 8 curl -s -m 6 "http://blog.hypofriend.de/" 2>&1 | head -20; echo "rc=$?"; sleep 1; echo "=== blog on 443 via sc-s3-ip ==="; timeout 8 curl -sk -m 6 "https://blog.hypofriend.de/" 2>&1 | head -6
+=== blog port 80 body ===
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<h1>403 Forbidden</h1>
+<ul>
+<li>Code: AllAccessDisabled</li>
+<li>Message: All access to this object has been disabled</li>
+<li>RequestId: 0R20ZZE6221TX9VC</li>
+<li>HostId: vVJsZ3dQJpLkSqc3CiPeMEd6SSeyXsZfejWuRNL7e0eqFpbEtPu9n6F/Au6h7JAUtuLvBPcf5JvHQI9olY0sRnuB5K15lr64</li>
+</ul>
+<hr/>
+</body>
+</html>
+rc=0
+=== blog on 443 via sc-s3-ip ===
+[0m
+`blog` bucket → `AllAccessDisabled` (existent but locked), `a` bucket private: neither is takeover-able now. Classifying the last two distinct pools (.app cluster 52.14.251.223; admin/www/mobile 52.29.34.130) with cheap HEADs.
+[0m$ [0mfor h in admin.app.hypofriend.de profile.app.hypofriend.de frontend.app.hypofriend.de appointments.app.hypofriend.de uploader.app.hypofriend.de www.hypofriend.de; do
+  r=$(timeout 8 curl -skI -m 6 -o /dev/null -w "%{http_code}" "https://$h/" -H "User-Agent: Mozilla/5.0")
+  echo "$h -> $r"; sleep 1
+done
+admin.app.hypofriend.de -> 000
+profile.app.hypofriend.de -> 000
+frontend.app.hypofriend.de -> 000
+appointments.app.hypofriend.de -> 000
+uploader.app.hypofriend.de -> 000
+www.hypofriend.de -> 301
+[0m
+.app cluster dead (000, ALB with no healthy listeners/security-group closed); `www` live (301 → apex, typical). Last data point: characterizing `relay.m` (141.193.32.132) ownership via RDAP to rule in/out a dangling-IP angle.
+[0m$ [0mtimeout 10 curl -s -m 8 "https://rdap.arin.net/registry/ip/141.193.32.132" -H "User-Agent: HBA/1.0" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('name:',d.get('name')); print('handle:',d.get('handle')); print('start:',d.get('startAddress'),'end:',d.get('endAddress')); [print('ref:',o.get('title')) for o in d.get('links',[]) if o.get('rel')=='up' or o.get('value','').endswith('/net/')]" 2>&1; echo "---"; timeout 10 curl -s -m 8 "https://rdap.arin.net/registry/ip/51.102.161.196" -H "User-Agent: HBA/1.0" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('name:',d.get('name'),'| parent:',d.get('parentHandle'))" 2>&1
+name: MT-757
+handle: NET-141-193-32-0-1
+start: 141.193.32.0 end: 141.193.33.255
+---
+name: RIPE-ERX-51 | parent: None
+[0m
+Checking whether the dead `.app` ALB still holds a TLS listener (SNI handshake test across the 5 names) to pick the most productive next step.
+[0m$ [0mfor h in admin.app frontend.app profile.app uploader.app appointments.app; do
+  r=$(timeout 8 bash -c "echo | openssl s_client -connect 52.14.251.223:443 -servername $h.hypofriend.de -brief 2>/dev/null" | head -3 | tr '\n' '|')
+  echo "$h -> ${r:-NO-HANDSHAKE}"; sleep 1
+done
+admin.app -> NO-HANDSHAKE
+frontend.app -> NO-HANDSHAKE
+profile.app -> NO-HANDSHAKE
+uploader.app -> NO-HANDSHAKE
+appointments.app -> NO-HANDSHAKE
+[0m
+All new surfaces classified. Writing the structured analysis.
+
+---
+
+**STEP 1 — DELTA**
+
+- [CHANGED] `*`.hypofriend.de — Route53 **zone-wildcard A record** confirmed (random label `zzqx9k2m4random` resolves to catch-all trio 51.102.161.196 / 3.78.178.6 / 3.79.67.81). ~35 of the 71 inventory hosts (account, auth, billing, core-api, dashboard, dev*, docs, graph*, jenkins, kubernetes, portal, sso, staging, test, v3, wildcard, …) are **DNS ghosts** of one Azure 503-fleet ALB — not real services. Live-HTTP recon 2026-09-02 inflated the surface.
+- [NEW] `a`.hypofriend.de — distinct CloudFront→**S3** edge (eu-central-1); bucket EXISTS, every tested path 403 `AccessDenied` (root, index.html, robots.txt, _nuxt/, main.js). Private, no public data.
+- [NEW] `blog`.hypofriend.de — A-records = eu-central-1 S3 website-endpoint range; port 80 → **403 `AllAccessDisabled`** (bucket exists, all access disabled). Not claimable now.
+- [NEW] `.app` cluster — admin.app / frontend.app / profile.app / uploader.app / appointments.app share dedicated ALB **52.14.251.223**; HTTPS 000, **no TLS listener** on any SNI name (openssl handshake fails). Dormant infra, DNS-live.
+- [NEW] `www`.hypofriend.de — live, 301 (→ apex); www/admin/mobile share 52.29.34.130.
+- [NEW] `api`.hypofriend.de — own dedicated A **52.15.184.3** (not wildcard) → earlier classification "real but dead" confirmed; not a ghost.
+- [NEW] `relay.m`.hypofriend.de — A 141.193.32.132 = ARIN leased block NET-141-193-32-0-1 ("MT-757"), HTTPS 000; mail-relay pattern (outbound), not web surface.
+
+**STEP 2 — PRIORITIZE**
+
+- [PRIO] hypofriend.de/property-search-api, 9.8 (a10 b10 t10 g10 c10 f8)
+- [PRIO] .app cluster (admin/frontend/profile/uploader/appointments → 52.14.251.223), 5.0 (a4 b6 t5 g1 c7 f9)
+- [PRIO] a/blog S3 buckets, 3.4 (a2 b2 t3 g1 c9 f8)
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 90
+reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 live title/price/street/propertyType, zero creds/leadId (18:34 / 21:05 UTC, re-confirmed prior cycle). IDs enumerable via auth-free propertySearch→exposes. Same object schema carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. No surface change this cycle.
+evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID → CONFIRMED full auth-free PII dump primitive.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN (PII) authorization.
+impact: broker/owner contact PII + company attribution for every listing in DB via enumerated auth-free IDs on a mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (resolves AWS ranges); HTTPS serves ngrok ERR_NGROK_3200 "endpoint offline" while LE wildcard SAN cert for all five issued — binding provisioned, tunnel gone = orphaned-edge profile. This cycle re-confirmed the zone-wildcard does NOT cover these (they carry their own CNAME), so they are genuinely separate records.
+evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation the edge is abandoned — HUMAN-only.
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed. Report LOW-MED candidate, not escalated.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
+testability: HUMAN_ONLY
+
+[HYP] Dormant .app cluster (5 production DNS names on one dead ALB) — re-provisioning risk for admin/frontend apps
+class: MISCONFIG
+asset: admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app)
+confidence: 40
+reasoning: Dedicated ALB 52.14.251.223, distinct from 503-fleet trio, DNS-live for 5 names, HTTPS 000 / no TLS listener on any SNI. Consistent with Hypofriend's abandoned-infra pattern (orphaned ngrok edges, blog bucket AllAccessDisabled). admin.app namespace implies a client-admin UI last served here.
+evidence_needed: ALB accepting connections again + SNI serving a named vhost (see verify); then an auth posture check on admin.app specifically.
+verify_steps: next-cycle HTTPS GET https://admin.app.hypofriend.de/ and openssl -servername sweep of 52.14.251.223 (currently all NO-HANDSHAKE). Passive, no auth.
+impact: if re-exposed: an unhardened admin frontend under dedicated infra; currently only stale-DNS change-management noise. Severity: LOW now.
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+
+- [PARKED] blog.hypofriend.de S3-bucket takeover: bucket in `AllAccessDisabled` — exists and account-owned, not claimable while present; claim window only if bucket is deleted with DNS kept. conf 35 < 40.
+- [PARKED] a.hypofriend.de as finding: bucket private on all paths — no public data, no hyp.
+- [PARKED] relay.m dangling-IP: leased MT-757 block still bound to its lessee; no web surface; no actionable claim.
+- CloudFront shared-cache cross-origin leak (45) retained but test-gated by the active HUMAN hold on property-search-api reads.
+- [FINAL] 1) expose(id) PII read IDOR [90]; 2) ngrok *.local orphan [50]; 3) CloudFront shared-cache [45, gated]; 4) .app dormant ALB re-provisioning [40].
+
+**STEP 5 — NEXT ACTION**
+
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform) and un-gates the CloudFront shared-cache pair test. Secondary ready (runs unblocked next cycle): SNI/GET sweep of 52.14.251.223 for .app [40].
+
+**STEP 6 — LEARNING**
+
+- [LEARN] ACCEPTED MISCONFIG @ *.hypofriend.de: Route53 zone-wildcard A record makes ~35 inventory subdomains DNS-ghosts of one catch-all 503 ALB (51.102.161.196/3.78.178.6/3.79.67.81) — inventory noise explained; real distinct infra reduces to api (52.15.184.3), www/admin/mobile (52.29.34.130), .app (52.14.251.223), S3 (a/blog), core/m2 (63.185.x), relay.m (141.193.32.132) + the ngrok/Heyflow/mailgun CNAMEs.
+- [LEARN] REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 bucket (eu-central-1) exists but 403 AccessDenied on all tested paths — private, no data exposure.
+- [LEARN] REJECTED MISCONFIG @ blog.hypofriend.de: S3 bucket returns 403 AllAccessDisabled — abandoned but still owned; not claimable now (watch bucket-deletion window).
+- [LEARN] ACCEPTED MISCONFIG @ admin.app.hypofriend.de cluster: dedicated ALB dead (HTTPS 000, no TLS listener) for 5 DNS-live names — dormant/admin-namespace infra, no reachable apps.
+
+**STEP 7 — RISK**
+
+[RISK] hypofriend: 92 — Unchanged core: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a real enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema, Ruby stack-trace disclosure. This cycle added no new exploitable surface — the wildcard-ghost discovery *reduced* apparent surface; a/blog/.app/relay.m all present but inert. The cluster of abandoned infra (5 ngrok edges + dead .app ALB + disabled blog bucket) is consistent evidence of weak decommission management, but its exploitability is HUMAN-gated. Conversion to CONFIRMED HIGH remains blocked solely on the pending HUMAN PII authorization.

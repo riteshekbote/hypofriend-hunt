@@ -95,3 +95,7 @@ https://hypofriend.de/api/v3/advisors -> HTTP 401
 ## 2026-09-05 01:04:10 UTC
 https://hypofriend.de/property-search-api -> HTTP 400
 https://hypofriend.de/api/v3/advisors -> HTTP 401
+
+## 2026-09-05 06:00:54 UTC
+https://hypofriend.de/property-search-api -> HTTP 400
+https://admin.app.hypofriend.de/ -> ERR <urlopen error timed out>

@@ -260,3 +260,11 @@ www.hypofriend.de
 - NEW Inventory gap: 61/71 discovered subdomains unprobed since 2026-09-02 (only bonava/myne/evernest + 7 local.* confirmed live via Heyflow CNAME); api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, da
 - CHANGED hypofriend.de/api/v3/advisors: Only confirmed live API endpoint on main domain (401 Basic auth), advisorEndpoint exposed in Nuxt config
 - CHANGED hypofriend.de: Nuxt config exposes Sentry DSN (o128333.ingest.sentry.io), Amplitude key, Flagsmith env ID (cqupGKF7Y3f5i2g62Zwbsv) — passive PII extraction via Sentry API possible
+
+## 2026-09-05 06:00:39 UTC
+- NEW hypofriend.de/property-search-api: Full enumeration chain validated — propertySearch→exposes→expose returns PII for 6+ listings in single city query; 2 real UUIDs confirmed with phone/email/surname/co
+- NEW hypofriend.de/property-search-api: favoriteExpose mutation executes write handler for arbitrary leadId (error differs for exist vs non-exist exposeId) — cross-tenant write primitive confirmed
+- NEW hypofriend.de/property-search-api: informationRequest mutation leaks full Ruby backtrace on missing advisor_email — additional stack-trace disclosure vector
+- NEW hypofriend.de: Sentry DSN public key extracted (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but API requires auth token, not DSN key — passive PII extraction blocked
+- CHANGED api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hyp
+- CHANGED app.hypofriend.de → Apple App Store (301), www.hypofriend.de → hypofriend.de (301)

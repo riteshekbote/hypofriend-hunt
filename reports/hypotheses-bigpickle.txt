@@ -1,108 +1,30 @@
-## 2026-09-05 01:03:27 UTC [target] (model bigpickle)
+## 2026-09-05 05:54:17 UTC [target] (model bigpickle)
 [HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
 class: IDOR
 asset: hypofriend.de/property-search-api
 confidence: 90
-reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 with live title/price/street/propertyType, zero creds, zero leadId (confirmed 18:34/21:05 UTC). IDs enumerable via auth-free propertySearch→exposes chain. Same auth-free object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. Edge=CloudFront, POST-only, no GET cache surface (re-verified today).
-evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID — converts to CONFIRMED full-auth-free PII dump primitive. HUMAN (PII) authorization required.
-verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN approval.
-impact: broker/owner contact PII + company attribution for every listing in the DB via enumerated auth-free IDs on a financial platform. Severity: HIGH.
-testability: AUTH_HELPED
-[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
-class: OTHER
-asset: *.local.hypofriend.de
-confidence: 50
-reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (re-verified 23:04 UTC, resolves AWS ranges); HTTPS serves ngrok edge ERR_NGROK_3200 "endpoint offline" while an LE wildcard SAN cert for all five domains is issued — domain binding provisioned, tunnel gone = orphaned-edge takeover profile. Direct connect today still HTTP 000.
-evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation the edge is abandoned — HUMAN-only.
-verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert capture is the POC seed. Report LOW-MED candidate, not escalated.
-impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
-testability: HUMAN_ONLY
-[HYP] CloudFront shared-cache leak of auth-free GraphQL responses across origins
-class: MISCONFIG
-asset: hypofriend.de/property-search-api
-confidence: 45
-reasoning: edge confirmed CloudFront (via 1.1 ...cloudfront.net, x-cache: Error from cloudfront, x-amz-cf-pop) with `Vary: Origin`; GraphQL is POST-only enforced (GET→400) so no GET persistence; if any cache policy keys success responses for favoriteExposes/expose, one lead-scoped PII body could be served to a different Origin/client within TTL.
-evidence_needed: duplicated POST responses showing Age/x-cache Hit with different Origin headers — demonstrating cross-origin shared cache of auth-free reads.
-verify_steps: paired OPTIONS/HEAD + duplicated POST probes AFTER the active HUMAN hold on this asset is lifted.
-impact: cross-customer PII spray via shared CDN cache of auth-free DB reads. Severity: MEDIUM if confirmed.
-testability: AUTH_HELPED
-[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `{expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21"){id title price providerEmail propertyOwnerLastName}}` — to convert expose(id) [90] into CONFIRMED HIGH; hold all further live reads on property-search-api until then (today's side-find: edge=CloudFront POST-only, no GET-cache surface).
-[RISK] hypofriend: 92 — Unchanged: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a REAL enumerated UUID, auth-free read (favoritedExposes) and write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure, unsolicited-contact email oracle (informationRequest). Edge=CloudFront with POST-only enforcement (no GET-cache surface). Conversion to CONFIRMED HIGH (cross-tenant PII dump / account modification on a mortgage platform) is gated solely on the pending HUMAN PII authorization.
-verify_steps: NONE read-only; requires HUMAN decision. Parked until PII-confirm round clears.
-impact: forged spam/phishing contact-requests to brokers under victim lead identity. Severity: MEDIUM-HIGH.
-testability: HUMAN_ONLY
-[FINAL] 1. GraphQL BOLA favoritedExposes/favoriteExpose arbitrary-leadId R/W [88] — auth-free read+write confirmed on boundary
-[FINAL] 2. Unauth'd expose(id) full Expose PII [85] — live data returned on enumerated real UUID; PII pull pending HUMAN
-[FINAL] 3. Full introspection + meta(id) Ruby stack-trace leak [72] — ACCEPTED, aids exploitation
-[PARKED] informationRequest email oracle [55] — write-guarded side effect, needs HUMAN
-[PARKED] HTTP Basic credential reuse on /api/v3/advisors [65] — needs live credential testing (out of passive scope); boundary 401 only
-[PARKED] OAuth redirect_uri on auth.hypofriend.de [60] — host 503 on all probes
-[NEXT] HUMAN: authorize one PII-field read (providerEmail, propertyOwnerLastName, cellPhoneNumber, ownerCompany) on a single real enumerated expose UUID (e.g. ad1d572e-8c01-5d07-a8ff-14b1a3af7d21) to convert expose(id) [85] into a CONFIRMED HIGH; no further live reads on this asset until then.
-[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain.
-[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: entire search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive.
-[RISK] hypofriend: 90 Unauthenticated production GraphQL API with full introspection, auth-free search/enumeration (propertySearch->exposes->expose live-confirmed 200 on real UUID), auth-free read (favoritedExposes) and write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure, plus an unsolicited-contact email oracle (informationRequest). Boundary-level IDOR R/W + live expose(id) read are confirmed; a HUMAN-approved PII pull or real-lead-UUID escalation would be a cross-tenant PII dump / account-modification, HIGH severity on a financial mortgage platform.
-class: IDOR
-asset: hypofriend.de/property-search-api
-confidence: 87
-reasoning: `expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21")` returned 200 live title/price/street/propertyType with no auth and no leadId; IDs enumerable via auth-free propertySearch→exposes chain; same auth-free object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany.
-evidence_needed: result of the one PII-field read on a real enumerated expose UUID = CONFIRMED full-auth-free-dump primitive. HUMAN-only.
-verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN program authorization (PII).
-impact: Broker/owner contact PII + company attribution for every listing in DB via auth-free enumerated IDs on a mortgage platform. Severity: HIGH.
-testability: AUTH_HELPED
-class: OTHER
-asset: *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
-confidence: 50
-reasoning: CNAME to jtkfqjar.cname.eu.ngrok.io resolves to AWS IPv6+IPv4; HTTPS serves ngrok edge error ERR_NGROK_3200 "endpoint offline" while an LE wildcard cert for all five domains is already issued — endpoint config was provisioned (verified domain) yet tunnel is gone; matches the reported ngrok orphaned-custom-domain takeover profile. Attackers lack DNS TXT control for a standard re-verify, so exploitability depends on ngrok's orphan-claim behavior (HUMAN/manual ngrok-account test to confirm).
-evidence_needed: an independent ngrok account successfully binding one of the 5 domains (or program confirmation the ngrok edge is abandoned) — HUMAN-only.
-verify_steps: NONE further read-only available passively; capture saved today (DNS CNAME + ERR_NGROK_3200 + LE SAN cert) is the POC seed. Report as LOW-MED candidate, not escalated.
-impact: If claimable: arbitrary content under a hypofriend.de origin (phishing/cred-theft/evolution-of-trust), brand abuse, cookie scope abuse. Severity: MEDIUM if confirmed claimable.
-testability: HUMAN_ONLY
-[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
-class: IDOR
-asset: hypofriend.de/property-search-api
-confidence: 90
-reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 with live title/price/street/propertyType, zero creds, zero leadId (confirmed 18:34/21:05 UTC). IDs enumerable via auth-free propertySearch→exposes chain. Same auth-free object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. Edge=CloudFront, POST-only, no GET cache surface (re-verified today).
-evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID — converts to CONFIRMED full-auth-free PII dump primitive. HUMAN (PII) authorization required.
-verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN approval.
-impact: broker/owner contact PII + company attribution for every listing in the DB via enumerated auth-free IDs on a financial platform. Severity: HIGH.
-testability: AUTH_HELPED
-[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
-class: OTHER
-asset: *.local.hypofriend.de
-confidence: 50
-reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (re-verified 23:04 UTC, resolves AWS ranges); HTTPS serves ngrok edge ERR_NGROK_3200 "endpoint offline" while an LE wildcard SAN cert for all five domains is issued — domain binding provisioned, tunnel gone = orphaned-edge takeover profile. Direct connect today still HTTP 000.
-evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation the edge is abandoned — HUMAN-only.
-verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert capture is the POC seed. Report LOW-MED candidate, not escalated.
-impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
-testability: HUMAN_ONLY
-[HYP] CloudFront shared-cache leak of auth-free GraphQL responses across origins
-class: MISCONFIG
-asset: hypofriend.de/property-search-api
-confidence: 45
-reasoning: edge confirmed CloudFront (via 1.1 ...cloudfront.net, x-cache: Error from cloudfront, x-amz-cf-pop) with `Vary: Origin`; GraphQL is POST-only enforced (GET→400) so no GET persistence; if any cache policy keys success responses for favoriteExposes/expose, one lead-scoped PII body could be served to a different Origin/client within TTL.
-evidence_needed: duplicated POST responses showing Age/x-cache Hit with different Origin headers — demonstrating cross-origin shared cache of auth-free reads.
-verify_steps: paired OPTIONS/HEAD + duplicated POST probes AFTER the active HUMAN hold on this asset is lifted.
-impact: cross-customer PII spray via shared CDN cache of auth-free DB reads. Severity: MEDIUM if confirmed.
-testability: AUTH_HELPED
-[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `{expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21"){id title price providerEmail propertyOwnerLastName}}` — to convert expose(id) [90] into CONFIRMED HIGH; hold all further live reads on property-search-api until then (today's side-find: edge=CloudFront POST-only, no GET-cache surface).
-[RISK] hypofriend: 92 — Unchanged: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a REAL enumerated UUID, auth-free read (favoritedExposes) and write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure, unsolicited-contact email oracle (informationRequest). Edge=CloudFront with POST-only enforcement (no GET-cache surface). Conversion to CONFIRMED HIGH (cross-tenant PII dump / account modification on a mortgage platform) is gated solely on the pending HUMAN PII authorization.
-[HYP] Auth-free expose(id) returns full broker/owner PII for any enumerated listing
-class: IDOR
-asset: hypofriend.de/property-search-api
-confidence: 90
-reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 live title/price/street/propertyType, zero creds/leadId (18:34/21:05 UTC); IDs enumerable via auth-free propertySearch→exposes; same object schema carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. Edge=CloudFront, POST-only. No surface change this cycle.
-evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID → CONFIRMED full auth-free PII dump primitive. HUMAN (PII) authorization required.
-verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN approval.
+reasoning: expose(id:"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21") returned 200 live title/price/street/propertyType, zero creds/leadId (18:34 / 21:05 UTC, re-confirmed prior cycle). IDs enumerable via auth-free propertySearch→exposes. Same object schema carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. No surface change this cycle.
+evidence_needed: one PII-field read (providerEmail, propertyOwnerLastName) on the real UUID → CONFIRMED full auth-free PII dump primitive.
+verify_steps: POST /property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"} — ONLY after HUMAN (PII) authorization.
 impact: broker/owner contact PII + company attribution for every listing in DB via enumerated auth-free IDs on a mortgage platform. Severity: HIGH.
 testability: AUTH_HELPED
 [HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
 class: OTHER
 asset: *.local.hypofriend.de
 confidence: 50
-reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (re-verified this cycle, resolves AWS ranges); HTTP direct 000 while LE SAN cert for all five issued — binding provisioned, tunnel gone = orphaned-edge takeover profile. Attackers lack DNS TXT for standard re-verify, so claim path depends on ngrok orphan-claim behavior.
-evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation edge abandoned — HUMAN-only.
-verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert captured = POC seed. Report LOW-MED candidate, not escalated.
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists (resolves AWS ranges); HTTPS serves ngrok ERR_NGROK_3200 "endpoint offline" while LE wildcard SAN cert for all five issued — binding provisioned, tunnel gone = orphaned-edge profile. This cycle re-confirmed the zone-wildcard does NOT cover these (they carry their own CNAME), so they are genuinely separate records.
+evidence_needed: independent ngrok account binding one of the 5 domains, or ngrok-program confirmation the edge is abandoned — HUMAN-only.
+verify_steps: NONE read-only left; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed. Report LOW-MED candidate, not escalated.
 impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed.
 testability: HUMAN_ONLY
-[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `{"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` POST to hypofriend.de/property-search-api — to convert expose(id) [90] into CONFIRMED HIGH; no new passive PROBE exists this cycle (main-domain API path dive and 503-fleet characterization both complete, dead ends); hold all live reads on property-search-api until authorizied.
-[RISK] hypofriend: 92 — Unchanged: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a REAL enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema (phone/email/owner/company), Ruby stack-trace disclosure (meta(id)), unsolicited-contact email oracle (informationRequest). This cycle closed the two residual breadth questions (main-domain versioned API: none; 503 fleet: ALB-level bounce) with no new surface. Conversion to CONFIRMED HIGH (cross-tenant PII dump / account modification on a mortgage platform) is gated solely on the pending HUMAN PII authorization.
+[HYP] Dormant .app cluster (5 production DNS names on one dead ALB) — re-provisioning risk for admin/frontend apps
+class: MISCONFIG
+asset: admin.app.hypofriend.de (+frontend/profile/uploader/appointments.app)
+confidence: 40
+reasoning: Dedicated ALB 52.14.251.223, distinct from 503-fleet trio, DNS-live for 5 names, HTTPS 000 / no TLS listener on any SNI. Consistent with Hypofriend's abandoned-infra pattern (orphaned ngrok edges, blog bucket AllAccessDisabled). admin.app namespace implies a client-admin UI last served here.
+evidence_needed: ALB accepting connections again + SNI serving a named vhost (see verify); then an auth posture check on admin.app specifically.
+verify_steps: next-cycle HTTPS GET https://admin.app.hypofriend.de/ and openssl -servername sweep of 52.14.251.223 (currently all NO-HANDSHAKE). Passive, no auth.
+impact: if re-exposed: an unhardened admin frontend under dedicated infra; currently only stale-DNS change-management noise. Severity: LOW now.
+testability: PASSIVE
+[NEXT] HUMAN: authorize the single PII-field read on ad1d572e-8c01-5d07-a8ff-14b1a3af7d21 — `POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"ad1d572e-8c01-5d07-a8ff-14b1a3af7d21\"){id title price providerEmail propertyOwnerLastName}}"}` — converts expose(id) [90] into CONFIRMED HIGH (auth-free cross-tenant PII dump on a mortgage platform) and un-gates the CloudFront shared-cache pair test. Secondary ready (runs unblocked next cycle): SNI/GET sweep of 52.14.251.223 for .app [40].
+[RISK] hypofriend: 92 — Unchanged core: auth-free production GraphQL with full introspection, confirmed live expose(id) read on a real enumerated UUID, auth-free read (favoritedExposes) + write (favoriteExpose) over arbitrary leadId, Expose-type PII schema, Ruby stack-trace disclosure. This cycle added no new exploitable surface — the wildcard-ghost discovery *reduced* apparent surface; a/blog/.app/relay.m all present but inert. The cluster of abandoned infra (5 ngrok edges + dead .app ALB + disabled blog bucket) is consistent evidence of weak decommission management, but its exploitability is HUMAN-gated. Conversion to CONFIRMED HIGH remains blocked solely on the pending HUMAN PII authorization.
