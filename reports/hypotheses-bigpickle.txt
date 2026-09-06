@@ -1,1 +1,48 @@
-## 2026-09-05 22:35:52 UTC [target] (model bigpickle)
+## 2026-09-06 00:16:45 UTC [target] (model bigpickle)
+[NEW] core.hypofriend.de/property-search-api — direct-origin hardening gap reconfirmed: OPTIONS 200 returns ONLY `date`/`content-length` (no `server`, no HSTS/X-Frame-Options/X-Content-Type-Options/nosniff, no cache layer); edge (hypofriend.de) returns full stack (`server: CloudFront`, via, x-cache, x-amz-cf-pop ORD58-P16, HSTS preload). Naked puma/Rails with zero edge controls on the mail GraphQL backend.
+[CHANGED] none — all tracked hosts returned identical statuses to last cycle (hypofriend.de/en 200, both /property-search-api 400, core robots 200 / advisors 401, a. 403, m2 301, auth/admin 503, api/admin.app/blog/kajsa.local 000).
+[PRIO] hypofriend.de/property-search-api,9.9,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=6,freshness=10
+[PRIO] core.hypofriend.de,8.8,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=7,cloud_surface=6,freshness=10
+[PRIO] hypofriend.de (Nuxt client keys),6.9,attack_surface=6,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] hypofriend.de/api/v3/advisors,6.8,attack_surface=7,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=6,freshness=8
+[PRIO] *.local.hypofriend.de (ngrok orphan),5.0,attack_surface=4,business_value=6,tech_exposure=2,gate_ease=3,cloud_surface=10,freshness=10
+[PRIO] admin.app.hypofriend.de (+.app cluster),3.8,attack_surface=3,business_value=5,tech_exposure=2,gate_ease=4,cloud_surface=10,freshness=10
+[HYP] Exhaustive DB crawl via offset/limit pagination + geo-bounds (exposes/pagination/exposesInBounds)
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 92
+reasoning: Own introspection on direct origin proves Query `exposes(id,offset,limit)` + `pagination(id,offset,limit)` → BoundedExposePage{exposes,limit,offset} and `exposesInBounds(id,bounds{north,east,south,west})`, all auth-free; confirmed chain propertySearch→exposes→expose(id) returns PII on real UUIDs; offset/limit removes UUID-luck and exposes full per-search result set.
+evidence_needed: exposes(offset:0,limit:100) returns >6 records; pagination(offset>0) pages forward; exposesInBounds narrows by lat/lng.
+verify_steps: POST (HUMAN-gated, mutation+read) /* no live POST available to this cycle under GET/HEAD/OPTIONS-only rule */ core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} then {"query":"{exposes(id:\"<searchId>\",offset:0,limit:100){limit offset exposes{id title city}}}"} then {"query":"{exposesInBounds(id:\"<searchId>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"}
+impact: Whole-search → whole-DB unauth listing enumeration with broker/owner PII (GDPR violation at scale, competitor intelligence). Severity: CRITICAL
+testability: PASSIVE (schema), live-confirm AUTH_HELPED
+[HYP] Direct Rails origin bypass — core.hypofriend.de serves identical auth-free GraphQL with no edge and no security-header stack
+class: MISCONFIG
+asset: core.hypofriend.de
+confidence: 96
+reasoning: Full __schema parity confirmed (Query 12 resolvers / Mutation 3); header-diff reconfirmed live this cycle: origin OPTIONS/HEAD return no CloudFront/ser/security headers (`vary: Origin` only from rack-cors), edge returns via/x-cache/x-amz-cf-pop/HSTS/XFO/nosniff — attacker reaches Rails backend naked, no WAF/rate-limit/caching.
+evidence_needed: sustained large-limit paginate on origin without WAF block/throttle (compares vs edge).
+verify_steps: POST (gated) the pagination probe above on core.hypofriend.de; compare latency/headers vs hypofriend.de — no CF headers, no throttle.
+impact: Uninterrupted enumeration/stack-trace/recon on primary GraphQL backend, bypassing all CloudFront-applied controls incl. security headers. Severity: HIGH
+testability: PASSIVE
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists, HTTPS 000/ERR_NGROK_3200 while LE SAN cert for all five issued — binding provisioned, tunnel gone; zone wildcard does not cover these (own CNAME records). No change this cycle.
+evidence_needed: independent ngrok account binding one of the 5 domains, or program confirmation edge abandoned — HUMAN-only.
+verify_steps: NONE read-only remain; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed
+testability: HUMAN_ONLY
+[PARKED] Auth-free cross-tenant state writes (exposeSeen/informationRequest/favoriteExpose): verification = write against live customer-adjacent state — no_data_modification:true; passive evidence limited to error-differentiation, insufficient.
+[PARKED] *.local ngrok orphan: no passive evidence avenue left; claim requires ngrok account test.
+[PARKED] .app cluster: re-confirmed dead (000/timeout all 5 names) — watch-only.
+[PARKED] REJECTED-class: meta/informationRequest stack traces (descriptive errors per scope.yml); Nuxt Sentry/Amplitude/Flagsmith (public client keys); email.m2 404 (mailgun inbound; mail config out of scope).
+[FINAL] 1. GraphQL BOLA/IDOR via expose/exposes/propertySearch chain — confidence 99, PASSIVE (subsumes #3 scale-up)
+[FINAL] 2. Direct Rails origin bypass — read-side + introspection CONFIRMED; hardening-gap header-diff reconfirmed — confidence 96, PASSIVE
+[FINAL] 3. Exhaustive DB crawl via pagination + geo-bounds — confidence 92, PASSIVE(schema)/AUTH_HELPED(live)
+[NEXT] HUMAN: authorize single POST chain on core.hypofriend.de/property-search-api — {"query":"mutation{propertySearch(city:"MUNICH",propertyType:APARTMENT){searchId}}"} → {"query":"{exposes(id:"<searchId>",offset:0,limit:100){limit offset exposes{id title city}}}"} → {"query":"{exposesInBounds(id:"<searchId>",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"} — converts pagination/geo-bounds crawl [92] + origin rate-limit claim into CONFIRMED. No further POST/live reads on property-search-api until authorized (mutation + active write-hold).
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers) vs edge full security-stack — edge security-header layer fully bypassed at origin; header diff live-reconfirmed this cycle
+[LEARN] REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin (OPTIONS, ACR-M: POST) → 200 but NO access-control-allow-origin echo — no open CORS; not a finding
+[LEARN] CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (0.36–0.51s shared edge bounce); .app cluster all 000 (10s timeout); blog HTTPS 000; api 000 — unchanged, no new surface
+[RISK] hypofriend: 93 — Confirmed core unchanged: CRITICAL auth-free GraphQL IDOR (expose/favoritedExposes, broker+owner PII schema) and full schema reachable on BOTH CloudFront edge and naked direct Rails origin (header-diff reconfirmed, incl. missing security-header stack at origin); offset/limit + geo-bounds crawl primitives schema-proven, live-confirm blocked on no-write/GET-HEAD-OPTIONS rule for POST mutation. Cross-tenant write code paths reachable but execution parked per no_data_modification. Stack traces downgraded to supporting evidence (out-of-scope class).

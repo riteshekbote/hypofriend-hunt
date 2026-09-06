@@ -352,3 +352,7 @@ www.hypofriend.de
 - CHANGED m2.hypofriend.de — awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge
 - CHANGED 503-fleet/.app-cluster/relay.m — unchanged (503 HTTPS / 000 / 301 HTTP) — no new surface
 - CHANGED dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + graph-rates, v3, login, sso — all 503/000/timeout — no ne
+
+## 2026-09-06 00:16:53 UTC
+- NEW core.hypofriend.de/property-search-api — direct-origin hardening gap reconfirmed: OPTIONS 200 returns ONLY `date`/`content-length` (no `server`, no HSTS/X-Frame-Options/X-Content-Type-Options/nosniff,
+- CHANGED none — all tracked hosts returned identical statuses to last cycle (hypofriend.de/en 200, both /property-search-api 400, core robots 200 / advisors 401, a. 403, m2 301, auth/admin 503, api/admin.app/b

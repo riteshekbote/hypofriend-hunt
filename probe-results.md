@@ -134,3 +134,15 @@ https://hypofriend.de/en -> 200 len=227301
 https://hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/robots.txt -> 200 len=0
 https://core.hypofriend.de/property-search-api -> HTTP 400
+
+## 2026-09-06 00:17:31 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://admin.app.hypofriend.de/ -> ERR <urlopen error timed out>
+https://staging.hypofriend.de/ -> HTTP 503
+https://test.hypofriend.de/ -> HTTP 503
+https://dev.hypofriend.de/ -> HTTP 503
+https://jenkins.hypofriend.de/ -> HTTP 503
+https://kubernetes.hypofriend.de/ -> HTTP 503
+https://secure.hypofriend.de/ -> HTTP 503
+https://cdn.hypofriend.de/ -> HTTP 503
+https://uploader.app.hypofriend.de/ -> ERR <urlopen error timed out>

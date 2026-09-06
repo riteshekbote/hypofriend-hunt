@@ -6970,3 +6970,225 @@ run-2026-09-05-21-42.md
 [0m✗ [0mcurl -sS -o /tmp/p1.json -w "HTTP %{http_code} time=%{time_total}s\n" -X POST "https://core.hypofriend.de/property-search-api" -H "Content-Type: application/json" -H "User-Agent: Mozilla/5.0" --data '{"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"}' --max-time 30; echo "---"; cat /tmp/p1.json failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
 Executing the pending pagination/geo-bounds probe from last cycle against the direct origin `core.hypofriend.de`.
+===== ANALYST bigpickle 2026-09-06 00:16:53 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && git log --oneline -10 2>/dev/null && git status --short 2>/dev/null
+total 224
+drwxr-xr-x 12 runner runner  4096 Sep  6 00:11 .
+drwxr-xr-x  3 runner runner  4096 Sep  6 00:11 ..
+drwxr-xr-x  7 runner runner  4096 Sep  6 00:11 .git
+drwxr-xr-x  3 runner runner  4096 Sep  6 00:11 .github
+-rw-r--r--  1 runner runner  1885 Sep  6 00:11 README.md
+-rw-r--r--  1 runner runner    32 Sep  6 00:11 analyst-out.txt
+-rw-r--r--  1 runner runner 68426 Sep  6 00:11 analyst-prompt.txt
+-rw-r--r--  1 runner runner 64551 Sep  6 00:11 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  6 00:11 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  6 00:11 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  6 00:11 leads
+-rw-r--r--  1 runner runner  5889 Sep  6 00:11 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  6 00:11 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  6 00:11 reports
+drwxr-xr-x  2 runner runner  4096 Sep  6 00:11 reposcan-raw
+-rw-r--r--  1 runner runner  3288 Sep  6 00:11 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  6 00:11 scripts
+-rw-r--r--  1 runner runner    33 Sep  6 00:11 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  6 00:11 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  6 00:11 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  6 00:11 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  6 00:11 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  6 00:11 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  6 00:11 triage
+cb8bca6 triage 2026-09-05-23-43
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m✱ [0mGlob "**/*.{md,yml,yaml,json,env,sh,py,js,ts}"[90m 48 matches[0m
+[0m→ [0mRead README.md
+[0m→ [0mRead scope.yml
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead triage/run-2026-09-05-23-43.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead reports/hypotheses.md
+[0m→ [0mRead leads/lead-bigpickle.md[90m [offset=394, limit=400][0m
+[0m→ [0mRead leads/lead-bigpickle.md[90m [offset=740][0m
+[0m
+[0m$ [0murls=(
+"https://hypofriend.de/en"
+"https://hypofriend.de/property-search-api"
+"https://core.hypofriend.de/robots.txt"
+"https://core.hypofriend.de/property-search-api"
+"https://core.hypofriend.de/api/v3/advisors"
+"https://admin.app.hypofriend.de/"
+"https://kajsa.local.hypofriend.de/"
+"https://m2.hypofriend.de/"
+"https://a.hypofriend.de/"
+"https://blog.hypofriend.de/"
+"https://auth.hypofriend.de/"
+"https://api.hypofriend.de/"
+)
+for u in "${urls[@]}"; do
+  code=$(curl -sS -o /dev/null -m 12 -w "%{http_code}" -A "Mozilla/5.0" "$u" 2>/dev/null)
+  sf=$(curl -sS -o /dev/null -m 12 -w "%{size_download}" -A "Mozilla/5.0" "$u" 2>/dev/null | head -c 1)
+  echo "$u -> $code"${sf:+" size~${sf}00"}
+  sleep 1.1
+done
+https://hypofriend.de/en -> 200 size~200
+https://hypofriend.de/property-search-api -> 400 size~900
+https://core.hypofriend.de/robots.txt -> 200 size~600
+https://core.hypofriend.de/property-search-api -> 400 size~900
+https://core.hypofriend.de/api/v3/advisors -> 401 size~200
+https://admin.app.hypofriend.de/ -> 000 size~000
+https://kajsa.local.hypofriend.de/ -> 000 size~000
+https://m2.hypofriend.de/ -> 301 size~100
+https://a.hypofriend.de/ -> 403 size~200
+https://blog.hypofriend.de/ -> 000 size~000
+https://auth.hypofriend.de/ -> 503 size~100
+https://api.hypofriend.de/ -> 000 size~000
+[0m
+Baseline matches the last cycle. Now a breadth sweep of the still-unprobed high-signal inventory (staging/dev/admin/app cluster/CI/devtools/email):
+[0m$ [0murls=(
+"https://staging.hypofriend.de/"
+"https://dev.hypofriend.de/"
+"https://test.hypofriend.de/"
+"https://demo.hypofriend.de/"
+"https://jenkins.hypofriend.de/"
+"https://kubernetes.hypofriend.de/"
+"https://pipedrive-sync.hypofriend.de/"
+"https://secure.hypofriend.de/"
+"https://support.hypofriend.de/"
+"https://funnels.hypofriend.de/"
+"https://web.hypofriend.de/"
+"https://listings.hypofriend.de/"
+"https://email.m2.hypofriend.de/"
+"https://admin.app.hypofriend.de/"
+"https://profile.app.hypofriend.de/"
+"https://uploader.app.hypofriend.de/"
+)
+for u in "${urls[@]}"; do
+  t0=$(date +%s.%N)
+  out=$(curl -sS -o /dev/null -m 10 -w "%{http_code}|%{time_total}s|%{server}" -A "Mozilla/5.0" "$u" 2>/dev/null || echo "ERR")
+  echo "$u -> $out"
+  sleep 1.1
+done
+https://staging.hypofriend.de/ -> 503|0.422536s|
+https://dev.hypofriend.de/ -> 503|0.467568s|
+https://test.hypofriend.de/ -> 503|0.412076s|
+https://demo.hypofriend.de/ -> 503|0.507643s|
+https://jenkins.hypofriend.de/ -> 503|0.372308s|
+https://kubernetes.hypofriend.de/ -> 503|0.490201s|
+https://pipedrive-sync.hypofriend.de/ -> 503|0.356458s|
+https://secure.hypofriend.de/ -> 503|0.393285s|
+https://support.hypofriend.de/ -> 503|0.502892s|
+https://funnels.hypofriend.de/ -> 503|0.379082s|
+https://web.hypofriend.de/ -> 503|0.416512s|
+https://listings.hypofriend.de/ -> 503|0.486123s|
+https://email.m2.hypofriend.de/ -> 404|0.462778s|
+https://admin.app.hypofriend.de/ -> 000|10.002640s|ERR
+https://profile.app.hypofriend.de/ -> 000|10.002954s|ERR
+https://uploader.app.hypofriend.de/ -> 000|10.002146s|ERR
+[0m
+All match prior baselines (503-fleet + dead `.app` ALB + mailgun 404). Now a read-only header-diff check (edge vs direct origin) to confirm the origin bypass still holds and CORS preflight posture — GET/HEAD/OPTIONS only:
+[0m$ [0mecho "=== OPTIONS hypofriend.de (edge) /property-search-api ==="
+curl -sS -D - -o /dev/null -m 12 -X OPTIONS -A "Mozilla/5.0" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" "https://hypofriend.de/property-search-api" 2>/dev/null
+sleep 1.2
+echo "=== OPTIONS core.hypofriend.de (origin) /property-search-api ==="
+curl -sS -D - -o /dev/null -m 12 -X OPTIONS -A "Mozilla/5.0" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" "https://core.hypofriend.de/property-search-api" 2>/dev/null
+sleep 1.2
+echo "=== HEAD core.hypofriend.de /property-search-api ==="
+curl -sS -D - -o /dev/null -m 12 -I -A "Mozilla/5.0" "https://core.hypofriend.de/property-search-api" 2>/dev/null
+=== OPTIONS hypofriend.de (edge) /property-search-api ===
+HTTP/2 200 
+server: CloudFront
+content-length: 0
+date: Sun, 06 Sep 2026 00:15:43 GMT
+via: 1.1 d9c6aeb0a1d9add180b9aa704da07f56.cloudfront.net (CloudFront)
+alt-svc: h3=":443"; ma=86400
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: ORD58-P16
+x-amz-cf-id: _sOyVvbaNLvksuRx1X60-Fa3Onhf1BmO5HV-mrAzyzVexeKKEZHadg==
+
+=== OPTIONS core.hypofriend.de (origin) /property-search-api ===
+HTTP/2 200 
+date: Sun, 06 Sep 2026 00:15:45 GMT
+content-length: 0
+
+=== HEAD core.hypofriend.de /property-search-api ===
+HTTP/2 400 
+date: Sun, 06 Sep 2026 00:15:47 GMT
+content-type: application/json
+content-length: 97
+vary: Origin
+[0m
+All read-only probes this cycle confirm the prior baseline. Two new header-level observations captured. Final analyst output:
+
+=== ANALYST RUN 2026-09-06 00:16 UTC (bigpickle) ===
+
+STEP 1 — DELTA
+[NEW] core.hypofriend.de/property-search-api — direct-origin hardening gap reconfirmed: OPTIONS 200 returns ONLY `date`/`content-length` (no `server`, no HSTS/X-Frame-Options/X-Content-Type-Options/nosniff, no cache layer); edge (hypofriend.de) returns full stack (`server: CloudFront`, via, x-cache, x-amz-cf-pop ORD58-P16, HSTS preload). Naked puma/Rails with zero edge controls on the mail GraphQL backend.
+[CHANGED] none — all tracked hosts returned identical statuses to last cycle (hypofriend.de/en 200, both /property-search-api 400, core robots 200 / advisors 401, a. 403, m2 301, auth/admin 503, api/admin.app/blog/kajsa.local 000).
+
+STEP 2 — PRIORITIZE
+[PRIO] hypofriend.de/property-search-api,9.9,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=6,freshness=10
+[PRIO] core.hypofriend.de,8.8,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=7,cloud_surface=6,freshness=10
+[PRIO] hypofriend.de (Nuxt client keys),6.9,attack_surface=6,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] hypofriend.de/api/v3/advisors,6.8,attack_surface=7,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=6,freshness=8
+[PRIO] *.local.hypofriend.de (ngrok orphan),5.0,attack_surface=4,business_value=6,tech_exposure=2,gate_ease=3,cloud_surface=10,freshness=10
+[PRIO] admin.app.hypofriend.de (+.app cluster),3.8,attack_surface=3,business_value=5,tech_exposure=2,gate_ease=4,cloud_surface=10,freshness=10
+
+STEP 3 — HYPOTHESES
+[HYP] Exhaustive DB crawl via offset/limit pagination + geo-bounds (exposes/pagination/exposesInBounds)
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 92
+reasoning: Own introspection on direct origin proves Query `exposes(id,offset,limit)` + `pagination(id,offset,limit)` → BoundedExposePage{exposes,limit,offset} and `exposesInBounds(id,bounds{north,east,south,west})`, all auth-free; confirmed chain propertySearch→exposes→expose(id) returns PII on real UUIDs; offset/limit removes UUID-luck and exposes full per-search result set.
+evidence_needed: exposes(offset:0,limit:100) returns >6 records; pagination(offset>0) pages forward; exposesInBounds narrows by lat/lng.
+verify_steps: POST (HUMAN-gated, mutation+read) /* no live POST available to this cycle under GET/HEAD/OPTIONS-only rule */ core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} then {"query":"{exposes(id:\"<searchId>\",offset:0,limit:100){limit offset exposes{id title city}}}"} then {"query":"{exposesInBounds(id:\"<searchId>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"}
+impact: Whole-search → whole-DB unauth listing enumeration with broker/owner PII (GDPR violation at scale, competitor intelligence). Severity: CRITICAL
+testability: PASSIVE (schema), live-confirm AUTH_HELPED
+[HYP] Direct Rails origin bypass — core.hypofriend.de serves identical auth-free GraphQL with no edge and no security-header stack
+class: MISCONFIG
+asset: core.hypofriend.de
+confidence: 96
+reasoning: Full __schema parity confirmed (Query 12 resolvers / Mutation 3); header-diff reconfirmed live this cycle: origin OPTIONS/HEAD return no CloudFront/ser/security headers (`vary: Origin` only from rack-cors), edge returns via/x-cache/x-amz-cf-pop/HSTS/XFO/nosniff — attacker reaches Rails backend naked, no WAF/rate-limit/caching.
+evidence_needed: sustained large-limit paginate on origin without WAF block/throttle (compares vs edge).
+verify_steps: POST (gated) the pagination probe above on core.hypofriend.de; compare latency/headers vs hypofriend.de — no CF headers, no throttle.
+impact: Uninterrupted enumeration/stack-trace/recon on primary GraphQL backend, bypassing all CloudFront-applied controls incl. security headers. Severity: HIGH
+testability: PASSIVE
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia)
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 50
+reasoning: CNAME jtkfqjar.cname.eu.ngrok.io persists, HTTPS 000/ERR_NGROK_3200 while LE SAN cert for all five issued — binding provisioned, tunnel gone; zone wildcard does not cover these (own CNAME records). No change this cycle.
+evidence_needed: independent ngrok account binding one of the 5 domains, or program confirmation edge abandoned — HUMAN-only.
+verify_steps: NONE read-only remain; DNS CNAME + ERR_NGROK_3200 + LE SAN cert = POC seed.
+impact: if claimable — arbitrary content under hypofriend.de origin (phishing/cred-theft/brand abuse). Severity: MEDIUM if confirmed
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] Auth-free cross-tenant state writes (exposeSeen/informationRequest/favoriteExpose): verification = write against live customer-adjacent state — no_data_modification:true; passive evidence limited to error-differentiation, insufficient.
+[PARKED] *.local ngrok orphan: no passive evidence avenue left; claim requires ngrok account test.
+[PARKED] .app cluster: re-confirmed dead (000/timeout all 5 names) — watch-only.
+[PARKED] REJECTED-class: meta/informationRequest stack traces (descriptive errors per scope.yml); Nuxt Sentry/Amplitude/Flagsmith (public client keys); email.m2 404 (mailgun inbound; mail config out of scope).
+[FINAL] 1. GraphQL BOLA/IDOR via expose/exposes/propertySearch chain — confidence 99, PASSIVE (subsumes #3 scale-up)
+[FINAL] 2. Direct Rails origin bypass — read-side + introspection CONFIRMED; hardening-gap header-diff reconfirmed — confidence 96, PASSIVE
+[FINAL] 3. Exhaustive DB crawl via pagination + geo-bounds — confidence 92, PASSIVE(schema)/AUTH_HELPED(live)
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: authorize single POST chain on core.hypofriend.de/property-search-api — {"query":"mutation{propertySearch(city:"MUNICH",propertyType:APARTMENT){searchId}}"} → {"query":"{exposes(id:"<searchId>",offset:0,limit:100){limit offset exposes{id title city}}}"} → {"query":"{exposesInBounds(id:"<searchId>",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"} — converts pagination/geo-bounds crawl [92] + origin rate-limit claim into CONFIRMED. No further POST/live reads on property-search-api until authorized (mutation + active write-hold).
+
+STEP 6 — LEARNING
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers) vs edge full security-stack — edge security-header layer fully bypassed at origin; header diff live-reconfirmed this cycle
+[LEARN] REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin (OPTIONS, ACR-M: POST) → 200 but NO access-control-allow-origin echo — no open CORS; not a finding
+[LEARN] CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (0.36–0.51s shared edge bounce); .app cluster all 000 (10s timeout); blog HTTPS 000; api 000 — unchanged, no new surface
+
+STEP 7 — RISK
+[RISK] hypofriend: 93 — Confirmed core unchanged: CRITICAL auth-free GraphQL IDOR (expose/favoritedExposes, broker+owner PII schema) and full schema reachable on BOTH CloudFront edge and naked direct Rails origin (header-diff reconfirmed, incl. missing security-header stack at origin); offset/limit + geo-bounds crawl primitives schema-proven, live-confirm blocked on no-write/GET-HEAD-OPTIONS rule for POST mutation. Cross-tenant write code paths reachable but execution parked per no_data_modification. Stack traces downgraded to supporting evidence (out-of-scope class).
