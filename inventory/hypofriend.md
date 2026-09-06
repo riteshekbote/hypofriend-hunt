@@ -362,3 +362,7 @@ www.hypofriend.de
 ## 2026-09-06 09:11:25 UTC
 
 ## 2026-09-06 13:14:28 UTC
+
+## 2026-09-06 16:14:51 UTC
+- NEW *.local.hypofriend.de ngrok custom-domain takeover hypothesis (confidence 55, HUMAN_ONLY)
+- CHANGED core.hypofriend.de/property-search-api: direct-origin bypass confirmed with bare response headers (no CloudFront security stack)

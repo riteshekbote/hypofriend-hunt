@@ -1158,3 +1158,45 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — confirmed from schema introspection.
 [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and delisted-record args exposed auth-free.
 [RISK] hypofriend: 82/100. Multiple confirmed CRITICAL IDOR/BOLA findings on property-search-api (auth-free PII read for broker/owner data, cross-tenant write via favoriteExpose, full-DB enumeration via pagination/geo-bounds). Direct origin bypasses CloudFront WAF entirely. However, live large-scale enumeration is gated on HUMAN approval (mutation required). Stack-trace disclosures are OUT OF SCOPE per program. ngrok takeover unconfirmed. Dead fleet is stable dead. Overall high severity but exploitation partially gated.
+## 2026-09-06 15:57:02 UTC [target] (model bigpickle)
+[NEW] *.local.hypofriend.de ngrok custom-domain takeover hypothesis (confidence 55, HUMAN_ONLY)
+[CHANGED] core.hypofriend.de/property-search-api: direct-origin bypass confirmed with bare response headers (no CloudFront security stack)
+[PRIO] core.hypofriend.de/property-search-api,9.8, a=9,b=10,t=10,g=10,c=8,f=7
+[PRIO] hypofriend.de/property-search-api,9.5, a=9,b=10,t=10,g=10,c=8,f=7
+[PRIO] *.local.hypofriend.de (ngrok),5.8, a=4,b=7,t=2,g=4,c=3,f=5
+[HYP] GraphQL BOLA/IDOR at scale — propertySearch→exposes→expose pagination crawl on direct origin (WAF bypass)
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 98
+reasoning: Origin serves FULL identical schema (12 Query resolvers) with zero edge/WAF (OPTIONS returns only date/content-length vs edge full CF stack); exposes(id,offset,limit), pagination(id,offset,limit), exposesInBounds(id,bounds) all auth-free in schema; expose(id) on enumerated real UUID returns broker+owner PII (cellPhoneNumber, providerEmail, propertyOwnerLastName) — confirmed on edge AND origin; origin bypass means no CloudFront rate-limiting or WAF rules apply.
+evidence_needed: live large-limit fetch (>6 records, >1 page) on origin returning full data without WAF throttle; latency/header diff vs hypofriend.de edge to prove bypass value.
+verify_steps: HUMAN-gated (mutation+write-hold). Step 1: POST https://core.hypofriend.de/property-search-api with Content-Type: application/json, body: {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} — expect 200 + searchId UUID. Step 2: POST same endpoint with {"query":"{exposes(id:\"<searchId>\",offset:0,limit:100){limit offset exposes{id title city}}}"} — expect 200 + full listing page. Step 3: POST with {"query":"{exposesInBounds(id:\"<searchId>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"} — expect 200 + geo-filtered results. Compare response headers (absence of x-amz-cf-*, cf-ray, server: cloudfront) and latency vs edge.
+impact: whole-search → whole-DB unauth enumeration with broker/owner PII (GDPR at scale), bypassing all CloudFront WAF controls. Severity: CRITICAL
+testability: AUTH_HELPED (schema PASSIVE, live on hold for HUMAN)
+[HYP] Exhaustive DB crawl via offset/limit + geo-bounds primitives
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 92
+reasoning: Schema proves exposes(id,offset,limit), pagination(id,offset,limit), exposesInBounds(id,bounds{north,east,south,west}), mapExposes(id,bounds) carry offset+limit+lat/lng bounds — all auth-free like the confirmed favoritedExposes/expose oracles; offset/limit removes UUID-luck, enabling deterministic sequential crawl of entire property database.
+evidence_needed: pagination(offset>0) pages forward through results; exposesInBounds narrows result set by geo-bounds; mapExposes returns geo-located expose IDs.
+verify_steps: same POST chain as [98] — single propertySearch mutation authorizes all follow-up queries. HUMAN-gated: Step 1: propertySearch for city. Step 2: exposes(id,offset:0,limit:10) then exposes(id,offset:10,limit:10) — confirm offset pages forward. Step 3: exposesInBounds with tight bounds — confirm subset returned.
+impact: deterministic whole-DB crawl primitive enabling complete property/PII extraction across all listings. Severity: CRITICAL
+testability: PASSIVE (schema confirmed) / AUTH_HELPED (live on hold)
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 55
+reasoning: CT shows *.local.hypofriend.de wildcard cert PLUS per-name wildcards for kajsa/laurence/pavel/tiago/sofia; DNS CNAMEs persist to jtkfqjar.cname.eu.ngrok.io; tunnel returns ERR_NGROK_3200 (edge released, no agent bound); ngrok account reserved the zone but tunnel is abandoned.
+evidence_needed: independent ngrok account binding one of the 5 names, or proof the tunnel/domain contract is abandoned — HUMAN-only (ngrok domains API test or account re-bind).
+verify_steps: NONE read-only remain (DNS+CT+TLS+ERR_NGROK_3200 all gathered). HUMAN: ngrok domains API test or attempt to claim the subdomain.
+impact: arbitrary content serving under *.local.hypofriend.de (phishing/credential theft under origin domain). Severity: MEDIUM if confirmed
+testability: HUMAN_ONLY
+[PARKED] Blog admin origin — residual (confidence 10): resolves into shared 503 ELB pool; nothing admin-like reachable. Dead.
+[FINAL] Survivors ranked:
+[NEXT] PROBE: Verify origin response headers on OPTIONS preflight to core.hypofriend.de/property-search-api vs hypofriend.de/property-search-api — GET/OPTIONS read-only, confirm header diff (no CF on origin = WAF bypass proven with live response, no mutation needed).
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers) vs edge full security-stack — edge security-header layer fully bypassed at origin.
+[LEARN] REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin returns 200 but NO access-control-allow-origin echo — no open CORS, not a finding.
+[LEARN] CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (shared edge bounce); .app cluster all 000; blog HTTPS 000; api 000 — unchanged, no new surface.
+[LEARN] ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — confirmed from schema introspection.
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and delisted-record args exposed auth-free.
+[RISK] hypofriend: 82/100. Multiple confirmed CRITICAL IDOR/BOLA findings on property-search-api (auth-free PII read for broker/owner data, cross-tenant write via favoriteExpose, full-DB enumeration via pagination/geo-bounds). Direct origin bypasses CloudFront WAF entirely. However, live large-scale enumeration is gated on HUMAN approval (mutation required). Stack-trace disclosures are OUT OF SCOPE per program. ngrok takeover unconfirmed. Dead fleet is stable dead. Overall high severity but exploitation partially gated.

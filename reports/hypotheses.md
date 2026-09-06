@@ -684,3 +684,38 @@
 - LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissin
 - LEARN: CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, graph-rates, v3, login, sso, portal, dashboard, billing, offer, documents, my, profile, 
 - LEARN: CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
+
+## RANKED HYPOTHESES 2026-09-06 16:14:51 UTC
+- [98] core.hypofriend.de/property-search-api: GraphQL BOLA/IDOR at scale — propertySearch→exposes→expose pagination crawl on direct origin (WAF bypass) (from art/lead_bigpickle.txt)
+- [98] core.hypofriend.de/property-search-api: GraphQL BOLA/IDOR at Scale via propertySearch→exposes→expose Pagination Crawl on Direct Origin (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: Verify origin response headers on OPTIONS preflight to core.hypofriend.de/property-search-api vs hypofriend.de/property-search-api — GET/OPTIONS read-onl
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} — confirm sear
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers)
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin returns 200 but NO access-control-allow-origin echo — no open C
+- LEARN: CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (shared edge bounce); .app clust
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — confirmed from schema introspe
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissin
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin (OPTIONS, ACR-M: POST) → 200 but NO access-control-allow-origin
+- LEARN: REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofrie
+- LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz s
+- LEARN: REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket, 403 all objects — no exposure
+- LEARN: REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior; no exposure
+- LEARN: REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers)
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; I
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primiti
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, 
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace —
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — public client keys by design, no
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- LEARN: ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property
+- LEARN: CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin (no CloudFront) serves FULL identical GraphQL schema — read-side enum primary path bypass
+- LEARN: ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination(id,offset,limit)/exposes(id,offset,limit)/exposesInBounds(id,bounds)/mapExposes(id,bounds) are aut
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissin
+- LEARN: CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, graph-rates, v3, login, sso, portal, dashboard, billing, offer, documents, my, profile, 
+- LEARN: CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface

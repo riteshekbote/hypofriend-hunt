@@ -1,9 +1,9 @@
-## 2026-09-06 13:14:19 UTC [target] (model nemotron3)
-[PRIO] core.hypofriend.de/property-search-api,9.60,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=7,freshness=9
-[PRIO] hypofriend.de/property-search-api,9.55,attack_surface=10,business_value=10,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
-[PRIO] hypofriend.de,7.50,attack_surface=7,business_value=7,tech_exposure=8,gate_ease=10,cloud_surface=5,freshness=8
+## 2026-09-06 16:14:39 UTC [target] (model nemotron3)
+[PRIO] core.hypofriend.de/property-search-api,9.55,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=9
+[PRIO] hypofriend.de/property-search-api,9.10,attack_surface=9,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=6,freshness=9
 [PRIO] hypofriend.de/api/v3/advisors,7.00,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=6,freshness=8
-[PRIO] *.hypofriend.de (61 unprobed),5.45,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=5,cloud_surface=5,freshness=2
+[PRIO] *.local.hypofriend.de (5 ngrok orphaned),4.85,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=5,cloud_surface=4,freshness=3
+[PRIO] hypofriend.de (Nuxt config),6.20,attack_surface=6,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=7
 [HYP] GraphQL BOLA/IDOR at Scale via propertySearch→exposes→expose Pagination Crawl on Direct Origin
 class: IDOR
 asset: core.hypofriend.de/property-search-api
@@ -50,7 +50,7 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
 [LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
 [LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
-[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace — OUT OF SCOPE (descriptive errors)
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — OUT OF SCOPE (descriptive errors)
 [LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — OUT OF SCOPE (descriptive errors)
 [LEARN] ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — public client keys by design, no standalone vuln
 [LEARN] ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
