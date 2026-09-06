@@ -116,3 +116,19 @@ TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-06 13:06:49 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-06 16:21:06 UTC
+[HYP] GraphQL BOLA/IDOR — Unauthenticated PII enumeration via property-search-api
+class: IDOR
+asset: property-search-api (GraphQL endpoint on api.hypofriend.de)
+confidence: 99
+reasoning: favoritedExposes(leadId), favoriteExpose(leadId,exposeId), and meta(id) resolvers return mortgage listing PII without authentication. Cross-tenant lead/expose access confirmed by nemotron3 probe logs in reports/analyst-nemotron3.log.
+impact: CRITICAL — unauthenticated access to customer mortgage/property data, cross-tenant PII leakage
+verify_steps: |
+[HYP] HTTP Basic Auth test credentials on advisor API
+class: OTHER
+asset: api.hypofriend.de/api/v3/advisors
+confidence: 15
+reasoning: Analyst nemotron3 suggested Base64-encoded admin:admin / hypofriend:hypofriend test creds against /api/v3/advisors. Triager marked INVALID (speculative, no proof). Flagged as informational only.
+impact: LOW (unverified)
+verify_steps: |
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
