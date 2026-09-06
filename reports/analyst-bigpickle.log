@@ -7685,3 +7685,265 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 82/100. Multiple confirmed CRITICAL IDOR/BOLA findings on property-search-api (auth-free PII read for broker/owner data, cross-tenant write via favoriteExpose, full-DB enumeration via pagination/geo-bounds). Direct origin bypasses CloudFront WAF entirely. However, live large-scale enumeration is gated on HUMAN approval (mutation required). Stack-trace disclosures are OUT OF SCOPE per program. ngrok takeover unconfirmed. Dead fleet is stable dead. Overall high severity but exploitation partially gated.
+===== ANALYST bigpickle 2026-09-06 18:04:29 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mfor h in local.hypofriend.de kajsa.local.hypofriend.de laurence.local.hypofriend.de pavel.local.hypofriend.de tiago.local.hypofriend.de sofia.local.hypofriend.de; do echo "== $h =="; dig +short $h CNAME; dig +short $h A; done
+== local.hypofriend.de ==
+51.102.161.196
+3.79.67.81
+3.78.178.6
+== kajsa.local.hypofriend.de ==
+jtkfqjar.cname.eu.ngrok.io.
+jtkfqjar.cname.eu.ngrok.io.
+52.8.87.87
+54.193.184.75
+54.183.107.205
+184.72.44.51
+50.18.8.146
+13.56.217.111
+== laurence.local.hypofriend.de ==
+jtkfqjar.cname.eu.ngrok.io.
+jtkfqjar.cname.eu.ngrok.io.
+54.183.107.205
+54.193.184.75
+184.72.44.51
+52.8.87.87
+13.56.217.111
+50.18.8.146
+== pavel.local.hypofriend.de ==
+jtkfqjar.cname.eu.ngrok.io.
+jtkfqjar.cname.eu.ngrok.io.
+13.56.217.111
+184.72.44.51
+54.183.107.205
+52.8.87.87
+54.193.184.75
+50.18.8.146
+== tiago.local.hypofriend.de ==
+jtkfqjar.cname.eu.ngrok.io.
+jtkfqjar.cname.eu.ngrok.io.
+54.183.107.205
+52.8.87.87
+13.56.217.111
+184.72.44.51
+54.193.184.75
+50.18.8.146
+== sofia.local.hypofriend.de ==
+jtkfqjar.cname.eu.ngrok.io.
+jtkfqjar.cname.eu.ngrok.io.
+54.183.107.205
+52.8.87.87
+50.18.8.146
+13.56.217.111
+54.193.184.75
+184.72.44.51
+[0m
+[0m$ [0mfor u in "https://core.hypofriend.de/property-search-api" "https://hypofriend.de/property-search-api"; do echo "== $u OPTIONS =="; curl -sS -o /dev/null -D - -X OPTIONS "$u" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 15 2>&1 | head -30; echo; done
+== https://core.hypofriend.de/property-search-api OPTIONS ==
+HTTP/2 200 
+date: Sun, 06 Sep 2026 18:02:22 GMT
+content-length: 0
+
+
+== https://hypofriend.de/property-search-api OPTIONS ==
+HTTP/2 200 
+server: CloudFront
+content-length: 0
+date: Sun, 06 Sep 2026 18:02:22 GMT
+via: 1.1 c03762393201928ae57eaacaadd05e7a.cloudfront.net (CloudFront)
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: PHX52-P3
+x-amz-cf-id: gBSymbxDyr1R7y-ngRzPvKsYjxIGxBakbq_uwFsdHRy2uhMyt-JblA==
+[0m
+[0m$ [0mecho | openssl s_client -connect kajsa.local.hypofriend.de:443 -servername kajsa.local.hypofriend.de 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName 2>/dev/null
+subject=CN = *.pavel.local.hypofriend.de
+issuer=C = US, O = Let's Encrypt, CN = R3
+X509v3 Subject Alternative Name: 
+    DNS:*.kajsa.local.hypofriend.de, DNS:*.laurence.local.hypofriend.de, DNS:*.pavel.local.hypofriend.de, DNS:*.sofia.local.hypofriend.de, DNS:*.tiago.local.hypofriend.de
+[0m
+[0m$ [0mfor h in kajsa.local.hypofriend.de local.hypofriend.de; do echo "== $h HTTPS GET =="; curl -sS -o /dev/null -w "code:%{http_code} ssl:%{ssl_verify_result} err:%{errormsg}\n" "https://$h/" --max-time 12 2>&1; echo "== $h HTTP GET =="; curl -sS -o /dev/null -w "code:%{http_code} err:%{errormsg}\n" "http://$h/" --max-time 12 2>&1; done
+== kajsa.local.hypofriend.de HTTPS GET ==
+curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+code:000 ssl:20 err:SSL certificate problem: unable to get local issuer certificate
+== kajsa.local.hypofriend.de HTTP GET ==
+code:307 err:
+== local.hypofriend.de HTTPS GET ==
+code:503 ssl:0 err:
+== local.hypofriend.de HTTP GET ==
+code:301 err:
+[0m
+[0m$ [0mecho "== kajsa 307 location =="; curl -sS -o /dev/null -D - "http://kajsa.local.hypofriend.de/" --max-time 12 | head -15; echo; echo "== local.hypofriend.de 503 headers =="; curl -sS -o /dev/null -D - "https://local.hypofriend.de/" --max-time 12 | head -20
+== kajsa 307 location ==
+HTTP/1.1 307 Temporary Redirect
+Connection: close
+Content-Type: text/html; charset=utf-8
+Location: https://kajsa.local.hypofriend.de/
+Date: Sun, 06 Sep 2026 18:02:37 GMT
+Content-Length: 70
+
+
+== local.hypofriend.de 503 headers ==
+HTTP/2 503 
+server: awselb/2.0
+date: Sun, 06 Sep 2026 18:02:37 GMT
+content-type: text/html
+content-length: 162
+[0m
+[0m$ [0mecho | openssl s_client -connect local.hypofriend.de:443 -servername local.hypofriend.de 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName 2>/dev/null; echo "== local.hypofriend.de A records =="; dig +short local.hypofriend.de A | head -10; echo "== check shared 503 pool scale =="; curl -sS -o /dev/null -w "code:%{http_code} server:%{header_json}" "https://local.hypofriend.de/" --max-time 12 2>&1 | head -c 800
+subject=CN = hypofriend.de
+X509v3 Subject Alternative Name: 
+    DNS:hypofriend.de, DNS:*.hypofriend.de
+== local.hypofriend.de A records ==
+51.102.161.196
+3.78.178.6
+3.79.67.81
+== check shared 503 pool scale ==
+code:503 server:{"server":["awselb/2.0"],
+"date":["Sun, 06 Sep 2026 18:02:39 GMT"],
+"content-type":["text/html"],
+"content-length":["162"]
+}
+[0m
+[0m$ [0mfor h in kajsa.local.hypofriend.de laurence.local.hypofriend.de pavel.local.hypofriend.de tiago.local.hypofriend.de sofia.local.hypofriend.de; do echo "== $h HTTPS -k =="; curl -sk -o /dev/null -w "code:%{http_code} err:%{errormsg}\n" "https://$h/" --max-time 12 2>&1; done
+== kajsa.local.hypofriend.de HTTPS -k ==
+code:404 err:
+== laurence.local.hypofriend.de HTTPS -k ==
+code:404 err:
+== pavel.local.hypofriend.de HTTPS -k ==
+code:404 err:
+== tiago.local.hypofriend.de HTTPS -k ==
+code:404 err:
+== sofia.local.hypofriend.de HTTPS -k ==
+code:404 err:
+[0m
+[0m$ [0mecho | openssl s_client -connect kajsa.local.hypofriend.de:443 -servername kajsa.local.hypofriend.de -showcerts 2>/dev/null | grep -E "s:|i:|verify return|BEGIN CERTIFICATE|END CERTIFICATE" | head -20
+0 s:CN = *.pavel.local.hypofriend.de
+   i:C = US, O = Let's Encrypt, CN = R3
+-----BEGIN CERTIFICATE-----
+-----END CERTIFICATE-----
+ 1 s:C = US, O = Let's Encrypt, CN = R3
+   i:O = Digital Signature Trust Co., CN = DST Root CA X3
+-----BEGIN CERTIFICATE-----
+-----END CERTIFICATE-----
+[0m
+[0m$ [0mcurl -sk -D - "https://kajsa.local.hypofriend.de/" --max-time 12 2>&1 | head -40; echo "===BODY==="; curl -sk "https://kajsa.local.hypofriend.de/" --max-time 12 2>&1 | head -20
+HTTP/2 404 
+content-type: text/html
+ngrok-error-code: ERR_NGROK_3200
+referrer-policy: no-referrer
+content-length: 2332
+date: Sun, 06 Sep 2026 18:02:57 GMT
+
+<!DOCTYPE html>
+<html class="h-full" lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-Regular-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-RegularItalic-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-Medium-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-MediumItalic-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/ibm-plex-mono/IBMPlexMono-Text.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/ibm-plex-mono/IBMPlexMono-TextItalic.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/ibm-plex-mono/IBMPlexMono-SemiBold.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/ibm-plex-mono/IBMPlexMono-SemiBoldItalic.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <meta name="author" content="ngrok">
+    <meta name="description" content="ngrok is the fastest way to put anything on the internet with a single command.">
+    <link href="https://ngrok.com/assets/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="robots" content="noindex, nofollow">
+    <link id="style" rel="stylesheet" href="https://cdn.ngrok.com/static/css/error.css">
+    <noscript>The endpoint kajsa.local.hypofriend.de is offline. (ERR_NGROK_3200)</noscript>
+    <script id="script" src="https://cdn.ngrok.com/static/js/error.js" type="text/javascript"></script>
+  </head>
+  <body class="h-full" id="ngrok">
+    <div id="root" data-payload="eyJjZG5CYXNlIjoiaHR0cHM6Ly9jZG4ubmdyb2suY29tLyIsImNvZGUiOiIzMjAwIiwibWVzc2FnZSI6IlRoZSBlbmRwb2ludCBrYWpzYS5sb2NhbC5oeXBvZnJpZW5kLmRlIGlzIG9mZmxpbmUuIiwidGl0bGUiOiJOb3QgRm91bmQifQ=="></div>
+  </body>
+</html>
+===BODY===
+<!DOCTYPE html>
+<html class="h-full" lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-Regular-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-RegularItalic-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-Medium-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-MediumItalic-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/ibm-plex-mono/IBMPlexMono-Text.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/ibm-plex-mono/IBMPlexMono-TextItalic.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/ibm-plex-mono/IBMPlexMono-SemiBold.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/ibm-plex-mono/IBMPlexMono-SemiBoldItalic.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <meta name="author" content="ngrok">
+    <meta name="description" content="ngrok is the fastest way to put anything on the internet with a single command.">
+    <link href="https://ngrok.com/assets/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="robots" content="noindex, nofollow">
+    <link id="style" rel="stylesheet" href="https://cdn.ngrok.com/static/css/error.css">
+    <noscript>The endpoint kajsa.local.hypofriend.de is offline. (ERR_NGROK_3200)</noscript>
+    <script id="script" src="https://cdn.ngrok.com/static/js/error.js" type="text/javascript"></script>
+[0m
+STEP 1 — DELTA:
+[CHANGED] local.hypofriend.de (bare) — now HTTPS 503 `awselb/2.0` on shared main fleet, wildcard `*.hypofriend.de` cert, A=51.102.161.196/3.78.178.6/3.79.67.81 — zone folded into main 503 pool, NOT takeoverable
+[CHANGED] *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia) — ERR_NGROK_3200 reconfirmed ("endpoint offline"), CNAME intact to jtkfqjar.cname.eu.ngrok.io, TLS presents stale LE R3 (DST Root CA X3 cross-signed, expired) chain → curl verify fails code:000 — strengthens "abandoned tunnel" (cert never rotated)
+[CHANGED] core vs edge header diff reconfirmed live: origin OPTIONS 200 bare (date/content-length only) vs edge full CF security stack (server/HSTS/XFO/nosniff/x-cache/x-amz-cf-*)
+
+STEP 2 — PRIORITIZE:
+[PRIO] core.hypofriend.de/property-search-api,9.8, a=9,b=10,t=10,g=10,c=8,f=7
+[PRIO] hypofriend.de/property-search-api,9.5, a=9,b=10,t=10,g=10,c=8,f=7
+[PRIO] *.local.hypofriend.de (ngrok),5.8, a=4,b=7,t=2,g=4,c=3,f=5
+
+STEP 3 — HYPOTHESES:
+[HYP] GraphQL BOLA/IDOR at scale — propertySearch→exposes→expose pagination crawl on direct origin (WAF bypass)
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 98
+reasoning: Origin serves FULL identical schema (12 Query resolvers, 3 Mutations) with zero edge/WAF — OPTIONS 200 reconfirmed this cycle returns only date/content-length, no server/HSTS/XFO/nosniff/x-amz-cf-* vs full CloudFront stack on hypofriend.de edge; exposes(id,offset,limit), pagination(id,offset,limit), exposesInBounds(id,bounds) all auth-free in schema; expose(id) on enumerated real UUID returns broker/owner PII (cellPhoneNumber, providerEmail, propertyOwnerLastName) confirmed on edge AND origin; origin bypass = no CF rate-limit/WAF.
+evidence_needed: live large-limit fetch (>6 records, >1 page) on origin returning full data with zero WAF throttle; header/latency diff vs edge proves bypass value.
+verify_steps: HUMAN-gated (mutation+write-hold). Step1: POST https://core.hypofriend.de/property-search-api Content-Type:application/json {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} → 200+searchId. Step2: {"query":"{exposes(id:\"<sid>\",offset:0,limit:100){limit offset exposes{id title city}}}"} → 200+full page. Step3: {"query":"{exposesInBounds(id:\"<sid>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"} → 200+geo subset. Compare absence of CF headers + latency.
+impact: whole-search→whole-DB unauth enumeration w/ broker/owner PII (GDPR at scale), bypassing all CloudFront WAF controls. Severity: CRITICAL
+testability: AUTH_HELPED (schema PASSIVE, live on hold for HUMAN)
+[HYP] Exhaustive DB crawl via offset/limit + geo-bounds primitives
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 92
+reasoning: Schema proves exposes(id,offset,limit), pagination(id,offset,limit), exposesInBounds(id,bounds{north,east,south,west}), mapExposes(id,bounds) — all auth-free (same class as confirmed favoritedExposes/expose oracles); offset/limit removes UUID-luck → deterministic sequential crawl of entire property DB.
+evidence_needed: pagination(offset>0) pages forward; exposesInBounds narrows by geo; mapExposes returns geo-located IDs.
+verify_steps: same chain as [98]; single propertySearch mutation authorizes all follow-ups. HUMAN-gated: Step2a exposes(id,offset:0,limit:10) then offset:10,limit:10 confirm forward pages; Step2b tight geo-bounds confirm subset.
+impact: deterministic whole-DB crawl → complete property/PII extraction across all listings. Severity: CRITICAL
+testability: PASSIVE (schema) / AUTH_HELPED (live on hold)
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 60
+reasoning: CT wildcard + per-name certs (Leaf *.pavel.local.hypofriend.de SAN=5 names); DNS CNAMEs persist to jtkfqjar.cname.eu.ngrok.io; all 5 HTTPS return ERR_NGROK_3200 ngrok error page ("endpoint offline", no agent bound); TLS presents stale DST-anchored LE R3 chain (expired, never rotated → curl verify fails) — long-abandoned ngrok custom domain, zone reserved but tunnel dead.
+evidence_needed: independent ngrok account binding one of the 5 names, or proof the domain contract is abandoned — HUMAN-only (ngrok domains API test or account re-bind).
+verify_steps: NONE read-only remain (DNS+CT+TLS+HTTP+ERR_NGROK_3200 all gathered, re-confirmed this cycle). HUMAN: ngrok domains API test or attempt claim.
+impact: arbitrary content serving under *.local.hypofriend.de (phishing/credential theft under origin domain). Severity: MEDIUM if confirmed
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE:
+[PARKED] Blog admin origin (confidence 10): shared 503 ELB pool, nothing admin-like — dead.
+[PARKED] local.hypofriend.de bare host (any takeover/misconfig hypothesis): on main awselb 503 pool with wildcard cert — inert, dead.
+[FINAL] Survivors: 1) core.hypofriend.de GraphQL crawl (98) 2) hypofriend.de GraphQL crawl (92) 3) *.local.hypofriend.de ngrok takeover (60)
+
+STEP 5 — NEXT ACTION:
+[NEXT] HUMAN: Approve 3-step live POC on core.hypofriend.de/property-search-api — POST propertySearch(MUNICH)→exposes(offset0,limit:100)→exposesInBounds; capture headers/latency vs edge to prove CloudFront WAF bypass at scale. No live data mutation beyond writing one searchId; single-request-per-step, <1rps.
+
+STEP 6 — LEARNING:
+[LEARN] CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names (offline page, no agent), CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, no new exploitable surface; takeover still HUMAN-only.
+[LEARN] CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet (wildcard cert, A=51.102.161.196/3.78.178.6/3.79.67.81) — inert.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare (date/content-length only) vs edge full CF stack — WAF/security-header bypass live re-proven this cycle.
+
+STEP 7 — RISK:
+[RISK] hypofriend: 82/100. Confirmed CRITICAL IDOR/BOLA on property-search-api (auth-free PII read oracle, cross-tenant write via favoriteExpose, schema-proven offset/geo-bounds DB crawl) compounded by direct-origin bypass of all CloudFront WAF controls; live scale-proof remains HUMAN-gated (mutation+write-hold). Stack-trace disclosures out of scope. ngrok takeover confirmed abandoned but requires HUMAN verification. Dead fleet and new local.hypofriend.de 503 pool stable — no new surface. High severity, exploitation partially gated on HUMAN approval.

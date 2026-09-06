@@ -366,3 +366,8 @@ www.hypofriend.de
 ## 2026-09-06 16:14:51 UTC
 - NEW *.local.hypofriend.de ngrok custom-domain takeover hypothesis (confidence 55, HUMAN_ONLY)
 - CHANGED core.hypofriend.de/property-search-api: direct-origin bypass confirmed with bare response headers (no CloudFront security stack)
+
+## 2026-09-06 18:04:29 UTC
+- CHANGED local.hypofriend.de (bare) — now HTTPS 503 `awselb/2.0` on shared main fleet, wildcard `*.hypofriend.de` cert, A=51.102.161.196/3.78.178.6/3.79.67.81 — zone folded into main 503 pool, NOT takeoverable
+- CHANGED *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia) — ERR_NGROK_3200 reconfirmed ("endpoint offline"), CNAME intact to jtkfqjar.cname.eu.ngrok.io, TLS presents stale LE R3 (DST Root CA X3 cross-s
+- CHANGED core vs edge header diff reconfirmed live: origin OPTIONS 200 bare (date/content-length only) vs edge full CF security stack (server/HSTS/XFO/nosniff/x-cache/x-amz-cf-*)

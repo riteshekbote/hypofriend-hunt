@@ -182,3 +182,9 @@ https://core.hypofriend.de/property-search-api -> HTTP 400
 https://hypofriend.de/property-search-api -> HTTP 400
 https://hypofriend.de/ -> 200 len=227301
 https://hypofriend.de/api/v3/advisors -> HTTP 401
+
+## 2026-09-06 18:04:35 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/ -> 200 len=227301
+https://hypofriend.de/api/v3/advisors -> HTTP 401

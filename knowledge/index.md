@@ -137,3 +137,11 @@
 - 2026-09-06 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — confirmed from schema introspection.
 - 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and delisted-record args exposed auth-free.
 - 2026-09-06 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace — OUT OF SCOPE (descriptive errors)
+- 2026-09-06 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names (offline page, no agent), CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, no new exploitable surface; takeover still HUMAN-only.
+- 2026-09-06 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet (wildcard cert, A=51.102.161.196/3.78.178.6/3.79.67.81) — inert.
+- 2026-09-06 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare (date/content-length only) vs edge full CF stack — WAF/security-header bypass live re-proven this cycle.
+- 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — public client keys by design, no standalone vuln
+- 2026-09-06 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property-search-api GraphQL; without CloudFront
+- 2026-09-06 CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin serves FULL identical GraphQL schema — read-side enum primary path bypasses edge
+- 2026-09-06 CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + a./blog/m2: unchanged 503/000/301/403 — no new surface
+- 2026-09-06 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
