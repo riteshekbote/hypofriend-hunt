@@ -136,3 +136,12 @@ TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-06 20:48:43 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-06 22:43:54 UTC
+[HYP] Hardcoded Google Cloud Project Number in advisor-couching
+class: MISCONFIG
+asset: HypoFriend/advisor-couching/main.js:17
+confidence: 85
+reasoning: >
+impact: LOW-MEDIUM
+verify_steps: >
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
