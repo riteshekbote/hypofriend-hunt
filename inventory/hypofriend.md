@@ -373,3 +373,5 @@ www.hypofriend.de
 - CHANGED core vs edge header diff reconfirmed live: origin OPTIONS 200 bare (date/content-length only) vs edge full CF security stack (server/HSTS/XFO/nosniff/x-cache/x-amz-cf-*)
 
 ## 2026-09-06 20:22:43 UTC
+
+## 2026-09-06 22:16:10 UTC
