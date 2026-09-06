@@ -145,3 +145,7 @@
 - 2026-09-06 CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin serves FULL identical GraphQL schema — read-side enum primary path bypasses edge
 - 2026-09-06 CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + a./blog/m2: unchanged 503/000/301/403 — no new surface
 - 2026-09-06 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
+- 2026-09-06 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only.
+- 2026-09-06 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable.
+- 2026-09-06 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare (date/content-length only) vs edge full CF stack — WAF/security-header bypass live re-proven.
+- 2026-09-06 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — from schema introspection.

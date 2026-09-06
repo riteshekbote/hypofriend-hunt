@@ -1,7 +1,4 @@
-## 2026-09-06 18:03:48 UTC [target] (model bigpickle)
-[CHANGED] local.hypofriend.de (bare) — now HTTPS 503 `awselb/2.0` on shared main fleet, wildcard `*.hypofriend.de` cert, A=51.102.161.196/3.78.178.6/3.79.67.81 — zone folded into main 503 pool, NOT takeoverable
-[CHANGED] *.local.hypofriend.de (kajsa/laurence/pavel/tiago/sofia) — ERR_NGROK_3200 reconfirmed ("endpoint offline"), CNAME intact to jtkfqjar.cname.eu.ngrok.io, TLS presents stale LE R3 (DST Root CA X3 cross-signed, expired) chain → curl verify fails code:000 — strengthens "abandoned tunnel" (cert never rotated)
-[CHANGED] core vs edge header diff reconfirmed live: origin OPTIONS 200 bare (date/content-length only) vs edge full CF security stack (server/HSTS/XFO/nosniff/x-cache/x-amz-cf-*)
+## 2026-09-06 20:19:49 UTC [target] (model bigpickle)
 [PRIO] core.hypofriend.de/property-search-api,9.8, a=9,b=10,t=10,g=10,c=8,f=7
 [PRIO] hypofriend.de/property-search-api,9.5, a=9,b=10,t=10,g=10,c=8,f=7
 [PRIO] *.local.hypofriend.de (ngrok),5.8, a=4,b=7,t=2,g=4,c=3,f=5
@@ -34,9 +31,11 @@ impact: arbitrary content serving under *.local.hypofriend.de (phishing/credenti
 testability: HUMAN_ONLY
 [PARKED] Blog admin origin (confidence 10): shared 503 ELB pool, nothing admin-like — dead.
 [PARKED] local.hypofriend.de bare host (any takeover/misconfig hypothesis): on main awselb 503 pool with wildcard cert — inert, dead.
-[FINAL] Survivors: 1) core.hypofriend.de GraphQL crawl (98) 2) hypofriend.de GraphQL crawl (92) 3) *.local.hypofriend.de ngrok takeover (60)
-[NEXT] HUMAN: Approve 3-step live POC on core.hypofriend.de/property-search-api — POST propertySearch(MUNICH)→exposes(offset0,limit:100)→exposesInBounds; capture headers/latency vs edge to prove CloudFront WAF bypass at scale. No live data mutation beyond writing one searchId; single-request-per-step, <1rps.
-[LEARN] CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names (offline page, no agent), CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, no new exploitable surface; takeover still HUMAN-only.
-[LEARN] CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet (wildcard cert, A=51.102.161.196/3.78.178.6/3.79.67.81) — inert.
-[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare (date/content-length only) vs edge full CF stack — WAF/security-header bypass live re-proven this cycle.
-[RISK] hypofriend: 82/100. Confirmed CRITICAL IDOR/BOLA on property-search-api (auth-free PII read oracle, cross-tenant write via favoriteExpose, schema-proven offset/geo-bounds DB crawl) compounded by direct-origin bypass of all CloudFront WAF controls; live scale-proof remains HUMAN-gated (mutation+write-hold). Stack-trace disclosures out of scope. ngrok takeover confirmed abandoned but requires HUMAN verification. Dead fleet and new local.hypofriend.de 503 pool stable — no new surface. High severity, exploitation partially gated on HUMAN approval.
+[FINAL] Survivors ranked:
+[NEXT] HUMAN: Approve 3-step live POC on core.hypofriend.de/property-search-api — POST propertySearch(MUNICH)→exposes(offset:0,limit:100)→exposesInBounds; capture response headers (expect missing server/HSTS/XFO/nosniff/x-amz-cf-*) + latency vs edge to prove CloudFront WAF bypass at scale. Single-request-per-step, <1rps, no data mutation beyond writing one searchId.
+[LEARN] CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only.
+[LEARN] CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare (date/content-length only) vs edge full CF stack — WAF/security-header bypass live re-proven.
+[LEARN] ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — from schema introspection.
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and delisted-record args exposed auth-free.
+[RISK] hypofriend: 82/100. Confirmed CRITICAL IDOR/BOLA on property-search-api (auth-free PII read oracle, cross-tenant write via favoriteExpose, schema-proven offset/geo-bounds DB crawl) compounded by direct-origin bypass of all CloudFront WAF controls; live scale proof remains HUMAN-gated (mutation+write-hold). Stack-trace disclosures out of scope. ngrok takeover confirmed abandoned but requires HUMAN verification. Dead fleet and local.hypofriend.de 503 pool stable — no new surface. High severity, exploitation partially gated on HUMAN approval.
