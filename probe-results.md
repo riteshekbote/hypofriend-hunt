@@ -170,3 +170,9 @@ https://kubernetes.hypofriend.de/ -> HTTP 503
 https://secure.hypofriend.de/ -> HTTP 503
 https://cdn.hypofriend.de/ -> HTTP 503
 https://uploader.app.hypofriend.de/ -> ERR <urlopen error timed out>
+
+## 2026-09-06 13:14:34 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/ -> 200 len=227301
+https://hypofriend.de/api/v3/advisors -> HTTP 401
