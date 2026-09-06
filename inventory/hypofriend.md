@@ -356,3 +356,5 @@ www.hypofriend.de
 ## 2026-09-06 00:16:53 UTC
 - NEW core.hypofriend.de/property-search-api — direct-origin hardening gap reconfirmed: OPTIONS 200 returns ONLY `date`/`content-length` (no `server`, no HSTS/X-Frame-Options/X-Content-Type-Options/nosniff,
 - CHANGED none — all tracked hosts returned identical statuses to last cycle (hypofriend.de/en 200, both /property-search-api 400, core robots 200 / advisors 401, a. 403, m2 301, auth/admin 503, api/admin.app/b
+
+## 2026-09-06 04:47:48 UTC

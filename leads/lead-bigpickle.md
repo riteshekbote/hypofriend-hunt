@@ -1054,3 +1054,39 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin (OPTIONS, ACR-M: POST) → 200 but NO access-control-allow-origin echo — no open CORS; not a finding
 [LEARN] CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (0.36–0.51s shared edge bounce); .app cluster all 000 (10s timeout); blog HTTPS 000; api 000 — unchanged, no new surface
 [RISK] hypofriend: 93 — Confirmed core unchanged: CRITICAL auth-free GraphQL IDOR (expose/favoritedExposes, broker+owner PII schema) and full schema reachable on BOTH CloudFront edge and naked direct Rails origin (header-diff reconfirmed, incl. missing security-header stack at origin); offset/limit + geo-bounds crawl primitives schema-proven, live-confirm blocked on no-write/GET-HEAD-OPTIONS rule for POST mutation. Cross-tenant write code paths reachable but execution parked per no_data_modification. Stack traces downgraded to supporting evidence (out-of-scope class).
+## 2026-09-06 04:47:23 UTC [target] (model bigpickle)
+[HYP] GraphQL BOLA/IDOR at scale — propertySearch→exposes→expose pagination crawl on direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 98
+reasoning: Origin serves FULL identical schema (12 Query resolvers) with zero edge/WAF (header diff: origin OPTIONS=date/content-length only vs edge full CF stack); `exposes(id,offset,limit)`, `pagination(id,offset,limit)`, `exposesInBounds(id,bounds)` all auth-free; expose(id) on enumerated real UUID returns broker+owner PII (cellPhoneNumber, providerEmail, propertyOwnerLastName) — confirmed on edge and origin.
+evidence_needed: live large-limit fetch on origin returning >6 records and >1 page without WAF throttle (compares vs edge).
+verify_steps: POST https://core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} then {"query":"{exposes(id:\"<searchId>\",offset:0,limit:100){limit offset exposes{id title city}}}"} then {"query":"{exposesInBounds(id:\"<searchId>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"} — HUMAN-gated (mutation+write-hold)
+impact: whole-search → whole-DB unauth enumeration with broker/owner PII (GDPR at scale). Severity: CRITICAL
+testability: AUTH_HELPED (schema PASSIVE, live hold)
+[HYP] Exhaustive DB crawl via offset/limit + geo-bounds primitives
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 92
+reasoning: Schema proves exposes/pagination/exposesInBounds/mapExposes carry offset+limit+lat/lng bounds, auth-free like the confirmed favoritedExposes/expose oracles; offset/limit removes UUID-luck on the enumeration primitive.
+evidence_needed: pagination(offset>0) pages forward; exposesInBounds narrows result set.
+verify_steps: same POST chain as [98] (single authorization authorizes both); no live do until HUMAN.
+impact: deterministic whole-DB crawl primitive. Severity: CRITICAL
+testability: PASSIVE (schema) / AUTH_HELPED (live)
+[HYP] Wildcard-issued ngrok custom-domain takeover of local.hypofriend.de
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 55
+reasoning: CT now shows a `*.local.hypofriend.de` wildcard cert PLUS per-name wildcards for kajsa/laurence/pavel/tiago/sofia — ngrok provisioned zone-wide binding; DNS CNAMEs persist to jtkfqjar.cname.eu.ngrok.io; tunnel returns ERR_NGROK_3200 (edge released). Any ngrok account binding the endpoint would claim the names.
+evidence_needed: independent ngrok account binding, or proof the tunnel/domain contract is abandoned — HUMAN-only.
+verify_steps: NONE read-only remain (DNS+CT+ERR_NGROK_3200 all gathered). HUMAN: ngrok `domains` API test or account re-bind.
+impact: arbitrary content under *.local.hypofriend.de (brand abuse/phishing under origin domain). Severity: MEDIUM if confirmed
+testability: HUMAN_ONLY
+[HYP] Blog admin origin — residual
+class: MISCONFIG
+asset: blog-admin.hypofriend.de
+confidence: 10
+reasoning: resolves into shared 503 ELB pool; HTTPS 503 / HTTP 301, same as entire fleet. Nothing admin-like reachable.
+evidence_needed: none — dead.
+impact: none observed. Severity: N/A
+testability: PASSIVE

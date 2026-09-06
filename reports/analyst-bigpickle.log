@@ -7192,3 +7192,195 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 93 — Confirmed core unchanged: CRITICAL auth-free GraphQL IDOR (expose/favoritedExposes, broker+owner PII schema) and full schema reachable on BOTH CloudFront edge and naked direct Rails origin (header-diff reconfirmed, incl. missing security-header stack at origin); offset/limit + geo-bounds crawl primitives schema-proven, live-confirm blocked on no-write/GET-HEAD-OPTIONS rule for POST mutation. Cross-tenant write code paths reachable but execution parked per no_data_modification. Stack traces downgraded to supporting evidence (out-of-scope class).
+===== ANALYST bigpickle 2026-09-06 04:47:48 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mwhich dig curl getent 2>/dev/null; echo "---"; timeout 3 dig +short hypofriend.de A 2>&1 || nslookup hypofriend.de 2>&1 | head -5
+/usr/bin/dig
+/usr/bin/curl
+/usr/bin/getent
+---
+18.155.202.73
+18.155.202.28
+18.155.202.89
+18.155.202.91
+[0m
+[0m$ [0mfor h in cdn images mail mobile news newsletter bot dns experiments landingpage root wildcard www dev1 local accentro berater-suche heyflow sparplan; do
+  c=$(dig +short CNAME $h.hypofriend.de 2>/dev/null)
+  a=$(dig +short A $h.hypofriend.de 2>/dev/null | tr '\n' ',' )
+  echo "$h.hypofriend.de CNAME=[$c] A=[$a]"
+  sleep 1
+done
+cdn.hypofriend.de CNAME=[] A=[3.79.67.81,3.78.178.6,51.102.161.196,]
+images.hypofriend.de CNAME=[] A=[51.102.161.196,3.79.67.81,3.78.178.6,]
+mail.hypofriend.de CNAME=[] A=[3.79.67.81,51.102.161.196,3.78.178.6,]
+mobile.hypofriend.de CNAME=[] A=[52.29.34.130,]
+news.hypofriend.de CNAME=[] A=[51.102.161.196,3.79.67.81,3.78.178.6,]
+newsletter.hypofriend.de CNAME=[] A=[3.78.178.6,51.102.161.196,3.79.67.81,]
+bot.hypofriend.de CNAME=[] A=[51.102.161.196,3.78.178.6,3.79.67.81,]
+dns.hypofriend.de CNAME=[] A=[3.79.67.81,51.102.161.196,3.78.178.6,]
+experiments.hypofriend.de CNAME=[] A=[3.79.67.81,51.102.161.196,3.78.178.6,]
+landingpage.hypofriend.de CNAME=[] A=[3.79.67.81,51.102.161.196,3.78.178.6,]
+root.hypofriend.de CNAME=[] A=[51.102.161.196,3.79.67.81,3.78.178.6,]
+wildcard.hypofriend.de CNAME=[] A=[3.79.67.81,3.78.178.6,51.102.161.196,]
+www.hypofriend.de CNAME=[] A=[52.29.34.130,]
+dev1.hypofriend.de CNAME=[] A=[3.78.178.6,51.102.161.196,3.79.67.81,]
+local.hypofriend.de CNAME=[] A=[3.79.67.81,51.102.161.196,3.78.178.6,]
+accentro.hypofriend.de CNAME=[flow.heyflow.domains.] A=[flow.heyflow.domains.,172.67.215.96,104.21.78.31,]
+berater-suche.hypofriend.de CNAME=[flow.heyflow.domains.] A=[flow.heyflow.domains.,172.67.215.96,104.21.78.31,]
+heyflow.hypofriend.de CNAME=[flow.heyflow.domains.] A=[flow.heyflow.domains.,172.67.215.96,104.21.78.31,]
+sparplan.hypofriend.de CNAME=[flow.heyflow.domains.] A=[flow.heyflow.domains.,104.21.78.31,172.67.215.96,]
+[0m
+[0m$ [0mfor u in "https://mobile.hypofriend.de" "https://www.hypofriend.de" "https://cdn.hypofriend.de" "https://dns.hypofriend.de" "https://experiments.hypofriend.de"; do
+  echo "=== $u ==="
+  curl -k -s -o /dev/null -m 8 -w "code=%{http_code} time=%{time_total} srv=%header{server} loc=%header{location} type=%header{content-type}\n" "$u" 2>&1
+  sleep 1
+done
+=== https://mobile.hypofriend.de ===
+code=503 time=0.459424 srv=awselb/2.0 loc= type=text/html
+=== https://www.hypofriend.de ===
+code=301 time=0.468073 srv=awselb/2.0 loc=https://hypofriend.de:443/ type=text/html
+=== https://cdn.hypofriend.de ===
+code=503 time=0.457624 srv=awselb/2.0 loc= type=text/html
+=== https://dns.hypofriend.de ===
+code=503 time=0.585407 srv=awselb/2.0 loc= type=text/html
+=== https://experiments.hypofriend.de ===
+code=503 time=0.469732 srv=awselb/2.0 loc= type=text/html
+[0m
+[0m$ [0mcurl -s -m 20 "https://crt.sh/?q=%25.hypofriend.de&output=json" 2>/dev/null | python3 -c "
+import sys,json
+try:
+  d=json.load(sys.stdin)
+except Exception as e:
+  print('parse-fail',e); sys.exit()
+names=set()
+for e in d:
+  for n in e.get('name_value','').split('\n'):
+    n=n.strip().lower()
+    if n and n not in names:
+      names.add(n)
+for n in sorted(names): print(n)
+print('TOTAL',len(names))
+"
+*.hypofriend.de
+*.kajsa.local.hypofriend.de
+*.laurence.local.hypofriend.de
+*.local.hypofriend.de
+*.pavel.local.hypofriend.de
+*.sofia.local.hypofriend.de
+*.tiago.local.hypofriend.de
+a.hypofriend.de
+accentro.hypofriend.de
+admin.app.hypofriend.de
+admin.hypofriend.de
+appointments.app.hypofriend.de
+berater-suche.hypofriend.de
+blog-admin.hypofriend.de
+bonava.hypofriend.de
+bot.hypofriend.de
+cdn.hypofriend.de
+core-api.hypofriend.de
+core.hypofriend.de
+dev1.hypofriend.de
+documents.hypofriend.de
+email.m.hypofriend.de
+email.m2.hypofriend.de
+evernest.hypofriend.de
+experiments.hypofriend.de
+frontend.app.hypofriend.de
+funnels.hypofriend.de
+graph-rates.hypofriend.de
+graph.hypofriend.de
+heyflow.hypofriend.de
+hypofriend.de
+landingpage.hypofriend.de
+listings.hypofriend.de
+mobile.hypofriend.de
+myne.hypofriend.de
+newsletter.hypofriend.de
+offer.hypofriend.de
+pipedrive-sync.hypofriend.de
+profile.app.hypofriend.de
+profile.hypofriend.de
+root.hypofriend.de
+sparplan.hypofriend.de
+uploader.app.hypofriend.de
+www.hypofriend.de
+TOTAL 44
+[0m
+[0m$ [0mecho "blog-admin CNAME=$(dig +short CNAME blog-admin.hypofriend.de) A=$(dig +short A blog-admin.hypofriend.de | tr '\n' ',')"
+curl -k -s -o /dev/null -m 8 -w "HTTPS code=%{http_code} time=%{time_total} srv=%header{server} loc=%header{location}\n" "https://blog-admin.hypofriend.de" 2>&1
+sleep 1
+curl -k -s -o /dev/null -m 8 -w "HTTP  code=%{http_code} time=%{time_total} srv=%header{server} loc=%header{location}\n" "http://blog-admin.hypofriend.de" 2>&1
+blog-admin CNAME= A=51.102.161.196,3.78.178.6,3.79.67.81,
+HTTPS code=503 time=0.467708 srv=awselb/2.0 loc=
+HTTP  code=301 time=0.301259 srv=awselb/2.0 loc=https://blog-admin.hypofriend.de:443/
+[0m
+STEP 1 — DELTA
+- [NEW] CT/DNS sweep: `*.local.hypofriend.de` wildcard LE cert + per-name wildcards (`*.kajsa.local.*`, etc.) coexist with the persistent ngrok CNAME (jtkfqjar.cname.eu.ngrok.io) — binding provisioned, tunnel dead (ERR_NGROK_3200); corroborates takeover precondition, no new angle
+- [NEW] Coverage-gap closure: cdn/images/mail/mobile/news/newsletter/bot/dns/experiments/landingpage/root/wildcard/www/dev1/local/blog-admin all resolve to shared ELB pool (3.79.67.81/3.78.178.6/51.102.161.196) → 503 HTTPS / 301 HTTP (www→hypofriend.de); mobile 503 awselb — all dead, no new surface
+- [NO_DELTA] property-search-api (edge+origin), core, a./blog/m2 buckets, auth/admin, 503-fleet, .app cluster — identical to last cycle
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api,9.9,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=6,freshness=10
+- [PRIO] core.hypofriend.de,8.8,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=7,cloud_surface=6,freshness=10
+- [PRIO] *.local.hypofriend.de (ngrok wildcard CT-corroborated),5.0,attack_surface=4,business_value=6,tech_exposure=2,gate_ease=3,cloud_surface=10,freshness=10
+- [PRIO] blog-admin.hypofriend.de,2.1,attack_surface=2,business_value=3,tech_exposure=1,gate_ease=3,cloud_surface=6,freshness=1
+
+STEP 3 — HYPOTHESES
+[HYP] GraphQL BOLA/IDOR at scale — propertySearch→exposes→expose pagination crawl on direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 98
+reasoning: Origin serves FULL identical schema (12 Query resolvers) with zero edge/WAF (header diff: origin OPTIONS=date/content-length only vs edge full CF stack); `exposes(id,offset,limit)`, `pagination(id,offset,limit)`, `exposesInBounds(id,bounds)` all auth-free; expose(id) on enumerated real UUID returns broker+owner PII (cellPhoneNumber, providerEmail, propertyOwnerLastName) — confirmed on edge and origin.
+evidence_needed: live large-limit fetch on origin returning >6 records and >1 page without WAF throttle (compares vs edge).
+verify_steps: POST https://core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} then {"query":"{exposes(id:\"<searchId>\",offset:0,limit:100){limit offset exposes{id title city}}}"} then {"query":"{exposesInBounds(id:\"<searchId>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"} — HUMAN-gated (mutation+write-hold)
+impact: whole-search → whole-DB unauth enumeration with broker/owner PII (GDPR at scale). Severity: CRITICAL
+testability: AUTH_HELPED (schema PASSIVE, live hold)
+[HYP] Exhaustive DB crawl via offset/limit + geo-bounds primitives
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 92
+reasoning: Schema proves exposes/pagination/exposesInBounds/mapExposes carry offset+limit+lat/lng bounds, auth-free like the confirmed favoritedExposes/expose oracles; offset/limit removes UUID-luck on the enumeration primitive.
+evidence_needed: pagination(offset>0) pages forward; exposesInBounds narrows result set.
+verify_steps: same POST chain as [98] (single authorization authorizes both); no live do until HUMAN.
+impact: deterministic whole-DB crawl primitive. Severity: CRITICAL
+testability: PASSIVE (schema) / AUTH_HELPED (live)
+[HYP] Wildcard-issued ngrok custom-domain takeover of local.hypofriend.de
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 55
+reasoning: CT now shows a `*.local.hypofriend.de` wildcard cert PLUS per-name wildcards for kajsa/laurence/pavel/tiago/sofia — ngrok provisioned zone-wide binding; DNS CNAMEs persist to jtkfqjar.cname.eu.ngrok.io; tunnel returns ERR_NGROK_3200 (edge released). Any ngrok account binding the endpoint would claim the names.
+evidence_needed: independent ngrok account binding, or proof the tunnel/domain contract is abandoned — HUMAN-only.
+verify_steps: NONE read-only remain (DNS+CT+ERR_NGROK_3200 all gathered). HUMAN: ngrok `domains` API test or account re-bind.
+impact: arbitrary content under *.local.hypofriend.de (brand abuse/phishing under origin domain). Severity: MEDIUM if confirmed
+testability: HUMAN_ONLY
+[HYP] Blog admin origin — residual
+class: MISCONFIG
+asset: blog-admin.hypofriend.de
+confidence: 10
+reasoning: resolves into shared 503 ELB pool; HTTPS 503 / HTTP 301, same as entire fleet. Nothing admin-like reachable.
+evidence_needed: none — dead.
+impact: none observed. Severity: N/A
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Auth-free cross-tenant writes (favoriteExpose/exposeSeen/informationRequest): code path confirmed reachable, execution parked per no_data_modification; error-differentiation evidence already banked.
+- [PARKED] *.local ngrok takeover: CT wildcard corroborates binding but claim still requires ngrok account test — no passive avenue left; keep watch-only.
+- [FINAL] 1. BOLA/IDOR at scale on direct origin — 98, AUTH_HELPED (core schema CONFIRMED, live gated)
+- [FINAL] 2. Direct origin bypass (no WAF/security headers) — 96, PASSIVE (header diff reconfirmed)
+- [FINAL] 3. Exhaustive DB crawl via offset/limit+geo-bounds — 92, PASSIVE (schema) — subsumed by #1 on execution
+- [FINAL] 4. Wildcard ngrok takeover — 55, HUMAN_ONLY
+- Dropped: blog-admin (10); gap-fleet hosts (NG only, no hypothesis material).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: authorize ONE POST chain on core.hypofriend.de/property-search-api — `mutation{propertySearch(city:"MUNICH",propertyType:APARTMENT){searchId}}` → `{exposes(id:"<searchId>",offset:0,limit:100){limit offset exposes{id title city}}}` → `{exposesInBounds(id:"<searchId>",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}` — this single authorization converts the [98]/[92] schema-confirmed crawl primitives plus the origin no-throttle claim into CONFIRMED. Until then: no live POSTs/reads on property-search-api (mutation + active write-hold). All live work this cycle was GET/HEAD/OPTIONS + DNS/CT, per rule.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ *.local.hypofriend.de: CT shows `*.local.hypofriend.de` + per-name wildcard LE certs issued over the persistent ngrok CNAME (jtkfqjar.cname.eu.ngrok.io) — zone-wide binding provisioned, tunnel edge released (ERR_NGROK_3200); DNS→ngrok takeover precondition fully documented, claim is HUMAN-only.
+- [LEARN] CONFIRMED NG @ gap-fleet (cdn, images, mail, mobile, news, newsletter, bot, dns, experiments, landingpage, root, wildcard, www, dev1, local, blog-admin): all share ELB pool 3.79.67.81/3.78.178.6/51.102.161.196 → 503 HTTPS / 301 HTTP (except www 301→hypofriend.de); mobile 503 awselb — inventory coverage gap closed, no new surface.
+- [LEARN] CONFIRMED NG @ CT reconciliation: crt.sh returns no subdomains beyond inventory (44 names, all already tracked or now probed) — no hidden surface from cert transparency.
+
+STEP 7 — RISK
+- [RISK] hypofriend: 93 — CRITICAL unchanged: auth-free GraphQL BOLA (expose/favoritedExposes, broker+owner PII) and full schema reachable on both CloudFront edge and naked direct origin (no WAF/security headers, header-diff reconfirmed); offset/limit+geo-bounds crawl primitives schema-proven, live-confirm single-HUMAN-approval away; cross-tenant write code path reachable but parked per no_data_modification. This cycle added only coverage closure (all NG) + CT/DNS corroboration of the ngrok orphan — no new critical surface disclosed.
