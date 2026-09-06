@@ -1090,3 +1090,31 @@ reasoning: resolves into shared 503 ELB pool; HTTPS 503 / HTTP 301, same as enti
 evidence_needed: none — dead.
 impact: none observed. Severity: N/A
 testability: PASSIVE
+## 2026-09-06 09:09:26 UTC [target] (model bigpickle)
+[HYP] GraphQL BOLA/IDOR at scale — propertySearch→exposes→expose pagination crawl on direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 98
+reasoning: Origin serves FULL identical schema (12 Query resolvers) with no edge/WAF (origin OPTIONS bare vs edge CF stack); `exposes(id,offset,limit)`, `pagination(id,offset,limit)`, `exposesInBounds(id,bounds)` auth-free; expose(id) on enumerated real UUID returns broker+owner PII (cellPhoneNumber, providerEmail, propertyOwnerLastName) — confirmed on edge and origin.
+evidence_needed: live large-limit fetch (>6 records, >1 page) on origin without edge throttle, latency/header diff vs hypofriend.de.
+verify_steps: HUMAN-only, gated: POST https://core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} → {"query":"{exposes(id:\"<searchId>\",offset:0,limit:100){limit offset exposes{id title city}}}"} → {"query":"{exposesInBounds(id:\"<searchId>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"}
+impact: whole-search → whole-DB unauth enumeration with broker/owner PII (GDPR at scale), bypassing all CloudFront controls. Severity: CRITICAL
+testability: AUTH_HELPED (schema PASSIVE, live on hold)
+[HYP] Exhaustive DB crawl via offset/limit + geo-bounds primitives
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 92
+reasoning: Schema proves exposes/pagination/exposesInBounds/mapExposes carry offset+limit+lat/lng bounds, auth-free like confirmed favoritedExposes/expose oracles; offset/limit removes UUID-luck.
+evidence_needed: pagination(offset>0) pages forward; exposesInBounds narrows result set.
+verify_steps: resp. offsets/bounds via same gated POST chain (single authorization covers both); no live probes until HUMAN.
+impact: deterministic whole-DB crawl primitive. Severity: CRITICAL
+testability: PASSIVE (schema) / AUTH_HELPED (live)
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 55
+reasoning: CNAMEs to jtkfqjar.cname.eu.ngrok.io persist; edge resolves and cert-provisions wildcard `*.pavel.local.hypofriend.de` (LE) for all five names but serves ERR_NGROK_3200 — account reserved/abandoned, no agent bound; zone wildcard doesn't cover these (own CNAME records).
+evidence_needed: independent ngrok account binding one of the 5 names, or program confirmation the domains contract is abandoned — HUMAN-only.
+verify_steps: NONE read-only remain (DNS+CT+TLS+ERR_NGROK_3200 gathered). HUMAN: ngrok domains API test or account re-bind.
+impact: arbitrary content under *.local.hypofriend.de (phishing/cred theft under origin domain). Severity: MEDIUM if confirmed
+testability: HUMAN_ONLY

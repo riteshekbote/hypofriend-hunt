@@ -7384,3 +7384,154 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] hypofriend: 93 — CRITICAL unchanged: auth-free GraphQL BOLA (expose/favoritedExposes, broker+owner PII) and full schema reachable on both CloudFront edge and naked direct origin (no WAF/security headers, header-diff reconfirmed); offset/limit+geo-bounds crawl primitives schema-proven, live-confirm single-HUMAN-approval away; cross-tenant write code path reachable but parked per no_data_modification. This cycle added only coverage closure (all NG) + CT/DNS corroboration of the ngrok orphan — no new critical surface disclosed.
+===== ANALYST bigpickle 2026-09-06 09:11:25 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mfor h in wildcard.hypofriend.de local.hypofriend.de bot.hypofriend.de cdn.hypofriend.de images.hypofriend.de root.hypofriend.de newsletter.hypofriend.de news.hypofriend.de kajsa.local.hypofriend.de; do echo "== $h"; { dig +short "$h" CNAME; dig +short "$h" A; } 2>&1 | tr '\n' ' '; echo; done
+== wildcard.hypofriend.de
+3.78.178.6 51.102.161.196 3.79.67.81 
+== local.hypofriend.de
+51.102.161.196 3.78.178.6 3.79.67.81 
+== bot.hypofriend.de
+51.102.161.196 3.78.178.6 3.79.67.81 
+== cdn.hypofriend.de
+51.102.161.196 3.78.178.6 3.79.67.81 
+== images.hypofriend.de
+51.102.161.196 3.78.178.6 3.79.67.81 
+== root.hypofriend.de
+51.102.161.196 3.79.67.81 3.78.178.6 
+== newsletter.hypofriend.de
+3.79.67.81 3.78.178.6 51.102.161.196 
+== news.hypofriend.de
+3.79.67.81 3.78.178.6 51.102.161.196 
+== kajsa.local.hypofriend.de
+jtkfqjar.cname.eu.ngrok.io. jtkfqjar.cname.eu.ngrok.io. 3.22.30.40 3.134.125.175 3.17.7.232 3.14.182.203 3.149.150.174 3.134.39.220
+[0m
+[0m$ [0mfor h in wildcard.hypofriend.de bot.hypofriend.de cdn.hypofriend.de images.hypofriend.de root.hypofriend.de newsletter.hypofriend.de news.hypofriend.de; do r=$(curl -sS -o /dev/null -m 8 -w "%{http_code} %{time_total}" "https://$h/" 2>&1); echo "$h HTTPS $r"; sleep 1; done
+wildcard.hypofriend.de HTTPS 503 0.463552
+bot.hypofriend.de HTTPS 503 0.447959
+cdn.hypofriend.de HTTPS 503 0.378463
+images.hypofriend.de HTTPS 503 0.464881
+root.hypofriend.de HTTPS 503 0.373109
+newsletter.hypofriend.de HTTPS 503 0.361539
+news.hypofriend.de HTTPS 503 0.342230
+[0m
+[0m$ [0mfor h in kajsa.local.hypofriend.de laurence.local.hypofriend.de pavel.local.hypofriend.de tiago.local.hypofriend.de sofia.local.hypofriend.de; do r=$(curl -sS -o /dev/null -m 8 -w "%{http_code} %{time_total} %{remote_ip}" "https://$h/" 2>&1); echo "$h HTTPS $r"; sleep 1; done
+kajsa.local.hypofriend.de HTTPS curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+000 0.060998 3.22.30.40
+laurence.local.hypofriend.de HTTPS curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+000 0.138865 3.134.125.175
+pavel.local.hypofriend.de HTTPS curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+000 0.099129 3.17.7.232
+tiago.local.hypofriend.de HTTPS curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+000 0.099387 3.134.39.220
+sofia.local.hypofriend.de HTTPS curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+000 0.092491 3.149.150.174
+[0m
+[0m$ [0mcurl -sk -m 8 -D - "https://kajsa.local.hypofriend.de/" -o /tmp/kajsa_body.txt 2>/dev/null | head -30; echo "---BODY---"; head -c 800 /tmp/kajsa_body.txt; echo; echo "---CERTS---"; echo | timeout 8 openssl s_client -connect kajsa.local.hypofriend.de:443 -servername kajsa.local.hypofriend.de 2>/dev/null | grep -E "subject=|issuer=|verify error|verify return" | head -10
+HTTP/2 404 
+content-type: text/html
+ngrok-error-code: ERR_NGROK_3200
+referrer-policy: no-referrer
+content-length: 2332
+date: Sun, 06 Sep 2026 09:08:30 GMT
+
+---BODY---
+<!DOCTYPE html>
+<html class="h-full" lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-Regular-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-RegularItalic-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-Medium-WebS.woff" as="font" type="font/woff" crossorigin="anonymous" />
+    <link rel="preload" href="https://assets.ngrok.com/fonts/euclid-square/EuclidSquare-MediumItalic-WebS.woff" as="font" type="font/woff" cro
+---CERTS---
+subject=CN = *.pavel.local.hypofriend.de
+issuer=C = US, O = Let's Encrypt, CN = R3
+[0m
+STEP 1 — DELTA
+- CHANGED *.local.hypofriend.de: ngrok edge now terminates TLS (HTTP/2 404, `ngrok-error-code: ERR_NGROK_3200`, LE wildcard cert `*.pavel.local.hypofriend.de` served on kajsa) vs prior pure-000 — functionally identical unbound state, but TLS+wildcard proves edge cert-provisioning persists (reserved-but-abandoned custom domains)
+- CHANGED fleet coverage: wildcard/local/bot/cdn/images/root/newsletter/news newly individually probed — all resolve to shared AWS ALB (3.78.178.6/51.102.161.196/3.79.67.81), all 503 (0.34–0.46s) — fold into known 503-fleet
+- NO_DELTA: ngrok CNAMEs (jtkfqjar.cname.eu.ngrok.io) persist on all 5 local.* names; property-search-api left untouched per write-hold
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api, 9.25, a0.25*9 b0.25*10 t0.15*10 g0.15*10 c0.10*9 f0.10*6 — auth-free GraphQL IDOR reachable past CloudFront, no edge security stack, full-DB PII
+- [PRIO] hypofriend.de/property-search-api, 8.65, a0.25*8 b0.25*10 t0.15*10 g0.15*10 c0.10*8 f0.10*5 — same schema over edge (CF headers/WAF)
+- [PRIO] *.local.hypofriend.de, 4.45, a0.25*4 b0.25*6 t0.15*5 g0.15*1 c0.10*6 f0.10*5 — abandoned ngrok binding, HUMAN-only claim
+
+STEP 3 — HYPOTHESES
+[HYP] GraphQL BOLA/IDOR at scale — propertySearch→exposes→expose pagination crawl on direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 98
+reasoning: Origin serves FULL identical schema (12 Query resolvers) with no edge/WAF (origin OPTIONS bare vs edge CF stack); `exposes(id,offset,limit)`, `pagination(id,offset,limit)`, `exposesInBounds(id,bounds)` auth-free; expose(id) on enumerated real UUID returns broker+owner PII (cellPhoneNumber, providerEmail, propertyOwnerLastName) — confirmed on edge and origin.
+evidence_needed: live large-limit fetch (>6 records, >1 page) on origin without edge throttle, latency/header diff vs hypofriend.de.
+verify_steps: HUMAN-only, gated: POST https://core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} → {"query":"{exposes(id:\"<searchId>\",offset:0,limit:100){limit offset exposes{id title city}}}"} → {"query":"{exposesInBounds(id:\"<searchId>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"}
+impact: whole-search → whole-DB unauth enumeration with broker/owner PII (GDPR at scale), bypassing all CloudFront controls. Severity: CRITICAL
+testability: AUTH_HELPED (schema PASSIVE, live on hold)
+
+[HYP] Exhaustive DB crawl via offset/limit + geo-bounds primitives
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 92
+reasoning: Schema proves exposes/pagination/exposesInBounds/mapExposes carry offset+limit+lat/lng bounds, auth-free like confirmed favoritedExposes/expose oracles; offset/limit removes UUID-luck.
+evidence_needed: pagination(offset>0) pages forward; exposesInBounds narrows result set.
+verify_steps: resp. offsets/bounds via same gated POST chain (single authorization covers both); no live probes until HUMAN.
+impact: deterministic whole-DB crawl primitive. Severity: CRITICAL
+testability: PASSIVE (schema) / AUTH_HELPED (live)
+
+[HYP] Orphaned ngrok custom-domain takeover of *.local.hypofriend.de
+class: OTHER
+asset: *.local.hypofriend.de
+confidence: 55
+reasoning: CNAMEs to jtkfqjar.cname.eu.ngrok.io persist; edge resolves and cert-provisions wildcard `*.pavel.local.hypofriend.de` (LE) for all five names but serves ERR_NGROK_3200 — account reserved/abandoned, no agent bound; zone wildcard doesn't cover these (own CNAME records).
+evidence_needed: independent ngrok account binding one of the 5 names, or program confirmation the domains contract is abandoned — HUMAN-only.
+verify_steps: NONE read-only remain (DNS+CT+TLS+ERR_NGROK_3200 gathered). HUMAN: ngrok domains API test or account re-bind.
+impact: arbitrary content under *.local.hypofriend.de (phishing/cred theft under origin domain). Severity: MEDIUM if confirmed
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] *.local ngrok orphan: all passive evidence collected (DNS CNAME, LE wildcard cert, ERR_NGROK_3200); claim requires ngrok account test — no new avenue.
+- [PARKED] POST verification of crawl chain (HYP1+HYP2): mutating/active-write hold active; passive evidence insufficient beyond schema+confirmed oracle.
+- [PARKED] REJECTED-class: meta/informationRequest stack traces (descriptive errors); Nuxt Sentry/Amplitude/Flagsmith (public client keys); email.m2 mailgun (mail config out of scope).
+- [FINAL] 1. GraphQL BOLA/IDOR via expose/exposes/propertySearch chain — confidence 98, PASSIVE (subsumes scale-up)
+- [FINAL] 2. Direct Rails origin bypass (core.hypofriend.de) — schema+introspection CONFIRMED, bare-header reconfirmed — confidence 97, PASSIVE
+- [FINAL] 3. Exhaustive DB crawl via pagination + geo-bounds — confidence 92, PASSIVE(schema)/AUTH_HELPED(live)
+- [FINAL] 4. ngrok orphan *.local — confidence 55, HUMAN_ONLY
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: authorize single POST chain on core.hypofriend.de/property-search-api — {"query":"mutation{propertySearch(city:\"MUNICH\",propertyType:APARTMENT){searchId}}"} → {"query":"{exposes(id:\"<searchId>\",offset:0,limit:100){limit offset exposes{id title city}}}"} → {"query":"{exposesInBounds(id:\"<searchId>\",bounds:{north:48.2,east:11.7,south:48.1,west:11.5}){exposes{id}}}"} — converts pagination/geo-bounds crawl [92] + origin rate-limit claim into CONFIRMED. No POST/live reads on property-search-api until authorized.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ *.local.hypofriend.de: ngrok edge still terminates TLS (LE wildcard `*.pavel.local.hypofriend.de`, HTTP/2, ERR_NGROK_3200) — reserved-but-unbound state persists; no agent content; takeover remains HUMAN-only (no passive avenue).
+- [LEARN] CONFIRMED NG @ fleet: wildcard/local/bot/cdn/images/root/newsletter/news → shared AWS ALB 503 pool (~0.34–0.46s), same IP set as 503-fleet — no new surface.
+
+STEP 7 — RISK
+- [RISK] hypofriend: 93 — unchanged: CRITICAL auth-free GraphQL IDOR (expose/favoritedExposes, broker+owner PII) and full schema reachable on BOTH CloudFront edge and naked direct Rails origin (bare security-header stack at origin); offset/limit + geo-bounds crawl primitives schema-proven, live confirm gated on no-write/GET-HEAD-OPTIONS rule for POST mutation; cross-tenant write code paths reachable but parked; ngrok orphan reserve evidence strong but claim HUMAN-only; fleet swept, no new surface.
