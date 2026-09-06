@@ -1351,3 +1351,4 @@ evidence_needed: independent ngrok account binding one of the 5 names — HUMAN-
 verify_steps: HUMAN: ngrok domains API test / account re-bind attempt.
 impact: content serving under origin domain (phishing). MEDIUM if confirmed.
 testability: HUMAN_ONLY
+## 2026-09-06 23:58:35 UTC [target] (model bigpickle)
