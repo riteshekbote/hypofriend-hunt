@@ -96,3 +96,19 @@ TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-06 01:02:21 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-06 05:42:06 UTC
+[HYP] ECS-Deploy GitHub Action Passes AWS Credentials as CLI Arguments
+class: MISCONFIG
+asset: HypoFriend/ecs-deploy/action.yml:44-46
+confidence: 85
+reasoning: The action.yml passes aws_access_key and aws_secret_key as positional arguments to the shell script via args array. AWS CLI may log these in verbose/debug mode or they may appear in process listings (/proc/*/cmdline). The ecs-deploy script also uses `eval $AWS_ECS_RUN_TASK` (ecs-deploy:530) which constructs a command from unquoted variables including CLUSTER, SERVICE, and NEW_TASKDEF — all user-supplied inputs that flow unsanitized into eval.
+impact: medium
+verify_steps: |
+[HYP] S3-Deploy Shell Command Injection via Unsanitized Template Interpolation
+class: OTHER
+asset: HypoFriend/s3-deploy/deploy.js:22-35
+confidence: 75
+reasoning: deploy.js constructs a shell command via template literal interpolation of bucket, bucketRegion, distId, invalidation, deleteRemoved, cache, and filesToInclude — all user-supplied GitHub Action inputs — directly into a command string passed to exec.exec(). Values containing shell metacharacters (semicolons, backticks, $()) could break out of the intended command. No input sanitization or argument array usage is present.
+impact: medium
+verify_steps: |
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
