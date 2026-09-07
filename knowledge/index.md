@@ -177,3 +177,6 @@
 - 2026-09-07 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
 - 2026-09-07 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only
 - 2026-09-07 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable
+- 2026-09-07 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: whole-DE geo subset (1004>960) + price-grid subset (429<1006) + offset determinism proven live, limit capped ~50 (offset walk required) — full-DB enumeration primitive validated both on origin and edge
+- 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (5 POST burst all 200 origin + edge) — no WAF differential at 1rps, edge-header layer still bypassed at origin
+- 2026-09-07 REJECTED MISCONFIG @ core.hypofriend.de: burst of 5 rapid propertySearch mutations all 200 on origin — no ready rate-limit/429 at low rate; scale WAF diff remains HUMAN-gated
