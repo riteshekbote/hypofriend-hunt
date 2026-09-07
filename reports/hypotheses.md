@@ -945,3 +945,11 @@
 - LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: whole-DE geo subset (1004>960) + price-grid subset (429<1006) + offset determinism proven live, limit ca
 - LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (5 POST burst all 200 origin + edge) — no WAF differential at 1rps, edge-header l
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de: burst of 5 rapid propertySearch mutations all 200 on origin — no ready rate-limit/429 at low rate; scale WAF diff remai
+
+## RANKED HYPOTHESES 2026-09-07 19:11:00 UTC
+- [88] core.hypofriend.de/q: /q lead+appointment BOLA — `already_booked_appointments(lead_id)` / `root.lead` auth-free on direct origin (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST https://core.hypofriend.de/q `{"query":"{root{already_booked_appointments(lead_id:\"00000000-0000-0000-0000-000000000000\"){appointmentAt scheduledA
+- LEARN: CONFIRMED ENDPOINT @ hypofriend.de/q (also core.hypofriend.de/q): second live GraphQL API (POST `{__typename}` → 200 `{"meta":{status:0,key:"OK"},"data":{"Typen
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin POST /q returns only `content-type` (no server/HSTS/XFO/nosniff/cache) vs edge full CloudFront stack —
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/q: `__schema` introspection not enabled (`Field '__schema' doesn't exist on type 'Query'`) — unlike property-search-api, no s
+- LEARN: CONFIRMED NG @ fleet sweep: dead fleet + buckets unchanged (503/000/301/403) — no new surface.

@@ -226,3 +226,7 @@ https://hypofriend.de/ -> 200 len=227301
 https://hypofriend.de/api/v3/advisors -> HTTP 401
 https://hypofriend.de/q -> 200 len=227301
 https://core.hypofriend.de/q -> 200 len=227301
+
+## 2026-09-07 19:11:04 UTC
+https://core.hypofriend.de/q -> 200 len=227301
+https://hypofriend.de/q -> 200 len=227301

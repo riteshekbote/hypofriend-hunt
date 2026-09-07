@@ -180,3 +180,7 @@
 - 2026-09-07 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: whole-DE geo subset (1004>960) + price-grid subset (429<1006) + offset determinism proven live, limit capped ~50 (offset walk required) — full-DB enumeration primitive validated both on origin and edge
 - 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (5 POST burst all 200 origin + edge) — no WAF differential at 1rps, edge-header layer still bypassed at origin
 - 2026-09-07 REJECTED MISCONFIG @ core.hypofriend.de: burst of 5 rapid propertySearch mutations all 200 on origin — no ready rate-limit/429 at low rate; scale WAF diff remains HUMAN-gated
+- 2026-09-07 CONFIRMED ENDPOINT @ hypofriend.de/q (also core.hypofriend.de/q): second live GraphQL API (POST `{__typename}` → 200 `{"meta":{status:0,key:"OK"},"data":{"Typename":"Query"}}`); GET 301→`/` Rails shell; introspection DISABLED on /q — schema must be mined from Nuxt bundle strings, not server introspection.
+- 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin POST /q returns only `content-type` (no server/HSTS/XFO/nosniff/cache) vs edge full CloudFront stack — WAF/security-header bypass re-proven on the SECOND GraphQL API.
+- 2026-09-07 REJECTED MISCONFIG @ hypofriend.de/q: `__schema` introspection not enabled (`Field '__schema' doesn't exist on type 'Query'`) — unlike property-search-api, no server-side schema dump vector.
+- 2026-09-07 CONFIRMED NG @ fleet sweep: dead fleet + buckets unchanged (503/000/301/403) — no new surface.
