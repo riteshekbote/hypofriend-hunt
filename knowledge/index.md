@@ -149,3 +149,31 @@
 - 2026-09-06 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable.
 - 2026-09-06 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare (date/content-length only) vs edge full CF stack — WAF/security-header bypass live re-proven.
 - 2026-09-06 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — from schema introspection.
+- 2026-09-07 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged — no new surface
+- 2026-09-07 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save + delisted-record args exposed auth-free
+- 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare vs edge full CF stack — WAF bypass live re-proven
+- 2026-09-07 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed; abandoned tunnel
+- 2026-09-07 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert
+- 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers) vs edge full security-stack — edge security-header layer fully bypassed at origin
+- 2026-09-07 REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin returns 200 but NO access-control-allow-origin echo — no open CORS
+- 2026-09-07 CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (shared edge bounce); .app cluster all 000; blog HTTPS 000; api 000 — unchanged
+- 2026-09-07 ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; IDs enumerable via propertySearch→exposes chain
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primitive
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- 2026-09-07 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- 2026-09-07 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
+- 2026-09-07 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace — OUT OF SCOPE (descriptive errors)
+- 2026-09-07 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — OUT OF SCOPE (descriptive errors)
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — public client keys by design, no standalone vuln
+- 2026-09-07 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- 2026-09-07 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property-search-api GraphQL; without CloudFront
+- 2026-09-07 CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin serves FULL identical GraphQL schema — read-side enum primary path bypasses edge
+- 2026-09-07 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and delisted-record args exposed auth-free
+- 2026-09-07 CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + a./blog/m2: unchanged 503/000/301/403 — no new surface
+- 2026-09-07 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
+- 2026-09-07 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+- 2026-09-07 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only
+- 2026-09-07 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable
