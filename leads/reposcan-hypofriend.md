@@ -165,3 +165,29 @@ verify_steps: N/A
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-07 09:50:15 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-07 15:29:31 UTC
+class: OTHER
+asset: advisor-couching/src/main.js:17
+confidence: 90
+reasoning: >-
+impact: LOW
+verify_steps: >-
+class: OTHER
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/src/service/auth.service.js:62-85
+confidence: 85
+reasoning: >-
+impact: MEDIUM
+verify_steps: >-
+class: IDOR
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/src/service/auth.service.js:108-118
+confidence: 80
+reasoning: >-
+impact: MEDIUM
+verify_steps: >-
+class: MISCONFIG
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/serverless.yml:26
+confidence: 70
+reasoning: >-
+impact: LOW
+verify_steps: >-
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
