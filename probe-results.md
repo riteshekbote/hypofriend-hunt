@@ -230,3 +230,8 @@ https://core.hypofriend.de/q -> 200 len=227301
 ## 2026-09-07 19:11:04 UTC
 https://core.hypofriend.de/q -> 200 len=227301
 https://hypofriend.de/q -> 200 len=227301
+
+## 2026-09-07 21:54:14 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=227301
