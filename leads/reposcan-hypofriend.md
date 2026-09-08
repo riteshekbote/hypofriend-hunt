@@ -197,3 +197,47 @@ TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-08 00:26:31 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-08 05:13:46 UTC
+[HYP] Manager role granted full API access instead of restricted endpoints
+class: IDOR
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/src/service/auth.service.js:82-84
+confidence: 85
+reasoning: Auth policy grants `policy.allowAllMethods()` for Manager role with a TODO comment
+impact: MEDIUM — Privilege escalation from Manager to full Admin API access.
+verify_steps:
+[HYP] Full JWT Bearer token logged via console.log in authorizer
+class: MISCONFIG
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/src/handler/authorizer.js:18
+confidence: 95
+reasoning: `console.log(event.authorizationToken, event.methodArn)` writes the complete JWT
+impact: MEDIUM — Auth tokens exposed to anyone with CloudWatch Logs read access (IAM
+verify_steps:
+[HYP] Access-Control-Allow-Origin: * combined with Access-Control-Allow-Credentials: true
+class: MISCONFIG
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/src/lib/responder.js:5-6
+confidence: 80
+reasoning: Response headers set both `Access-Control-Allow-Origin: *` and
+impact: LOW — Browsers enforce the spec, but misconfiguration could bypass intended
+verify_steps:
+[HYP] API Gateway API key committed in mock test fixtures
+class: SECRET
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/mock/agents-update.json:41
+confidence: 60
+reasoning: API key `dIqUYJsey9acwZuN90CH35hrqwXuPx4ZawrMQsNU` (apiKeyId: `nyhspri1p0`)
+impact: LOW — Amazon's test environment credential, not Hypofriend's. Verify if key is
+verify_steps:
+[HYP] Personal phone number and email address committed in mock test data
+class: SECRET
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/mock/voicemail-stream-completed.json:93,
+confidence: 70
+reasoning: Phone number `+13104024459` and email `hdang@onica.com` appear in DynamoDB
+impact: LOW — Amazon developer's test PII, not Hypofriend customer data.
+verify_steps:
+[HYP] Full JWT token with user claims committed in mock data
+class: SECRET
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/mock/agents-update.json:13
+confidence: 50
+reasoning: JWT contains Cognito claims (sub, email, roles, user pool) and is signed
+impact: LOW — Expired token from 2019. No live credential risk, but token structure
+verify_steps:
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
