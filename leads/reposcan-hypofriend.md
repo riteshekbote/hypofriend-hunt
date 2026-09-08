@@ -241,3 +241,5 @@ reasoning: JWT contains Cognito claims (sub, email, roles, user pool) and is sig
 impact: LOW — Expired token from 2019. No live credential risk, but token structure
 verify_steps:
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-08 09:43:51 UTC
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
