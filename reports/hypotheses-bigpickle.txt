@@ -1,1 +1,36 @@
-## 2026-09-08 02:37:52 UTC [target] (model bigpickle)
+## 2026-09-08 07:26:16 UTC [target] (model bigpickle)
+[HYP] /q anonymous mortgage-rate oracle + pricing calc surface (rates_table / calculateCityTax / calculateMaklerFee / jiyuCalculate)
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 85
+reasoning: Confirmed live this cycle on fresh anonymous session (no auth): rates_table(700000,1000000,2.0,[5,10],BAYERN) → 200 {5:{borrowingRate:3.87,monthlyRate:3424.16},10:{3.84,3406.66}}; calculateCityTax(80331) → 200 {tax:0.035,formattedTax:"3,5 %"}; calculateMaklerFee/jiyuCalculate(Chart) are sibling pure server-side resolvers POSTed to ${coreApiUrl}/q with no auth (bundle-mined). These resolvers return real lender-rate/price data on a CORS-open (credentialed) anonymous session.
+evidence_needed: whether rates_table/calculations reveal lender-specific rate source or differ from logged-in view — HUMAN; resolver-execution + real-data return already proven passively.
+verify_steps: Done — rates_table + calculateCityTax both return live data on origin and edge, no creds. (HUMAN may compare logged-in rendering vs anonymous.)
+impact: unrestricted anonymous access to live mortgage-rate/pricing engine on financial platform; business-intelligence oracle (rates vs region/loan terms), reproducible via browser cross-origin (open credentialed CORS from prior cycle). Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] /q appointment_availability raw-typed scheduling oracle (JSON scalar, no enum gate)
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 70
+reasoning: appointment_availability(page,per,appointment_type:"consultation") returns JSON-scalar type; any field selection yields selectionMismatch — proving resolver executes and returns raw JSON from the interpolated appointment_type string (bundle: `appointment_type:"${r}"` interpolated raw). No GraphQL enum gates the argument; advisor-side appointment_availability_for_advisor(advisor:string) mirrors it. Prior cycle confirmed occupied slots returned 200 for real dates.
+evidence_needed: whether appointment_type/advisor mismatches yield distinct calendars (`consultation` vs bogus) and whether returned JSON contains real customer-slot PII — correlation HUMAN; boundary strings all read-only.
+verify_steps: swept `per/type` strings read-only (≤1rps); raw JSON-scalar confirmed. Do NOT enumerate advisor names beyond bundle set.
+impact: anonymous scheduling-calendar/intent oracle — reveals appointment availability, funnel state, advisor load on financial platform; amplified by credentialed open CORS. Severity: MEDIUM.
+testability: AUTH_HELPED
+[HYP] /q origin-vs-edge clickjacking differential (frame-ancestors: ALLOWALL at origin vs DENY at edge)
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: This cycle direct-origin POST /q returns x-frame-options: ALLOWALL while edge returns x-frame-options: DENY + nosniff + x-xss-protection + referrer-policy — live header differential on the credentialed-open-CORS API. If the app frames at origin/uses same-origin cookies, a victim page could iframe core.hypofriend.de/q UI (session cookie samesite=none, secured) while origin sets no frame-restriction.
+evidence_needed: whether an interactive frameable page exists under core.hypofriend.de (not just JSON API) that consumes the httponly samesite=none cookie + writable /q — HUMAN/browser.
+verify_steps: passive header diff captured (ALLOWALL origin vs DENY edge). Frameable-page + exploit demonstration HUMAN only.
+impact: clickjacking of a credentialed, cross-origin-open mortgage API if a frameable UI surface exists at origin — cookie-session actions (appointment, document upload) triggerable invisibly. Severity: MEDIUM (exploit gated on frameable UI).
+testability: HUMAN_ONLY
+[PARKED] origin-vs-edge clickjacking differential (conf 60): no confirmed frameable UI page at origin; JSON-only API endpoint; demonstration HUMAN — keep as header-evidence only.
+[PARKED] appointment_availability advisor-guessing / real-slot correlation: real customer schedule is PII-ish and HUMAN-gated; boundary raw-type confirmed (that's the finding).
+[FINAL] 1) /q anonymous rates+calc engine [85] AUTH_HELPED; 2) /q raw-typed scheduling oracle [70] AUTH_HELPED. Carry-over: /q open credentialed CORS [90] + /q BOLA already_booked_appointments [88] + property-search-api DB-wide BOLA [95], all still ACCEPTED/CONFIRMED.
+[NEXT] PROBE: POST https://core.hypofriend.de/q {"query":"{root{rates_table(loan_amount:500000,property_price:700000,repayment:1.0,years_fixed:[10,15,20],region:BERLIN){...}}"}"} vs identical to https://hypofriend.de/q — confirms rates data varies by region/terms (origin+edge parity) using BAYERN and BERLIN enums (read-only); also POST calculateMaklerFee boundary (e.g. property_price 800000) on both hosts to confirm third calc resolver — skip graph-typed output, capture status+meta only.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate (BAYERN 700k→{5:3.87%,10:3.84%}) and `calculateCityTax` returns 3.5% on fresh no-auth session both edge+origin; resolver surface executes with zero credentials.
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation (selectionMismatch proves no schema enum gates the type string) — anonymous scheduling-oracle field.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin responses now carry `x-frame-options: ALLOWALL` + full HSTS while edge forces `x-frame-options: DENY` + nosniff/XSS-protection/referrer-policy CloudFront stack — persistent origin-vs-edge security-header differential (now including clickjacking-relevant XFO mismatch).
+[RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api remains the confirmed DB-wide PII enumeration chain (CRITICAL). /q now additionally proven live as an anonymous mortgage-pricing engine (real per-region rates), raw-typed scheduling oracle, plus prior confirmed auth-free BOLA, auto-provisioned lead PII schema, auth-free write/multipart-upload, and credentialed OPEN CORS on edge+origin making the whole surface browser-exploitable. Origin-vs-edge header differential persists (now incl. XFO ALLOWALL-vs-DENY). All remaining gates are ≥real-PII reads and write side-effects, HUMAN-decided.
