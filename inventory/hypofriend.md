@@ -432,3 +432,5 @@ www.hypofriend.de
 - CHANGED Direct-origin `core.hypofriend.de/property-search-api` POST returns bare headers (`date`/`content-length`/`vary` only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven
 - CHANGED `propertySearch→exposes→expose` chain works unauthenticated on direct origin — cross-city PII enumeration confirmed (Berlin 11 listings, phone/owner data exposed)
 - CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-08 22:21:50 UTC

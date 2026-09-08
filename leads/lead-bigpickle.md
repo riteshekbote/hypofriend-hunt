@@ -1628,3 +1628,33 @@ testability: HUMAN_ONLY
 [NEXT] PROBE: POST https://core.hypofriend.de/q with calculateMaklerFee(new_property:false) and follow redirects to inspect the landing page for fee data.
 [RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api: CRITICAL DB-wide PII enumeration chain. /q: anonymous mortgage-rate engine, business-logic bifurcation, auth-free BOLA, scheduling oracle, multipart document upload, auto-provisioned lead PII, and credentialed OPEN CORS on edge+origin.
 ## 2026-09-08 19:42:38 UTC [target] (model bigpickle)
+## 2026-09-08 22:20:04 UTC [target] (model bigpickle)
+[HYP] property-search-api DB-wide BOLA — Cross-City PII Enumeration via Pagination/Geo Primitives on Direct Origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: Auth-free propertySearch→exposes→expose chain returns PII for enumerated UUIDs with no auth/leadId; offset/limit+geo crawl primitives live on origin and edge.
+evidence_needed: real-PII read confirmation and write side-effect attribution — HUMAN.
+verify_steps: previously completed across cycles.
+impact: Full-DB property-listing PII dump (phone, email, owner) — CRITICAL.
+testability: AUTH_HELPED
+[HYP] Open credentialed CORS × cookie-session root.lead → cross-origin exfiltration of logged-in lead data
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 72
+reasoning: This cycle re-proven: arbitrary-Origin reflection with `access-control-allow-credentials:true` on edge AND origin; POST sets `samesite=none; httponly` session cookies; `root{lead{id}}` resolves 200 anonymously returning a real lead UUID; `shareLink(linkType:)` executes 200 (null on anonymous lead, so returns data when lead has PII). Attacker page `fetch('https://hypofriend.de/q',{credentials:'include'})` reads victim's lead JSON via ACAO echo.
+evidence_needed: victim-with-account browser session returning lead PII through the echo — HUMAN/browser.
+verify_steps: passive preconditions all re-confirmed live (CORS OPTIONS+POST echo, cookie set, root.lead 200 both hosts).
+impact: Silent cross-origin theft of logged-in lead's profile (appointment data, self-disclosure link, advisor attribution) — MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Anonymous session auto-provisions persisted Lead rows → record-creation/data-pollution primitive
+class: BUSLOGIC
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Each fresh-jar POST to `/q` creates and returns a new Lead UUID (three distinct UUIDs across three anonymous requests, edge+origin) — a real persisted record per anonymous session, no rate gate observed. Field-error oracle confirms lead object carries appointment/self-disclosure fields set later by other anonymous resolvers.
+evidence_needed: whether repeated anonymous sessions create unbounded stored records or are GC'd; whether PII attached to anonymous leads without account — HUMAN.
+verify_steps: passive observation done; persistence/no-GC and PII-attach-check HUMAN.
+impact: Unbounded anonymous record creation (storage/DB noise) and potential PII attached to unauthenticated lead rows — LOW-MEDIUM.
+testability: HUMAN_ONLY
+[NEXT] HUMAN: browser PoC — attacker page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` against a logged-in victim and reads the ACAO-echoed lead JSON; all passive preconditions (CORS echo+cred on edge/origin, samesite=none cookies, root.lead 200 anonymous) confirmed this cycle — only victim-session data return remains.
+[RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform; property-search-api CRITICAL DB-wide PII enumeration chain; /q now additionally a precondition-complete credentialed-CORS exfil primitive (edge+origin), anonymous lead auto-provisioning, per-region lender pricing engine, auth-free BOLA, scheduling oracle, multipart upload. Remaining gates (real-PII read, victim-session exfil, write attribution) are HUMAN-decided.
