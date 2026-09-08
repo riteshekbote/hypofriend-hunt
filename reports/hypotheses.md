@@ -1061,3 +1061,7 @@
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
 - LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
 - LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## RANKED HYPOTHESES 2026-09-08 17:03:07 UTC
+- [95] core.hypofriend.de/property-search-api: property-search-api DB-wide BOLA — Cross-City PII Enumeration via Pagination/Geo Primitives on Direct Origin (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST https://core.hypofriend.de/q with calculateMaklerFee(new_property:false) and follow redirects to inspect the landing page for fee data.
