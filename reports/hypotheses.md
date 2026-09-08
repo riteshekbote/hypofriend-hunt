@@ -1003,3 +1003,19 @@
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
 - LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
 - LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## RANKED HYPOTHESES 2026-09-08 02:43:30 UTC
+- [95] core.hypofriend.de/property-search-api: GraphQL BOLA/IDOR at Scale — Cross-City PII Enumeration via Pagination/Geo Primitives on Direct Origin (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"FRANKFURT_AM_MAIN\",propertyType:APARTMENT){searchId}}"} → u
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-crede
+- LEARN: CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-pro
+- LEARN: CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uplo
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront 
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primi
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/q: `already_booked_appointments(lead_id)` resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, bot
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
+- LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface

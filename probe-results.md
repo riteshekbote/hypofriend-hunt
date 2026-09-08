@@ -242,3 +242,8 @@ https://hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/q -> 200 len=227301
 https://hypofriend.de/q -> 200 len=227301
 https://hypofriend.de/q',{credentials:'include' -> 200 len=227301
+
+## 2026-09-08 02:43:35 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=227301
+https://hypofriend.de/q -> 200 len=227301

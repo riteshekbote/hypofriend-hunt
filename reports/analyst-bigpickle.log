@@ -12341,3 +12341,52 @@ STEP 6 — LEARNING
 STEP 7 — RISK
 [RISK] hypofriend: 99 — Two live unauthenticated production GraphQL APIs on a mortgage platform. property-search-api remains a confirmed CRITICAL DB-wide PII enumeration chain (propertySearch→exposes→expose BOLA, offset/limit+geo crawl, auth-free read/write over arbitrary leadId, full introspection). Today's redeploy-delivered /q adds: confirmed auth-free BOLA (already_booked_appointments), auto-provisioned session lead with full PII schema, live booking-calendar oracle, auth-free writes incl. appointment scheduling (updateLeadAndScheduleAsyncAppointment jobId) and multipart document upload, mortgage-rates/calc resolvers — and NOW a credentialed OPEN CORS on both edge and origin making that whole surface browser-exploitable cross-origin with session cookies. Both APIs remain reachable un-edged at core.hypofriend.de (bare headers). Deterministic cross-tenant PII extraction and write primitives on financial infrastructure; only remaining gates are the ≥real-PII read and any write-side-effect confirmations, both HUMAN-decided.
 ```
+===== ANALYST bigpickle 2026-09-08 02:43:30 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{time_total}s %{ssl_verify_result}' -k --max-time 10 https://api.hypofriend.de/ 2>&1; echo ""
+000 10.000968s 0
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{time_total}s' -k --max-time 10 http://api.hypofriend.de/ 2>&1; echo ""
+000 10.002779s
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{time_total}s' -k --max-time 10 https://api.hypofriend.de/api/v1/ 2>&1; echo ""
+000 10.002429s
+[0m
+[0m$ [0mcurl -s -o /dev/null -w '%{http_code} %{time_total}s' -k --max-time 10 https://api.hypofriend.de/graphql 2>&1; echo ""
+000 10.001724s
+[0m
+[0m$ [0mdig +short api.hypofriend.de A 2>&1; echo "---"; dig +short api.hypofriend.de CNAME 2>&1
+52.15.184.3
+---
+[0m
+[0m$ [0m# Same probe on origin
+curl -s -w '\n---HTTP_CODE:%{http_code}---HEADERS---\n' -k --max-time 10 -X POST https://core.hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"mutation{calculateCityTax(input:{city_or_postal_code:\"80331\"}){tax formatted_tax}}"}' 2>&1
+{"meta":{"serverTime":"2026-09-08T02:37:42+00:00","status":0,"key":"OK"},"data":{"calculateCityTax":{"tax":0.035,"formattedTax":"3,5 %"}}}
+---HTTP_CODE:200---HEADERS---
+[0m
+[0m$ [0m# Also check the new /q hypothesis from last cycle — calculateCityTax probe
+curl -s -w '\n---HTTP_CODE:%{http_code}---HEADERS---\n' -k --max-time 10 -X POST https://hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"mutation{calculateCityTax(input:{city_or_postal_code:\"80331\"}){tax formatted_tax}}"}' 2>&1
+{"meta":{"serverTime":"2026-09-08T02:37:42+00:00","status":0,"key":"OK"},"data":{"calculateCityTax":{"tax":0.035,"formattedTax":"3,5 %"}}}
+---HTTP_CODE:200---HEADERS---
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0m# Capture full headers from edge /q
+curl -s -D /tmp/q_edge_headers.txt -o /dev/null -k --max-time 10 -X POST https://hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"mutation{calculateCityTax(input:{city_or_postal_code:\"80331\"}){tax formatted_tax}}"}' 2>&1; cat /tmp/q_edge_headers.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0m# Capture full headers from origin /q
+curl -s -D /tmp/q_origin_headers.txt -o /dev/null -k --max-time 10 -X POST https://core.hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"mutation{calculateCityTax(input:{city_or_postal_code:\"80331\"}){tax formatted_tax}}"}' 2>&1; cat /tmp/q_origin_headers.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0m# Also test rates_table on origin
+curl -s -w '\n---HTTP_CODE:%{http_code}---\n' -k --max-time 10 -X POST https://core.hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"{root{rates_table(loan_amount:700000,property_price:1000000,repayment:2.0,years_fixed:[5,10],region:\"bayern\"){}}}"}' 2>&1
+{"meta":{"serverTime":"2026-09-08T02:37:51+00:00","status":0,"key":"OK"},"errors":[{"message":"Argument 'region' on Field 'rates_table' has an invalid value (\"bayern\"). Expected type 'OfferApiRegion'.","locations":[{"line":1,"column":7}],"path":["query","root","rates_table","region"],"extensions":{"code":"argumentLiteralsIncompatible","typeName":"Field","argumentName":"region"}}]}
+---HTTP_CODE:200---
+[0m
+[0m$ [0m# rates_table on edge
+curl -s -w '\n---HTTP_CODE:%{http_code}---\n' -k --max-time 10 -X POST https://hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"{root{rates_table(loan_amount:700000,property_price:1000000,repayment:2.0,years_fixed:[5,10],region:\"bayern\"){}}}"}' 2>&1
+{"meta":{"serverTime":"2026-09-08T02:37:52+00:00","status":0,"key":"OK"},"errors":[{"message":"Argument 'region' on Field 'rates_table' has an invalid value (\"bayern\"). Expected type 'OfferApiRegion'.","locations":[{"line":1,"column":7}],"path":["query","root","rates_table","region"],"extensions":{"code":"argumentLiteralsIncompatible","typeName":"Field","argumentName":"region"}}]}
+---HTTP_CODE:200---
+[0m

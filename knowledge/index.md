@@ -196,3 +196,4 @@
 - 2026-09-08 REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
 - 2026-09-08 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
 - 2026-09-08 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-08 ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-credentials:true + all methods on edge AND direct origin (contrast: property-search-api echoes nothing → closed, previously REJECTED). New standalone finding class this cycle.

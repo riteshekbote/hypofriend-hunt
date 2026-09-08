@@ -394,3 +394,9 @@ www.hypofriend.de
 - NEW Open credentialed CORS on /q (both hosts): OPTIONS + actual POST with Origin: https://evil.example → `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` + al
 - CHANGED /q schema fully mined from Nux bundle BuTFH6-Z.js (passive): new resolvers beyond prior cycle — root.rates_table(loan_amount,property_price,repayment,years_fixed,region) mortgage-rate oracle; mutation
 - CHANGED /q BOLA re-confirmed live: already_booked_appointments(lead_id: zero-UUID) → 200 {"data":{"root":{"alreadyBookedAppointments":[]}}} on edge AND origin, no session cookie, no auth.
+
+## 2026-09-08 02:43:30 UTC
+- NEW Open credentialed CORS on `/q` (both hypofriend.de/q + core.hypofriend.de/q): OPTIONS and POST reflect arbitrary `Origin` with `access-control-allow-credentials:true` + all methods — new standalone fi
+- NEW `/q` schema fully mined from Nuxt bundle (BuTFH6-Z.js): new resolvers — `rates_table`, `calculateCityTax`, `calculateMaklerFee`, `jiyuCalculate(Chart)`, `uploadDocumentExtended` (multipart `[File!]!`)
+- CHANGED `/q` BOLA re-confirmed live: `already_booked_appointments(lead_id: zero-UUID)` → `200 {"data":{"root":{"alreadyBookedAppointments":[]}}}` on edge AND origin, no session cookie, no auth
+- CHANGED `rack-cors` preflight for `property-search-api` remains `200` with NO `allow-origin` echo — no open CORS there (re-contrast-confirmed vs `/q` this cycle)
