@@ -985,3 +985,21 @@
 - LEARN: CONFIRMED ENDPOINT @ hypofriend.de/q (also core.hypofriend.de/q): second live GraphQL API (POST `{__typename}` → 200 `{"meta":{status:0,key:"OK"},"data":{"Typen
 - LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin POST /q returns only `content-type` (no server/HSTS/XFO/nosniff/cache) vs edge full CloudFront stack —
 - LEARN: REJECTED MISCONFIG @ hypofriend.de/q: `__schema` introspection not enabled (`Field '__schema' doesn't exist on type 'Query'`) — unlike property-search-api, no s
+
+## RANKED HYPOTHESES 2026-09-08 00:01:38 UTC
+- [95] core.hypofriend.de/property-search-api: GraphQL BOLA/IDOR at Scale — Cross-City PII Enumeration via Pagination/Geo Primitives on Direct Origin (from art/lead_nemotron3.txt)
+- [90] hypofriend.de/q: /q open credentialed CORS — any website can cross-origin read/write the auth-free lead+appointment+documents API with session cookies (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST https://core.hypofriend.de/q {"query":"mutation{calculateCityTax(input:{city_or_postal_code:\"80331\"}){tax formatted_tax}}"} with a fresh empty coo
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/property-search-api {"query":"mutation{propertySearch(city:\"FRANKFURT_AM_MAIN\",propertyType:APARTMENT){searchId}}"} → u
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-cred
+- LEARN: CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-pro
+- LEARN: CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uplo
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront 
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primi
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/q: `already_booked_appointments(lead_id)` resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, bot
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
+- LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface

@@ -389,3 +389,8 @@ www.hypofriend.de
 ## 2026-09-07 19:11:00 UTC
 
 ## 2026-09-07 21:54:09 UTC
+
+## 2026-09-08 00:01:38 UTC
+- NEW Open credentialed CORS on /q (both hosts): OPTIONS + actual POST with Origin: https://evil.example → `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` + al
+- CHANGED /q schema fully mined from Nux bundle BuTFH6-Z.js (passive): new resolvers beyond prior cycle — root.rates_table(loan_amount,property_price,repayment,years_fixed,region) mortgage-rate oracle; mutation
+- CHANGED /q BOLA re-confirmed live: already_booked_appointments(lead_id: zero-UUID) → 200 {"data":{"root":{"alreadyBookedAppointments":[]}}} on edge AND origin, no session cookie, no auth.
