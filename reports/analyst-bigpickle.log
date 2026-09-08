@@ -12823,3 +12823,37 @@ NO_LEARN
 
 STEP 7 — RISK:
 [RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api: CRITICAL DB-wide PII enumeration chain. /q: anonymous mortgage-rate engine, business-logic bifurcation, auth-free BOLA, scheduling oracle, multipart document upload, auto-provisioned lead PII, and credentialed OPEN CORS on edge+origin.
+===== ANALYST bigpickle 2026-09-08 19:46:31 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead scope.yml
+[0m→ [0mRead knowledge
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mcurl -s -D /tmp/makler_redirect_headers.txt -o /tmp/makler_redirect_body.txt -w "%{http_code} %{redirect_url}" -X POST -H "Content-Type: application/json" -d '{"query":"mutation{calculateMaklerFee(input:{new_property:false}){formatted_tax}}"}' https://core.hypofriend.de/q 2>&1
+301 https://hypofriend.de/
+[0m
+Executing the pending NEXT probe from last cycle: follow calculateMaklerFee(new_property:false) redirect + GET the landing page.
+[0m$ [0mcurl -s -D /tmp/core_root_headers.txt -o /tmp/core_root_body.txt -w "%{http_code}" https://core.hypofriend.de/ 2>&1
+302
+[0m
+[0m$ [0mcurl -s -D /tmp/makler_follow_headers.txt -o /tmp/makler_follow_body.txt -w "%{http_code} %{url_effective}" -X POST -H "Content-Type: application/json" -d '{"query":"mutation{calculateMaklerFee(input:{new_property:false}){formatted_tax}}"}' -L https://core.hypofriend.de/q 2>&1
+301 https://hypofriend.de/
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat /tmp/makler_redirect_headers.txt 2>&1 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat /tmp/makler_follow_headers.txt 2>&1 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat /tmp/makler_follow_body.txt | head -c 2000 2>&1 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat /tmp/core_root_headers.txt 2>&1 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat /tmp/core_root_body.txt | head -c 2000 2>&1 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

@@ -420,3 +420,15 @@ www.hypofriend.de
 - CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
 
 ## 2026-09-08 17:03:07 UTC
+
+## 2026-09-08 19:46:31 UTC
+- NEW CONFIRMED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate (BAYERN 10yr 3.95% vs SAXONY 10yr 3.85%)
+- NEW CONFIRMED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` JSON-scalar resolver reached live with raw interpolation (selectionMismatch proves no schema enum gates)
+- NEW CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry `x-frame-options: ALLOWALL` + full HSTS while edge forces `x-frame-options: DENY` + nosniff/XSS-protection/referrer-policy — p
+- NEW CONFIRMED MISCONFIG @ core.hypofriend.de/q: `calculateMaklerFee(new_property:true)`→"0 %" (German law); `new_property:false`→301 redirect to / — business-logic bifurcation leaked anonymously
+- NEW CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry `x-frame-options: ALLOWALL` (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-
+- CHANGED Open credentialed CORS on `/q` (both hosts) re-confirmed: OPTIONS and POST reflect arbitrary Origin with `access-control-allow-credentials:true` + all methods on edge AND direct origin — contrast: pro
+- CHANGED `/q` BOLA re-confirmed live: `already_booked_appointments(lead_id: zero-UUID)` → 200 empty on both hosts, no auth, fresh jar
+- CHANGED Direct-origin `core.hypofriend.de/property-search-api` POST returns bare headers (`date`/`content-length`/`vary` only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven
+- CHANGED `propertySearch→exposes→expose` chain works unauthenticated on direct origin — cross-city PII enumeration confirmed (Berlin 11 listings, phone/owner data exposed)
+- CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface

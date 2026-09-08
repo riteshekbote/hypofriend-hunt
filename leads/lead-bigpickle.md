@@ -1627,3 +1627,4 @@ testability: HUMAN_ONLY
 [FINAL] survivors ranked: 1) property-search-api DB-wide BOLA [95] AUTH_HELPED; 2) /q anonymous mortgage-rate oracle [92] AUTH_HELPED.
 [NEXT] PROBE: POST https://core.hypofriend.de/q with calculateMaklerFee(new_property:false) and follow redirects to inspect the landing page for fee data.
 [RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api: CRITICAL DB-wide PII enumeration chain. /q: anonymous mortgage-rate engine, business-logic bifurcation, auth-free BOLA, scheduling oracle, multipart document upload, auto-provisioned lead PII, and credentialed OPEN CORS on edge+origin.
+## 2026-09-08 19:42:38 UTC [target] (model bigpickle)
