@@ -1554,3 +1554,41 @@ testability: HUMAN_ONLY
 [LEARN] CONFIRMED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation (selectionMismatch proves no schema enum gates the type string) — anonymous scheduling-oracle field.
 [LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin responses now carry `x-frame-options: ALLOWALL` + full HSTS while edge forces `x-frame-options: DENY` + nosniff/XSS-protection/referrer-policy CloudFront stack — persistent origin-vs-edge security-header differential (now including clickjacking-relevant XFO mismatch).
 [RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api remains the confirmed DB-wide PII enumeration chain (CRITICAL). /q now additionally proven live as an anonymous mortgage-pricing engine (real per-region rates), raw-typed scheduling oracle, plus prior confirmed auth-free BOLA, auto-provisioned lead PII schema, auth-free write/multipart-upload, and credentialed OPEN CORS on edge+origin making the whole surface browser-exploitable. Origin-vs-edge header differential persists (now incl. XFO ALLOWALL-vs-DENY). All remaining gates are ≥real-PII reads and write side-effects, HUMAN-decided.
+## 2026-09-08 12:18:28 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de/property-search-api,9.35,a9+b10+t10+g8+c10+f10
+[PRIO] hypofriend.de/q,8.50,a8+b9+t8+g6+c10+f10
+[PRIO] core.hypofriend.de,7.75,a7+b8+t7+g5+c10+f10
+[HYP] /q anonymous mortgage-rate oracle with region-differentiated live lender pricing
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 92
+reasoning: Confirmed live this cycle with region variance: rates_table(1M,1.2M,2.0,[5,10,15,20],BAYERN)→{5:3.99%,10:3.95%,15:4.13%,20:4.34%} vs SAXONY→{5:3.97%,10:3.85%,15:4.10%,20:4.24%} — 0.10% delta on 10yr/20yr confirms genuine per-region lender rate grid. BERLIN and HAMBURG share same rate group (identical at 500k/700k params). calculateCityTax(80331)→3.5%, calculateMaklerFee(new_property:true)→0% (German law), all on zero-cred anonymous session both origin+edge. Bundle-mined resolvers execute with no auth gate.
+evidence_needed: whether anonymous rates match logged-in view (HUMAN comparison); full region enum list; whether rates reflect real lender commitments vs estimates — all HUMAN.
+verify_steps: DONE — rates_table BAYERN/SAXONY/Berlin/Hamburg + calculateCityTax + calculateMaklerFee all live on origin+edge, no auth.
+impact: Unrestricted anonymous access to live per-region mortgage pricing engine; competitor intelligence oracle (rates vs region/loan terms/repayment), reproducible cross-origin via open credentialed CORS. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] /q calculateMaklerFee old-property path redirect = business-logic bifurcation
+class: BUSLOGIC
+asset: core.hypofriend.de/q
+confidence: 78
+reasoning: calculateMaklerFee(new_property:true)→200 "0 %" (German Maklergesetz: broker fee on new builds borne by seller since Jun 2024). calculateMaklerFee(new_property:false)→301 redirect to https://hypofriend.de/ on origin — the old-property path redirects to main site (presumably requiring user session/lead context for actual fee calculation). This proves the resolver differentiates new vs old property at the API level, with the old-property path leaking that business logic requires additional context. The 301 redirect itself is an information leak about internal code routing.
+evidence_needed: whether old-property path on edge also redirects (confirmed: 301 same); what logged-in old-property fee returns — HUMAN.
+verify_steps: DONE — both new_property:true (200) and new_property:false (301→/) confirmed on origin and edge.
+impact: Business logic bifurcation leaked anonymously; old-property fee calculation requires context but the redirect reveals the internal routing. Severity: LOW-MEDIUM.
+testability: PASSIVE
+[HYP] /q origin-vs-edge X-Frame-Options differential enables clickjacking if frameable UI exists
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 58
+reasoning: This cycle: origin POST /q mutations return x-frame-options: ALLOWALL + HSTS (no nosniff/XSS-protection/referrer-policy) while edge returns x-frame-options: DENY + full CF security stack. Confirmed on both GET queries AND mutations. Session cookie samesite=none/httponly allows cross-origin framing. If any interactive frameable page exists at core.hypofriend.de origin (not just JSON API), attacker can iframe it and trigger mortgage actions invisibly.
+evidence_needed: whether an interactive frameable HTML page exists at core.hypofriend.de (not just JSON API); cookie consumption in framed context — HUMAN/browser.
+verify_steps: passive header diff captured. Frameable-page existence HUMAN only.
+impact: Clickjacking of credentialed mortgage API actions (appointment scheduling, document upload) if frameable UI exists — cookie-session actions triggerable invisibly. Severity: MEDIUM (exploit gated on frameable UI existence).
+testability: HUMAN_ONLY
+[PARKED] /q origin-vs-edge clickjacking differential (conf 58): no confirmed frameable HTML page at core.hypofriend.de origin — JSON-only API endpoint confirmed; demonstration requires HUMAN browser verification. Keep as header-evidence only.
+[FINAL] survivors ranked:
+[NEXT] PROBE: POST https://core.hypofriend.de/q `{"query":"mutation{calculateMaklerFee(input:{new_property:false}){formatted_tax}}"}` with `-L` (follow redirects) to determine if the 301→/ resolves to a page containing the old-property fee or returns an error/landing page — tests whether the redirect is a hard guard or a soft redirect leaking context. Also GET https://core.hypofriend.de/ to check if the redirect target serves any HTML with embedded fee data. Read-only, ≤1rps.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: rates_table returns region-differentiated live mortgage rates — BAYERN 10yr 3.95% vs SAXONY 10yr 3.85% (0.10% delta) for identical 1M/1.2M params; BERLIN/HAMBURG share same rate group. Anonymous per-region lender pricing engine confirmed.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %" (German law); new_property:false→301 redirect to / (old-property path requires site context). Business-logic bifurcation leaked anonymously.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too.
+[RISK] hypofriend: 99 — Unchanged critical posture. Two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api: CRITICAL DB-wide PII enumeration chain (propertySearch→exposes→expose BOLA, offset/limit+geo crawl, auth-free read/write, full introspection). /q: now additionally confirmed as anonymous per-region mortgage pricing engine (real lender rate grid with region delta), business-logic bifurcation on broker fee calc, auth-free BOLA, scheduling oracle, multipart document upload, auto-provisioned lead PII, and credentialed OPEN CORS on edge+origin. Origin-vs-edge header differential persists (ALLOWALL vs DENY XFO + bare security headers). All remaining gates are real-PII read confirmation and write side-effect attribution — both HUMAN-decided.

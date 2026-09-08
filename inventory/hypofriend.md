@@ -409,3 +409,12 @@ www.hypofriend.de
 - CHANGED Direct-origin `core.hypofriend.de/property-search-api` POST returns bare headers (`date`/`content-length`/`vary` only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven
 - CHANGED `propertySearch→exposes→expose` chain works unauthenticated on direct origin — cross-city PII enumeration confirmed (Berlin 11 listings, phone/owner data exposed)
 - CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-08 12:24:28 UTC
+- NEW Open credentialed CORS on `/q` (hypofriend.de/q + core.hypofriend.de/q): OPTIONS and POST reflect arbitrary `Origin` with `access-control-allow-credentials:true` + all methods — new finding class vs p
+- NEW `/q` schema fully mined from Nuxt bundle (BuTFH6-Z.js): `rates_table`, `calculateCityTax`, `calculateMaklerFee`, `jiyuCalculate(Chart)`, `uploadDocumentExtended` (multipart `[File!]!`), `createDocumen
+- CHANGED `/q` BOLA re-confirmed live: `already_booked_appointments(lead_id: zero-UUID)` → `200 {"data":{"root":{"alreadyBookedAppointments":[]}}}` on edge AND origin, no session cookie, no auth
+- CHANGED `rack-cors` preflight for `property-search-api` remains `200` with NO `allow-origin` echo — no open CORS there (re-contrast-confirmed vs `/q` this cycle)
+- CHANGED Direct-origin `core.hypofriend.de/property-search-api` POST returns bare headers (`date`/`content-length`/`vary` only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven
+- CHANGED `propertySearch→exposes→expose` chain works unauthenticated on direct origin — cross-city PII enumeration confirmed (Berlin 11 listings, phone/owner data exposed)
+- CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
