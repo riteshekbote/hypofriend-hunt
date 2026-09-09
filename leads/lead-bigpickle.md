@@ -1999,3 +1999,43 @@ testability: PASSIVE
 [LEARN] CONFIRMED NG @ fleet: hypofriend.de/q 301, core.hypofriend.de/q 301, both /property-search-api 400, /api/v3/advisors 401, a. 403, admin 503, api 000 — bit-identical to prior cycle, no new surface.
 [LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin /q preflight carries NO HSTS/nosniff/XFO/xss headers vs edge full CF stack on the same malicious-origin OPTIONS — security-header differential re-proven on the preflight path this cycle.
 [RISK] hypofriend: 99 — Unchanged critical posture: property-search-api is a no-auth full-DB PII read oracle (offset/geo crawl primitives INTROSPECTED), /q is a precondition-complete cross-origin lead-exfil primitive (credentialed CORS + samesite=none httponly session + auth-free root.lead/shareLink) plus anonymous per-region rates and auth-free BOLA, with a direct-origin bypass of the CloudFront security stack. Every remaining gate (real-PII bulk read, victim-session exfil return, ngrok claim) is HUMAN-decided; no new exploitable surface this cycle.
+## 2026-09-09 22:38:49 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,9.55,attack_surface=9 business_value=10 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=10
+[PRIO] hypofriend.de/q,9.30,attack_surface=9 business_value=9 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=10
+[PRIO] core.hypofriend.de/q,9.30,attack_surface=9 business_value=9 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=10
+[HYP] property-search-api DB-wide BOLA — offset/geo crawl across the full listing DB on direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live listing PII (phone/email/owner-lastname/company) unauthenticated on edge+direct origin (verified on enumerated UUIDs prior cycles); introspection exposes pagination/exposes/exposesInBounds/mapExposes crawl primitives; limit capped ~50 → offset walk. This cycle both hosts 400 on empty GET — surface unchanged, chain intact.
+evidence_needed: one real-PII bulk (multi-offset) read to quantify full-DB dump — HUMAN (program PII note).
+verify_steps: HUMAN/report PoC — POST `https://hypofriend.de/property-search-api` {"query":"query{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"} then offset-walk exposes(id,offset:0..N,limit:50) + expose(id) per UUID (read-only; bulk PII read gated pending HUMAN).
+impact: full-DB property-listing PII dump (broker/owner phones, emails, surnames, companies) with zero auth — CRITICAL.
+testability: AUTH_HELPED
+[HYP] Open credentialed CORS × samesite=none session → silent cross-origin lead-profile/dossier exfil
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 80
+reasoning: OPTIONS preflight on direct origin re-proven live this cycle 22:38Z — arbitrary Origin https://evil.example echoed in access-control-allow-origin with access-control-allow-credentials:true + all methods (GET..HEAD), max-age 7200; edge echo + samesite=none httponly `_hf`/`__hfp__` + auth-free root{lead}/shareLink all reconfirmed prior cycles. Every server-side precondition intact; only victim-session data return missing.
+evidence_needed: logged-in victim browser session returning lead JSON through the ACAO echo — HUMAN/browser.
+verify_steps: HUMAN browser PoC — attacker-origin page `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` then read ACAO-echoed JSON. Do NOT execute write mutations (uploadDocumentExtended/submitApplicantsInformation) — no_data_modification + live-customer-data note.
+impact: silent cross-origin theft of logged-in lead profile (appointments, self-disclosure dossier, advisor attribution) — MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Anonymous per-region mortgage-rate engine — competitive intelligence leak
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 85
+reasoning: rates_table returns live per-region borrowingRate/monthlyRate (BAYERN 10yr vs SAXONY 10yr 0.10% delta, identical 1M/1.2M params) with zero credentials; calculateCityTax 3.5% anonymous; calculateMaklerFee(new_property:true)→"0 %", false→301. Established 09-08; /q surface unchanged this cycle (301 GET).
+evidence_needed: none (already confirmed).
+verify_steps: PASSIVE (confirmed) — POST `https://core.hypofriend.de/q` {"query":"query{rates_table(loan_amount:1000000,property_price:1200000,repayment:2,years_fixed:10,region:\"SAXONY\"){borrowingRate monthlyRate}}"} then re-run with BAYERN for delta.
+impact: anonymous per-region lender pricing comparison — competitive intelligence — LOW-MEDIUM.
+testability: PASSIVE
+[PARKED] CloudFront shared-cache cross-Origin leak (45): Vary:Accept-Encoding (not Vary:Origin) observed on preflight but POST-only, origin-dynamic responses → remains speculative.
+[PARKED] *.local.hypofriend.de ngrok orphan takeover (50): ERR_NGROK_3200; claim requires independent ngrok account — HUMAN-only.
+[PARKED] OAuth redirect_uri on auth.hypofriend.de (60): host 503/000 since 09-03, not passively reachable.
+[FINAL] 1) property-search-api DB-wide BOLA (95); 2) Anonymous per-region mortgage-rate engine (85); 3) Credentialed CORS lead exfil (80).
+[NEXT] HUMAN: browser PoC against a logged-in test session — attacker-origin page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` and reads the ACAO-echoed victim JSON; passive preconditions re-proven again this cycle (preflight ACAO+ACAC re-echoed live on direct origin 22:38Z, samesite=none httponly session, auth-free root.lead/shareLink), only victim-session data return remains.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q: credentialed CORS preflight re-confirmed live 22:38Z — OPTIONS with Origin https://evil.example echoes access-control-allow-origin + allow-credentials:true + all methods (max-age 7200) on direct origin; `vary: Accept-Encoding` (no Vary:Origin) noted.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q OPTIONS response carries NO HSTS/XFO/nosniff/xss headers (only date/content-length/ACAO) vs edge full CloudFront stack — security-header differential re-proven on the preflight path this cycle.
+[LEARN] CONFIRMED NG @ fleet sweep: hypofriend.de/ 302, /q 301 both hosts, /property-search-api 400, a. 403, admin/mail/news/cdn 503, m2 301, api 000 — bit-identical to prior cycle, no new surface.
+[RISK] hypofriend: 99 — Unchanged critical posture: property-search-api is a no-auth full-DB PII read oracle (offset/geo crawl primitives INTROSPECTED), /q is a precondition-complete cross-origin lead-exfil primitive (credentialed CORS re-echoed live on origin this cycle + samesite=none httponly session + auth-free root.lead/shareLink) plus anonymous per-region rates and auth-free BOLA, with a direct-origin bypass of the CloudFront security stack. All remaining gates (real-PII bulk read, victim-session exfil return, ngrok claim) are HUMAN-decided; no new exploitable surface this cycle.

@@ -1,7 +1,7 @@
-## 2026-09-09 20:19:23 UTC [target] (model nemotron3)
-[PRIO] core.hypofriend.de/q,9.7,attack_surface=10 business_value=10 tech_exposure=10 gate_ease=10 cloud_surface=9 freshness=9
-[PRIO] hypofriend.de/q,9.5,attack_surface=10 business_value=9 tech_exposure=10 gate_ease=10 cloud_surface=9 freshness=9
-[PRIO] core.hypofriend.de/property-search-api,9.4,attack_surface=9 business_value=10 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=9
+## 2026-09-09 22:39:21 UTC [target] (model nemotron3)
+[PRIO] core.hypofriend.de/q,9.7,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=9,freshness=9
+[PRIO] hypofriend.de/q,9.5,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=9,freshness=9
+[PRIO] core.hypofriend.de/property-search-api,9.4,attack_surface=9,business_value=10,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
 [HYP] /q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Applicant Submission
 class: MISCONFIG
 asset: core.hypofriend.de/q
@@ -34,6 +34,7 @@ testability: PASSIVE
 [FINAL] 2. /q Anonymous Mortgage-Rate Oracle → Region-Differentiated Lender Pricing Leak at Scale — confidence 95, PASSIVE
 [FINAL] 3. /q Appointment Availability Oracle → Anonymous Advisor Schedule Enumeration with Raw Interpolation — confidence 92, PASSIVE
 [NEXT] PROBE: POST https://core.hypofriend.de/q -H "Origin: https://evil.example" -H "Content-Type: application/json" --data '{"query":"mutation{uploadDocumentExtended(files:[null]){id}}"}' — confirm credentialed CORS allows cross-origin mutation execution (expect 200/400 with ACAO+ACAC headers); then repeat for submitApplicantsInformation with credentials:include to demonstrate full CSRF-with-credentials chain.
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): credentialed CORS (echo + allow-credentials + all methods) and samesite=none httponly session cookies re-confirmed live this cycle on edge — precondition chain for cross-origin lead exfil intact.
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region borrowingRate/monthlyRate with 0.10% delta (BAYERN vs SAXONY) — competitive intelligence leak
 [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q: appointment_availability(page,per,appointment_type) JSON-scalar resolver with raw interpolation — no schema enum gates appointment_type string
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry x-frame-options: ALLOWALL + HSTS while edge forces x-frame-options: DENY + nosniff/XSS-protection/referrer-policy — persistent security-header differential including clickjacking-relevant XFO mismatch
