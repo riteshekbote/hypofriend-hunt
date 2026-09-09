@@ -227,3 +227,12 @@
 - 2026-09-09 REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
 - 2026-09-09 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
 - 2026-09-09 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-09 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven this cycle
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region borrowingRate/monthlyRate with 0.10% delta (BAYERN vs SAXONY) — competitive intelligence leak
+- 2026-09-09 ACCEPTED MISCONFIG @ hypofriend.de/q: appointment_availability(page,per,appointment_type) JSON-scalar resolver with raw interpolation — no schema enum gates appointment_type string
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry x-frame-options: ALLOWALL + HSTS while edge forces x-frame-options: DENY + nosniff/XSS-protection/referrer-policy — persistent security-header differential including clickjacking-relevant XFO mismatch
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %" (German law); new_property:false→301 redirect to / — business-logic bifurcation leaked anonymously
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too
+- 2026-09-09 ACCEPTED IDOR @ core.hypofriend.de/q: already_booked_appointments(lead_id) resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, both 200) — cross-tenant read primitive
+- 2026-09-09 REJECTED MISCONFIG @ core.hypofriend.de/q: root.lead does NOT accept ID argument (returns current session lead only) — not an IDOR vector
+- 2026-09-09 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
