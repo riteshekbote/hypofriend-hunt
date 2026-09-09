@@ -6216,3 +6216,52 @@ testability: PASSIVE
 
 **STEP 7 — RISK**
 [RISK] hypofriend: 98 — Unauthenticated production GraphQL API with full introspection (property-search-api), auth-free read (expose/exposes/propertySearch/favoritedExposes/pagination/exposesInBounds/mapExposes) and auth-free write (favoriteExpose/informationRequest) over arbitrary leadId, all carrying broker/owner PII (phone/email/surname/company) on financial mortgage platform. Real-expose-UUID confirmation across 3 cities = cross-tenant PII dump at scale. Direct Rails origin (core.hypofriend.de) bypasses CloudFront WAF/rate-limiting enabling unrestricted enumeration. Second GraphQL API (/q) exposes lead/appointment schema with `already_booked_appointments(lead_id)` auth-free + OPEN CREDENTIALED CORS on both edge and origin — cross-origin mutation theft (uploadDocumentExtended, submitApplicantsInformation, processLeadForAppointment) via credentialed CORS. Anonymous mortgage-rate oracle (`rates_table`) leaks live per-region lender pricing. Appointment availability oracle (`appointment_availability`) with raw string interpolation. Direct-origin security-header bypass (X-Frame-Options: ALLOWALL, no nosniff/XSS-protection) on both APIs. Severity: CRITICAL.
+===== ANALYST nemotron3 2026-09-09 00:27:33 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la
+total 292
+drwxr-xr-x 12 runner runner  4096 Sep  9 00:20 .
+drwxr-xr-x  3 runner runner  4096 Sep  9 00:20 ..
+drwxr-xr-x  7 runner runner  4096 Sep  9 00:20 .git
+drwxr-xr-x  3 runner runner  4096 Sep  9 00:20 .github
+-rw-r--r--  1 runner runner  1885 Sep  9 00:20 README.md
+-rw-r--r--  1 runner runner    43 Sep  9 00:20 analyst-out.txt
+-rw-r--r--  1 runner runner 99953 Sep  9 00:20 analyst-prompt.txt
+-rw-r--r--  1 runner runner 96078 Sep  9 00:20 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  9 00:20 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  9 00:20 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  9 00:20 leads
+-rw-r--r--  1 runner runner 11322 Sep  9 00:20 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  9 00:20 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  9 00:20 reports
+drwxr-xr-x  2 runner runner  4096 Sep  9 00:20 reposcan-raw
+-rw-r--r--  1 runner runner  3288 Sep  9 00:20 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  9 00:20 scripts
+-rw-r--r--  1 runner runner    33 Sep  9 00:20 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  9 00:20 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  9 00:20 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  9 00:20 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  9 00:20 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  9 00:20 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  9 00:20 triage
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead inventory/hypofriend.md
+[0m
+[0m← [0mWrite analyst-output.txt
+Wrote file successfully.
+[0m
+Now I have full context. Let me execute the 8-step analysis.
+[0m→ [0mRead analyst-output.txt
+Done. The 8-step analysis is written to `analyst-output.txt`.
+
+**Summary:**
+- **Top asset**: `core.hypofriend.de/q` (9.7/10) — open credentialed CORS + auth-free mutations + anonymous rate oracle + security-header bypass
+- **3 FINAL hypotheses** (all MISCONFIG, PASSIVE, confidence 92-95):
+  1. `/q GraphQL Credentialed CORS + Auth-Free Mutations` — cross-origin document upload/applicant submission (CRITICAL)
+  2. `/q GraphQL Anonymous Mortgage-Rate Oracle` — region-differentiated lender pricing leak (HIGH)
+  3. `/q GraphQL Appointment Availability Oracle` — anonymous scheduling surface with raw string interpolation (HIGH)
+- **NEXT ACTION**: PROBE `rates_table` across German states on direct origin to map pricing delta + confirm no rate-limit
+- **Overall risk**: 98/100 (CRITICAL) — dual GraphQL APIs with auth-free PII enumeration, cross-tenant read/write, credentialed CORS mutation theft, and origin security bypass

@@ -272,3 +272,7 @@ https://core.hypofriend.de/q -> 200 len=227365
 https://hypofriend.de/q -> 200 len=227365
 https://hypofriend.de/q',{credentials:'include' -> 200 len=227365
 https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+
+## 2026-09-09 00:27:37 UTC
+https://hypofriend.de/q',{method:'POST',credentials:'include',body:{query -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
