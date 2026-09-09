@@ -444,3 +444,5 @@ www.hypofriend.de
 - CHANGED hypofriend.de/q: reconfirmed open credentialed CORS + samesite=none httponly session cookies; anonymous mortgage-rate engine (rates_table) returns live per-region rates (0.10% BAYERN vs SAXONY delta);
 - CHANGED core.hypofriend.de/q: full endpoint map mined from Nuxt bundle (rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate, uploadDocumentExtended, createDocumentsRequest, submitApplicantsInform
 - CHANGED core.hypofriend.de/property-search-api: confirmed IDORs (BOLA chain propertySearch→exposes→expose; direct-origin bypass bare headers); confirmed MISCONFIGs (introspection enabled, pagination/exposes/e
+
+## 2026-09-09 14:26:17 UTC
