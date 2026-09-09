@@ -236,3 +236,5 @@
 - 2026-09-09 ACCEPTED IDOR @ core.hypofriend.de/q: already_booked_appointments(lead_id) resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, both 200) — cross-tenant read primitive
 - 2026-09-09 REJECTED MISCONFIG @ core.hypofriend.de/q: root.lead does NOT accept ID argument (returns current session lead only) — not an IDOR vector
 - 2026-09-09 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
+- 2026-09-09 CONFIRMED NG @ core.hypofriend.de: fresh probe of `/up`,`/rails/info/routes`,`/graphql`,`/admin`,`/metrics` all 301→https://hypofriend.de/ (canonical redirect shell) — no Rails health/metrics/admin/debug surface at direct origin.
+- 2026-09-09 CONFIRMED NG @ fleet: hypofriend.de/q 301, core.hypofriend.de/q 301, both /property-search-api 400, /api/v3/advisors 401, a. 403, admin 503, api 000 — same as prior cycle, no new surface.

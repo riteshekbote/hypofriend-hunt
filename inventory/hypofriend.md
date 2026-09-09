@@ -446,3 +446,5 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/property-search-api: confirmed IDORs (BOLA chain propertySearch→exposes→expose; direct-origin bypass bare headers); confirmed MISCONFIGs (introspection enabled, pagination/exposes/e
 
 ## 2026-09-09 14:26:17 UTC
+
+## 2026-09-09 17:54:29 UTC
