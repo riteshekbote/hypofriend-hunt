@@ -1213,3 +1213,33 @@
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: root.lead does NOT accept ID argument (returns current session lead only) — not an IDOR vector
 - LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
 - LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## RANKED HYPOTHESES 2026-09-09 20:20:38 UTC
+- [95] core.hypofriend.de/q: /q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Applicant Submission (from art/lead_nemotron3.txt)
+- [85] core.hypofriend.de/q: property-search-api DB-wide BOLA — cross-city/offset PII enumeration on direct origin (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: browser PoC — attacker page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:J
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/q -H "Origin: https://evil.example" -H "Content-Type: application/json" --data '{"query":"mutation{uploadDocumentExtended
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q: credentialed CORS (echo + allow-credentials + all methods) and samesite=none httponly session cookies re-confirmed live th
+- LEARN: CONFIRMED NG @ fleet sweep: hypofriend.de/core/a/blog/m2/www/dead-fleet all returned prior-cycle statuses (200/400/403/000/301) — no new surface.
+- LEARN: CONFIRMED NG @ core.hypofriend.de: fresh probe of `/up`,`/rails/info/routes`,`/graphql`,`/admin`,`/metrics` all 301→https://hypofriend.de/ (canonical redirect s
+- LEARN: CONFIRMED NG @ fleet: hypofriend.de/q 301, core.hypofriend.de/q 301, both /property-search-api 400, /api/v3/advisors 401, a. 403, admin 503, api 000 — same as p
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): credentialed CORS re-confirmed live this cycle — OPTIONS with arbitrary Origin echoes ACAO + ACAC:
+- LEARN: CONFIRMED NG @ fleet: hypofriend.de/q 301, core.hypofriend.de/q 301, both /property-search-api 400, /api/v3/advisors 401, a. 403, admin 503, api 000 — bit-ident
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin /q preflight carries NO HSTS/nosniff/XFO/xss headers vs edge full CF stack on the same malicious-origin 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region borrowingRate/monthlyRate with 0.10% delta (BAYE
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q: appointment_availability(page,per,appointment_type) JSON-scalar resolver with raw interpolation — no schema enum gates app
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry x-frame-options: ALLOWALL + HSTS while edge forces x-frame-options: DENY + nosniff/XSS-
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %" (German law); new_property:false→301 redirect to / — business-logic bifur
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-crede
+- LEARN: CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-pro
+- LEARN: CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uplo
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront 
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primi
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/q: already_booked_appointments(lead_id) resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, both 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: root.lead does NOT accept ID argument (returns current session lead only) — not an IDOR vector
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
+- LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface

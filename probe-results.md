@@ -301,3 +301,11 @@ https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-
 https://hypofriend.de/property-search-api` -> HTTP 400
 https://core.hypofriend.de/q` -> 200 len=227365
 https://hypofriend.de/ -> 200 len=227365
+
+## 2026-09-09 20:20:54 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+https://hypofriend.de/property-search-api` -> HTTP 400
+https://core.hypofriend.de/q` -> 200 len=227365
+https://hypofriend.de/ -> 200 len=227365
