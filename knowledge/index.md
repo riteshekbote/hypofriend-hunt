@@ -266,3 +266,9 @@
 - 2026-09-10 REJECTED MISCONFIG @ core.hypofriend.de/q: root.lead does NOT accept ID argument (returns current session lead only) — not an IDOR vector
 - 2026-09-10 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
 - 2026-09-10 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-10 ACCEPTED MISCONFIG @ hypofriend.de/q: `appointment_type` is server-side differentiated — `phone` returns 30-min/all-free calendar, `video`/unknown returns 60-min/all-occupied; raw interpolation confirmed but backend dispatches on the string. New evidence this cycle.
+- 2026-09-10 CHANGED MISCONFIG @ hypofriend.de/q: `calculateMaklerFee` field REMOVED from HypofriendType schema — was present 2026-09-08, now "doesn't exist". Schema changed.
+- 2026-09-10 ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor endpoint, branding. New surface this cycle.
+- 2026-09-10 CONFIRMED NG @ fleet sweep: all dead hosts, buckets, local.ngrok, edge/origin — bit-identical to prior cycle.
+- 2026-09-10 CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin OPTIONS still bare (date/content-length/ACAO only) vs edge full CF security stack — WAF bypass re-proven.
+- 2026-09-10 REJECTED MISCONFIG @ core.hypofriend.de/q: `appointment_availability_for_advisor(advisor:"test")` → 301 redirect on both hosts — invalid advisor string causes redirect, not data leak. Not a valid IDOR vector without known advisor values.

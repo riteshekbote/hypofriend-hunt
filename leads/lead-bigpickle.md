@@ -2193,3 +2193,42 @@ impact: anonymous per-advisor appointment pressure / scheduling-capacity telemet
 testability: PASSIVE
 [NEXT] HUMAN: browser PoC against a logged-in test session — attacker-origin page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` and reads the ACAO-echoed victim JSON. Passive preconditions re-proven again this cycle (live 200 POST on both /q hosts incl. origin, ACAO+ACAC echo live 22:38Z prior, samesite=none httponly session, auth-free root.lead/shareLink); only victim-session data return remains. No write mutations.
 [RISK] hypofriend: 99 — Unchanged critical posture: property-search-api remains a no-auth full-DB PII read oracle (offset/geo crawl primitives introspected), /q retains a fully preconditioned cross-origin lead-exfil chain (live POST both hosts + credentialed CORS + samesite=none httponly session + auth-free root.lead/shareLink) plus the anonymous per-region rates engine and auth-free BOLA, with a direct-origin bypass of the CloudFront security stack. All remaining gates (real-PII bulk read, victim-session exfil return, ngrok claim, advisor-lane differentiation) are HUMAN-decided; no new exploitable surface this cycle.
+## 2026-09-10 09:55:59 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de/q,10,attack_surface=10×business_value=9×tech_exposure=9×gate_ease=10×cloud_surface=6×freshness=9 → 9.2
+[PRIO] core.hypofriend.de/property-search-api,9,attack_surface=9×business_value=10×tech_exposure=9×gate_ease=10×cloud_surface=5×freshness=8 → 8.6
+[PRIO] hypofriend.de/en/health,5,attack_surface=5×business_value=5×tech_exposure=4×gate_ease=6×cloud_surface=3×freshness=7 → 4.9
+[HYP] /q appointment_type server-side routing — anonymous per-type advisor capacity enumeration
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 95
+reasoning: `appointment_availability(page,per,appointment_type)` returns DIFFERENT calendar structures based on type string: `"phone"` → 30-min granularity (22 slots/day, all free), `"video"` → 60-min granularity (11 slots/day, all occupied). `__type` introspection disabled on /q, yet type routing IS server-side differentiated — raw interpolation confirmed but backend dispatches on the string. Unknown strings fall through to video calendar. Neither session nor auth required. Three separate appointment instances (default/health/plus) discovered in Nuxt config — each may have distinct scheduling calendars accessible via the same resolver.
+evidence_needed: enumerate all valid appointment_type values that yield distinct calendars; confirm the 3 appointment instances expose separate scheduling endpoints via /q
+verify_steps: POST `https://hypofriend.de/q {"query":"{root{appointment_availability(page:1,per:5,appointment_type:\"short-video\")}}"}` — assert distinct slot structure vs phone/video; try `\"health\"`, `\"plus\"`, `\"consultation\"`, `\"beratung\"` — compare slot count/granularity/dates/occupancy; POST same to `core.hypofriend.de/q` — confirm identical on origin
+impact: Anonymous enumeration of per-type advisor scheduling capacity across mortgage/health/buyer's-agent product lines; free-slot vs occupied-slot mapping reveals advisor workload per product type. Severity: MEDIUM
+testability: PASSIVE
+[HYP] /q open credentialed CORS + session samesite=none → cross-origin appointment-availability + lead-data exfil
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 92
+reasoning: CORS preflight on edge re-echoes arbitrary Origin with `access-control-allow-credentials:true` + all methods (max-age 7200) re-confirmed live this cycle. `samesite=none` httponly `_hf`/`__hfp__` session cookies confirmed. `root.appointment_availability` and `root.already_booked_appointments` execute auth-free. New differentiation finding: phone-type calendar exposes 154 free slots across 7 days — a cross-origin attacker could enumerate real-time advisor availability from an attacker-controlled page. Combined with prior root.lead/shareLink PII chain: complete cross-origin victim data exfil is fully preconditioned (CORS + cookies + auth-free resolvers), only missing a browser PoC.
+evidence_needed: HUMAN browser PoC — attacker-origin page `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',...})` returning appointment_availability JSON through ACAO echo
+verify_steps: HUMAN/browser PoC only — attacker-origin page executes fetch with credentials:include, reads ACAO-echoed JSON containing appointment slots + lead PII. No write mutations.
+impact: Silent cross-origin theft of victim's appointment availability, booked appointments, and lead profile (appointments, self-disclosure dossier, advisor attribution). Severity: HIGH
+testability: HUMAN_ONLY
+[HYP] property-search-api DB-wide BOLA on direct origin — offset/geo crawl across full listing DB
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live listing PII (phone/email/owner-lastname/company) unauthenticated on edge+direct origin; introspection exposes pagination/exposes/exposesInBounds/mapExposes crawl primitives; limit capped ~50 → offset walk. Both hosts still 400 on empty GET — chain intact, unchanged.
+evidence_needed: one real-PII bulk (multi-offset) read to quantify full-DB dump — HUMAN (program note: no customer/employee/financial-data exposure during testing).
+verify_steps: HUMAN/report PoC — POST `https://hypofriend.de/property-search-api` {"query":"query{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"} then offset-walk exposes(id,offset:0..N,limit:50) + expose(id) per UUID (read-only; bulk PII read gated pending HUMAN).
+impact: full-DB property-listing PII dump (broker/owner phones, emails, surnames, companies) with zero auth — CRITICAL.
+testability: AUTH_HELPED
+[NEXT] PROBE: POST `https://hypofriend.de/q {"query":"{root{appointment_availability(page:1,per:5,appointment_type:\"short-video\")}}"}` then `\"health\"`, `\"plus\"`, `\"consultation\"` — enumerate all type strings yielding distinct calendars from the 3 appointment instances discovered in Nuxt config
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q: `appointment_type` is server-side differentiated — `phone` returns 30-min/all-free calendar, `video`/unknown returns 60-min/all-occupied; raw interpolation confirmed but backend dispatches on the string. New evidence this cycle.
+[LEARN] CHANGED MISCONFIG @ hypofriend.de/q: `calculateMaklerFee` field REMOVED from HypofriendType schema — was present 2026-09-08, now "doesn't exist". Schema changed.
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor endpoint, branding. New surface this cycle.
+[LEARN] CONFIRMED NG @ fleet sweep: all dead hosts, buckets, local.ngrok, edge/origin — bit-identical to prior cycle.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin OPTIONS still bare (date/content-length/ACAO only) vs edge full CF security stack — WAF bypass re-proven.
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/q: `appointment_availability_for_advisor(advisor:"test")` → 301 redirect on both hosts — invalid advisor string causes redirect, not data leak. Not a valid IDOR vector without known advisor values.
+[RISK] hypofriend: 99 — Unchanged critical posture: property-search-api remains a no-auth full-DB PII read oracle, /q retains a fully preconditioned cross-origin lead-exfil chain (live POST both hosts + credentialed CORS + samesite=none httponly session + auth-free root.lead/shareLink/appointment_availability), with a direct-origin bypass of the CloudFront security stack. NEW: appointment_type differentiation enables per-type scheduling-capacity enumeration across mortgage/health/buyer's-agent product lines, and schema drift (calculateMaklerFee removed) indicates active development. All remaining gates (real-PII bulk read, victim-session exfil return, ngrok claim) are HUMAN-decided.

@@ -332,3 +332,10 @@ https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-
 https://core.hypofriend.de/q` -> 200 len=227365
 https://hypofriend.de/q -> 200 len=227365
 https://hypofriend.de/q` -> 200 len=227365
+
+## 2026-09-10 09:56:17 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include' -> 200 len=227365
+https://hypofriend.de/property-search-api` -> HTTP 400
