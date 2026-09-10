@@ -276,3 +276,9 @@
 - 2026-09-10 CHANGED MISCONFIG @ hypofriend.de/q: calculateMaklerFee field REMOVED from HypofriendType schema — was present 2026-09-08, now "doesn't exist"; schema changed
 - 2026-09-10 ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor endpoint, branding; new surface this cycle
 - 2026-09-10 REJECTED MISCONFIG @ core.hypofriend.de/q: appointment_availability_for_advisor(advisor:"test") → 301 redirect on both hosts — invalid advisor string causes redirect, not data leak; not a valid IDOR vector without known advisor values
+- 2026-09-10 ACCEPTED MISCONFIG @ core.hypofriend.de/q: credentialed CORS re-confirmed live on edge AND origin
+- 2026-09-10 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only
+- 2026-09-10 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable
+- 2026-09-10 ACCEPTED MISCONFIG @ core.hypofriend.de/q: credentialed CORS re-confirmed live on edge AND origin
+- 2026-09-10 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only
+- 2026-09-10 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable

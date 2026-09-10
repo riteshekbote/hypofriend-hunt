@@ -470,3 +470,41 @@ www.hypofriend.de
 - CHANGED ACCEPTED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): credentialed CORS re-confirmed live this cycle on edge AND origin
 - CHANGED ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region rates with 0.10% delta (BAYERN 3.95% vs SAXONY 3.85%)
 - CHANGED CONFIRMED NG @ fleet sweep: all dead hosts, buckets, local.ngrok, edge/origin — bit-identical to prior cycle
+
+## 2026-09-10 20:29:25 UTC
+- NEW hypofriend.de/en/health — separate appointment instance for health insurance with own API URL, advisor endpoint, branding (discovered 2026-09-10)
+- NEW hypofriend.de/en/plus — separate appointment instance for buyer's agent with own API URL, advisor endpoint, branding (discovered 2026-09-10)
+- NEW hypofriend.de/q: appointment_type server-side differentiated — phone returns 30-min/all-free calendar, video/unknown returns 60-min/all-occupied; raw interpolation confirmed but backend dispatches on 
+- CHANGED hypofriend.de/q: calculateMaklerFee field REMOVED from HypofriendType schema — was present 2026-09-08, now "doesn't exist"; schema changed
+- CHANGED core.hypofriend.de/q: direct-origin OPTIONS still bare (date/content-length/ACAO only) vs edge full CF security stack — WAF bypass re-proven
+- CHANGED core.hypofriend.de/q: credentialed CORS re-confirmed live on edge AND origin
+- CHANGED core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region rates with 0.10% delta (BAYERN 3.95% vs SAXONY 3.85%)
+- CHANGED core.hypofriend.de/q: direct-origin responses carry x-frame-options: ALLOWALL + HSTS while edge forces DENY + nosniff/XSS-protection/referrer-policy — persistent security-header differential
+- CHANGED core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %"; new_property:false→301 redirect to / — business-logic bifurcation leaked anonymously
+- CHANGED core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential
+- CHANGED hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS/POST reflect arbitrary Origin with ACAC:true + all methods on edge AND direct origin
+- CHANGED core.hypofriend.de/property-search-api: direct-origin GraphQL POST bare headers vs edge full CloudFront stack — WAF/security-header bypass live re-proven
+- CHANGED core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration confirmed
+- CHANGED core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes auth-free crawl primitives
+- CHANGED core.hypofriend.de/q: already_booked_appointments(lead_id) resolver accepts arbitrary lead_id auth-free (zero-UUID and random-UUID, both 200)
+- CHANGED Dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + a./blog/m2 buckets — unchanged 503/000/301/403
+- CHANGED *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel
+- CHANGED local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert
+- NEW hypofriend.de/en/health — separate appointment instance for health insurance with own API URL, advisor endpoint, branding (discovered 2026-09-10)
+- NEW hypofriend.de/en/plus — separate appointment instance for buyer's agent with own API URL, advisor endpoint, branding (discovered 2026-09-10)
+- NEW hypofriend.de/q: appointment_type server-side differentiated — phone returns 30-min/all-free calendar, video/unknown returns 60-min/all-occupied; raw interpolation confirmed but backend dispatches on 
+- CHANGED hypofriend.de/q: calculateMaklerFee field REMOVED from HypofriendType schema — was present 2026-09-08, now "doesn't exist"; schema changed
+- CHANGED core.hypofriend.de/q: direct-origin OPTIONS still bare (date/content-length/ACAO only) vs edge full CF security stack — WAF bypass re-proven
+- CHANGED core.hypofriend.de/q: credentialed CORS re-confirmed live on edge AND origin
+- CHANGED core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region rates with 0.10% delta (BAYERN 3.95% vs SAXONY 3.85%)
+- CHANGED core.hypofriend.de/q: direct-origin responses carry x-frame-options: ALLOWALL + HSTS while edge forces DENY + nosniff/XSS-protection/referrer-policy — persistent security-header differential
+- CHANGED core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %"; new_property:false→301 redirect to / — business-logic bifurcation leaked anonymously
+- CHANGED core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential
+- CHANGED hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS/POST reflect arbitrary Origin with ACAC:true + all methods on edge AND direct origin
+- CHANGED core.hypofriend.de/property-search-api: direct-origin GraphQL POST bare headers vs edge full CloudFront stack — WAF/security-header bypass live re-proven
+- CHANGED core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration confirmed
+- CHANGED core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes auth-free crawl primitives
+- CHANGED core.hypofriend.de/q: already_booked_appointments(lead_id) resolver accepts arbitrary lead_id auth-free (zero-UUID and random-UUID, both 200)
+- CHANGED Dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + a./blog/m2 buckets — unchanged 503/000/301/403
+- CHANGED *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel
+- CHANGED local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert
