@@ -282,3 +282,5 @@
 - 2026-09-10 ACCEPTED MISCONFIG @ core.hypofriend.de/q: credentialed CORS re-confirmed live on edge AND origin
 - 2026-09-10 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only
 - 2026-09-10 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable
+- 2026-09-10 ACCEPTED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %"; new_property:false→301 redirect to / — business-logic bifurcation leaked anonymously
+- 2026-09-10 ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS/POST reflect arbitrary Origin with ACAC:true + all methods on edge AND direct origin

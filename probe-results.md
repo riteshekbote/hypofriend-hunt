@@ -356,3 +356,8 @@ https://hypofriend.de/en/health -> 200 len=89
 https://hypofriend.de/en/plus -> 200 len=297417
 https://core.hypofriend.de/q -> 200 len=227365
 https://core.hypofriend.de/property-search-api -> HTTP 400
+
+## 2026-09-10 22:54:04 UTC
+https://core.hypofriend.de/en/health/q -> 200 len=227365
+https://core.hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/en/health -> 200 len=89
