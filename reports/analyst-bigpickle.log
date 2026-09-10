@@ -15965,3 +15965,57 @@ No parked — all three hypotheses >80 confidence with concrete verify steps and
 **STEP 7 — RISK**
 
 [RISK] hypofriend: 99 — Unchanged critical posture: property-search-api remains a no-auth full-DB PII read oracle (offset/geo crawl primitives introspected), /q retains a fully preconditioned cross-origin lead-exfil chain (live POST both hosts + credentialed CORS + samesite=none httponly session + auth-free root.lead/shareLink/appointment_availability) plus the anonymous per-region rates engine and auth-free BOLA, with a direct-origin bypass of the CloudFront security stack. NEW: appointment_type differentiation enables per-type scheduling-capacity enumeration across mortgage/health/buyer's-agent product lines, and schema drift (calculateMaklerFee removed) indicates active development. All remaining gates (real-PII bulk read, victim-session exfil return, ngrok claim) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-10 17:46:17 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -m 25 -X POST https://hypofriend.de/q -H 'Content-Type: application/json' --data '{"query":"{root{appointment_availability(page:1,per:5,appointment_type:\"phone\")}}"}' | head -c 2000; echo
+{"meta":{"serverTime":"2026-09-10T17:44:01+00:00","status":0,"key":"OK"},"data":{"root":{"appointmentAvailability":{"2026-09-17":{"slots":[{"value":{"hour":8.0,"date":"2026-09-17"},"label":"08:00 - 08:29","occupied":false},{"value":{"hour":8.5,"date":"2026-09-17"},"label":"08:30 - 08:59","occupied":false},{"value":{"hour":9.0,"date":"2026-09-17"},"label":"09:00 - 09:29","occupied":false},{"value":{"hour":9.5,"date":"2026-09-17"},"label":"09:30 - 09:59","occupied":false},{"value":{"hour":10.0,"date":"2026-09-17"},"label":"10:00 - 10:29","occupied":false},{"value":{"hour":10.5,"date":"2026-09-17"},"label":"10:30 - 10:59","occupied":false},{"value":{"hour":11.0,"date":"2026-09-17"},"label":"11:00 - 11:29","occupied":false},{"value":{"hour":11.5,"date":"2026-09-17"},"label":"11:30 - 11:59","occupied":false},{"value":{"hour":12.0,"date":"2026-09-17"},"label":"12:00 - 12:29","occupied":false},{"value":{"hour":12.5,"date":"2026-09-17"},"label":"12:30 - 12:59","occupied":false},{"value":{"hour":13.0,"date":"2026-09-17"},"label":"13:00 - 13:29","occupied":false},{"value":{"hour":13.5,"date":"2026-09-17"},"label":"13:30 - 13:59","occupied":false},{"value":{"hour":14.0,"date":"2026-09-17"},"label":"14:00 - 14:29","occupied":false},{"value":{"hour":14.5,"date":"2026-09-17"},"label":"14:30 - 14:59","occupied":false},{"value":{"hour":15.0,"date":"2026-09-17"},"label":"15:00 - 15:29","occupied":false},{"value":{"hour":15.5,"date":"2026-09-17"},"label":"15:30 - 15:59","occupied":false},{"value":{"hour":16.0,"date":"2026-09-17"},"label":"16:00 - 16:29","occupied":false},{"value":{"hour":16.5,"date":"2026-09-17"},"label":"16:30 - 16:59","occupied":false},{"value":{"hour":17.0,"date":"2026-09-17"},"label":"17:00 - 17:29","occupied":false},{"value":{"hour":17.5,"date":"2026-09-17"},"label":"17:30 - 17:59","occupied":false},{"value":{"hour":18.0,"date":"2026-09-17"},"label":"18:00 - 18:29","occupied":false},{"value":{"hour":18.5,"date":"2026-09-17"},"label":"18:30 - 18:59","occupied":fa
+[0m
+[0m$ [0mfor t in short-video video health plus consultation beratung default aftercare "short-video-2" "real-estate"; do
+  echo "=== $t ==="
+  curl -s -m 25 -X POST https://hypofriend.de/q -H 'Content-Type: application/json' \
+    --data "{\"query\":\"{root{appointment_availability(page:1,per:5,appointment_type:\\\"$t\\\")}}\"}" \
+  | jq -c '{err:.errors, days:(.data.root.appointmentAvailability|length), tot_slots:(.data.root.appointmentAvailability|to_entries|map(.value.slots|length)|add), occupied:(.data.root.appointmentAvailability|to_entries|map(.value.slots|map(select(.occupied==true))|length)|add), first:(.data.root.appointmentAvailability|to_entries|map(.value.slots[0].label)|.[0]), firstdate:(.data.root.appointmentAvailability|keys|.[0])}'
+  sleep 1
+done
+=== short-video ===
+{"err":null,"days":5,"tot_slots":110,"occupied":2,"first":"08:00 - 08:29","firstdate":"2026-09-17"}
+=== video ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+=== health ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+=== plus ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+=== consultation ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+=== beratung ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+=== default ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+=== aftercare ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+=== short-video-2 ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+=== real-estate ===
+{"err":null,"days":5,"tot_slots":55,"occupied":55,"first":"08:00 - 08:59","firstdate":"2026-09-25"}
+[0m
+[0m$ [0mcurl -s -m 25 -X POST https://hypofriend.de/q -H 'Content-Type: application/json' --data '{"query":"{root{appointment_availability(page:1,per:5,appointment_type:\"phone\")}}"}' | jq -c '{days:(.data.root.appointmentAvailability|length), tot_slots:(.data.root.appointmentAvailability|to_entries|map(.value.slots|length)|add), occupied:(.data.root.appointmentAvailability|to_entries|map(.value.slots|map(select(.occupied==true))|length)|add), firstdate:(.data.root.appointmentAvailability|keys|.[0]), lastdate:(.data.root.appointmentAvailability|keys|[-1])}'; sleep 1; curl -s -m 25 -X POST https://hypofriend.de/q -H 'Content-Type: application/json' --data '{"query":"{root{appointment_availability(page:1,per:5,appointment_type:\"short-video\")}}"}' | jq -c '.data.root.appointmentAvailability|to_entries|map({d:.key, occ:[.value.slots[]|select(.occupied==true)|.label]})|map(select(.occ|length>0))'
+{"days":5,"tot_slots":110,"occupied":2,"firstdate":"2026-09-17","lastdate":[-1]}
+[{"d":"2026-09-18","occ":["18:00 - 18:29","18:30 - 18:59"]}]
+[0m
+[0m$ [0mfor p in en/health en/plus en; do
+  echo "=== /$p ==="
+  curl -s -m 25 "https://hypofriend.de/$p" | grep -oiE 'coreApiUrl[^,]{0,80}|api[Uu]rl[^,]{0,80}|appointment[^"'"']{0,40}|advisorEndpoint[^,]{0,80}|_nuxt/[A-Za-z0-9_.-]+\.(js|mjs)' | sort -u | head -30
+  sleep 1
+done
+/bin/bash: -c: line 3: unexpected EOF while looking for matching `"'
+[0m
+[0m$ [0mfor p in en/health en/plus en; do curl -s -m 25 "https://hypofriend.de/$p" -o "/tmp/hf_$(echo $p | tr '/' '_').html"; sleep 1; done; ls -la /tmp/hf_*.html
+-rw-r--r-- 1 runner runner 227365 Sep 10 17:45 /tmp/hf_en.html
+-rw-r--r-- 1 runner runner     89 Sep 10 17:45 /tmp/hf_en_health.html
+-rw-r--r-- 1 runner runner 297417 Sep 10 17:45 /tmp/hf_en_plus.html
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat /tmp/hf_en_health.html; echo; grep -oiE 'https?://[^"'"'"' ]+' /tmp/hf_en_plus.html | grep -viE 'hypofriend\.de|w3\.org|schema\.org|sentry|google|facebook|gstatic|cloudfront|adobe|hotjar|bugsnag|fliptoast|linkedin|instagram|youtube|react|gitter|foolz|bootstrapcdn|json-ld|\.svg' | sort -u | head -30 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

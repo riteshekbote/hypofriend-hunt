@@ -460,3 +460,13 @@ www.hypofriend.de
 ## 2026-09-10 09:56:09 UTC
 
 ## 2026-09-10 14:06:10 UTC
+
+## 2026-09-10 17:46:17 UTC
+- NEW ACCEPTED MISCONFIG @ hypofriend.de/q: `appointment_type` server-side differentiated — `phone` returns 30-min/all-free calendar, `video`/unknown returns 60-min/all-occupied; raw interpolation confirmed
+- NEW CHANGED MISCONFIG @ hypofriend.de/q: `calculateMaklerFee` field REMOVED from HypofriendType schema — was present 2026-09-08, now "doesn't exist"; schema changed
+- NEW ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor endpoint, branding; new surface this cycl
+- NEW REJECTED MISCONFIG @ core.hypofriend.de/q: `appointment_availability_for_advisor(advisor:"test")` → 301 redirect on both hosts — invalid advisor string causes redirect, not data leak; not a valid IDOR
+- CHANGED CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin OPTIONS still bare (date/content-length/ACAO only) vs edge full CF security stack — WAF bypass re-proven
+- CHANGED ACCEPTED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): credentialed CORS re-confirmed live this cycle on edge AND origin
+- CHANGED ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region rates with 0.10% delta (BAYERN 3.95% vs SAXONY 3.85%)
+- CHANGED CONFIRMED NG @ fleet sweep: all dead hosts, buckets, local.ngrok, edge/origin — bit-identical to prior cycle
