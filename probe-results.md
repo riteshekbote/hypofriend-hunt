@@ -323,3 +323,12 @@ https://hypofriend.de/q -> 200 len=227365
 https://hypofriend.de/property-search-api` -> HTTP 400
 https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
 https://core.hypofriend.de/q` -> 200 len=227365
+
+## 2026-09-10 05:16:02 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/property-search-api` -> HTTP 400
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+https://core.hypofriend.de/q` -> 200 len=227365
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q` -> 200 len=227365
