@@ -526,3 +526,5 @@ www.hypofriend.de
 - NEW `/en/health/q` & `/en/plus/q` GraphQL schemas — Mutations: `uploadDocumentExtended(input:{type,document_type,applicant_type})`, `processLeadForAppointment(input:{})`; NO `rates_table`, `already_booked
 - CHANGED `hypofriend.de/q` — `calculateMaklerFee` field REMOVED from HypofriendType schema (was present 2026-09-08, now "doesn't exist")
 - CHANGED `hypofriend.de/q` — `appointment_type` server-differentiated: `phone`→30-min/all-free, `video`/unknown→60-min/all-occupied
+
+## 2026-09-11 05:48:43 UTC

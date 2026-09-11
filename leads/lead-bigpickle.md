@@ -2304,3 +2304,31 @@ impact: anonymous enumeration of internal document/workflow type taxonomy and pe
 testability: PASSIVE
 [NEXT] PROBE: extract `href="/m/_nuxt/*.js"` bundle list from GET `https://hypofriend.de/en/plus` (done, ~130 bundles), then GET each `https://hypofriend.de/m/_nuxt/<b>.js` ≤1rps grepping for `uploadDocumentExtended|processLeadForAppointment|appointment_availability|already_booked` to extract the exact GraphQL operation strings + variable names + type/document_type literals used by the health/plus instances (read-only, passive).
 [RISK] hypofriend: 99 — Unchanged critical posture (property-search-api no-auth full-DB PII read oracle; /q fully preconditioned cross-origin exfil chain: credentialed CORS + samesite=none httponly session + auth-free resolvers). NEW: open credentialed CORS confirmed across 6 endpoint/host pairs on two fresh mutation-heavy GraphQL endpoints (uploadDocumentExtended multipart, processLeadForAppointment) used by health/buyer's-agent product lines, with a GET-vs-backend path split on /en/health and a direct-origin WAF-bypass that extends to them. Remaining gates (bulk PII read, victim-session upload/exfil return) are HUMAN-decided.
+## 2026-09-11 05:35:39 UTC [target] (model bigpickle)
+[HYP] property-search-api DB-wide BOLA on direct origin — offset/geo crawl across full listing DB
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live listing PII (phone/email/owner-lastname/company) unauthenticated on edge+origin; introspection exposes pagination/exposes/exposesInBounds/mapExposes crawl primitives; limit capped ~50 → offset walk. GET 400 re-confirmed 05:33Z — chain intact, unchanged.
+evidence_needed: one real-PII bulk (multi-offset) read to quantify full-DB dump — HUMAN (program note: no customer/employee/financial-data exposure)
+verify_steps: HUMAN/report PoC — POST property-search-api {"query":"query{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"} then offset-walk exposes(id,offset:0..N,limit:50) + expose(id) per UUID (read-only; bulk PII gated)
+impact: full-DB property-listing PII dump (broker/owner phones, emails, surnames, companies) with zero auth — CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + mutation surface = cross-origin document upload / appointment-lead write under victim session
+class: MISCONFIG
+asset: hypofriend.de/en/plus/q (+core.hypofriend.de/en/plus/q, /en/health/q pair)
+confidence: 75
+reasoning: live re-proven 05:33Z: OPTIONS Origin https://evil.example echoes ACAO + allow-credentials:true + all methods (max-age 7200) on edge AND origin, both endpoints. Prior bundle mining found mutations uploadDocumentExtended(input:{type,document_type,applicant_type}) (multipart [File!]!) and processLeadForAppointment(input:{}) with no introspection. samesite=none httponly session cookies established class on same Rails origin /q.
+evidence_needed: benign (non-PII) uploadDocumentExtended POST reading resolver auth/validation error with/without session; exact op strings + input enum literals from /m/_nuxt bundles
+verify_steps: PROBE POST https://hypofriend.de/en/plus/q {"query":"mutation{uploadDocumentExtended(input:{type:\"x\",document_type:\"x\",applicant_type:\"x\"}){__typename}}"} read error payload, repeat on /en/health/q; HUMAN browser PoC: attacker page fetch(url,{credentials:'include'}) POSTing to victim session
+impact: cross-origin attacker-controlled document-file + appointment-lead mutation under victim session, bypassing S3 document-storage isolation — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — document/workflow type strings raw-interpolated (untyped-scalar, no schema enum gate) → internal taxonomy enumeration
+class: MISCONFIG
+asset: hypofriend.de/en/health/q
+confidence: 60
+reasoning: on /q, appointment_type proven JSON-scalar raw interpolation with server-side dispatch (phone→30-min/all-free, video/unknown→60-min/all-occupied). uploadDocumentExtended type/document_type/applicant_type mirror the same untyped pattern on sibling backend (no introspection). Previously REJECTED advisor-string 301-vs-data divergence shows backend dispatches on raw strings in this codebase.
+evidence_needed: bundle-sourced valid type/document_type enumeration, then benign POST per value observing distinct dispatch
+verify_steps: PASSIVE first — GET edge 200-able /m/_nuxt bundles grepping uploadDocumentExtended/processLeadForAppointment for op string + enum literals; then PROBE POST candidates reading only error/redirect class (no PII upload)
+impact: anonymous enumeration of internal document/workflow type taxonomy and per-type backend behavior — LOW-MEDIUM
+testability: PASSIVE
