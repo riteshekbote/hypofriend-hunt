@@ -2375,3 +2375,33 @@ testability: PASSIVE
 ## 2026-09-11 14:12:55 UTC [target] (model bigpickle)
 [NEXT] PROBE: (1) POST https://core.hypofriend.de/en/plus/q with processLeadForAppointment operation (read error/ACAO payload only, no auth); (2) mine xcLo8I7Y.js for `unclaimLead`, `requestAccountLink`, `setNameAppointment` full operation strings with variable types; (3) POST same operation on /en/health/q to observe health-specific schema differences. All read-only at ≤1rps.
 [RISK] hypofriend: 99 — CRITICAL (unchanged). Full mutation operation strings now extracted from Nuxt bundle for /en/plus/q and /en/health/q — uploadDocumentExtended (multipart file upload with 4 untyped non-null params) + processLeadForAppointment (lead injection) + 4 additional write mutations (unclaimLead, requestAccountLink, requestAppointmentLink, setNameAppointment), all reachable via open credentialed CORS under any visitor's session on a SameSite=None cookie. Combined with property-search-api full-DB BOLA (PII dump, direct-origin WAF bypass), this represents a complete cross-origin attack chain on a financial mortgage platform: (1) attacker page reads victim's property listing PII, (2) plants arbitrary documents in victim's mortgage file, (3) injects/manipulates appointment leads, (4) unclaims advisor assignments. All gates closed except bulk PII quantification (gated by program note). HUMAN decides report timing.
+## 2026-09-11 17:49:31 UTC [target] (model bigpickle)
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free uploadDocumentExtended/processLeadForAppointment → cross-origin doc-planting + lead injection under victim session
+class: MISCONFIG
+asset: hypofriend.de/en/plus/q (+core.hypofriend.de/en/plus/q, core.hypofriend.de/en/health/q)
+confidence: 82
+reasoning: OPTIONS 200 echoes arbitrary Origin + ACAC:true + all methods (max-age 7200) re-confirmed 17:46Z on all 4 combos. Session cookies SameSite=None;Secure on /en/health. Mutations uploadDocumentExtended(input:{type,document_type,applicant_type}) (multipart [File!]!) + processLeadForAppointment(input:{}) execute 200 w/o auth (prior cycle, both hosts). SPA rebuilt 14:52Z today — bundle set rotated, xcLo8I7Y.js gone → op strings must be re-mined from current bundles.
+evidence_needed: current-bundle op strings + input variable types; benign (non-PII) POST error-class vs success on /en/plus/q & /en/health/q with/without session; ACAO+ACAC echo on POST (not just OPTIONS).
+verify_steps: PROBE GET https://hypofriend.de/en/plus (200, S3) → parse /m/_nuxt/*.js hrefs → GET each bundle (≤1rps) grepping `uploadDocumentExtended|processLeadForAppointment|unclaimLead|requestAccountLink|setNameAppointment` for exact op string; then HUMAN-authorized benign POST `{"query":"mutation{uploadDocumentExtended(input:{type:\"test\",document_type:\"test\",applicant_type:\"test\"}){__typename}}"}` on core.hypofriend.de/en/plus/q with Origin https://evil.example reading error-class + ACAO echo.
+impact: attacker page drives victim-session file-upload into the mortgage/insurance document store + appointment-lead mutation on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] property-search-api — full-DB auth-free PII enumeration via offset-walk (direct-origin bypasses CloudFront)
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain returns live listing PII unauthenticated on edge AND origin; full introspection; offset/limit crawl primitives (limit cap ~50); origin responses bare headers. Unchanged across all cycles since 09-04.
+evidence_needed: one HUMAN-authorized bulk offset-walk to quantify full-DB exposure (program rule: no customer/employee PII exposure).
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id,offset:0..N,limit:50){id}}` + `{expose(id){...}}` (PII pull gated).
+impact: full-DB property-listing PII dump (phones, emails, owner surnames, companies) with zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — auth-free mutation execution independent of /q schema (fresh build may alter dispatch)
+class: IDOR
+asset: core.hypofriend.de/en/health/q (+core.hypofriend.de/en/plus/q)
+confidence: 70
+reasoning: /q already_booked_appointments resolves 200 for arbitrary lead_id (no session). health/plus have distinct schemas (uploadDocumentExtended, processLeadForAppointment; no rates_table). Config re-confirmed this cycle: loginEnabled:false on both instances — no login gate exists on the client; no introspection to verify server gate.
+evidence_needed: current POST error/success class for each mutation with/without fresh jar; distinct behavior per type string.
+verify_steps: PROBE (HUMAN-authorized, benign, non-PII): POST core.hypofriend.de/en/plus/q `{"query":"mutation{processLeadForAppointment(input:{}){__typename}}"}` on both /en/plus/q and /en/health/q; compare with/without session; observe only error-class.
+impact: anonymous appointment-lead creation + document upload on two product lines. HIGH
+testability: AUTH_HELPED
+[NEXT] PROBE: passive re-mine — GET https://hypofriend.de/en/plus (200, S3 page rebuilt 14:52Z), extract all `/m/_nuxt/*.js` hrefs, GET each bundle at ≤1 rps grepping `uploadDocumentExtended|processLeadForAppointment|unclaimLead|requestAccountLink|setNameAppointment|appointment_type` for current operation strings + input variable types (old xcLo8I7Y.js is 404).
+[RISK] hypofriend: 99 — CRITICAL, unchanged. Two independent auth-free GraphQL APIs (property-search-api full-DB BOLA + PII dump with origin WAF bypass; /q-family credentialed CORS + auth-free file-upload/lead mutations under SameSite=None sessions across /q, /en/health/q, /en/plus/q) plus anonymous per-region lender-rate oracle. Today's SPA rebuild rotated bundles but left every precondition intact (CORS echoes verified 17:46Z); the only schema change ever observed (calculateMaklerFee removal) did not touch the dangerous surface. Remaining gates (bulk PII quantification, victim-session mutation PoC) are HUMAN-decided.

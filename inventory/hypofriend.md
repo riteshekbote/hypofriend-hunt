@@ -545,3 +545,5 @@ www.hypofriend.de
 - NEW Introspection DISABLED on both /en/health/q and /en/plus/q — schema must be mined from Nuxt bundles
 - CHANGED core.hypofriend.de/en/health/q and core.hypofriend.de/en/plus/q now serve GraphQL directly (200) instead of 301→/ — direct-origin bypass confirmed for new endpoints
 - CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-11 17:49:39 UTC
