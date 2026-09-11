@@ -536,3 +536,12 @@ www.hypofriend.de
 - NEW Session cookies with SameSite=None; Secure set on /en/health (cookie __hfp___hypofriend.health__) enabling credential forwarding for cross-origin mutation theft
 - NEW Introspection DISABLED on both /en/health/q and /en/plus/q (Field '__schema' doesn't exist) — schema must be mined from Nuxt bundles
 - CHANGED core.hypofriend.de/en/health/q and core.hypofriend.de/en/plus/q now serve GraphQL directly (200) instead of 301→/ — direct-origin bypass confirmed for new endpoints
+
+## 2026-09-11 14:13:04 UTC
+- NEW /en/health/q & /en/plus/q GraphQL endpoints now live on both edge (hypofriend.de) and origin (core.hypofriend.de) — previously core returned 301 redirects
+- NEW OPEN CREDENTIALED CORS confirmed on ALL four endpoints (hypofriend.de/en/health/q, hypofriend.de/en/plus/q, core.hypofriend.de/en/health/q, core.hypofriend.de/en/plus/q) — OPTIONS reflects arbitrary O
+- NEW Auth-free mutations EXECUTE on all four: uploadDocumentExtended(input:{type,document_type,applicant_type}) and processLeadForAppointment(input:{}) both return 200 with payload Typename
+- NEW Session cookies with SameSite=None; Secure set on /en/health (cookie __hfp___hypofriend.health__) enabling credential forwarding
+- NEW Introspection DISABLED on both /en/health/q and /en/plus/q — schema must be mined from Nuxt bundles
+- CHANGED core.hypofriend.de/en/health/q and core.hypofriend.de/en/plus/q now serve GraphQL directly (200) instead of 301→/ — direct-origin bypass confirmed for new endpoints
+- CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
