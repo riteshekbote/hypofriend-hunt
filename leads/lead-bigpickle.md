@@ -2274,3 +2274,33 @@ testability: AUTH_HELPED
 ## 2026-09-10 17:45:09 UTC [target] (model bigpickle)
 ## 2026-09-10 20:20:24 UTC [target] (model bigpickle)
 ## 2026-09-10 22:41:20 UTC [target] (model bigpickle)
+## 2026-09-11 00:50:58 UTC [target] (model bigpickle)
+[HYP] property-search-api DB-wide BOLA on direct origin — offset/geo crawl across full listing DB
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live listing PII (phone/email/owner-lastname/company) unauthenticated on edge+direct origin; introspection exposes pagination/exposes/exposesInBounds/mapExposes crawl primitives; limit capped ~50 → offset walk. GET 400 on both hosts re-confirmed this cycle — chain intact.
+evidence_needed: one real-PII bulk (multi-offset) read to quantify full-DB dump — HUMAN (program note: no customer/employee/financial-data exposure during testing)
+verify_steps: HUMAN/report PoC — POST property-search-api {"query":"query{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"} then offset-walk exposes(id,offset:0..N,limit:50)+expose(id) per UUID (read-only; bulk PII gated pending HUMAN)
+impact: full-DB property-listing PII dump (broker/owner phones, emails, surnames, companies) with zero auth — CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + mutation surface = cross-origin document upload / appointment-lead write
+class: MISCONFIG
+asset: hypofriend.de/en/health/q (+core.hypofriend.de/en/health/q, /en/plus/q)
+confidence: 75
+reasoning: OPTIONS with Origin https://evil.example on all 4 /en/{health,plus}/q host-pairs echoes ACAO + access-control-allow-credentials:true + all methods (max-age 7200) — live re-proven this cycle on edge (CloudFront) AND origin. Prior-cycle bundle mining found mutations uploadDocumentExtended(input:{type,document_type,applicant_type}) (multipart [File!]!) and processLeadForAppointment(input:{}) — no introspection, distinct schema from /q. Mobile Nuxt app prerendered 2026-09-10 (fresh). Client session cookies samesite=none httponly (established class on /q; same Rails origin).
+evidence_needed: benign (non-PII) POST to uploadDocumentExtended to read resolver auth/validation error with and without session; exact operation strings + input enum values from /m/_nuxt bundles
+verify_steps: PROBE POST https://hypofriend.de/en/plus/q {"query":"mutation{uploadDocumentExtended(input:{type:\"x\",document_type:\"x\",applicant_type:\"x\"}){__typename}}"}"} read error payload; repeat on /en/health/q; HUMAN browser PoC: attacker page fetch(url,{credentials:'include'}) POSTing uploadDocumentExtended to victim session
+impact: cross-origin attacker-controlled document file+appointment-lead mutation under victim session (or forged leads if auth-free), bypassing S3 document-storage isolation — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — uploadDocumentExtended type/document_type strings not schema-gated (raw-interpolated enum mirror of appointment_type)
+class: MISCONFIG
+asset: hypofriend.de/en/health/q
+confidence: 60
+reasoning: on /q, appointment_type is a JSON-scalar resolver with raw string interpolation (phone vs video/unknown dispatch proven server-side); uploadDocumentExtended input type/document_type/applicant_type look like the same untyped-scalar pattern on the sibling GraphQL backend (no introspection to gate enums). Prior REJECTED on /q (`appointment_availability_for_advisor` → 301 on invalid string) shows unknown strings redirect, distinct from valid ones — evidence of backend dispatch on raw strings in this codebase.
+evidence_needed: bundle-sourced list of valid `type`/`document_type` values, then benign POST per value to see distinct dispatch
+verify_steps: PASSIVE first: GET /m/_nuxt/*.js grepping uploadDocumentExtended for operation string and enum literals; then PROBE POST with candidate values, read only error/redirect class (no PII upload)
+impact: anonymous enumeration of internal document/workflow type taxonomy and per-type backend behavior — LOW-MEDIUM
+testability: PASSIVE
+[NEXT] PROBE: extract `href="/m/_nuxt/*.js"` bundle list from GET `https://hypofriend.de/en/plus` (done, ~130 bundles), then GET each `https://hypofriend.de/m/_nuxt/<b>.js` ≤1rps grepping for `uploadDocumentExtended|processLeadForAppointment|appointment_availability|already_booked` to extract the exact GraphQL operation strings + variable names + type/document_type literals used by the health/plus instances (read-only, passive).
+[RISK] hypofriend: 99 — Unchanged critical posture (property-search-api no-auth full-DB PII read oracle; /q fully preconditioned cross-origin exfil chain: credentialed CORS + samesite=none httponly session + auth-free resolvers). NEW: open credentialed CORS confirmed across 6 endpoint/host pairs on two fresh mutation-heavy GraphQL endpoints (uploadDocumentExtended multipart, processLeadForAppointment) used by health/buyer's-agent product lines, with a GET-vs-backend path split on /en/health and a direct-origin WAF-bypass that extends to them. Remaining gates (bulk PII read, victim-session upload/exfil return) are HUMAN-decided.

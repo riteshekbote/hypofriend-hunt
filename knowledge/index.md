@@ -284,3 +284,26 @@
 - 2026-09-10 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable
 - 2026-09-10 ACCEPTED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %"; new_property:false→301 redirect to / — business-logic bifurcation leaked anonymously
 - 2026-09-10 ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS/POST reflect arbitrary Origin with ACAC:true + all methods on edge AND direct origin
+- 2026-09-11 ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor endpoint, branding; new surface this cycle
+- 2026-09-11 ACCEPTED MISCONFIG @ hypofriend.de/q: appointment_type server-side differentiated — phone returns 30-min/all-free, video/unknown returns 60-min/all-occupied; raw interpolation confirmed but backend dispatches on string
+- 2026-09-11 CHANGED MISCONFIG @ hypofriend.de/q: calculateMaklerFee field REMOVED from HypofriendType schema — was present 2026-09-08, now "doesn't exist"; schema changed
+- 2026-09-11 REJECTED MISCONFIG @ core.hypofriend.de/q: appointment_availability_for_advisor(advisor:"test") → 301 redirect on both hosts — invalid advisor string causes redirect, not data leak; not a valid IDOR vector without known advisor values
+- 2026-09-11 ACCEPTED MISCONFIG @ core.hypofriend.de/q: credentialed CORS re-confirmed live on edge AND origin
+- 2026-09-11 ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region borrowingRate/monthlyRate with 0.10% delta (BAYERN 3.95% vs SAXONY 3.85%)
+- 2026-09-11 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry x-frame-options: ALLOWALL + HSTS while edge forces x-frame-options: DENY + nosniff/XSS-protection/referrer-policy — persistent security-header differential including clickjacking-relevant XFO mismatch
+- 2026-09-11 ACCEPTED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %"; new_property:false→301 redirect to / — business-logic bifurcation leaked anonymously
+- 2026-09-11 ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too
+- 2026-09-11 ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS/POST reflect arbitrary Origin with ACAC:true + all methods on edge AND direct origin
+- 2026-09-11 CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-proven
+- 2026-09-11 CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uploadDocumentExtended (multipart [File!]!), createDocumentsRequest, submitApplicantsInformation, submitPropertyCertificate, processLeadForAppointment, setOriginAppointment, updateLeadAndScheduleAsyncAppointment, plus root.lead PII schema incl. shareLink(self_disclosure) & referrer{primary_advisor{...}} — all POST→${coreApiUrl}/q, no auth
+- 2026-09-11 REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-contrast-confirmed vs /q this cycle)
+- 2026-09-11 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven
+- 2026-09-11 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration confirmed (Berlin 11 listings, phone/owner data exposed)
+- 2026-09-11 ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — limit capped ~50, offset walk required
+- 2026-09-11 ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted-record args exposed auth-free
+- 2026-09-11 ACCEPTED IDOR @ core.hypofriend.de/q: already_booked_appointments(lead_id) resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, both 200) — cross-tenant read primitive
+- 2026-09-11 REJECTED MISCONFIG @ core.hypofriend.de/q: root.lead does NOT accept ID argument (returns current session lead only) — not an IDOR vector
+- 2026-09-11 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
+- 2026-09-11 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-11 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only
+- 2026-09-11 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable

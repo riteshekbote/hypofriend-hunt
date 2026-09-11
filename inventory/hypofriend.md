@@ -517,3 +517,12 @@ www.hypofriend.de
 - NEW `/en/health/q` & `/en/plus/q` GraphQL schemas — Mutations: `uploadDocumentExtended(input:{type,document_type,applicant_type})`, `processLeadForAppointment(input:{})`; NO `rates_table`, `already_booked
 - CHANGED `hypofriend.de/q` — `calculateMaklerFee` field REMOVED from HypofriendType schema (was present 2026-09-08, now "doesn't exist")
 - CHANGED `hypofriend.de/q` — `appointment_type` server-differentiated: `phone`→30-min/all-free, `video`/unknown→60-min/all-occupied
+
+## 2026-09-11 00:52:04 UTC
+- NEW `hypofriend.de/en/health` — S3-hosted meta-refresh to `/en` (edge); `core.hypofriend.de/en/health/q` live GraphQL endpoint (200, no introspection, distinct schema from main `/q`)
+- NEW `hypofriend.de/en/plus` — Full Nuxt page (edge), `core.hypofriend.de/en/plus` canonical; both `.../q` GraphQL endpoints live (200, no introspection, distinct schema)
+- NEW `core.hypofriend.de/en/health/q` & `core.hypofriend.de/en/plus/q` — Open credentialed CORS (echo arbitrary Origin + `access-control-allow-credentials:true` + all methods) on direct origin
+- NEW `hypofriend.de/en/plus/q` — Open credentialed CORS on edge (CloudFront)
+- NEW `/en/health/q` & `/en/plus/q` GraphQL schemas — Mutations: `uploadDocumentExtended(input:{type,document_type,applicant_type})`, `processLeadForAppointment(input:{})`; NO `rates_table`, `already_booked
+- CHANGED `hypofriend.de/q` — `calculateMaklerFee` field REMOVED from HypofriendType schema (was present 2026-09-08, now "doesn't exist")
+- CHANGED `hypofriend.de/q` — `appointment_type` server-differentiated: `phone`→30-min/all-free, `video`/unknown→60-min/all-occupied
