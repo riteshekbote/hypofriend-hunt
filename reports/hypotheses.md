@@ -1591,3 +1591,7 @@
 - LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass —
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including 
 - LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## RANKED HYPOTHESES 2026-09-11 20:40:36 UTC
+- [88] hypofriend.de/en/health/q: /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set survives SPA rebuild byte-identically (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: report-ready — all passive gates closed this cycle (bundle re-mine + CORS live-proof 20:20–20:21Z). Hand off exact probe set: (1) benign multipart upload

