@@ -18081,3 +18081,135 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 99 — CRITICAL, unchanged. SPA rebuild left the entire dangerous surface intact and verified: credentialed CORS + auth-free multipart upload / lead-creation / advisor-unclaim mutations under SameSite=None sessions on all 4 /q paths (edge+origin), full-DB PII BOLA, raw-interpolation injection pattern, origin security-header/WAF bypass. Thread scales from anonymous PII dump (property-search-api) through cross-origin victim-session document/lead manipulation. All remaining gates (bulk PII quantification, victim-session mutation PoC, report timing) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-11 22:51:22 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{time_total}s\n" https://hypofriend.de/en/plus ; sleep 1; curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" https://hypofriend.de/en/health ; sleep 1; curl -s -o /tmp/q_opt.txt -D - -X OPTIONS https://hypofriend.de/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -o /dev/null | head -25
+200 1.574950s
+200 0.596998s
+HTTP/2 200 
+server: CloudFront
+content-length: 0
+date: Fri, 11 Sep 2026 22:46:28 GMT
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+via: 1.1 ae8253630612e3347863de4af7a55446.cloudfront.net (CloudFront)
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: SFO53-P2
+x-amz-cf-id: VPiMJtJZ6pQTEFwKdq4aswT3rPSKkGzWQaPP_ky-wzL08esAZ5EFeQ==
+[0m
+[0m$ [0msleep 1; curl -s -o /dev/null -w "%{http_code}\n" -X OPTIONS https://core.hypofriend.de/en/plus/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -D /tmp/origin_opt.txt; grep -iE "access-control|server|x-frame|strict" /tmp/origin_opt.txt; sleep 1; curl -s -o /dev/null -w "%{http_code}\n" -X OPTIONS https://core.hypofriend.de/property-search-api -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -D /tmp/psa_opt.txt; grep -iE "access-control" /tmp/psa_opt.txt
+200
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+200
+[0m
+[0m$ [0msleep 1; curl -s https://hypofriend.de/en/plus -o /tmp/plus.html; grep -oE '/m/_nuxt/[A-Za-z0-9_.-]+\.js' /tmp/plus.html | sort -u | head -30
+/m/_nuxt/-ez_sPea.js
+/m/_nuxt/031sR0Dk.js
+/m/_nuxt/1ffzw_uW.js
+/m/_nuxt/22Pu5ap6.js
+/m/_nuxt/5wututiN.js
+/m/_nuxt/6UsJxw1M.js
+/m/_nuxt/7LJm_38-.js
+/m/_nuxt/8xAStZmc.js
+/m/_nuxt/AuiHv9WO.js
+/m/_nuxt/B0dqiS1K.js
+/m/_nuxt/B1jEw4nT.js
+/m/_nuxt/B2vkSg1F.js
+/m/_nuxt/B35S2sub.js
+/m/_nuxt/B5BZbSY_.js
+/m/_nuxt/B6htIPxk.js
+/m/_nuxt/B8CvfFn4.js
+/m/_nuxt/B8hvNOgq.js
+/m/_nuxt/BB4Th1SC.js
+/m/_nuxt/BBxB1IXZ.js
+/m/_nuxt/BDCKj7Z4.js
+/m/_nuxt/BFkLEQEW.js
+/m/_nuxt/BGOMXBgc.js
+/m/_nuxt/BJcVsjK6.js
+/m/_nuxt/BKlQgSLc.js
+/m/_nuxt/BLmaZOZ4.js
+/m/_nuxt/BPBpAwO3.js
+/m/_nuxt/BTAmUJjN.js
+/m/_nuxt/BV5qoEBw.js
+/m/_nuxt/BW0GL25j.js
+/m/_nuxt/Ba3ZnGVB.js
+[0m
+[0m$ [0mgrep -oE 'CbMiwoX2\.js|xwLYe9nn\.js' /tmp/plus.html | sort -u; sleep 1; curl -s -o /tmp/health.html https://hypofriend.de/en/health; grep -c "meta" /tmp/health.html | head -1; grep -oE 'http-equiv="refresh"[^>]*' /tmp/health.html
+CbMiwoX2.js
+1
+http-equiv="refresh" content="0; url=/en"
+[0m
+[0m$ [0mfor h in uploader.app.hypofriend.de appointments.app.hypofriend.de frontend.app.hypofriend.de; do curl -s -o /dev/null --max-time 8 -w "%{http_code} %{time_total}s" "https://$h/"; echo " $h"; sleep 1; done
+000 8.002991s uploader.app.hypofriend.de
+000 8.002642s appointments.app.hypofriend.de
+000 8.002493s frontend.app.hypofriend.de
+[0m
+## STEP 1 — DELTA
+- NO_DELTA — re-probed this cycle (22:46–22:47Z): `hypofriend.de/en/plus` 200, `/en/health` 200 (S3 meta-refresh), `/q` edge OPTIONS echoes `evil.example` + `ACAC:true` + all methods behind full CF stack; origin `/en/plus/q` OPTIONS echoes same on bare headers; `property-search-api` preflight still 200 with NO allow-origin echo (closed-CORS contrast intact); bundle set identical to 14:52Z build (`CbMiwoX2.js` present, no rotation since last re-mine). `.app` cluster (`uploader.app`, `appointments.app`, `frontend.app`) re-confirmed 000 timeout — part of dead fleet, no new surface.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api, 8.3, attack_surface=8 business=10 tech=8 gate=10 cloud=8 fresh=3
+- [PRIO] hypofriend.de/en/plus/q (+core/health/plus), 7.8, attack_surface=7 business=9 tech=8 gate=8 cloud=6 fresh=8
+- [PRIO] hypofriend.de/q (+core), 7.0, attack_surface=7 business=7 tech=7 gate=10 cloud=6 fresh=3
+
+## STEP 3 — HYPOTHESES
+[HYP] property-search-api — full-DB auth-free PII BOLA: remaining gate is bulk quantification, not existence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain byte-identical since 09-04; introspection live; limit cap ~50 forces offset-walk; direct-origin bypasses CF stack (bare headers re-confirmed); 400 GraphQL gate live both hosts.
+evidence_needed: HUMAN-authorized offset-walk count of total exposes (no PII pull) to bound DB size.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → offset-walk `query{exposes(id,offset:0..N,limit:50){id}}` counting returned UUIDs only (NO expose(id) PII pull).
+impact: full-DB listing dump (phones, emails, owner surnames, companies), zero auth. CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free multipart/lead mutations survive rebuild; handler-execution PoC is the only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (+core.hypofriend.de/en/health/q, edge pair)
+confidence: 88
+reasoning: CbMiwoX2.js still served (same build); uploadDocumentExtended(4 non-null args,[File!]!) / processLeadForAppointment(input:{}) parsed; all 4 OPTIONS echo arbitrary Origin + ACAC:true + all methods (live 22:46Z origin); SameSite=None session on /en/health; prior cycle 200 Typename w/o session on mutations.
+evidence_needed: benign multipart POST handler-success/error-class + ACAO on the POST response (with/without session).
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` with Origin https://evil.example; record step/error-class + ACAO echo (non-PII, no auth).
+impact: attacker page plants docs into victim mortgage/health file + injects appointment leads under SameSite=None session on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /q — session-carrying read primitive on stateful resolver not yet exercised with a real session jar
+class: IDOR
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: already_booked_appointments(arbitrary lead_id) = 200 no-session BOLA proven; credentialed CORS on same host means a POST with credentials + evil Origin would carry a session cookie and reflect ACAO; no resolver gated on session identity has been tested with a real logged-in jar (none obtainable passively).
+evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only.
+verify_steps: HUMAN REPORT — with a real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead) and observe data delta vs no-session empty; read ACAO echo on POST.
+impact: cross-origin session-bearing reads of lead/appointment data; escalation of confirmed BOLA to exfil primitive. HIGH
+testability: HUMAN_ONLY
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] /q appointment_type raw-interpolation injection → backend dispatch already proven differentiated; further probe risks nothing new passively, injection impact speculative — parked.
+- [PARKED] *.local.hypofriend.de ngrok takeover → HUMAN-only, no new evidence this cycle — parked.
+- [FINAL] ranked: (1) property-search-api bulk quantification [95, IDOR]; (2) /en/plus/q & /en/health/q mutation-upload PoC [88, MISCONFIG]; (3) /q session-carrying read delta [60, IDOR].
+
+## STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: report-ready — surface frozen (NO_DELTA), all passive gates closed. Hand off exact authorization-gated set: (1) property-search-api offset-walk COUNT of exposes (IDs only, no PII) on core.hypofriend.de; (2) benign multipart `uploadDocumentExtended` POST on core.hypofriend.de/en/plus/q with Origin https://evil.example reading step/error + ACAO echo; (3) processLeadForAppointment success/error-class without session on /en/plus/q and /en/health/q; (4) real-session /q read delta via already_booked_appointments. All mutating/bulk-PII steps require program authorization.
+
+## STEP 6 — LEARNING
+- [LEARN] CONFIRMED NG @ .app cluster: uploader.app/appointments.app/frontend.app all 000 timeout (8s) — dead fleet, no uploader/appointments service exposed; inventory gap closed.
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/plus/q, core.hypofriend.de/en/plus/q: credentialed CORS echo (evil.example + ACAC:true + all methods) live-reproven on origin preflight 22:46Z; bundle set identical to 14:52Z build — dangerous mutation dispatch persists across SPA rebuild.
+- [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: preflight 200 with NO allow-origin echo re-confirmed — property-search-api remains closed-CORS (contrast class for /q family).
+
+## STEP 7 — RISK
+- [RISK] hypofriend: 99 — CRITICAL, unchanged. Two independent auth-free GraphQL surfaces (property-search-api full-DB PII BOLA + direct-origin WAF bypass; /q-family credentialed CORS + auth-free multipart-upload/lead-creation mutations under SameSite=None sessions on 4 paths) plus anonymous per-region lender-rate oracle. Surface frozen and fully re-verified this cycle (bundle, CORS echo, .app dead fleet). Remaining gates (bulk PII count, victim-session mutation PoC, cross-origin read delta) are exclusively HUMAN-decided per program rules.

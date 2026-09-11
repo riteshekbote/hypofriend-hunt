@@ -1,30 +1,28 @@
-## 2026-09-11 20:25:11 UTC [target] (model bigpickle)
-[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set survives SPA rebuild byte-identically
-class: MISCONFIG
-asset: hypofriend.de/en/health/q (+core.hypofriend.de/en/health/q, hypofriend.de/en/plus/q, core.hypofriend.de/en/plus/q)
-confidence: 88
-reasoning: CbMiwoX2.js re-mined 20:20Z — uploadDocumentExtended(4 non-null args, [File!]! multipart), processLeadForAppointment(input:{}), unclaimLead(input:{}), requestAccountLink/requestAppointmentLink(input:{email}), setNameAppointment(input:{name}) all present. All 4 OPTIONS echo arbitrary Origin + ACAC:true + all methods live. Session cookies SameSite=None;Secure on /en/health. Prior cycle: mutations returned 200 Typename w/o session.
-evidence_needed: none passively — HUMAN-authorized benign multipart POST to confirm upload handler executes; POST-with-O rigin ACAO echo on mutation.
-verify_steps: HUMAN REPORT: POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` w/ Origin https://evil.example — observe step/error-class + ACAO echo (non-PII, no auth).
-impact: attacker page plants arbitrary documents into victim mortgage/insurance file + injects appointment leads + unclaims advisor under victim SameSite=None session on a financial platform. HIGH-CRITICAL
-testability: AUTH_HELPED
-[HYP] property-search-api — full-DB auth-free PII enumeration via offset-walk, direct-origin bypass intact
+## 2026-09-11 22:47:38 UTC [target] (model bigpickle)
+[HYP] property-search-api — full-DB auth-free PII BOLA: remaining gate is bulk quantification, not existence
 class: IDOR
 asset: core.hypofriend.de/property-search-api
 confidence: 95
-reasoning: unchanged every cycle since 09-04; full introspection; propertySearch→exposes→expose returns PII (cellPhoneNumber, providerEmail, propertyOwnerLastName) with zero auth; limit cap ~50 → offset walk; origin responses bare. Re-verified 400-class this cycle (GraphQL gate live).
-evidence_needed: HUMAN-authorized bulk offset-walk to quantify DB (program note: no customer PII exposure).
-verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `{"query":"query{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → offset-walk `exposes(id,offset:0..N,limit:50)` → `expose(id)` per UUID (read-only).
-impact: full-DB property-listing PII dump (phones, emails, owner surnames, companies), zero auth. CRITICAL
+reasoning: propertySearch→exposes→expose chain byte-identical since 09-04; introspection live; limit cap ~50 forces offset-walk; direct-origin bypasses CF stack (bare headers re-confirmed); 400 GraphQL gate live both hosts.
+evidence_needed: HUMAN-authorized offset-walk count of total exposes (no PII pull) to bound DB size.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → offset-walk `query{exposes(id,offset:0..N,limit:50){id}}` counting returned UUIDs only (NO expose(id) PII pull).
+impact: full-DB listing dump (phones, emails, owner surnames, companies), zero auth. CRITICAL
 testability: AUTH_HELPED
-[HYP] /en/health/q & /en/plus/q — mutation execution auth-free independent of /q schema
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free multipart/lead mutations survive rebuild; handler-execution PoC is the only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (+core.hypofriend.de/en/health/q, edge pair)
+confidence: 88
+reasoning: CbMiwoX2.js still served (same build); uploadDocumentExtended(4 non-null args,[File!]!) / processLeadForAppointment(input:{}) parsed; all 4 OPTIONS echo arbitrary Origin + ACAC:true + all methods (live 22:46Z origin); SameSite=None session on /en/health; prior cycle 200 Typename w/o session on mutations.
+evidence_needed: benign multipart POST handler-success/error-class + ACAO on the POST response (with/without session).
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` with Origin https://evil.example; record step/error-class + ACAO echo (non-PII, no auth).
+impact: attacker page plants docs into victim mortgage/health file + injects appointment leads under SameSite=None session on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /q — session-carrying read primitive on stateful resolver not yet exercised with a real session jar
 class: IDOR
-asset: core.hypofriend.de/en/health/q (+core.hypofriend.de/en/plus/q)
-confidence: 74
-reasoning: main /q already_booked_appointments resolves 200 for arbitrary lead_id no session; health/plus distinct schema (no introspection); prior cycle both mutations returned 200 payload w/o session; fresh bundle (shared with /q) confirms same dispatcher — loginEnabled:false client instance. POST 200 `__typename` re-proven on origin 20:20Z.
-evidence_needed: current per-mutation success-vs-error class with vs without fresh jar (HUMAN-authorized, non-PII).
-verify_steps: PROBE-PENDING-AUTH POST core.hypofriend.de/en/plus/q `{"query":"mutation{processLeadForAppointment(input:{}){leadIsReturner}}"}`; compare `{"meta":{status:0...}}` success vs validation error on both /en/plus/q and /en/health/q.
-impact: anonymous appointment-lead creation on two product lines; document store write. HIGH
-testability: AUTH_HELPED
-[NEXT] HUMAN: report-ready — all passive gates closed this cycle (bundle re-mine + CORS live-proof 20:20–20:21Z). Hand off exact probe set: (1) benign multipart uploadDocumentExtended POST on core.hypofriend.de/en/plus/q with Origin https://evil.example reading step/error + ACAO echo; (2) processLeadForAppointment success/error class no-session; (3) property-search-api offset-walk size quantification. All three require HUMAN authorization — mutating/bulk-PII classes per program note.
-[RISK] hypofriend: 99 — CRITICAL, unchanged. SPA rebuild left the entire dangerous surface intact and verified: credentialed CORS + auth-free multipart upload / lead-creation / advisor-unclaim mutations under SameSite=None sessions on all 4 /q paths (edge+origin), full-DB PII BOLA, raw-interpolation injection pattern, origin security-header/WAF bypass. Thread scales from anonymous PII dump (property-search-api) through cross-origin victim-session document/lead manipulation. All remaining gates (bulk PII quantification, victim-session mutation PoC, report timing) are HUMAN-decided.
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: already_booked_appointments(arbitrary lead_id) = 200 no-session BOLA proven; credentialed CORS on same host means a POST with credentials + evil Origin would carry a session cookie and reflect ACAO; no resolver gated on session identity has been tested with a real logged-in jar (none obtainable passively).
+evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only.
+verify_steps: HUMAN REPORT — with a real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead) and observe data delta vs no-session empty; read ACAO echo on POST.
+impact: cross-origin session-bearing reads of lead/appointment data; escalation of confirmed BOLA to exfil primitive. HIGH
+testability: HUMAN_ONLY

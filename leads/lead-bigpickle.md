@@ -2435,3 +2435,31 @@ impact: anonymous appointment-lead creation on two product lines; document store
 testability: AUTH_HELPED
 [NEXT] HUMAN: report-ready — all passive gates closed this cycle (bundle re-mine + CORS live-proof 20:20–20:21Z). Hand off exact probe set: (1) benign multipart uploadDocumentExtended POST on core.hypofriend.de/en/plus/q with Origin https://evil.example reading step/error + ACAO echo; (2) processLeadForAppointment success/error class no-session; (3) property-search-api offset-walk size quantification. All three require HUMAN authorization — mutating/bulk-PII classes per program note.
 [RISK] hypofriend: 99 — CRITICAL, unchanged. SPA rebuild left the entire dangerous surface intact and verified: credentialed CORS + auth-free multipart upload / lead-creation / advisor-unclaim mutations under SameSite=None sessions on all 4 /q paths (edge+origin), full-DB PII BOLA, raw-interpolation injection pattern, origin security-header/WAF bypass. Thread scales from anonymous PII dump (property-search-api) through cross-origin victim-session document/lead manipulation. All remaining gates (bulk PII quantification, victim-session mutation PoC, report timing) are HUMAN-decided.
+## 2026-09-11 22:47:38 UTC [target] (model bigpickle)
+[HYP] property-search-api — full-DB auth-free PII BOLA: remaining gate is bulk quantification, not existence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain byte-identical since 09-04; introspection live; limit cap ~50 forces offset-walk; direct-origin bypasses CF stack (bare headers re-confirmed); 400 GraphQL gate live both hosts.
+evidence_needed: HUMAN-authorized offset-walk count of total exposes (no PII pull) to bound DB size.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → offset-walk `query{exposes(id,offset:0..N,limit:50){id}}` counting returned UUIDs only (NO expose(id) PII pull).
+impact: full-DB listing dump (phones, emails, owner surnames, companies), zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free multipart/lead mutations survive rebuild; handler-execution PoC is the only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (+core.hypofriend.de/en/health/q, edge pair)
+confidence: 88
+reasoning: CbMiwoX2.js still served (same build); uploadDocumentExtended(4 non-null args,[File!]!) / processLeadForAppointment(input:{}) parsed; all 4 OPTIONS echo arbitrary Origin + ACAC:true + all methods (live 22:46Z origin); SameSite=None session on /en/health; prior cycle 200 Typename w/o session on mutations.
+evidence_needed: benign multipart POST handler-success/error-class + ACAO on the POST response (with/without session).
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` with Origin https://evil.example; record step/error-class + ACAO echo (non-PII, no auth).
+impact: attacker page plants docs into victim mortgage/health file + injects appointment leads under SameSite=None session on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /q — session-carrying read primitive on stateful resolver not yet exercised with a real session jar
+class: IDOR
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: already_booked_appointments(arbitrary lead_id) = 200 no-session BOLA proven; credentialed CORS on same host means a POST with credentials + evil Origin would carry a session cookie and reflect ACAO; no resolver gated on session identity has been tested with a real logged-in jar (none obtainable passively).
+evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only.
+verify_steps: HUMAN REPORT — with a real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead) and observe data delta vs no-session empty; read ACAO echo on POST.
+impact: cross-origin session-bearing reads of lead/appointment data; escalation of confirmed BOLA to exfil primitive. HIGH
+testability: HUMAN_ONLY
