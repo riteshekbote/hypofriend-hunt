@@ -287,3 +287,47 @@ TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-11 13:56:34 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-11 17:29:25 UTC
+[HYP] Hardcoded GCP Project Number in Google Meet Add-on
+class: OTHER
+asset: HypoFriend/advisor-couching/main.js:17
+confidence: 90
+reasoning: `CLOUD_PROJECT_NUMBER = "910242124570"` is hardcoded in HypoFriend's own non-fork code (committed by pavel@hypofriend.de). Used at lines 27 and 43 to initialize `meet.addon.createAddonSession()`. GCP project numbers are semi-public but enable targeted GCP enumeration (`gcloud projects describe 910242124570`).
+impact: Low — information disclosure aiding reconnaissance, not a direct credential.
+verify_steps: 1) Browse https://github.com/HypoFriend/advisor-couching/blob/master/main.js:17. 2) Confirm with `gcloud projects describe 910242124570` (requires auth). 3) Check if the Meet add-on is live at https://hypofriend.github.io/advisor-couching/MainStage.html.
+[HYP] Manager-Role Auth Bypass (allowAllMethods)
+class: IDOR
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/src/service/auth.service.js:120-122
+confidence: 85
+reasoning: The `_generate()` method grants Manager-role users full API access via `policy.allowAllMethods()` despite a TODO comment indicating it should be restricted to `POST /manager/*`. This is a fork of amazon-connect/voicemail-for-amazon-connect. If Hypofriend deployed this template without fixing the TODO, Managers can invoke Admin-only routes (agent management, global settings, contact flow building).
+impact: Medium — privilege escalation from Manager to Admin API access if deployed.
+verify_steps: 1) Check if Hypofriend has a live Amazon Connect voicemail deployment. 2) Attempt Admin-only endpoints with a Manager JWT. 3) Review if deployment customized auth.service.js.
+[HYP] Full JWT Bearer Token Logged via console.log
+class: MISCONFIG
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/src/handler/authorizer.js:18
+confidence: 95
+reasoning: `console.log(event.authorizationToken, event.methodArn)` writes the complete JWT to CloudWatch Logs. Any IAM principal with CloudWatch Logs read access can harvest session tokens. This is upstream code from Amazon's sample — if deployed unmodified, all auth tokens are logged.
+impact: Medium — session tokens exposed to anyone with CloudWatch Logs read access.
+verify_steps: 1) Confirm Amazon Connect voicemail deployment exists. 2) Check CloudWatch Logs for logged JWT tokens.
+[HYP] CORS Misconfiguration (Allow-Origin: * + Allow-Credentials: true)
+class: MISCONFIG
+asset: voicemail-for-amazon-connect/aws-connect-vm-serverless/src/lib/responder.js:5-6
+confidence: 80
+reasoning: Response headers set both `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Credentials: true`. Per the CORS spec browsers enforce mutual exclusion, but this indicates a misconfigured CORS policy that could lead to credential leakage on non-browser clients or future refactoring.
+impact: Low — browsers enforce the spec, but could bypass intended restrictions on non-browser clients.
+verify_steps: 1) Confirm the voicemail portal is deployed. 2) Test CORS with `Origin: https://evil.example` and `credentials: include`.
+[HYP] Shell Command Injection via Unsanitized Template Interpolation
+class: OTHER
+asset: HypoFriend/s3-deploy/deploy.js:22-35
+confidence: 75
+reasoning: `deploy.js` constructs a shell command via template literal interpolation of `bucket`, `bucketRegion`, `distId`, `invalidation`, `deleteRemoved`, `cache`, and `filesToInclude` — all user-supplied GitHub Action inputs — directly into a command string passed to `exec.exec()`. Values containing shell metacharacters (semicolons, backticks, `$()`) could break out of the intended command. No input sanitization or argument array usage is present.
+impact: Medium — CI/CD pipeline compromise if a malicious workflow YAML controls these inputs.
+verify_steps: 1) Verify the `s3-deploy` action is used in Hypofriend's GitHub Actions workflows. 2) Check workflow YAML for untrusted input flowing into the action.
+[HYP] ECS-Deploy Passes AWS Credentials as CLI Arguments
+class: MISCONFIG
+asset: HypoFriend/ecs-deploy/action.yml:44-46
+confidence: 85
+reasoning: The `action.yml` passes `aws_access_key` and `aws_secret_key` as positional arguments to the shell script via the `args` array. AWS CLI may log these in verbose/debug mode or they may appear in process listings (`/proc/*/cmdline`). The `ecs-deploy` script also uses unsanitized variables in command construction (lines 409-469).
+impact: Medium — AWS credentials exposed in process listings and potentially in CI logs.
+verify_steps: 1) Check if the `ecs-deploy` action is used in Hypofriend's GitHub Actions workflows. 2) Review workflow logs for leaked credentials.
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
