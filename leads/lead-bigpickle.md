@@ -2542,3 +2542,31 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 09:29Z at host AND A 52.15.184.3 (both :80/:443 10s timeouts, resolves fine) — dead 4th consecutive cycle, no surface, target unchanged.
 [LEARN] ACCEPTED NG @ cert transparency: sweep returned only wildcard + known names (a, bonava, email.m, email.m2, evernest, myne, www) — no new hostnames, inventory exhaustive.
 [RISK] hypofriend: 99 — CRITICAL, unchanged. Live 09:29Z: credentialed CORS echo + ACAC:true intact on /en/health/q edge+origin, origin WAF/security-header bypass, SameSite=None sessions, auth-free multipart/lead mutations in bundle — full cross-origin victim-session write/exfil precondition chain intact with no observed reconfiguration. property-search-api full-DB PII BOLA live under full introspection. api.hypofriend.de (target) fully dead 4th cycle. All remaining gates (bulk quantification, victim-session mutation PoC, report timing) are HUMAN-decided.
+## 2026-09-12 13:09:57 UTC [target] (model bigpickle)
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set survives across bundle rotation; handler-execution PoC is the only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+core.hypofriend.de/en/plus/q, hypofriend.de edge pair)
+confidence: 88
+reasoning: OPTIONS re-echoed arbitrary Origin + ACAC:true + all methods live 13:06Z on all 4 combos with ACRM:POST (edge CloudFront via/x-amz-cf-* vs origin bare date/ACAO only); SameSite=None;Secure session on /en/health; known [File!]! mutation signatures observed in prior bundle; bundle rotation (CbMiwoX2/BuTFH6-OUT, 150 new chunks) may re-sign the schema but endpoint behavior unchanged.
+evidence_needed: benign multipart POST proves handler executes (success vs error class) + ACAO on POST; victim-session differential HUMAN-only.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` with Origin https://evil.example; record step/error-class + ACAO echo (non-PII, no auth).
+impact: attacker page plants arbitrary documents into victim mortgage/health file + injects appointment leads under victim SameSite=None session on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence proven, remaining gate is bulk quantification
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain unchanged since 09-04; full introspection; limit cap ~50 forces offset-walk; direct origin bypasses CF stack (edge-vs-origin header diff re-proven on sibling /q-family this cycle); no auth on any resolver.
+evidence_needed: HUMAN-authorized offset-walk count of total exposes (UUIDs only, NO PII pull) to bound DB size.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → `query{exposes(id,offset:0..N,limit:50){id}}` counting returned UUIDs.
+impact: full-DB listing dump (phones, emails, owner surnames, companies), zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /q — session-carrying cross-origin read of stateful resolvers
+class: IDOR
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: already_booked_appointments(arbitrary lead_id)=200 no-session BOLA proven; credentialed CORS on same host persists (re-verified on /q-family 13:06Z); no resolver gated on session identity tested with a real logged-in jar (none obtainable passively).
+evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only.
+verify_steps: HUMAN REPORT — with real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead), observe data delta vs no-session empty + ACAO echo on POST.
+impact: cross-origin session-bearing reads of lead/appointment data; BOLA→exfil escalation. HIGH
+testability: HUMAN_ONLY
