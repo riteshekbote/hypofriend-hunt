@@ -332,3 +332,4 @@
 - 2026-09-12 ACCEPTED NG @ cert transparency: sweep returned only wildcard + known names (a, bonava, email.m, email.m2, evernest, myne, www) — no new hostnames, inventory exhaustive.
 - 2026-09-12 ACCEPTED MISCONFIG @ hypofriend.de/en/plus/q (+core.hypofriend.de/en/health/q): credentialed CORS re-verified live 2026-09-12 16:21Z — OPTIONS with Origin https://evil.example echoes ACAO + ACAC:true + all methods on edge (full CF stack) AND origin (bare: date/content-length/ACAO only).
 - 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 16:21Z on :80/:443 (host) — dead 5th consecutive cycle, resolves fine, no takeover surface, target unchanged.
+- 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-12 16:21Z — dead 5th consecutive cycle, no surface

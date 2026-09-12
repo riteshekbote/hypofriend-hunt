@@ -1,4 +1,7 @@
-## 2026-09-12 16:22:11 UTC [target] (model bigpickle)
+## 2026-09-12 18:43:13 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,9.5, attack=9 business=10 tech=10 gate=10 cloud=8 freshness=9
+[PRIO] core.hypofriend.de/en/health/q (+en/plus/q),8.8, attack=8 business=9 tech=9 gate=10 cloud=8 freshness=9
+[PRIO] core.hypofriend.de/q,7.5, attack=7 business=8 tech=8 gate=9 cloud=8 freshness=9
 [HYP] property-search-api — full-DB auth-free PII BOLA; existence proven, remaining gate is bulk quantification
 class: IDOR
 asset: core.hypofriend.de/property-search-api
@@ -26,6 +29,7 @@ evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only
 verify_steps: HUMAN REPORT — with real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead), observe data delta vs no-session empty + ACAO echo on POST.
 impact: cross-origin session-bearing reads of lead/appointment data; BOLA→exfil escalation. HIGH
 testability: HUMAN_ONLY
+[FINAL] 1. property-search-api BOLA (95) 2. /en/health/q CORS+mutations (88) 3. /q session BOLA (60)
 [NEXT] HUMAN: passive gate closed (CORS chain re-verified 16:21Z origin+edge, both /q-family combos intact; api target dead 5th cycle). Hand off exact probe set: (1) benign multipart uploadDocumentExtended POST on core.hypofriend.de/en/plus/q with Origin https://evil.example recording step/error-class + ACAO echo; (2) offset-walk UUID-only counts on property-search-api; (3) victim-session delta on already_booked_appointments. All three HUMAN-authorized classes per program note.
 [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/plus/q (+core.hypofriend.de/en/health/q): credentialed CORS re-verified live 2026-09-12 16:21Z — OPTIONS with Origin https://evil.example echoes ACAO + ACAC:true + all methods on edge (full CF stack) AND origin (bare: date/content-length/ACAO only).
 [LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 16:21Z on :80/:443 (host) — dead 5th consecutive cycle, resolves fine, no takeover surface, target unchanged.

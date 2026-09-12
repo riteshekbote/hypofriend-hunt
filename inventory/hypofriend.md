@@ -580,3 +580,16 @@ www.hypofriend.de
 - CHANGED hypofriend.de/en/health (S3 meta-refresh, len=89) and core.hypofriend.de/en/health/q (200 len=227365) — consistent live GraphQL
 - CHANGED core.hypofriend.de/property-search-api — still 400 (expects GraphQL POST), direct-origin WAF bypass confirmed
 - CHANGED All dead fleet unchanged (503/000/301/403), *.local.hypofriend.de ERR_NGROK_3200, local.hypofriend.de folded into 503 fleet
+
+## 2026-09-12 18:48:06 UTC
+- NEW hypofriend.de/en/health & /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor endpoint, branding; independent GraphQL endpoints at /en/heal
+- NEW hypofriend.de/en/health/q, /en/plus/q & core.hypofriend.de/en/health/q, /en/plus/q: open credentialed CORS on ALL four endpoints — OPTIONS/POST reflect arbitrary Origin with access-control-allow-crede
+- NEW hypofriend.de/en/health/q, /en/plus/q: auth-free mutations uploadDocumentExtended(input:{type,document_type,applicant_type}) and processLeadForAppointment(input:{}) execute 200 on all four endpoints
+- NEW hypofriend.de/en/health: session cookies with SameSite=None; Secure set (__hfp___hypofriend.health__) — enables credential forwarding for cross-origin mutation theft
+- NEW core.hypofriend.de/en/health/q, /en/plus/q: direct-origin GraphQL responses bare (date/content-length/ACAO only) vs edge full CloudFront stack — WAF/security-header bypass confirmed on new endpoints
+- NEW hypofriend.de/q: calculateMaklerFee field REMOVED from HypofriendType schema — was present 2026-09-08, now "doesn't exist"; schema changed
+- NEW hypofriend.de/q: appointment_type server-side differentiated — phone returns 30-min/all-free calendar, video/unknown returns 60-min/all-occupied; raw interpolation confirmed but backend dispatches on 
+- CHANGED api.hypofriend.de: 000 timeout re-confirmed 2026-09-12 16:21Z on :80/:443 (host AND A 52.15.184.3) — dead 5th consecutive cycle, resolves fine, no takeover surface
+- CHANGED cert transparency sweep: only wildcard + known names (a, bonava, email.m, email.m2, evernest, myne, www) — no new hostnames, inventory exhaustive
+- CHANGED All dead fleet unchanged (503/000/301/403), *.local.hypofriend.de ERR_NGROK_3200, local.hypofriend.de folded into 503 fleet
+- CHANGED core.hypofriend.de/property-search-api: direct-origin WAF bypass re-confirmed (bare headers), full introspection enabled, BOLA chain operational
