@@ -327,3 +327,6 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ hypofriend.de/en/health/q (+/en/plus/q, edge+origin): credentialed CORS re-verified live 2026-09-12 05:20Z — all 4 combos echo arbitrary Origin + ACAC:true + all methods; origin bare vs edge full CF stack.
 - 2026-09-12 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q (+/en/plus/q): direct-origin responses carry only date/content-length/ACAO on OPTIONS vs edge CloudFront — WAF/security-header bypass re-proven on all /q-family paths.
 - 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 05:19Z — dead, no surface (target api unchanged).
+- 2026-09-12 ACCEPTED MISCONFIG @ hypofriend.de/en/health/q (+core.hypofriend.de/en/health/q): credentialed CORS re-verified live 2026-09-12 09:29Z — OPTIONS with Origin https://evil.example + ACRM:POST echoes ACAO + ACAC:true + all methods (max-age 7200) on edge AND origin; origin bare (date/ACAO only) vs edge CF stack.
+- 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 09:29Z at host AND A 52.15.184.3 (both :80/:443 10s timeouts, resolves fine) — dead 4th consecutive cycle, no surface, target unchanged.
+- 2026-09-12 ACCEPTED NG @ cert transparency: sweep returned only wildcard + known names (a, bonava, email.m, email.m2, evernest, myne, www) — no new hostnames, inventory exhaustive.

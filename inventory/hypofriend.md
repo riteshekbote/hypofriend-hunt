@@ -562,3 +562,5 @@ www.hypofriend.de
 - NEW Direct-origin GraphQL responses bare (date/content-length/ACAO only) vs edge full CloudFront stack — WAF bypass confirmed on new endpoints
 - CHANGED hypofriend.de/q: calculateMaklerFee field REMOVED from HypofriendType schema (was present 2026-09-08)
 - CHANGED hypofriend.de/q: appointment_type server-differentiated — phone returns 30-min/all-free, video/unknown returns 60-min/all-occupied
+
+## 2026-09-12 09:30:28 UTC

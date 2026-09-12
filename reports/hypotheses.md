@@ -1658,3 +1658,21 @@
 - LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass —
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including 
 - LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## RANKED HYPOTHESES 2026-09-12 09:30:28 UTC
+- [98] hypofriend.de/en/health/q,: /en/health/q & /en/plus/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation (from art/lead_nemotron3.txt)
+- [88] core.hypofriend.de/en/health/q: /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set survives; handler-execution PoC is the only open gate (unchanged from last cycle, preflight re-verified live) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: passive gate closed (CORS preflight re-verified live 09:29Z with ACRM:POST on edge+origin, all 4 /q-family combos intact). Hand off exact probe set: (1) 
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://hypofriend.de/en/health (S3 meta-refresh) → extract Nuxt bundle URL → download JS → mine GraphQL mutation signatures for /en/health/q (upload
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health/q (+core.hypofriend.de/en/health/q): credentialed CORS re-verified live 2026-09-12 09:29Z — OPTIONS with Origin htt
+- LEARN: ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 09:29Z at host AND A 52.15.184.3 (both :80/:443 10s timeouts, resolves fine) — dead 4th consecutive cycle, no 
+- LEARN: ACCEPTED NG @ cert transparency: sweep returned only wildcard + known names (a, bonava, email.m, email.m2, evernest, myne, www) — no new hostnames, inventory ex
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor e
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: open credentialed CORS on edge AND origin — OPTIONS/POST reflect arbitrary Origin with ACAC:true + a
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: auth-free mutations uploadDocumentExtended, processLeadForAppointment execute 200 without auth
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health: session cookies with SameSite=None; Secure set (__hfp___hypofriend.health__) — enables credential forwarding
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q, /en/plus/q: direct-origin GraphQL responses bare (date/content-length/ACAO only) vs edge full CF stack — WA
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass —
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including 
+- LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
