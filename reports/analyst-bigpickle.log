@@ -18218,3 +18218,164 @@ testability: HUMAN_ONLY
 > build · big-pickle
 [0m
 [91m[1mError: [0mError from provider (Console): Upstream request failed: [invalid_request_error] Unrecognized request argument supplied: prompt_cache_key
+===== ANALYST bigpickle 2026-09-12 05:20:59 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "== OPTIONS core/en/health/q evil-origin"; curl -s -m 12 -o /dev/null -D - -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" "https://core.hypofriend.de/en/health/q" -A "Mozilla/5.0" | rg -i "HTTP/|access-control|server:|x-frame|content-security|strict-transport|vary:"
+== OPTIONS core/en/health/q evil-origin
+/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mfor u in "https://api.hypofriend.de/" "https://hypofriend.de/en/health" "https://core.hypofriend.de/en/health/q" "https://core.hypofriend.de/en/plus/q" "https://hypofriend.de/q" "https://core.hypofriend.de/q"; do echo "== $u"; curl -s -o /dev/null -m 12 -w "code=%{http_code} time=%{time_total}s\n" -A "Mozilla/5.0" "$u"; done
+== https://api.hypofriend.de/
+code=000 time=12.002814s
+== https://hypofriend.de/en/health
+code=200 time=0.433572s
+== https://core.hypofriend.de/en/health/q
+code=301 time=0.288192s
+== https://core.hypofriend.de/en/plus/q
+code=301 time=0.283961s
+== https://hypofriend.de/q
+code=301 time=0.466811s
+== https://core.hypofriend.de/q
+code=301 time=0.362295s
+[0m
+[0m$ [0mecho "== hypofriend.de/en/plus"; curl -s -m 12 -o /dev/null -w "code=%{http_code}\n" -A "Mozilla/5.0" "https://hypofriend.de/en/plus"; echo "== hypofriend.de/en/health headers"; curl -s -m 12 -D - -o /dev/null -A "Mozilla/5.0" "https://hypofriend.de/en/health" | head -20
+== hypofriend.de/en/plus
+code=200
+== hypofriend.de/en/health headers
+HTTP/2 200 
+content-type: text/html; charset=utf-8
+content-length: 89
+last-modified: Fri, 11 Sep 2026 14:52:10 GMT
+x-amz-server-side-encryption: AES256
+accept-ranges: bytes
+server: AmazonS3
+date: Sat, 12 Sep 2026 05:19:56 GMT
+cache-control: public, max-age=0, must-revalidate
+etag: "d5ac925598bd89bb61a220d74aa1a9a1"
+x-cache: Hit from cloudfront
+via: 1.1 434e1d253124c6f9517c35a2c6014518.cloudfront.net (CloudFront)
+x-amz-cf-pop: IAD55-P10
+alt-svc: h3=":443"; ma=86400
+x-amz-cf-id: Ohc4apcoJ7_e0lMgQe3dTc-OyZ0ZC3238LTdt9-xRpRhrVMObJr_PQ==
+age: 9
+[0m
+[0m$ [0mfor u in "https://core.hypofriend.de/en/health/q" "https://core.hypofriend.de/en/plus/q" "https://hypofriend.de/en/health/q" "https://hypofriend.de/en/plus/q"; do echo "== OPTIONS $u"; curl -s -m 12 -o /dev/null -D - -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" "$u" -A "Mozilla/5.0" | head -30; echo; done
+== OPTIONS https://core.hypofriend.de/en/health/q
+HTTP/2 200 
+date: Sat, 12 Sep 2026 05:20:04 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+
+
+== OPTIONS https://core.hypofriend.de/en/plus/q
+HTTP/2 200 
+date: Sat, 12 Sep 2026 05:20:05 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+
+
+== OPTIONS https://hypofriend.de/en/health/q
+HTTP/2 200 
+content-length: 0
+date: Sat, 12 Sep 2026 05:20:05 GMT
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+x-cache: Miss from cloudfront
+via: 1.1 434e1d253124c6f9517c35a2c6014518.cloudfront.net (CloudFront)
+x-amz-cf-pop: IAD55-P10
+alt-svc: h3=":443"; ma=86400
+x-amz-cf-id: 8y2dhXPexo86qc6A7Cix909qbh0JL2d0GZSbRMVlUaHzKiGDltZdCQ==
+
+
+== OPTIONS https://hypofriend.de/en/plus/q
+HTTP/2 200 
+content-length: 0
+date: Sat, 12 Sep 2026 05:20:05 GMT
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+x-cache: Miss from cloudfront
+via: 1.1 72f4d18bf03f8b7dda07e802ed060738.cloudfront.net (CloudFront)
+x-amz-cf-pop: IAD55-P10
+alt-svc: h3=":443"; ma=86400
+x-amz-cf-id: wqBxXG4_3VNEYiVjU85i3eOuGTCUTdX5uSVSOpUztq838fzG_NxHFQ==
+[0m
+STEP 1 — DELTA
+- NO_DELTA: api.hypofriend.de 000 (timeout 12s) this cycle; all tracked surface bit-identical.
+- CHANGED (cosmetic): hypofriend.de/en/health S3 object re-uploaded 2026-09-11 14:52Z (etag d5ac92…), same meta-refresh→/en behavior, 200 cached CF — no functional delta.
+- CONFIRMED live 05:20Z: OPTIONS on all 4 /en/health/q + /en/plus/q (edge+origin) still echo `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` + all methods (max-age 7200); origin responses bare (no server/HSTS/XFO/nosniff) vs edge CloudFront stack — WAF/security-header differential re-proven. GET on /q and /en/*/q still 301 Rails shell (GraphQL surface is POST-only; unchanged).
+
+STEP 2 — PRIORITIZE
+[PRIO] core.hypofriend.de/en/health/q (+/en/plus/q, edge pair),7.6,a=8,b=9,t=8,g=9,c=5,f=3
+[PRIO] core.hypofriend.de/property-search-api,7.35,a=6,b=10,t=9,g=10,c=4,f=1
+[PRIO] core.hypofriend.de/q,5.9,a=6,b=6,t=7,g=9,c=4,f=1
+
+STEP 3 — HYPOTHESES
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set survives; handler-execution PoC is the only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+core.hypofriend.de/en/plus/q, hypofriend.de edge pair)
+confidence: 88
+reasoning: all 4 OPTIONS re-echoed arbitrary Origin + ACAC:true + all methods live 05:20Z (origin bare headers vs edge CF = WAF bypass intact); SameSite=None;Secure session cookie on /en/health (tracked); prior cycle mutations uploadDocumentExtended/processLeadForAppointment returned 200 Typename with no session; bundle CbMiwoX2.js (same build) holds 4 non-null-arg [File!]! signature and lead mutations.
+evidence_needed: benign multipart POST proves handler executes (success vs error class) + ACAO echo on POST; victim-session differential is HUMAN-only.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` with Origin https://evil.example; record step/error-class + ACAO echo (non-PII, no auth).
+impact: attacker page plants arbitrary documents into victim mortgage/health file + injects appointment leads + unclaims advisors under victim SameSite=None session on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence proven, remaining gate is bulk quantification
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain unchanged since 09-04; full introspection; limit cap ~50 forces offset-walk; direct-origin bypasses CF stack (bare headers re-proven on sibling endpoints this cycle); no auth on any resolver.
+evidence_needed: HUMAN-authorized offset-walk count of total exposes (UUIDs only, NO PII pull) to bound DB size.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → `query{exposes(id,offset:0..N,limit:50){id}}` counting returned UUIDs.
+impact: full-DB listing dump (phones, emails, owner surnames, companies), zero auth. CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /q — session-carrying cross-origin read of stateful resolvers
+class: IDOR
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: already_booked_appointments(arbitrary lead_id)=200 no-session BOLA proven; credentialed CORS on same host (persistent); no resolver gated on session identity tested with a real logged-in jar (none obtainable passively).
+evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only.
+verify_steps: HUMAN REPORT — with real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead), observe data delta vs no-session empty + ACAO echo on POST.
+impact: cross-origin session-bearing reads of lead/appointment data; BOLA→exfil escalation. HIGH
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] /q raw-interpolation appointment_type injection: already ACCEPTED, no new evidence vector this cycle.
+[PARKED] *.local.hypofriend.de ngrok takeover: unchanged ERR_NGROK_3200, HUMAN-only, no progress.
+[FINAL] 1. /en/health/q+/en/plus/q credentialed CORS + auth-free mutations (88)  2. property-search-api full-DB BOLA (95)  3. /q session-carrying read primitive (60) — all unchanged vs last cycle, all gates HUMAN.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: passive gate closed (CORS echo re-verified live 05:20Z all 4 combos). Hand off exact probe set: (1) benign multipart uploadDocumentExtended POST on core.hypofriend.de/en/plus/q with Origin https://evil.example recording step/error-class + ACAO echo; (2) offset-walk counts on property-search-api (UUIDs only); (3) victim-session delta on already_booked_appointments. All three are HUMAN-authorized classes per program note (mutating/bulk).
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/health/q (+/en/plus/q, edge+origin): credentialed CORS re-verified live 2026-09-12 05:20Z — all 4 combos echo arbitrary Origin + ACAC:true + all methods; origin bare vs edge full CF stack.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q (+/en/plus/q): direct-origin responses carry only date/content-length/ACAO on OPTIONS vs edge CloudFront — WAF/security-header bypass re-proven on all /q-family paths.
+[LEARN] ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 05:19Z — dead, no surface (target api unchanged).
+
+STEP 7 — RISK
+[RISK] hypofriend: 99 — CRITICAL, unchanged. Live 05:20Z re-verified: credentialed CORS echo + ACAC:true on all 4 /en/health/q+/en/plus/q host+path combos (edge+origin), origin WAF bypass, SameSite=None sessions, auth-free multipart/lead mutations surfaced in bundle — the full cross-origin victim-session exfil/write precondition chain is intact with no observed reconfiguration. property-search-api full-DB PII BOLA still live under full introspection. All remaining gates (bulk quantification, victim-session mutation PoC, report timing) are HUMAN-decided.

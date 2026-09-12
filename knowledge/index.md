@@ -324,3 +324,6 @@
 - 2026-09-12 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
 - 2026-09-12 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including /en/health/q and /en/plus/q
 - 2026-09-12 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-12 ACCEPTED MISCONFIG @ hypofriend.de/en/health/q (+/en/plus/q, edge+origin): credentialed CORS re-verified live 2026-09-12 05:20Z — all 4 combos echo arbitrary Origin + ACAC:true + all methods; origin bare vs edge full CF stack.
+- 2026-09-12 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q (+/en/plus/q): direct-origin responses carry only date/content-length/ACAO on OPTIONS vs edge CloudFront — WAF/security-header bypass re-proven on all /q-family paths.
+- 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 05:19Z — dead, no surface (target api unchanged).

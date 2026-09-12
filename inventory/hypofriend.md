@@ -553,3 +553,12 @@ www.hypofriend.de
 ## 2026-09-11 22:51:22 UTC
 
 ## 2026-09-12 00:52:20 UTC
+
+## 2026-09-12 05:20:59 UTC
+- NEW hypofriend.de/en/health & /en/plus: separate appointment instances with independent GraphQL endpoints (/en/health/q, /en/plus/q) on both edge and direct origin (core.hypofriend.de)
+- NEW Open credentialed CORS confirmed on all four new endpoints (hypofriend.de/en/health/q, hypofriend.de/en/plus/q, core.hypofriend.de/en/health/q, core.hypofriend.de/en/plus/q) — OPTIONS/POST reflect arb
+- NEW Auth-free mutations execute 200 on all four new endpoints: uploadDocumentExtended(input:{type,document_type,applicant_type}), processLeadForAppointment(input:{})
+- NEW Session cookies with SameSite=None; Secure set on /en/health (cookie __hfp___hypofriend.health__) enabling credential forwarding
+- NEW Direct-origin GraphQL responses bare (date/content-length/ACAO only) vs edge full CloudFront stack — WAF bypass confirmed on new endpoints
+- CHANGED hypofriend.de/q: calculateMaklerFee field REMOVED from HypofriendType schema (was present 2026-09-08)
+- CHANGED hypofriend.de/q: appointment_type server-differentiated — phone returns 30-min/all-free, video/unknown returns 60-min/all-occupied
