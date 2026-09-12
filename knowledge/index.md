@@ -336,3 +336,8 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS re-verified live 2026-09-12 21:09Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200); origin response bare (date/content-length/ACAO only) vs edge CF stack.
 - 2026-09-12 ACCEPTED MISCONFIG @ hypofriend.de/en/plus/q: same credential CORS echo re-verified 21:09Z through full edge CloudFront stack (x-cache/x-amz-cf-*), confirming edge does not stop the /q-family echo path.
 - 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 21:09Z on :80/:443 — dead 6th consecutive cycle, resolves fine, no takeover surface, target unchanged.
+- 2026-09-12 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS re-verified live 2026-09-12 23:05Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200); origin response bare (date/content-length/ACAO only, no server/CF headers).
+- 2026-09-12 ACCEPTED MISCONFIG @ hypofriend.de/en/plus/q: same credentialed CORS echo re-verified 23:05Z through full edge CloudFront (via 1.1 …cloudfront.net, x-cache Miss, x-amz-cf-pop ORD58-P16) — edge does not stop the /q-family echo path.
+- 2026-09-12 CONFIRMED NG @ core.hypofriend.de/property-search-api: OPTIONS 23:05Z 200 with only date/content-length, NO ACAO echo — CORS closed there, contrast-class versus /q-family (consistent with prior REJECTED).
+- 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 23:04Z on :80/:443 — dead 7th consecutive cycle, resolves fine, no takeover surface, target unchanged.
+- 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-12 21:09Z — dead 6th consecutive cycle, no surface

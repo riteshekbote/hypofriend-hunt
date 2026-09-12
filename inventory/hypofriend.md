@@ -595,3 +595,5 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/property-search-api: direct-origin WAF bypass re-confirmed (bare headers), full introspection enabled, BOLA chain operational
 
 ## 2026-09-12 21:12:47 UTC
+
+## 2026-09-12 23:07:05 UTC
