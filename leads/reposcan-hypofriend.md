@@ -354,3 +354,53 @@ verify_steps: >
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-12 17:59:12 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-12 20:27:44 UTC
+class: OTHER
+asset: HypoFriend/advisor-couching/main.js:17
+confidence: 90
+reasoning: `CLOUD_PROJECT_NUMBER = "910242124570"` is hardcoded in HypoFriend's own non-fork code (single commit from `pavel@hypofriend.de`). Used at lines 27 and 43 to initialize `meet.addon.createAddonSession()`. This is the only original code repo with content. GCP project numbers are semi-public but enable targeted enumeration of the project's APIs, service accounts, and IAM policies.
+impact: Low — information disclosure aiding reconnaissance; not a direct credential.
+verify_steps: 1) Browse https://github.com/HypoFriend/advisor-couching/blob/master/main.js:17. 2) Passively verify project existence via `gcloud projects describe 910242124570` (requires auth). 3) Check if Meet add-on is live at https://hypofriend.github.io/advisor-couching/MainStage.html.
+class: IDOR
+asset: HypoFriend/voicemail-for-amazon-connect/aws-connect-vm-serverless/src/service/auth.service.js:119-121
+confidence: 85
+reasoning: The `_generate()` method grants Manager-role users full API access via `policy.allowAllMethods()` despite a TODO comment indicating it should be restricted to `POST /manager/*`. Code: `// TODO: Allow only manager specific endpoints | policy.allowMethod("POST", "/manager/*"); policy.allowAllMethods();`. This is upstream code from Amazon's sample repo. If Hypofriend deployed this without modification, Manager users can invoke all Admin-only routes (agent management, global settings, contact flow building).
+impact: Medium — privilege escalation from Manager to full Admin API access if deployed.
+verify_steps: 1) Check if Hypofriend has a live Amazon Connect voicemail deployment (probe voicemail-related subdomains). 2) If a Manager JWT can be obtained, attempt Admin-only endpoints. 3) Review if deployment customized auth.service.js.
+class: MISCONFIG
+asset: HypoFriend/voicemail-for-amazon-connect/aws-connect-vm-serverless/src/handler/authorizer.js:18
+confidence: 95
+reasoning: `console.log(event.authorizationToken, event.methodArn)` writes the complete JWT to CloudWatch Logs on every API call. Any IAM principal with CloudWatch Logs read access can harvest all session tokens. This is upstream Amazon code — if deployed unmodified, every auth token is logged.
+impact: Medium — session tokens exposed in plaintext logs; enables token theft and session hijacking.
+verify_steps: 1) Confirm Amazon Connect voicemail deployment exists. 2) Check CloudWatch Logs for logged JWT tokens (requires AWS console access).
+class: IDOR
+asset: HypoFriend/voicemail-for-amazon-connect/aws-connect-vm-serverless/src/handler/agents.js:50-54
+confidence: 80
+reasoning: `getAgentById` takes `agentId` directly from `event.pathParameters` with no check that the requesting user is authorized to view that agent. The API Gateway authorizer generates an IAM policy, but individual handlers never inspect `requestContext.authorizer.roles`. Any authenticated user (even with no role) can read any agent's data.
+impact: Medium — cross-tenant/unauthorized agent data access.
+verify_steps: 1) Confirm voicemail deployment exists. 2) Attempt to read another agent's data with a low-privilege JWT.
+class: MISCONFIG
+asset: HypoFriend/ecs-deploy/action.yml:134-135
+confidence: 85
+reasoning: The `action.yml` passes `aws_access_key` and `aws_secret_key` as positional arguments to the shell script via the `args` array. AWS CLI may log these in verbose/debug mode or they may appear in process listings (`/proc/*/cmdline`). Additionally, line 560 of the ecs-deploy script uses `eval $AWS_ECS_RUN_TASK` where `AWS_ECS_RUN_TASK` is constructed from unsanitized user inputs (`$CLUSTER`, `$NEW_TASKDEF`), enabling potential command injection.
+impact: Medium — AWS credentials exposed in process listings and CI logs; command injection possible in ECS task runs.
+verify_steps: 1) Check if the `ecs-deploy` action is used in Hypofriend's GitHub Actions workflows. 2) Review workflow logs for leaked credentials.
+class: OTHER
+asset: HypoFriend/s3-deploy/deploy.js:22-35
+confidence: 75
+reasoning: `deploy.js` constructs a shell command via template literal interpolation of `bucket`, `bucketRegion`, `distId`, `invalidation`, `deleteRemoved`, `cache`, and `filesToInclude` — all user-supplied GitHub Action inputs — directly into a command string passed to `exec.exec()`. Values containing shell metacharacters (semicolons, backticks, `$()`) could break out of the intended command. No input sanitization or argument array usage is present.
+impact: Medium — CI/CD pipeline compromise if a malicious workflow YAML controls these inputs.
+verify_steps: 1) Verify the `s3-deploy` action is used in Hypofriend's GitHub Actions workflows. 2) Check workflow YAML for untrusted input flowing into the action.
+class: SECRET
+asset: HypoFriend/voicemail-for-amazon-connect/aws-connect-vm-serverless/mock/agents-update.json:6,41
+confidence: 70
+reasoning: Mock test files contain: (1) API Gateway API key `dIqUYJsey9acwZuN90CH35hrqwXuPx4ZawrMQsNU` (apiKeyId: `nyhspri1p0`); (2) Full JWT bearer tokens with Cognito claims (email `hdang@onica.com`, user pool `us-west-2_TLzLQppMm`, app client `46sv1tgl2v9obp94fdhmd9orcv`); (3) AWS account ID `439200502815`; (4) S3 bucket name `aws-connect-vm-transcription-hdang`; (5) Phone number `+13104024459`. These are from the upstream Amazon developer's test environment, not Hypofriend's. Out of scope per "known public files" exclusion.
+impact: Low — upstream test data, not Hypofriend customer data. However, the JWT structure reveals Cognito configuration that could aid attacks if Hypofriend uses the same pattern.
+verify_steps: N/A — upstream artifact, not Hypofriend-specific. Verify if the API key is still active.
+class: MISCONFIG
+asset: HypoFriend/voicemail-for-amazon-connect/aws-connect-vm-serverless/src/lib/responder.js:5-6
+confidence: 80
+reasoning: Response headers set both `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Credentials: true`. Per the CORS spec browsers enforce mutual exclusion, but this indicates a misconfigured CORS policy. Combined with the session cookie `SameSite=None`, this could enable credential leakage on non-browser clients or future refactoring.
+impact: Low — browsers enforce the spec, but could bypass intended restrictions on non-browser clients.
+verify_steps: 1) Confirm the voicemail portal is deployed. 2) Test CORS with `Origin: https://evil.example` and `credentials: include`.
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
