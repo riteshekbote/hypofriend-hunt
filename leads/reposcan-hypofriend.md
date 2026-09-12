@@ -343,3 +343,12 @@ TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-12 12:41:24 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-12 15:58:52 UTC
+[HYP] Hardcoded GCP Cloud Project Number
+class: MISCONFIG
+asset: HypoFriend/advisor-couching/main.js:17
+confidence: 25
+reasoning: GCP Cloud Project Number "910242124570" is hardcoded in source.
+impact: informational
+verify_steps: >
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
