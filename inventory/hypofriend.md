@@ -593,3 +593,5 @@ www.hypofriend.de
 - CHANGED cert transparency sweep: only wildcard + known names (a, bonava, email.m, email.m2, evernest, myne, www) — no new hostnames, inventory exhaustive
 - CHANGED All dead fleet unchanged (503/000/301/403), *.local.hypofriend.de ERR_NGROK_3200, local.hypofriend.de folded into 503 fleet
 - CHANGED core.hypofriend.de/property-search-api: direct-origin WAF bypass re-confirmed (bare headers), full introspection enabled, BOLA chain operational
+
+## 2026-09-12 21:12:47 UTC

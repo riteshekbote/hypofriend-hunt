@@ -2638,3 +2638,42 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/plus/q (+core.hypofriend.de/en/health/q): credentialed CORS re-verified live 2026-09-12 16:21Z — OPTIONS with Origin https://evil.example echoes ACAO + ACAC:true + all methods on edge (full CF stack) AND origin (bare: date/content-length/ACAO only).
 [LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 16:21Z on :80/:443 (host) — dead 5th consecutive cycle, resolves fine, no takeover surface, target unchanged.
 [RISK] hypofriend: 99 — CRITICAL, unchanged. Live 16:21Z: credentialed CORS echo + ACAC:true intact on /q-family edge+origin, origin WAF/security-header bypass, SameSite=None sessions, auth-free multipart/lead mutations in bundle — full cross-origin victim-session write/exfil precondition chain live with no reconfiguration. property-search-api full-DB PII BOLA unchanged under full introspection. api.hypofriend.de (target) fully dead 5th cycle. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report timing) are HUMAN-decided.
+## 2026-09-12 21:10:08 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,9.45, attack=9 business=10 tech=10 gate=10 cloud=8 freshness=9
+[PRIO] core.hypofriend.de/en/health/q (+/en/plus/q),8.80, attack=8 business=9 tech=9 gate=10 cloud=8 freshness=9
+[PRIO] core.hypofriend.de/q,8.00, attack=7 business=8 tech=8 gate=9 cloud=8 freshness=9
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence proven, remaining gate is bulk quantification
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain unchanged since 09-04; full introspection live; limit capped ~50 forces offset-walk; direct-origin POST served without CF stack (400 body confirmed 21:09Z on origin); no auth on any resolver; UUIDs enumerable with zero credentials.
+evidence_needed: HUMAN-authorized offset-walk count of total exposes (UUIDs only, NO PII pull) to bound DB size and demonstrate scale.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/property-search-api `{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → `query{exposes(id,offset:0..N,limit:50){id}}`, count returned UUIDs; optional second city for determinism.
+impact: full-DB listing dump (phones, emails, owner surnames, companies), zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set survives; handler-execution PoC is the only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+core.hypofriend.de/en/plus/q, hypofriend.de edge pair)
+confidence: 88
+reasoning: OPTIONS re-echoed arbitrary Origin + ACAC:true + all methods live 21:09Z on origin (/en/health/q) and edge (/en/plus/q); SameSite=None;Secure session on /en/health; known [File!]! mutation signatures in prior bundles; origin response bare vs edge CF stack.
+evidence_needed: benign multipart POST proves handler executes (success vs error class) + ACAO echo on POST; victim-session differential HUMAN-only.
+verify_steps: HUMAN REPORT — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` with Origin https://evil.example; record step/error-class + ACAO echo (non-PII, no auth).
+impact: attacker page plants arbitrary documents into victim mortgage/health file + injects appointment leads under victim SameSite=None session on a financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /q — session-carrying cross-origin read of stateful resolvers
+class: IDOR
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: already_booked_appointments(arbitrary lead_id)=200 no-session BOLA proven; credentialed CORS on /q-family persists (re-verified live 21:09Z); no resolver gated on session identity yet tested with a real logged-in jar (none obtainable passively).
+evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only.
+verify_steps: HUMAN REPORT — with real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead), observe data delta vs no-session empty + ACAO echo on POST.
+impact: cross-origin session-bearing reads of lead/appointment data; BOLA→exfil escalation. HIGH
+testability: HUMAN_ONLY
+[PARKED] api.hypofriend.de (target) surface/takeover: 000 6th consecutive cycle on host and A-record, resolves fine, no banner, nothing testable passively; confidence 0 any active vector.
+[PARKED] /q field drift (calculateMaklerFee removal): observed, single event, no exploit delta — evidence-only.
+[FINAL] 1. property-search-api BOLA (95) 2. /en/health/q CORS+mutations (88) 3. /q session BOLA (60)
+[NEXT] HUMAN: passive gate closed (CORS chain live re-proven 21:09Z origin+edge on /q-family; property-search-api BOLA surface frozen; api target dead 6th cycle). Hand off exact probe set: (1) offset-walk UUID-only count on core.hypofriend.de/property-search-api (propertySearch→exposes offset 0..N); (2) benign multipart uploadDocumentExtended POST on core.hypofriend.de/en/plus/q with Origin https://evil.example recording step/error-class + ACAO echo; (3) victim-session delta on already_booked_appointments(own vs other lead) on hypofriend.de/q. All three sequentially low-rate, HUMAN-authorized class, no PII pull.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS re-verified live 2026-09-12 21:09Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200); origin response bare (date/content-length/ACAO only) vs edge CF stack.
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/plus/q: same credential CORS echo re-verified 21:09Z through full edge CloudFront stack (x-cache/x-amz-cf-*), confirming edge does not stop the /q-family echo path.
+[LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 21:09Z on :80/:443 — dead 6th consecutive cycle, resolves fine, no takeover surface, target unchanged.
+[RISK] hypofriend: 99 — CRITICAL, unchanged. Live 21:09Z: credentialed CORS echo + ACAC:true intact on /q-family edge+origin (origin WAF/security-header bypass re-proven), SameSite=None sessions, auth-free multipart/lead mutations in bundle — full cross-origin victim-session write/exfil precondition chain live with no reconfiguration. property-search-api full-DB PII BOLA unchanged under full introspection. api.hypofriend.de (target) dead 6th consecutive cycle. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report timing) are HUMAN-decided.
