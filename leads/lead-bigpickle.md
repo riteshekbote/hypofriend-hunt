@@ -2463,3 +2463,4 @@ evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only
 verify_steps: HUMAN REPORT — with a real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead) and observe data delta vs no-session empty; read ACAO echo on POST.
 impact: cross-origin session-bearing reads of lead/appointment data; escalation of confirmed BOLA to exfil primitive. HIGH
 testability: HUMAN_ONLY
+## 2026-09-12 00:50:32 UTC [target] (model bigpickle)

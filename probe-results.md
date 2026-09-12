@@ -405,3 +405,9 @@ https://hypofriend.de/en/health/q -> 200 len=227365
 https://core.hypofriend.de/en/health/q -> 200 len=227365
 https://core.hypofriend.de/property-search-api -> HTTP 400
 https://hypofriend.de/en/health -> 200 len=89
+
+## 2026-09-12 00:52:29 UTC
+https://hypofriend.de/en/health/q -> 200 len=227365
+https://core.hypofriend.de/en/health/q -> 200 len=227365
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/en/health -> 200 len=89
