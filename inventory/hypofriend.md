@@ -572,3 +572,11 @@ www.hypofriend.de
 - CHANGED hypofriend.de/en/health (S3 meta-refresh, len=89) and core.hypofriend.de/en/health/q (200 len=227365) — consistent live GraphQL
 - CHANGED core.hypofriend.de/property-search-api — still 400 (expects GraphQL POST), direct-origin WAF bypass confirmed
 - CHANGED All dead fleet unchanged (503/000/301/403), *.local.hypofriend.de ERR_NGROK_3200, local.hypofriend.de folded into 503 fleet
+
+## 2026-09-12 16:25:13 UTC
+- CHANGED hypofriend.de/en/health/q & core.hypofriend.de/en/health/q: Credentialed CORS re-verified live 2026-09-12 09:29Z — OPTIONS with Origin https://evil.example + ACRM:POST echoes ACAO + ACAC:true + all me
+- CHANGED api.hypofriend.de: 000 timeout re-confirmed 09:29Z at host AND A 52.15.184.3 (both :80/:443 10s timeouts, resolves fine) — dead 4th consecutive cycle, no surface
+- CHANGED cert transparency: sweep returned only wildcard + known names (a, bonava, email.m, email.m2, evernest, myne, www) — no new hostnames, inventory exhaustive
+- CHANGED hypofriend.de/en/health (S3 meta-refresh, len=89) and core.hypofriend.de/en/health/q (200 len=227365) — consistent live GraphQL
+- CHANGED core.hypofriend.de/property-search-api — still 400 (expects GraphQL POST), direct-origin WAF bypass confirmed
+- CHANGED All dead fleet unchanged (503/000/301/403), *.local.hypofriend.de ERR_NGROK_3200, local.hypofriend.de folded into 503 fleet
