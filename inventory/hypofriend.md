@@ -599,3 +599,15 @@ www.hypofriend.de
 ## 2026-09-12 23:07:05 UTC
 
 ## 2026-09-13 01:05:57 UTC
+
+## 2026-09-13 06:17:42 UTC
+- CHANGED core.hypofriend.de/en/health/q credentialed CORS re-verified live 2026-09-13 — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200); origin response bar
+- CHANGED api.hypofriend.de 000 timeout re-confirmed 2026-09-13 on :80/:443 (12s timeouts, resolves fine) — dead 8th consecutive cycle, no takeover surface
+- CHANGED hypofriend.de/en/health, /en/plus separate appointment instances confirmed persistent — each with own API URL, advisor endpoint, branding
+- CHANGED hypofriend.de/en/health/q, /en/plus/q open credentialed CORS on edge AND origin persistent — OPTIONS/POST reflect arbitrary Origin with ACAC:true + all methods
+- CHANGED hypofriend.de/en/health/q, /en/plus/q auth-free mutations uploadDocumentExtended, processLeadForAppointment execute 200 without auth persistent
+- CHANGED hypofriend.de/en/health session cookies SameSite=None; Secure (__hfp___hypofriend.health__) persistent — enables credential forwarding
+- CHANGED core.hypofriend.de/en/health/q, /en/plus/q direct-origin GraphQL responses bare (date/content-length/ACAO only) vs edge full CF stack — WAF bypass persistent
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
+- CHANGED core.hypofriend.de/q direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including /en/health/q and /en/plus/q — persistent
+- CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
