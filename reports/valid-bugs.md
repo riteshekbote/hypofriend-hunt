@@ -24,3 +24,6 @@
   - | 4 | BOLA on `already_booked_appointments` | **VALID** | 6.5 (M) | Unauth appointment data |
   - | 5 | Open credentialed CORS on `/q` | **VALID** | 8.1 (H) | Session hijack vector |
   - | 7 | Direct-origin CloudFront bypass | **VALID** | 5.3 (M) | WAF/security-header bypass |
+
+- 1 lead(s) marked VALID at 2026-09-13 06:46:05 UTC
+  - Please paste the lead findings (URLs, probe results, descriptions) and I'll run each through the 7-Question Gate with the verdict, reasoning, and (for VALID) minimal proof steps, impact assessment, CV
