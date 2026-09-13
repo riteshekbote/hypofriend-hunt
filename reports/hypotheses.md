@@ -1854,3 +1854,21 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primi
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted
 - LEARN: ACCEPTED IDOR @ core.hypofriend.de/q: `already_booked_appointments(lead_id)` resolver accepts arbitrary lead_id auth-free (tested ze
+
+## RANKED HYPOTHESES 2026-09-13 18:33:12 UTC
+- [99] core.hypofriend.de/property-search-api: core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [95] core.hypofriend.de/property-search-api: property-search-api — full-DB auth-free PII BOLA; existence frozen, only gate is bulk quantification (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: passive gate fully closed — credentialed CORS echo + ACAC:true intact, BOLA frozen, target api dead 9th cycle. Next step is HUMAN-decided, queued in orde
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://hypofriend.de/en/health (S3 meta-refresh) → extract Nuxt bundle URL → download JS → mine GraphQL mutation signatures for /en/health/q (upload
+- LEARN: CONFIRMED NG @ api.hypofriend.de (target): 000 on :80/:443 re-confirmed 2026-09-13 live probe (12s timeouts both, resolves A 52.15.184.3) — dead 9th consecutive
+- LEARN: CONFIRMED NG @ delta sweep: no host beyond api probe re-tested; all tracked surface bit-identical to 2026-09-13 prior-cycle statuses (200/400/401/403/503/000/30
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor e
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: open credentialed CORS on edge AND origin — OPTIONS/POST reflect arbitrary Origin with ACAC:true + a
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: auth-free mutations uploadDocumentExtended, processLeadForAppointment execute 200 without auth
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/health: session cookies with SameSite=None; Secure set (__hfp___hypofriend.health__) — enables credential forwarding
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q, /en/plus/q: direct-origin GraphQL responses bare (date/content-length/ACAO only) vs edge full CF stack — WA
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass —
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including 
+- LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- LEARN: ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-12 21:09Z — dead 6th consecutive cycle, no surface

@@ -477,3 +477,9 @@ https://hypofriend.de/ -> 200 len=227365
 https://core.hypofriend.de/ -> 200 len=227365
 https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
 https://hypofriend.de/q',{method:'POST',credentials:'include',body:{query -> 200 len=227365
+
+## 2026-09-13 18:33:19 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/en/health/q -> 200 len=227365
+https://hypofriend.de/en/health/q -> 200 len=227365
+https://hypofriend.de/en/health -> 200 len=89
