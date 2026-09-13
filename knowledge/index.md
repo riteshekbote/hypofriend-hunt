@@ -387,3 +387,4 @@
 - 2026-09-13 ACCEPTED IDOR @ core.hypofriend.de/q: `already_booked_appointments(lead_id)` resolver accepts arbitrary lead_id auth-free (tested ze
 - 2026-09-13 CONFIRMED NG @ api.hypofriend.de (target): 000 on :80/:443 re-confirmed 2026-09-13 live probe (12s timeouts both, resolves A 52.15.184.3) — dead 9th consecutive cycle, no takeover surface, target unchanged.
 - 2026-09-13 CONFIRMED NG @ delta sweep: no host beyond api probe re-tested; all tracked surface bit-identical to 2026-09-13 prior-cycle statuses (200/400/401/403/503/000/301) — no new surface.
+- 2026-09-13 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-13 — dead 9th consecutive cycle, no surface
