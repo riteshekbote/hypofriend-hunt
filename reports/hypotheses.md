@@ -1818,3 +1818,39 @@
 ## RANKED HYPOTHESES 2026-09-13 12:03:31 UTC
 - [95] core.hypofriend.de/property-search-api: property-search-api — full-DB auth-free PII BOLA; existence frozen, only open gate is bulk quantification (from art/lead_bigpickle.txt)
 - NEXT(hypotheses-bigpickle.txt): HUMAN: passive gate closed (credentialed CORS re-verified live 11:57Z on core.hypofriend.de/en/health/q origin; property-search-api BOLA + closed-CORS contrast 
+
+## RANKED HYPOTHESES 2026-09-13 16:04:00 UTC
+- [70] hypofriend.de/q: /q `appointment_availability` live booking-calendar oracle + unvalidated appointment_type → server-side advisor lookup (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST https://core.hypofriend.de/q `{"query":"{root{already_booked_appointments(lead_id:\"00000000-0000-0000-0000-000000000000\"){appointmentAt scheduledA
+- LEARN: CONFIRMED ENDPOINT @ hypofriend.de/q (also core.hypofriend.de/q): second live GraphQL API (POST `{__typename}` → 200 `{"meta":{status:0,key:"OK"},"data":{"Typen
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin POST /q returns only `content-type` (no server/HSTS/XFO/nosniff/cache) vs edge full CloudFront stack —
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/q: `__schema` introspection not enabled (`Field '__schema' doesn't exist on type 'Query'`) — unlike property-search-api, no s
+- LEARN: CONFIRMED NG @ fleet sweep: dead fleet + buckets unchanged (503/000/301/403) — no new surface.
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-cred
+- LEARN: CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-pro
+- LEARN: CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uplo
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate 
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation (sele
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin responses now carry `x-frame-options: ALLOWALL` + full HSTS while edge forces `x-frame-options: DENY` 
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: rates_table returns region-differentiated live mortgage rates — BAYERN 10yr 3.95% vs SAXONY 10yr 3.85% (0.10% delta)
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %" (German law); new_property:false→301 redirect to / (old-property path re
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edg
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q: credentialed CORS (echo + allow-credentials + all methods) and samesite=none httponly session cookies re-confirmed live th
+- LEARN: CONFIRMED NG @ fleet sweep: hypofriend.de/core/a/blog/m2/www/dead-fleet all returned prior-cycle statuses (200/400/403/000/301) — no new surface.
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q: credentialed CORS (echo + allow-credentials + all methods) and samesite=none httponly session cookies re-confirmed live th
+- LEARN: CONFIRMED NG @ fleet sweep: hypofriend.de/core/a/blog/m2/www/dead-fleet all returned prior-cycle statuses (200/400/403/000/301) — no new surface.
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate with 0.10% delta (BA
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` JSON-scalar resolver with raw interpolation — no schema enum gates a
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry `x-frame-options: ALLOWALL` + HSTS while edge forces `x-frame-options: DENY` + nosniff/
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: `calculateMaklerFee(new_property:true)`→"0 %" (German law); `new_property:false`→301 redirect to / — business-logic b
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry `x-frame-options: ALLOWALL` (no nosniff/XSS-protection/referrer-policy) vs ed
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-crede
+- LEARN: CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-pro
+- LEARN: CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uplo
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront 
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primi
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/q: `already_booked_appointments(lead_id)` resolver accepts arbitrary lead_id auth-free (tested ze

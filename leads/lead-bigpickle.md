@@ -2907,3 +2907,353 @@ impact: cross-origin session-bearing reads of lead/appointment data; BOLA→exfi
 testability: HUMAN_ONLY
 [NEXT] HUMAN: passive gate closed (credentialed CORS re-verified live 11:57Z on core.hypofriend.de/en/health/q origin; property-search-api BOLA + closed-CORS contrast intact; api.hypofriend.de target dead 9th cycle). Hand off exact probe set unchanged: (1) offset-walk UUID-only count on core.hypofriend.de/property-search-api (propertySearch→exposes offset 0..N limit 50, no PII); (2) benign multipart uploadDocumentExtended POST on core.hypofriend.de/en/plus/q with Origin https://evil.example recording step/error-class + ACAO echo; (3) victim-session delta on already_booked_appointments(own vs other lead) on hypofriend.de/q. Sequential, low-rate, no PII pull.
 [RISK] hypofriend: 99 — CRITICAL, unchanged. Live this cycle: credentialed CORS echo + ACAC:true intact on core.hypofriend.de/en/health/q origin (no Vary:Origin) with edge pair confirmed prior; SameSite=None sessions; auth-free multipart/lead mutations in bundles — cross-origin victim-session write/exfil precondition chain live on a financial platform. property-search-api full-DB PII BOLA unchanged under full introspection (closed-CORS contrast re-proven). api.hypofriend.de (target) dead 9th consecutive cycle. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report timing) are HUMAN-decided.
+## 2026-09-13 15:46:01 UTC [target] (model bigpickle)
+evidence_needed: real customer lead UUID in `already_booked_appointments(lead_id)`/`root.lead` returns that lead's PII+appointments (HUMAN — live PII).
+verify_steps: (read-only boundary ONLY) POST core.hypofriend.de/q `{"query":"{root{already_booked_appointments(lead_id:\"00000000-0000-0000-0000-000000000000\"){appointmentAt scheduledAt}}}"}` with fresh anonymous empty-cookie jar, then identical on hypofriend.de/q; capture response headers both hosts for the same request (origin bare vs edge CF). Real-UUID verification is HUMAN-gated.
+impact: cross-tenant lead PII (name/email/phone/status) + appointment records, plus auth-free write/upload surface, on a financial mortgage platform; origin path bypasses CloudFront. Severity: HIGH-CRITICAL.
+testability: AUTH_HELPED
+[HYP] /q `appointment_availability` live booking-calendar oracle + unvalidated appointment_type → server-side advisor lookup
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 70
+reasoning: Bundle shows `{root{appointment_availability(page,per,appointment_type)}}`; prior-cycle probe returned live two-week booking calendar with occupied slots (200, no auth); appointment_type string unvalidated ("consultation" vs "x"); `appointment_availability_for_advisor` 301s on bogus advisor → confirms server-side lookup executes from client-supplied string. Whole lead funnel driven anonymously (`processLeadForAppointment` → leadIsReturner/revUpdated, `setOriginAppointment` → step:10800). Introspection disabled (confirmed this cycle) so surface must map from bundle.
+evidence_needed: reachable appointment_type/advisors set; whether slots expose customer names/schedules in a fuller selection.
+verify_steps: POST hypofriend.de/q `{"query":"{root{appointment_availability(page:0,per:30,appointment_type:\"consultation\"){...}}}"}` sweep appointment_type strings at ≤1rps (read-only); compare edge vs origin headers (already documented bare-vs-CF).
+impact: internal scheduling calendar + funnel-state oracle; business-process enumeration on mortgage platform. Severity: MEDIUM.
+testability: AUTH_HELPED
+[HYP] Property-search cross-city enumeration at scale — already-confirmed chain, re-ranked with /q in context
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 95
+reasoning: Accepted/confirmed chain `propertySearch→exposes→expose(id)` returns 200 PII (cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany) with NO auth/leadId on real enumerated UUIDs across MUNICH/BERLIN/HAMBURG; offset/limit + geo-bounds crawl primitives validated (whole-DE bounds 1004>960, price-grid 429<1006, limit capped ~50); origin bypass proven both on property-search-api and now /q. Re-confirmed this cycle: POST `{__typename}` 200 on both hosts.
+evidence_needed: scale sweep at ≥100rps on origin without 429 = full-DB PII dump — HUMAN-gated.
+verify_steps: HUMAN: offset-walk `{exposes(id:"d92cbae3-2117-51bc-8278-41148cf8aaf4",offset:0..4000 step50,limit:50){id}}` against core.hypofriend.de at sustained rate; capture absence of 429/52x vs same loop on edge.
+impact: deterministic full-DB broker/owner PII dump (phone/email/surname/company) across all German cities, bypassing CloudFront WAF/rate-limiting. Severity: CRITICAL.
+testability: AUTH_HELPED
+[NEXT] PROBE: POST https://core.hypofriend.de/q `{"query":"{root{already_booked_appointments(lead_id:\"00000000-0000-0000-0000-000000000000\"){appointmentAt scheduledAt}}}"}` with a FRESH empty cookie jar (no prior session), then identical POST to https://hypofriend.de/q — boundary-only BOLA confirmation + capture response headers on BOTH hosts (origin bare vs edge CF stack) for the same request; do NOT supply any real customer UUID (PII hold).
+[LEARN] CONFIRMED ENDPOINT @ hypofriend.de/q (also core.hypofriend.de/q): second live GraphQL API (POST `{__typename}` → 200 `{"meta":{status:0,key:"OK"},"data":{"Typename":"Query"}}`); GET 301→`/` Rails shell; introspection DISABLED on /q — schema must be mined from Nuxt bundle strings, not server introspection.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin POST /q returns only `content-type` (no server/HSTS/XFO/nosniff/cache) vs edge full CloudFront stack — WAF/security-header bypass re-proven on the SECOND GraphQL API.
+[LEARN] REJECTED MISCONFIG @ hypofriend.de/q: `__schema` introspection not enabled (`Field '__schema' doesn't exist on type 'Query'`) — unlike property-search-api, no server-side schema dump vector.
+[LEARN] CONFIRMED NG @ fleet sweep: dead fleet + buckets unchanged (503/000/301/403) — no new surface.
+[RISK] hypofriend: 98 — Two unauthenticated production GraphQL APIs on a financial mortgage platform. Confirmed CRITICAL chain: property-search-api expose/exposes/propertySearch/favoritedExposes auth-free read + favoriteExpose/informationRequest write primitives over arbitrary leadId carrying broker/owner PII (phone/email/surname/company), full introspection, offset/limit+geo-bounds DB-wide crawl. Today's SPA redeploy added a SECOND API at /q: auth-free `already_booked_appointments(lead_id)` BOLA (same pattern, proven on arbitrary UUIDs), auto-provisioned `root.lead` with PII schema, live booking-calendar oracle, and auth-free mutations incl. `saveAppointment` and `uploadDocumentExtended`. Both APIs sit un-edged at core.hypofriend.de with only `content-type` in responses — CloudFront WAF/rate-limiting/security headers fully bypassed at origin. Deterministic cross-tenant PII extraction at scale. Severity: CRITICAL.
+[NEW] Open credentialed CORS on /q (both hosts): OPTIONS + actual POST with Origin: https://evil.example → `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` + allow-methods GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD on hypofriend.de/q AND core.hypofriend.de/q (edge and direct origin). Contrast re-proven: property-search-api preflight echoes NO access-control-allow-origin (stays REJECTED).
+[CHANGED] /q schema fully mined from Nux bundle BuTFH6-Z.js (passive): new resolvers beyond prior cycle — root.rates_table(loan_amount,property_price,repayment,years_fixed,region) mortgage-rate oracle; mutations uploadDocumentExtended($file:[File!]! multipart){step}, createDocumentsRequest→createDocumentsForFinancingCertificateRequest{success}, submitApplicantsInformation, submitPropertyCertificate, jiyuCalculate(Chart), calculateMaklerFee, calculateCityTax; lead schema adds had_appointment, video_appointment_enabled, appointment_page_behavior, probability{expected_value_of_mortgage}, shareLink(linkType:"self_disclosure"), referrer{primary_advisor{firstName,gender,email,picture}}, root.validate. All POSTed to `${coreApiUrl}/q` via Ke() with no auth.
+[CHANGED] /q BOLA re-confirmed live: already_booked_appointments(lead_id: zero-UUID) → 200 {"data":{"root":{"alreadyBookedAppointments":[]}}} on edge AND origin, no session cookie, no auth.
+[PRIO] core.hypofriend.de/q (+hypofriend.de/q),9.45,attack_surface=9 business_value=10 tech_exposure=10(GraphQL+multipart-upload+CORS+lead-PII) gate_ease=10(no auth+open creds-CORS) cloud_surface=7(origin+edge) freshness=10
+[PRIO] hypofriend.de/property-search-api,9.3,attack_surface=10 business_value=10 tech_exposure=10(Introspection+PII-schema) gate_ease=10 cloud_surface=6 freshness=9
+[PRIO] core.hypofriend.de/property-search-api,7.2,attack_surface=8 business_value=10 tech_exposure=10 gate_ease=10 cloud_surface=4 freshness=9
+[HYP] /q open credentialed CORS — any website can cross-origin read/write the auth-free lead+appointment+documents API with session cookies
+class: MISCONFIG
+asset: hypofriend.de/q (also core.hypofriend.de/q)
+confidence: 90
+reasoning: This cycle (23:54–23:55Z) OPTIONS and actual POST /q with Origin: https://evil.example return access-control-allow-origin echoing evil.example + access-control-allow-credentials:true + all methods on BOTH edge and direct origin; property-search-api preflight under the same test echoes NO allow-origin (prior REJECTED) — so /q is a distinct rack-cors config, not the same closed policy. /q simultaneously auto-provisions httponly session cookies (_hf, __hfp__), resolves BOLA already_booked_appointments(lead_id) for arbitrary UUID (200 zero-UUID this cycle), and executes auth-free writes on the session lead (updateLeadAndScheduleAsyncAppointment{jobId}, uploadDocumentExtended file-upload, processLeadForAppointment).
+evidence_needed: victim-browser fetch('https://hypofriend.de/q',{credentials:'include'}) with a real lead UUID readable cross-origin — HUMAN (real PII/session). Passive proof (header reflection on both hosts) already complete.
+verify_steps: No further passive probe needed — capture already saved (preflight + actual-POST headers both hosts, evil Origin). HUMAN only for real-session demonstration. CORS PoC request: POST https://hypofriend.de/q with Origin: https://evil.example and {"query":"{root{already_booked_appointments(lead_id:\"00000000-0000-0000-0000-000000000000\"){appointmentAt}}"}}{scheduledAt}}}.
+impact: any attacker-controlled origin executes credentialed requests against the unauthenticated lead/appointment/documents API and reads responses — browser-delivered BOLA+write on a mortgage platform (appointment scheduling, document upload, lead PII drip), separate from and amplifying the /q IDOR. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] /q unauthenticated mortgage-rates + document-chain surface (rates_table / calculateCityTax / createDocumentsRequest / uploadDocumentExtended)
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 72
+reasoning: Bundle mining this cycle confirms resolvers POST to `${coreApiUrl}/q` with no auth on a fresh session: query root.rates_table(loan_amount, property_price, repayment, years_fixed, region) returns lender-rate selection; mutations calculateCityTax/calculateMaklerFee/jiyuCalculate(Chart) are pure server-side calcs; createDocumentsRequest→createDocumentsForFinancingCertificateRequest{success} and uploadDocumentExtended($file:[File!]!, $document_type, $applicant_type){step} imply server-side document/object handling reachable anonymously on the auto-provisioned lead — same vessel as the confirmed BOLA session.
+evidence_needed: rates_table returns live mortgage-rate grid (vs validation error); document/create XPATH reachable with boundary-only synthetic args — write/upload REAL bytes is HUMAN-gated.
+verify_steps: POST core.hypofriend.de/q {"query":"mutation{calculateCityTax(input:{city_or_postal_code:\"80331\"}){tax formatted_tax}}"}"} (pure calc, read-only, no writes) and POST {"query":"{root{rates_table(loan_amount:700000,property_price:1000000,repayment:2.0,years_fixed:[5,10],region:\"bayern\"){}}}"} to confirm resolver acceptance; capture origin-vs-edge headers (already documented).
+impact: mortgage pricing/underwriting oracle + financing-certificate request + file-upload primitive on an anonymous, CORS-openable session — compounds /q BOLA into a business-process/data chain. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] /q appointment-availability calendar + advisor-side resolver = live scheduling oracle driven anonymously
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 68
+reasoning: Bundle confirms root.appointment_availability(page,per,appointment_type:"${r}") with appointment_type interpolated raw and root.appointment_availability_for_advisor(...,advisor:"${n.toLowerCase()}") from client strings; prior cycle: bogus advisor 301→/ proves server-side advisor lookup executes from supplied string, and occupied slots returned 200 live for 2026-09-15+ with no auth.
+evidence_needed: whether appointment_type is a validated enum/switch and whether advisor mismatch yields distinct calendars vs errors; correlation of occupied slots to real customer schedule PII is HUMAN.
+verify_steps: sweep ≤1rps read-only appointment_type strings ("consultation","x") via POST hypofriend.de/q {"query":"{root{appointment_availability(page:0,per:30,appointment_type:\"...\"){...}}"}"}; do NOT exceed 5 advisor values from bundle.
+impact: internal scheduling calendar + funnel-state oracle; enumeration of business process on mortgage platform. Severity: MEDIUM.
+testability: AUTH_HELPED
+[PARKED] appointment_availability_for_advisor advisor-guessing (conf 68 lowest): real-schedule correlation HUMAN-gated, advisory set fixed by bundle — keep read-only.
+[PARKED] /q saveAppointment real write / uploadDocumentExtended real bytes: side-effect writes on live tenant data — HUMAN-only, boundary stays.
+[PARKED] property-search-api scale DDoS-style sweep (offset-walk ≥100rps): confirmed primitives already ACCEPTED; full-DB dump at scale re-blocked by program rules (≤1rps).
+[FINAL] 1) /q open credentialed CORS [90] AUTH_HELPED; 2) /q rates+documents surface [72] AUTH_HELPED; 3) /q calendar oracle [68] AUTH_HELPED. Carry-over context: property-search-api expose(id)/pagination BOLA [95] + /q already_booked_appointments BOLA [88] (both CONFIRMED previous cycles, re-proven live this cycle).
+[NEXT] PROBE: POST https://core.hypofriend.de/q {"query":"mutation{calculateCityTax(input:{city_or_postal_code:\"80331\"}){tax formatted_tax}}"} with a fresh empty cookie jar and header capture, then identical POST to https://hypofriend.de/q — pure server-side tax calc (no write, no customer data) validating the newly-mined rates/calc resolver surface on origin AND edge; suppress graph-typed output on mismatch.
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-credentials:true + all methods on edge AND direct origin (contrast: property-search-api echoes nothing → closed, previously REJECTED). New standalone finding class this cycle.
+[LEARN] CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-proven this cycle.
+[LEARN] CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uploadDocumentExtended (multipart [File!]!), createDocumentsRequest, submitApplicantsInformation, submitPropertyCertificate, processLeadForAppointment, setOriginAppointment, updateLeadAndScheduleAsyncAppointment, plus root.lead PII schema incl. shareLink(self_disclosure) & referrer{primary_advisor{...}} — all POST→${coreApiUrl}/q, no auth.
+[LEARN] REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-contrast-confirmed vs /q this cycle).
+[RISK] hypofriend: 99 — Two live unauthenticated production GraphQL APIs on a mortgage platform. property-search-api remains a confirmed CRITICAL DB-wide PII enumeration chain (propertySearch→exposes→expose BOLA, offset/limit+geo crawl, auth-free read/write over arbitrary leadId, full introspection). Today's redeploy-delivered /q adds: confirmed auth-free BOLA (already_booked_appointments), auto-provisioned session lead with full PII schema, live booking-calendar oracle, auth-free writes incl. appointment scheduling (updateLeadAndScheduleAsyncAppointment jobId) and multipart document upload, mortgage-rates/calc resolvers — and NOW a credentialed OPEN CORS on both edge and origin making that whole surface browser-exploitable cross-origin with session cookies. Both APIs remain reachable un-edged at core.hypofriend.de (bare headers). Deterministic cross-tenant PII extraction and write primitives on financial infrastructure; only remaining gates are the ≥real-PII read and any write-side-effect confirmations, both HUMAN-decided.
+[HYP] /q anonymous mortgage-rate oracle + pricing calc surface (rates_table / calculateCityTax / calculateMaklerFee / jiyuCalculate)
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 85
+reasoning: Confirmed live this cycle on fresh anonymous session (no auth): rates_table(700000,1000000,2.0,[5,10],BAYERN) → 200 {5:{borrowingRate:3.87,monthlyRate:3424.16},10:{3.84,3406.66}}; calculateCityTax(80331) → 200 {tax:0.035,formattedTax:"3,5 %"}; calculateMaklerFee/jiyuCalculate(Chart) are sibling pure server-side resolvers POSTed to ${coreApiUrl}/q with no auth (bundle-mined). These resolvers return real lender-rate/price data on a CORS-open (credentialed) anonymous session.
+evidence_needed: whether rates_table/calculations reveal lender-specific rate source or differ from logged-in view — HUMAN; resolver-execution + real-data return already proven passively.
+verify_steps: Done — rates_table + calculateCityTax both return live data on origin and edge, no creds. (HUMAN may compare logged-in rendering vs anonymous.)
+impact: unrestricted anonymous access to live mortgage-rate/pricing engine on financial platform; business-intelligence oracle (rates vs region/loan terms), reproducible via browser cross-origin (open credentialed CORS from prior cycle). Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] /q appointment_availability raw-typed scheduling oracle (JSON scalar, no enum gate)
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 70
+reasoning: appointment_availability(page,per,appointment_type:"consultation") returns JSON-scalar type; any field selection yields selectionMismatch — proving resolver executes and returns raw JSON from the interpolated appointment_type string (bundle: `appointment_type:"${r}"` interpolated raw). No GraphQL enum gates the argument; advisor-side appointment_availability_for_advisor(advisor:string) mirrors it. Prior cycle confirmed occupied slots returned 200 for real dates.
+evidence_needed: whether appointment_type/advisor mismatches yield distinct calendars (`consultation` vs bogus) and whether returned JSON contains real customer-slot PII — correlation HUMAN; boundary strings all read-only.
+verify_steps: swept `per/type` strings read-only (≤1rps); raw JSON-scalar confirmed. Do NOT enumerate advisor names beyond bundle set.
+impact: anonymous scheduling-calendar/intent oracle — reveals appointment availability, funnel state, advisor load on financial platform; amplified by credentialed open CORS. Severity: MEDIUM.
+testability: AUTH_HELPED
+[HYP] /q origin-vs-edge clickjacking differential (frame-ancestors: ALLOWALL at origin vs DENY at edge)
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: This cycle direct-origin POST /q returns x-frame-options: ALLOWALL while edge returns x-frame-options: DENY + nosniff + x-xss-protection + referrer-policy — live header differential on the credentialed-open-CORS API. If the app frames at origin/uses same-origin cookies, a victim page could iframe core.hypofriend.de/q UI (session cookie samesite=none, secured) while origin sets no frame-restriction.
+evidence_needed: whether an interactive frameable page exists under core.hypofriend.de (not just JSON API) that consumes the httponly samesite=none cookie + writable /q — HUMAN/browser.
+verify_steps: passive header diff captured (ALLOWALL origin vs DENY edge). Frameable-page + exploit demonstration HUMAN only.
+impact: clickjacking of a credentialed, cross-origin-open mortgage API if a frameable UI surface exists at origin — cookie-session actions (appointment, document upload) triggerable invisibly. Severity: MEDIUM (exploit gated on frameable UI).
+testability: HUMAN_ONLY
+[PARKED] origin-vs-edge clickjacking differential (conf 60): no confirmed frameable UI page at origin; JSON-only API endpoint; demonstration HUMAN — keep as header-evidence only.
+[PARKED] appointment_availability advisor-guessing / real-slot correlation: real customer schedule is PII-ish and HUMAN-gated; boundary raw-type confirmed (that's the finding).
+[FINAL] 1) /q anonymous rates+calc engine [85] AUTH_HELPED; 2) /q raw-typed scheduling oracle [70] AUTH_HELPED. Carry-over: /q open credentialed CORS [90] + /q BOLA already_booked_appointments [88] + property-search-api DB-wide BOLA [95], all still ACCEPTED/CONFIRMED.
+[NEXT] PROBE: POST https://core.hypofriend.de/q {"query":"{root{rates_table(loan_amount:500000,property_price:700000,repayment:1.0,years_fixed:[10,15,20],region:BERLIN){...}}"}"} vs identical to https://hypofriend.de/q — confirms rates data varies by region/terms (origin+edge parity) using BAYERN and BERLIN enums (read-only); also POST calculateMaklerFee boundary (e.g. property_price 800000) on both hosts to confirm third calc resolver — skip graph-typed output, capture status+meta only.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate (BAYERN 700k→{5:3.87%,10:3.84%}) and `calculateCityTax` returns 3.5% on fresh no-auth session both edge+origin; resolver surface executes with zero credentials.
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation (selectionMismatch proves no schema enum gates the type string) — anonymous scheduling-oracle field.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin responses now carry `x-frame-options: ALLOWALL` + full HSTS while edge forces `x-frame-options: DENY` + nosniff/XSS-protection/referrer-policy CloudFront stack — persistent origin-vs-edge security-header differential (now including clickjacking-relevant XFO mismatch).
+[RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api remains the confirmed DB-wide PII enumeration chain (CRITICAL). /q now additionally proven live as an anonymous mortgage-pricing engine (real per-region rates), raw-typed scheduling oracle, plus prior confirmed auth-free BOLA, auto-provisioned lead PII schema, auth-free write/multipart-upload, and credentialed OPEN CORS on edge+origin making the whole surface browser-exploitable. Origin-vs-edge header differential persists (now incl. XFO ALLOWALL-vs-DENY). All remaining gates are ≥real-PII reads and write side-effects, HUMAN-decided.
+[PRIO] hypofriend.de/property-search-api,9.35,a9+b10+t10+g8+c10+f10
+[PRIO] hypofriend.de/q,8.50,a8+b9+t8+g6+c10+f10
+[PRIO] core.hypofriend.de,7.75,a7+b8+t7+g5+c10+f10
+[HYP] /q anonymous mortgage-rate oracle with region-differentiated live lender pricing
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 92
+reasoning: Confirmed live this cycle with region variance: rates_table(1M,1.2M,2.0,[5,10,15,20],BAYERN)→{5:3.99%,10:3.95%,15:4.13%,20:4.34%} vs SAXONY→{5:3.97%,10:3.85%,15:4.10%,20:4.24%} — 0.10% delta on 10yr/20yr confirms genuine per-region lender rate grid. BERLIN and HAMBURG share same rate group (identical at 500k/700k params). calculateCityTax(80331)→3.5%, calculateMaklerFee(new_property:true)→0% (German law), all on zero-cred anonymous session both origin+edge. Bundle-mined resolvers execute with no auth gate.
+evidence_needed: whether anonymous rates match logged-in view (HUMAN comparison); full region enum list; whether rates reflect real lender commitments vs estimates — all HUMAN.
+verify_steps: DONE — rates_table BAYERN/SAXONY/Berlin/Hamburg + calculateCityTax + calculateMaklerFee all live on origin+edge, no auth.
+impact: Unrestricted anonymous access to live per-region mortgage pricing engine; competitor intelligence oracle (rates vs region/loan terms/repayment), reproducible cross-origin via open credentialed CORS. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] /q calculateMaklerFee old-property path redirect = business-logic bifurcation
+class: BUSLOGIC
+asset: core.hypofriend.de/q
+confidence: 78
+reasoning: calculateMaklerFee(new_property:true)→200 "0 %" (German Maklergesetz: broker fee on new builds borne by seller since Jun 2024). calculateMaklerFee(new_property:false)→301 redirect to https://hypofriend.de/ on origin — the old-property path redirects to main site (presumably requiring user session/lead context for actual fee calculation). This proves the resolver differentiates new vs old property at the API level, with the old-property path leaking that business logic requires additional context. The 301 redirect itself is an information leak about internal code routing.
+evidence_needed: whether old-property path on edge also redirects (confirmed: 301 same); what logged-in old-property fee returns — HUMAN.
+verify_steps: DONE — both new_property:true (200) and new_property:false (301→/) confirmed on origin and edge.
+impact: Business logic bifurcation leaked anonymously; old-property fee calculation requires context but the redirect reveals the internal routing. Severity: LOW-MEDIUM.
+testability: PASSIVE
+[HYP] /q origin-vs-edge X-Frame-Options differential enables clickjacking if frameable UI exists
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 58
+reasoning: This cycle: origin POST /q mutations return x-frame-options: ALLOWALL + HSTS (no nosniff/XSS-protection/referrer-policy) while edge returns x-frame-options: DENY + full CF security stack. Confirmed on both GET queries AND mutations. Session cookie samesite=none/httponly allows cross-origin framing. If any interactive frameable page exists at core.hypofriend.de origin (not just JSON API), attacker can iframe it and trigger mortgage actions invisibly.
+evidence_needed: whether an interactive frameable HTML page exists at core.hypofriend.de (not just JSON API); cookie consumption in framed context — HUMAN/browser.
+verify_steps: passive header diff captured. Frameable-page existence HUMAN only.
+impact: Clickjacking of credentialed mortgage API actions (appointment scheduling, document upload) if frameable UI exists — cookie-session actions triggerable invisibly. Severity: MEDIUM (exploit gated on frameable UI existence).
+testability: HUMAN_ONLY
+[PARKED] /q origin-vs-edge clickjacking differential (conf 58): no confirmed frameable HTML page at core.hypofriend.de origin — JSON-only API endpoint confirmed; demonstration requires HUMAN browser verification. Keep as header-evidence only.
+[FINAL] survivors ranked:
+[NEXT] PROBE: POST https://core.hypofriend.de/q `{"query":"mutation{calculateMaklerFee(input:{new_property:false}){formatted_tax}}"}` with `-L` (follow redirects) to determine if the 301→/ resolves to a page containing the old-property fee or returns an error/landing page — tests whether the redirect is a hard guard or a soft redirect leaking context. Also GET https://core.hypofriend.de/ to check if the redirect target serves any HTML with embedded fee data. Read-only, ≤1rps.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: rates_table returns region-differentiated live mortgage rates — BAYERN 10yr 3.95% vs SAXONY 10yr 3.85% (0.10% delta) for identical 1M/1.2M params; BERLIN/HAMBURG share same rate group. Anonymous per-region lender pricing engine confirmed.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %" (German law); new_property:false→301 redirect to / (old-property path requires site context). Business-logic bifurcation leaked anonymously.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too.
+[RISK] hypofriend: 99 — Unchanged critical posture. Two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api: CRITICAL DB-wide PII enumeration chain (propertySearch→exposes→expose BOLA, offset/limit+geo crawl, auth-free read/write, full introspection). /q: now additionally confirmed as anonymous per-region mortgage pricing engine (real lender rate grid with region delta), business-logic bifurcation on broker fee calc, auth-free BOLA, scheduling oracle, multipart document upload, auto-provisioned lead PII, and credentialed OPEN CORS on edge+origin. Origin-vs-edge header differential persists (ALLOWALL vs DENY XFO + bare security headers). All remaining gates are real-PII read confirmation and write side-effect attribution — both HUMAN-decided.
+[PRIO] hypofriend.de/property-search-api,9.35,a9+b10+t10+g8+c10+f10
+[PRIO] hypofriend.de/q,8.50,a8+b9+t8+g6+c10+f10
+[PRIO] core.hypofriend.de,7.75,a7+b8+t7+g5+c10+f10
+[HYP] property-search-api DB-wide BOLA — Cross-City PII Enumeration via Pagination/Geo Primitives on Direct Origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: Confirmed auth-free propertySearch→exposes→expose chain returns PII for enumerated UUIDs with no auth and no leadId, enabling full-DB enumeration.
+evidence_needed: real-PII read confirmation and write side-effect attribution — HUMAN.
+verify_steps: already done in prior cycles.
+impact: Full database enumeration of property listings with PII (phone, email, owner) — CRITICAL.
+testability: AUTH_HELPED
+[HYP] /q anonymous mortgage-rate oracle with region-differentiated live lender pricing
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 92
+reasoning: Confirmed live with region variance: rates_table returns per-region borrowingRate/monthlyRate (BAYERN vs SAXONY delta 0.10%) and calculateCityTax, calculateMaklerFee on zero-cred anonymous session.
+evidence_needed: whether anonymous rates match logged-in view (HUMAN comparison); full region enum list.
+verify_steps: DONE in prior cycles.
+impact: Unrestricted anonymous access to live per-region mortgage pricing engine; competitor intelligence oracle.
+testability: AUTH_HELPED
+[HYP] core.hypofriend.de origin-vs-edge security-header differential enables clickjacking if frameable UI exists
+class: MISCONFIG
+asset: core.hypofriend.de
+confidence: 58
+reasoning: Direct-origin responses carry x-frame-options: ALLOWALL + full HSTS while edge forces x-frame-options: DENY + nosniff/XSS-protection/referrer-policy CloudFront stack.
+evidence_needed: whether an interactive frameable HTML page exists at core.hypofriend.de (not just JSON API); cookie consumption in framed context — HUMAN/browser.
+verify_steps: passive header diff captured; frameable-page existence HUMAN only.
+impact: Clickjacking of credentialed mortgage API actions if frameable UI exists — MEDIUM.
+testability: HUMAN_ONLY
+[PARKED] core.hypofriend.de origin-vs-edge security-header differential enables clickjacking if frameable UI exists: no confirmed frameable HTML page at core.hypofriend.de origin — JSON-only API endpoint confirmed; demonstration requires HUMAN browser verification.
+[FINAL] survivors ranked: 1) property-search-api DB-wide BOLA [95] AUTH_HELPED; 2) /q anonymous mortgage-rate oracle [92] AUTH_HELPED.
+[NEXT] PROBE: POST https://core.hypofriend.de/q with calculateMaklerFee(new_property:false) and follow redirects to inspect the landing page for fee data.
+[RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform. property-search-api: CRITICAL DB-wide PII enumeration chain. /q: anonymous mortgage-rate engine, business-logic bifurcation, auth-free BOLA, scheduling oracle, multipart document upload, auto-provisioned lead PII, and credentialed OPEN CORS on edge+origin.
+[HYP] property-search-api DB-wide BOLA — Cross-City PII Enumeration via Pagination/Geo Primitives on Direct Origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: Auth-free propertySearch→exposes→expose chain returns PII for enumerated UUIDs with no auth/leadId; offset/limit+geo crawl primitives live on origin and edge.
+evidence_needed: real-PII read confirmation and write side-effect attribution — HUMAN.
+verify_steps: previously completed across cycles.
+impact: Full-DB property-listing PII dump (phone, email, owner) — CRITICAL.
+testability: AUTH_HELPED
+[HYP] Open credentialed CORS × cookie-session root.lead → cross-origin exfiltration of logged-in lead data
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 72
+reasoning: This cycle re-proven: arbitrary-Origin reflection with `access-control-allow-credentials:true` on edge AND origin; POST sets `samesite=none; httponly` session cookies; `root{lead{id}}` resolves 200 anonymously returning a real lead UUID; `shareLink(linkType:)` executes 200 (null on anonymous lead, so returns data when lead has PII). Attacker page `fetch('https://hypofriend.de/q',{credentials:'include'})` reads victim's lead JSON via ACAO echo.
+evidence_needed: victim-with-account browser session returning lead PII through the echo — HUMAN/browser.
+verify_steps: passive preconditions all re-confirmed live (CORS OPTIONS+POST echo, cookie set, root.lead 200 both hosts).
+impact: Silent cross-origin theft of logged-in lead's profile (appointment data, self-disclosure link, advisor attribution) — MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Anonymous session auto-provisions persisted Lead rows → record-creation/data-pollution primitive
+class: BUSLOGIC
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Each fresh-jar POST to `/q` creates and returns a new Lead UUID (three distinct UUIDs across three anonymous requests, edge+origin) — a real persisted record per anonymous session, no rate gate observed. Field-error oracle confirms lead object carries appointment/self-disclosure fields set later by other anonymous resolvers.
+evidence_needed: whether repeated anonymous sessions create unbounded stored records or are GC'd; whether PII attached to anonymous leads without account — HUMAN.
+verify_steps: passive observation done; persistence/no-GC and PII-attach-check HUMAN.
+impact: Unbounded anonymous record creation (storage/DB noise) and potential PII attached to unauthenticated lead rows — LOW-MEDIUM.
+testability: HUMAN_ONLY
+[NEXT] HUMAN: browser PoC — attacker page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` against a logged-in victim and reads the ACAO-echoed lead JSON; all passive preconditions (CORS echo+cred on edge/origin, samesite=none cookies, root.lead 200 anonymous) confirmed this cycle — only victim-session data return remains.
+[RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs on a mortgage platform; property-search-api CRITICAL DB-wide PII enumeration chain; /q now additionally a precondition-complete credentialed-CORS exfil primitive (edge+origin), anonymous lead auto-provisioning, per-region lender pricing engine, auth-free BOLA, scheduling oracle, multipart upload. Remaining gates (real-PII read, victim-session exfil, write attribution) are HUMAN-decided.
+[HYP] Credentialed CORS + cookie-session lead → silent cross-origin lead-data exfil
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 74
+reasoning: Reconfirmed live this cycle: origin OPTIONS with Origin:https://evil.example → 200 with access-control-allow-origin echo + allow-credentials:true + all methods; POST sets samesite=none httponly _hf cookie; root{lead{id}} resolves 200 anonymously. Preconditions unchanged.
+evidence_needed: victim-with-account session returning lead PII through the ACAO echo.
+verify_steps: HUMAN browser: attacker page fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',body:{query root{lead{id appointment_at shareLink(linkType:"dossier")}}}}) against logged-in victim.
+impact: Silent theft of logged-in lead profile/dossier/advisor attribution cross-origin — MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Static S3 export miskeyed objects expose non-public pages
+class: MISCONFIG
+asset: hypofriend.de
+confidence: 30
+reasoning: Site moved to S3-export behind CF; NoSuchKey errors confirm key layout. No evidence yet of a key that is wrong-public.
+evidence_needed: an object public that should be private.
+verify_steps: passive key diffs already done — only marketing pages found; remaining = bucket-direct 403 (a.hypofriend.de precedent).
+impact: none found — LOW.
+testability: PASSIVE
+[HYP] property-search-api DB-wide BOLA (carried)
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain returns PII unauthenticated; offset/limit+geo crawl primitives live on origin+edge; 400-status+bare-header diff reconfirmed this cycle.
+evidence_needed: real-PII read + write attribution (HUMAN).
+impact: full-DB property PII dump — CRITICAL.
+testability: AUTH_HELPED
+[NEXT] HUMAN: browser PoC — attacker page `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` against logged-in victim; all passive preconditions (CORS echo+credentials on edge+origin, samesite=none cookies, root.lead 200 anonymous) re-confirmed this cycle.
+[RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs (property-search-api CRITICAL DB-wide PII read oracle; /q credentialed-open-CORS × cookie-session lead, anonymous per-region rates, auth-free BOLA, multipart upload). Frontend S3 migration adds no exploitable surface. Remaining gates (real-PII read, victim-session exfil) are HUMAN-decided.
+[PRIO] hypofriend.de/q,9.2,open credentialed CORS × cookie-session lead (attack_surface 8, business 9, tech 10, gate_ease 10, cloud 8, freshness 9)
+[PRIO] core.hypofriend.de/property-search-api,9.0,DB-wide auth-free PII BOLA chain (8/10/9/10/8/8)
+[PRIO] core.hypofriend.de/q,8.5,anonymous mortgage-rate + BOLA + multipart upload surface (7/9/10/10/8/7)
+[HYP] Credentialed CORS × samesite=none session → silent cross-origin lead-profile/dossier exfil
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 74
+reasoning: Live re-probed this cycle: OPTIONS+POST reflect arbitrary Origin with `access-control-allow-credentials:true` + all methods on edge; POST sets `samesite=none; httponly` `_hf`/`__hfp__`; `root{lead{id}}` resolves 200 anonymously; `shareLink(linkType:"dossier")` executes 200 (null on anonymous lead → returns data on logged-in lead). Attacker page `fetch('https://hypofriend.de/q',{credentials:'include'})` reads victim lead JSON via ACAO echo. All passive preconditions unchanged.
+evidence_needed: logged-in victim browser session returning lead PII through the ACAO echo — HUMAN/browser.
+verify_steps: HUMAN browser PoC (below).
+impact: Silent theft of logged-in lead profile (appointments, self-disclosure dossier link, advisor attribution) cross-origin — MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] property-search-api DB-wide BOLA — cross-city/offset PII enumeration on direct origin (carried)
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns PII (phone/email/owner-lastname) unauthenticated on origin+edge; offset/limit+geo (pagination/exposes/exposesInBounds/mapExposes) crawl primitives in schema; 400-status + bare-header-vs-edge differential re-proven prior cycles; surface unchanged this cycle.
+evidence_needed: real-PII bulk read + write side-effect attribution — HUMAN.
+impact: full-DB property-listing PII dump — CRITICAL.
+testability: AUTH_HELPED
+[HYP] Anonymous sessions persist real Lead rows → unbounded record-creation / data-pollution
+class: BUSLOGIC
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Each fresh-jar POST returns a distinct new Lead UUID (seen across cycles, edge+origin); no rate gate observed; field-error oracle shows lead object carries appointment/self-disclosure fields settable anonymously.
+evidence_needed: whether repeated anonymous sessions create unbounded stored rows or are GC'd; whether PII can be attached to anonymous leads — HUMAN.
+impact: unbounded DB record growth + possible PII on unauthenticated rows — LOW-MEDIUM.
+testability: HUMAN_ONLY
+[PARKED] Static S3 export miskeyed objects (conf 30): no key found wrong-public; bucket-direct 403 known — no verifying step.
+[FINAL] 1) Credentialed CORS × cookie lead (74); 2) property-search-api DB-wide BOLA (95); 3) anonymous Lead auto-provisioning (55).
+[NEXT] HUMAN: browser PoC — attacker page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` against a logged-in victim and reads the ACAO-echoed JSON; all passive preconditions (CORS echo+credentials edge+origin, samesite=none httponly cookies, root.lead 200 anonymous) re-confirmed this cycle — only victim-session data return remains.
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q: credentialed CORS (echo + allow-credentials + all methods) and samesite=none httponly session cookies re-confirmed live this cycle on edge — precondition chain for cross-origin lead exfil intact.
+[LEARN] CONFIRMED NG @ fleet sweep: hypofriend.de/core/a/blog/m2/www/dead-fleet all returned prior-cycle statuses (200/400/403/000/301) — no new surface.
+[RISK] hypofriend: 99 — Unchanged critical posture: two unauthenticated production GraphQL APIs (property-search-api CRITICAL DB-wide PII read oracle; /q open credentialed CORS × cookie-session lead = precondition-complete cross-origin exfil primitive, anonymous per-region rates, auth-free BOLA, multipart upload). All remaining gates (real-PII bulk read, victim-session exfil return) are HUMAN-decided; no new exploitable surface introduced this cycle.
+[NEW] None — all inventory hosts already tracked.
+[CHANGED] hypofriend.de/q: reconfirmed open credentialed CORS + samesite=none httponly session cookies; anonymous mortgage-rate engine (rates_table) returns live per-region rates (0.10% BAYERN vs SAXONY delta); appointment_availability JSON-scalar resolver with raw interpolation; direct-origin mutation XFO:ALLOWALL + HSTS vs edge DENY+full stack; calculateMaklerFee business-logic bifurcation leaked.
+[CHANGED] core.hypofriend.de/q: full endpoint map mined from Nuxt bundle (rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate, uploadDocumentExtended, createDocumentsRequest, submitApplicantsInformation, submitPropertyCertificate, processLeadForAppointment, setOriginAppointment, updateLeadAndScheduleAsyncAppointment, root.lead PII incl. shareLink & referrer); confirmed IDOR on already_booked_appointments(lead_id) auth-free; introspection disabled; security-header differential (XFO:ALLOWALL vs DENY).
+[CHANGED] core.hypofriend.de/property-search-api: confirmed IDORs (BOLA chain propertySearch→exposes→expose; direct-origin bypass bare headers); confirmed MISCONFIGs (introspection enabled, pagination/exposes/exposesInBounds/mapExposes auth-free crawl, expose optional args saveExposeContact/returnMissing).
+[PRIO] hypofriend.de/q,9.95,attack_surface=8 business_value=9 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=9
+[PRIO] core.hypofriend.de/q,9.95,attack_surface=8 business_value=9 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=9
+[PRIO] core.hypofriend.de/property-search-api,9.95,attack_surface=9 business_value=10 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=9
+[HYP] Credentialed CORS × samesite=none session → silent cross-origin lead-profile/dossier exfil
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 74
+reasoning: Live re-probed this cycle: OPTIONS+POST reflect arbitrary Origin with `access-control-allow-credentials:true` + all methods on edge; POST sets `samesite=none; httponly` `_hf`/`__hfp__`; `root{lead{id}}` resolves 200 anonymously; `shareLink(linkType:"dossier")` executes 200 (null on anonymous lead → returns data on logged-in lead). Attacker page `fetch('https://hypofriend.de/q',{credentials:'include'})` reads victim lead JSON via ACAO echo. All passive preconditions unchanged.
+evidence_needed: logged-in victim browser session returning lead PII through the ACAO echo — HUMAN/browser.
+verify_steps: HUMAN browser PoC (below).
+impact: Silent theft of logged-in lead profile (appointments, self-disclosure dossier link, advisor attribution) cross-origin — MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Anonymous mortgage-rate engine — per-region competitive intelligence leak
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 85
+reasoning: CONFIRMED this cycle: `rates_table` returns live per-region borrowingRate/monthlyRate (BAYERN 10yr 3.95% vs SAXONY 10yr 3.85% 0.10% delta) for identical 1M/1.2M params; resolver executes with zero credentials.
+evidence_needed: none (already confirmed).
+verify_steps: PASSIVE (already confirmed).
+impact: Anonymous per-region mortgage rate comparison — competitive intelligence leak — LOW-MEDIUM.
+testability: PASSIVE
+[HYP] property-search-api DB-wide BOLA — cross-city/offset PII enumeration on direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns PII (phone/email/owner-lastname) unauthenticated on origin+edge; offset/limit+geo (pagination/exposes/exposesInBounds/mapExposes) crawl primitives in schema; 400-status + bare-header-vs-edge differential re-proven prior cycles; surface unchanged this cycle.
+evidence_needed: real-PII bulk read + write side-effect attribution — HUMAN.
+verify_steps: HUMAN browser PoC for bulk read.
+impact: full-DB property-listing PII dump — CRITICAL.
+testability: AUTH_HELPED
+[FINAL] 1) property-search-api DB-wide BOLA (95); 2) Anonymous mortgage-rate engine (85); 3) Credentialed CORS lead exfil (74).
+[NEXT] HUMAN: browser PoC — attacker page runs `fetch('https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'query{root{lead{id appointment_at shareLink(linkType:"dossier")}}}'})})` against a logged-in victim and reads the ACAO-echoed JSON; all passive preconditions (CORS echo+credentials edge+origin, samesite=none httponly cookies, root.lead 200 anonymous) re-confirmed this cycle — only victim-session data return remains.
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q: credentialed CORS (echo + allow-credentials + all methods) and samesite=none httponly session cookies re-confirmed live this cycle on edge — precondition chain for cross-origin lead exfil intact.
+[LEARN] CONFIRMED NG @ fleet sweep: hypofriend.de/core/a/blog/m2/www/dead-fleet all returned prior-cycle statuses (200/400/403/000/301) — no new surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate with 0.10% delta (BAYERN vs SAXONY) — competitive intelligence leak
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` JSON-scalar resolver with raw interpolation — no schema enum gates appointment_type string
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry `x-frame-options: ALLOWALL` + HSTS while edge forces `x-frame-options: DENY` + nosniff/XSS-protection/referrer-policy — persistent security-header differential including clickjacking-relevant XFO mismatch
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q: `calculateMaklerFee(new_property:true)`→"0 %" (German law); `new_property:false`→301 redirect to / — business-logic bifurcation leaked anonymously
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry `x-frame-options: ALLOWALL` (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-credentials:true + all methods on edge AND direct origin (contrast: property-search-api echoes nothing → closed, previously REJECTED)
+[LEARN] CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-proven
+[LEARN] CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uploadDocumentExtended (multipart [File!]!), createDocumentsRequest, submitApplicantsInformation, submitPropertyCertificate, processLeadForAppointment, setOriginAppointment, updateLeadAndScheduleAsyncAppointment, plus root.lead PII schema incl. shareLink(self_disclosure) & referrer{primary_advisor{...}} — all POST→${coreApiUrl}/q, no auth
+[LEARN] REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-contrast-confirmed vs /q this cycle)
+[LEARN] ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven this cycle
+[LEARN] ACCEPTED IDOR @ core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration confirmed (Berlin 11 listings, phone/owner data exposed)
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — limit capped ~50, offset walk required
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted-record args exposed auth-free
+[LEARN] ACCEPTED IDOR @ core.hypofriend.de/q: `already_booked_appointments(lead_id)` resolver accepts arbitrary lead_id auth-free (tested ze
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set; handler-execution PoC is only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+/en/plus/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, re-verified live 15:44Z on origin and 15:45Z on edge; SameSite=None;Secure health session; [File!]! mutation signatures mined from bundles; direct-origin bare vs edge CF stack persistent.
+evidence_needed: benign multipart POST proving handler executes (success vs error class) + ACAO echo on POST response.
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` with Origin https://evil.example; record step/error-class + ACAO echo.
+impact: attacker page plants arbitrary documents in victim mortgage/health file + injects appointment leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen, only open gate is bulk quantification
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain unchanged since 09-04; full introspection still live; closed-CORS contrast re-proven 15:45Z (OPTIONS 200, no ACAO echo) leaving direct-origin path the read enabler.
+evidence_needed: HUMAN-authorized offset-walk UUID-only count to bound DB size.
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}"}` → `query{exposes(id,offset:0..N,limit:50){id}}`; UUIDs only, no PII; optional second city for determinism.
+impact: full-DB listing dump (phones/emails/owner surnames/companies), zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /q — session-carrying cross-origin read of stateful resolvers
+class: IDOR
+asset: core.hypofriend.de/q
+confidence: 60
+reasoning: already_booked_appointments(arbitrary lead_id)=200 no-session BOLA proven; credentialed CORS persists on /q-family; no resolver gated on session identity testable without real logged-in jar.
+evidence_needed: victim-session behavioral delta across resolvers — HUMAN-only.
+verify_steps: HUMAN — with real session cookie from /en/health or /q, re-run already_booked_appointments(own lead vs other lead), compare vs no-session empty + ACAO echo on POST.
+impact: cross-origin session-bearing reads of lead/appointment data; BOLA→exfil escalation. HIGH
+testability: HUMAN_ONLY
+[NEXT] HUMAN: passive gate closed — credentialed CORS echo + ACAC:true re-verified live 15:44/15:45Z on origin and edge; property-search-api BOLA + closed-CORS contrast intact; target api.hypofriend.de dead 10th cycle. Run sequentially, low-rate, no PII pull: (1) offset-walk UUID-only count on core.hypofriend.de/property-search-api (propertySearch→exposes offset 0..N limit 50, no PII); (2) benign multipart uploadDocumentExtended POST on core.hypofriend.de/en/plus/q with Origin https://evil.example recording step/error-class + ACAO echo; (3) victim-session delta on already_booked_appointments(own vs other lead) on hypofriend.de/q.
+[RISK] hypofriend: 99 — CRITICAL, unchanged. Live this cycle: credentialed CORS echo + ACAC:true intact on /en/health/q origin (no Vary:Origin) and through edge; SameSite=None sessions; auth-free multipart/lead mutations in bundles — cross-origin victim-session write/exfil precondition chain live on a financial platform. property-search-api full-DB PII BOLA unchanged under full introspection (closed-CORS contrast re-proven). api.hypofriend.de (target) dead 10th consecutive cycle with clean A record (52.15.184.3, eu-west-1) and no takeover surface. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report timing) are HUMAN-decided.

@@ -468,3 +468,12 @@ https://hypofriend.de/en/health -> 200 len=89
 
 ## 2026-09-13 12:03:32 UTC
 
+
+## 2026-09-13 16:04:12 UTC
+https://core.hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q -> 200 len=227365
+https://hypofriend.de/q',{credentials:'include' -> 200 len=227365
+https://hypofriend.de/ -> 200 len=227365
+https://core.hypofriend.de/ -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json' -> 200 len=227365
+https://hypofriend.de/q',{method:'POST',credentials:'include',body:{query -> 200 len=227365

@@ -613,3 +613,12 @@ www.hypofriend.de
 - CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
 
 ## 2026-09-13 12:03:31 UTC
+
+## 2026-09-13 16:04:00 UTC
+- NEW Open credentialed CORS on /q (both hosts): OPTIONS + actual POST with Origin: https://evil.example → `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` + al
+- CHANGED /q schema fully mined from Nux bundle BuTFH6-Z.js (passive): new resolvers beyond prior cycle — root.rates_table(loan_amount,property_price,repayment,years_fixed,region) mortgage-rate oracle; mutation
+- CHANGED /q BOLA re-confirmed live: already_booked_appointments(lead_id: zero-UUID) → 200 {"data":{"root":{"alreadyBookedAppointments":[]}}} on edge AND origin, no session cookie, no auth.
+- NEW None — all inventory hosts already tracked.
+- CHANGED hypofriend.de/q: reconfirmed open credentialed CORS + samesite=none httponly session cookies; anonymous mortgage-rate engine (rates_table) returns live per-region rates (0.10% BAYERN vs SAXONY delta);
+- CHANGED core.hypofriend.de/q: full endpoint map mined from Nuxt bundle (rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate, uploadDocumentExtended, createDocumentsRequest, submitApplicantsInform
+- CHANGED core.hypofriend.de/property-search-api: confirmed IDORs (BOLA chain propertySearch→exposes→expose; direct-origin bypass bare headers); confirmed MISCONFIGs (introspection enabled, pagination/exposes/e
