@@ -611,3 +611,5 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/property-search-api full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
 - CHANGED core.hypofriend.de/q direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including /en/health/q and /en/plus/q — persistent
 - CHANGED Fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-13 12:03:31 UTC

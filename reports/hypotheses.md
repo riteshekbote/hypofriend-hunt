@@ -1814,3 +1814,7 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including 
 - LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
 - LEARN: ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-12 21:09Z — dead 6th consecutive cycle, no surface
+
+## RANKED HYPOTHESES 2026-09-13 12:03:31 UTC
+- [95] core.hypofriend.de/property-search-api: property-search-api — full-DB auth-free PII BOLA; existence frozen, only open gate is bulk quantification (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: passive gate closed (credentialed CORS re-verified live 11:57Z on core.hypofriend.de/en/health/q origin; property-search-api BOLA + closed-CORS contrast 
