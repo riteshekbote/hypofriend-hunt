@@ -341,3 +341,15 @@
 - 2026-09-12 CONFIRMED NG @ core.hypofriend.de/property-search-api: OPTIONS 23:05Z 200 with only date/content-length, NO ACAO echo — CORS closed there, contrast-class versus /q-family (consistent with prior REJECTED).
 - 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 23:04Z on :80/:443 — dead 7th consecutive cycle, resolves fine, no takeover surface, target unchanged.
 - 2026-09-12 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-12 21:09Z — dead 6th consecutive cycle, no surface
+- 2026-09-13 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS re-verified live 2026-09-13 — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200); `vary: Accept-Encoding` (no Vary:Origin); origin path unchanged.
+- 2026-09-13 ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed 2026-09-13 on :80/:443 (12s timeouts, resolves fine) — dead 8th consecutive cycle, no takeover surface, target unchanged.
+- 2026-09-13 ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor endpoint, branding; new surface this cycle
+- 2026-09-13 ACCEPTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: open credentialed CORS on edge AND origin — OPTIONS/POST reflect arbitrary Origin with ACAC:true + all methods
+- 2026-09-13 ACCEPTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: auth-free mutations uploadDocumentExtended, processLeadForAppointment execute 200 without auth
+- 2026-09-13 ACCEPTED MISCONFIG @ hypofriend.de/en/health: session cookies with SameSite=None; Secure set (__hfp___hypofriend.health__) — enables credential forwarding
+- 2026-09-13 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q, /en/plus/q: direct-origin GraphQL responses bare (date/content-length/ACAO only) vs edge full CF stack — WAF bypass confirmed
+- 2026-09-13 REJECTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
+- 2026-09-13 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
+- 2026-09-13 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including /en/health/q and /en/plus/q
+- 2026-09-13 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-13 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-12 21:09Z — dead 6th consecutive cycle, no surface
