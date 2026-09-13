@@ -1,4 +1,4 @@
-## 2026-09-13 18:33:04 UTC [target] (model nemotron3)
+## 2026-09-13 21:08:48 UTC [target] (model nemotron3)
 [PRIO] core.hypofriend.de/property-search-api,9.8,attack_surface=10 business_value=10 tech_exposure=10 gate_ease=10 cloud_surface=9 freshness=9
 [PRIO] core.hypofriend.de/en/health/q,9.5,attack_surface=10 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=9 freshness=10
 [PRIO] hypofriend.de/en/health/q,9.3,attack_surface=10 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=10
@@ -33,8 +33,6 @@ evidence_needed: From attacker-controlled origin, POST mutation with credentials
 verify_steps: OPTIONS https://hypofriend.de/en/health/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" — confirm ACAO: https://evil.example + ACAC:true; POST https://hypofriend.de/en/health/q -H "Origin: https://evil.example" -H "Content-Type: application/json" --data '{"query":"mutation{processLeadForAppointment(input:{}){__typename}}"}' — confirm CORS headers present with credentials:include
 impact: Cross-origin mutation theft on CloudFront edge — document upload, applicant PII submission, appointment scheduling on financial platform. Combined with origin bypass, attacker can choose weaker path. Severity: CRITICAL
 testability: PASSIVE
-[PARKED] core.hypofriend.de/en/health/q & /en/plus/q Direct-Origin Security Header Bypass → WAF/Rate-Limit Evasion for Mutations: Confidence 95 but burst test (50+ rps) exceeds passive-first ≤1 rps gate; requires HUMAN_ONLY authorization for load testing. Downgrade to PARKED pending controlled test.
-[PARKED] *.local.hypofriend.de ngrok custom-domain takeover: Confidence 55, HUMAN_ONLY — ERR_NGROK_3200 confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact; takeover requires human ngrok account claim verification.
 [FINAL] 1. core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 99, PASSIVE
 [FINAL] 2. core.hypofriend.de/en/health/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation — confidence 98, PASSIVE
 [FINAL] 3. hypofriend.de/en/health/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation (Edge) — confidence 97, PASSIVE
