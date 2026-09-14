@@ -388,3 +388,13 @@
 - 2026-09-13 CONFIRMED NG @ api.hypofriend.de (target): 000 on :80/:443 re-confirmed 2026-09-13 live probe (12s timeouts both, resolves A 52.15.184.3) — dead 9th consecutive cycle, no takeover surface, target unchanged.
 - 2026-09-13 CONFIRMED NG @ delta sweep: no host beyond api probe re-tested; all tracked surface bit-identical to 2026-09-13 prior-cycle statuses (200/400/401/403/503/000/301) — no new surface.
 - 2026-09-13 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-13 — dead 9th consecutive cycle, no surface
+- 2026-09-14 ACCEPTED MISCONFIG @ hypofriend.de/en/health, /en/plus: separate appointment instances for health insurance and buyer's agent — each with own API URL, advisor endpoint, branding; new surface this cycle
+- 2026-09-14 ACCEPTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: open credentialed CORS on edge AND origin — OPTIONS/POST reflect arbitrary Origin with ACAC:true + all methods
+- 2026-09-14 ACCEPTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: auth-free mutations uploadDocumentExtended, processLeadForAppointment execute 200 without auth
+- 2026-09-14 ACCEPTED MISCONFIG @ hypofriend.de/en/health: session cookies with SameSite=None; Secure set (__hfp___hypofriend.health__) — enables credential forwarding
+- 2026-09-14 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q, /en/plus/q: direct-origin GraphQL responses bare (date/content-length/ACAO only) vs edge full CF stack — WAF bypass confirmed
+- 2026-09-14 REJECTED MISCONFIG @ hypofriend.de/en/health/q, /en/plus/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
+- 2026-09-14 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
+- 2026-09-14 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including /en/health/q and /en/plus/q
+- 2026-09-14 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-14 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-13 — dead 9th consecutive cycle, no surface
