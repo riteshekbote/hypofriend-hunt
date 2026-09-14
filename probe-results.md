@@ -519,3 +519,9 @@ https://core.hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/en/health/q -> 200 len=228508
 https://hypofriend.de/en/health/q -> 200 len=228508
 https://hypofriend.de/en/health -> 200 len=89
+
+## 2026-09-14 22:17:13 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/en/health/q -> 200 len=228508
+https://hypofriend.de/en/health/q -> 200 len=228508
+https://hypofriend.de/en/health -> 200 len=89
