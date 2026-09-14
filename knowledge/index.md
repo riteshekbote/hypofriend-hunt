@@ -400,3 +400,5 @@
 - 2026-09-14 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-13 — dead 9th consecutive cycle, no surface
 - 2026-09-14 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin) + SameSite=None;Secure session cookie + origin XFO:ALLOWALL live re-verified 2026-09-14T06:22Z — precondition chain intact.
 - 2026-09-14 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed live 06:22Z — dead 11th consecutive cycle, A record clean, no takeover surface, target unchanged.
+- 2026-09-14 CONFIRMED NG @ api.hypofriend.de: 000 timeout re-confirmed 06:22Z on :80/:443 — dead 11th consecutive cycle, A record clean, no takeover surface, target unchanged.
+- 2026-09-14 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB auth-free PII BOLA unchanged — existence frozen, only open gate is HUMAN bulk quantification.
