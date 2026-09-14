@@ -1,7 +1,11 @@
-## 2026-09-14 13:32:18 UTC [target] (model nemotron3)
+## 2026-09-14 18:43:16 UTC [target] (model nemotron3)
 [PRIO] core.hypofriend.de/property-search-api,9.8,attack_surface=10 business_value=10 tech_exposure=10 gate_ease=10 cloud_surface=9 freshness=9
 [PRIO] core.hypofriend.de/en/health/q,9.5,attack_surface=10 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=9 freshness=10
 [PRIO] hypofriend.de/en/health/q,9.3,attack_surface=10 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=10
+[PRIO] core.hypofriend.de/en/plus/q,9.2,attack_surface=10 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=9 freshness=10
+[PRIO] hypofriend.de/en/plus/q,9.0,attack_surface=10 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=10
+[PRIO] core.hypofriend.de/q,8.8,attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=9 freshness=8
+[PRIO] hypofriend.de/q,8.5,attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=8
 [HYP] core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale
 class: IDOR
 asset: core.hypofriend.de/property-search-api
@@ -29,6 +33,9 @@ evidence_needed: From attacker-controlled origin, POST mutation with credentials
 verify_steps: OPTIONS https://hypofriend.de/en/health/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" — confirm ACAO: https://evil.example + ACAC:true; POST https://hypofriend.de/en/health/q -H "Origin: https://evil.example" -H "Content-Type: application/json" --data '{"query":"mutation{processLeadForAppointment(input:{}){__typename}}"}' — confirm CORS headers present with credentials:include
 impact: Cross-origin mutation theft on CloudFront edge — document upload, applicant PII submission, appointment scheduling on financial platform. Combined with origin bypass, attacker can choose weaker path. Severity: CRITICAL
 testability: PASSIVE
+[PARKED] core.hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation: Duplicate of /en/health/q hypothesis — same mutation surface, same CORS config, same cookie posture; no marginal evidence needed.
+[PARKED] hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations (Edge): Duplicate of hypofriend.de/en/health/q hypothesis — same rationale.
+[PARKED] core.hypofriend.de/q Anonymous Mortgage-Rate Oracle + Credentialed CORS: Already confirmed (rates_table 0.10% delta, calculateMaklerFee bifurcation, XFO:ALLOWALL vs DENY); no new mutation surface beyond /en/health/q.
 [FINAL] 1. core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 99, PASSIVE
 [FINAL] 2. core.hypofriend.de/en/health/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation — confidence 98, PASSIVE
 [FINAL] 3. hypofriend.de/en/health/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation (Edge) — confidence 97, PASSIVE
