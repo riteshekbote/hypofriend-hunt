@@ -645,3 +645,9 @@ www.hypofriend.de
 ## 2026-09-15 05:48:13 UTC
 - NEW property-search.hypofriend.de — bundle-mined default `propertySearchApiUrl` host (resolves ELB 52.59.28.94/63.182.220.70/63.184.235.89), HTTPS 503 awselb/2.0 / HTTP 301; NOT in inventory; runtime `__N
 - CHANGED S3 meta-refresh object hypofriend.de/en/health — `last-modified` refreshed 2026-09-14 17:22:23Z (static redeploy), content bit-identical 89B; not a finding. All other tracked surface bit-identical (re
+
+## 2026-09-15 10:57:23 UTC
+- NEW property-search.hypofriend.de — bundle-mined dedicated property-search host (resolves ELB 52.59.28.94/63.182.220.70/63.184.235.89), HTTPS 503 awselb/2.0, HTTP 301; runtime-overridden via Nuxt `__NUXT_
+- CHANGED api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443, refused/connect-fail :80) re-confirmed live 2026-09-15 05:42Z — dead 13th consecutive cycle, A resolves clean (52.15.184.3), target unchanged
+- CHANGED S3 meta-refresh object hypofriend.de/en/health — `last-modified` refreshed 2026-09-14 17:22:23Z (static redeploy), content bit-identical 89B; all other tracked surface bit-identical to prior cycle
+- CHANGED core.hypofriend.de/en/health/q credentialed CORS + SameSite=None;Secure cookie + origin XFO:ALLOWALL precondition chain intact (re-verified 05:42Z)

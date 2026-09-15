@@ -418,3 +418,5 @@
 - 2026-09-15 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including /en/health/q and /en/plus/q
 - 2026-09-15 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
 - 2026-09-15 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-13 — dead 9th consecutive cycle, no surface
+- 2026-09-15 ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 05:42Z — dead 13th consecutive cycle, A resolves clean, target unchanged.
+- 2026-09-15 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) + property-search-api no-ACAO contrast re-verified 2026-09-15 05:42Z — precondition chain intact

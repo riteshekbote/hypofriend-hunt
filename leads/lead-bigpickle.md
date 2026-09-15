@@ -3576,3 +3576,44 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED NG @ property-search.hypofriend.de: bundle-mined dedicated property-search host is 503 awselb/2.0 edge and runtime-overridden — inventory note, no surface.
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) + property-search-api no-ACAO contrast re-verified 05:42Z — precondition chain intact.
 [RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA under live introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None sessions + auth-free upload/lead mutations on a financial platform — cross-origin victim-session write/exfil precondition chain live. api.hypofriend.de (designated target) dead 13th consecutive cycle; new bundle-mined host property-search.hypofriend.de is a dead override. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+## 2026-09-15 10:52:09 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,8.4 — attack_surface:9 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:5 freshness:3
+[PRIO] core.hypofriend.de/en/health/q + /en/plus/q,7.6 — attack_surface:8 business_value:9 tech_exposure:8 gate_ease:8 cloud_surface:5 freshness:3
+[PRIO] core.hypofriend.de/q,6.8 — attack_surface:7 business_value:8 tech_exposure:7 gate_ease:9 cloud_surface:4 freshness:3
+[PRIO] api.hypofriend.de,0.0 — dead 13th consecutive cycle, no surface
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth since 09-04; schema unchanged; introspection live; offset-walk limit ~50; closed-CORS + direct-origin bare-header contrast live re-verified 05:42Z (OPTIONS 200 no ACAO vs /q-family echo)
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only, repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set; handler-execution is only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+/en/plus/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200, no Vary:Origin) RE-PROVEN live 05:42Z on direct origin; POST `{__typename}` 200 all 4 combos; SameSite=None;Secure __hfp___hypofriend.health__ chain intact; uploadDocumentExtended+processLeadForAppointment 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] property-search.hypofriend.de takeover/API-host digging
+class: NG
+asset: property-search.hypofriend.de
+confidence: 5
+reasoning: bundle-mined default host 503 awselb/2.0 edge, runtime __NUXT__ override points to hypofriend.de/property-search-api so frontend never hits it — dead edge, inventory note only
+evidence_needed: none — below priority floor
+verify_steps: N/A
+impact: none
+testability: PASSIVE
+[PARKED] property-search.hypofriend.de takeover: 503 dead edge, overridden by runtime config, no live surface to test — below priority floor, class NG.
+[PARKED] /q & /en/health/q victim-session variant of already_booked_appointments / root.lead — requires real logged-in cookie; HUMAN_ONLY, chain already ACCEPTED.
+[PARKED] bulk quantification (offset-walk) — AUTH_HELPED, HUMAN-decided; existence frozen high-confidence.
+[FINAL] survivors ranked: [95] property-search-api full-DB PII BOLA; [90] /en/health/q + /en/plus/q credentialed CORS + auth-free mutation set.
+[NEXT] HUMAN: two-action sequence — (1) authorized UUID-only offset-walk on core.hypofriend.de/property-search-api (propertySearch BERLIN/APARTMENT → exposes offset 0..N limit 50, UUID counts only; repeat MUNICH for determinism); (2) benign multipart uploadDocumentExtended handler-proof on core.hypofriend.de/en/plus/q with Origin https://evil.example (empty file array, record step/error-class + ACAO). Report via bugs.olivermaicher.eu.
+[LEARN] ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 05:42Z — dead 13th consecutive cycle, A resolves clean, target unchanged.
+[LEARN] ACCEPTED NG @ property-search.hypofriend.de: bundle-mined dedicated property-search host is 503 awselb/2.0 edge and runtime-overridden — inventory note, no surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) + property-search-api no-ACAO contrast re-verified 05:42Z — precondition chain intact.
+[RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA under live introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None sessions + auth-free upload/lead mutations on a financial platform — cross-origin victim-session write/exfil precondition chain live. api.hypofriend.de (designated target) dead 13th consecutive cycle; new bundle-mined host property-search.hypofriend.de is a dead override. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
