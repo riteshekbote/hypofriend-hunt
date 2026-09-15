@@ -3650,3 +3650,31 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) + property-search-api no-ACAO contrast re-verified 05:42Z — precondition chain intact.
 [LEARN] REJECTED PHASE-GATE: POC phase designated target=api.hypofriend.de; api dead 14 cycles — no live surface for phase completion. Phase mismatch constrains probe actions.
 [RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA under live introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None sessions + auth-free upload/lead mutations on a financial platform — cross-origin victim-session write/exfil precondition chain live. api.hypofriend.de (designated target) dead 14th consecutive cycle; new bundle-mined host property-search.hypofriend.de is a dead override. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+## 2026-09-15 19:11:43 UTC [target] (model bigpickle)
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth since 09-04; introspection live; offset-walk limit ~50; closed-CORS + direct-origin bare-header contrast live 05:42Z; no new probe this cycle (phase=POC target=api, api dead 15th cycle)
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only; repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set; handler-execution is only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+/en/plus/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200, no Vary:Origin) live 05:42Z; POST `{__typename}` 200 all 4 combos; SameSite=None;Secure __hfp___hypofriend.health__ chain intact; uploadDocumentExtended+processLeadForAppointment 200 auth-free prior cycles; no probe this cycle (phase constraint)
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /q — anonymous mortgage-rate engine + BOLA boundary intact
+class: MISCONFIG
+asset: core.hypofriend.de/q (+hypofriend.de/q edge pair)
+confidence: 85
+reasoning: rates_table 0.10% BAYERN vs SAXONY delta 200 auth-free; calculateCityTax 3.5%; already_booked_appointments(lead_id zero-UUID) 200 empty both hosts no auth; introspection disabled; origin XFO:ALLOWALL vs edge DENY; no probe this cycle (phase constraint)
+evidence_needed: none new — chain already ACCEPTED; only HUMAN-decided victim-session gate remains
+verify_steps: N/A — parked; requires real logged-in cookie (HUMAN_ONLY)
+impact: competitive-intel leak (per-region lender pricing) + cross-tenant appointment read oracle precondition. HIGH
+testability: AUTH_HELPED
