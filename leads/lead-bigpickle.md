@@ -3522,3 +3522,22 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB auth-free PII BOLA unchanged — only open gate is HUMAN bulk quantification.
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS + SameSite=None;Secure cookie + origin XFO:ALLOWALL precondition chain intact.
 [RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA under live introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None sessions + auth-free upload/lead mutations on a financial platform — cross-origin victim-session write/exfil precondition chain live. api.hypofriend.de (designated target) dead 12th consecutive cycle. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+## 2026-09-15 00:43:54 UTC [target] (model bigpickle)
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth; schema unchanged; introspection live; offset-walk limit ~50; closed-CORS + direct-origin bare-header contrasts re-verified this cycle (OPTIONS 200, no ACAO on property-search-api vs ACAO echo on /q-family)
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only, repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set; handler-execution is only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+/en/plus/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200, no Vary:Origin) RE-PROVEN live 00:42Z on direct origin; POST `{__typename}` 200 all 4 combos this cycle; SameSite=None;Secure __hfp___hypofriend.health__ chain intact (hypofriend.de/en/health still 200 len=89 meta-refresh); uploadDocumentExtended+processLeadForAppointment 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED

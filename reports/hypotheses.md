@@ -1994,3 +1994,6 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin security-header bypass (XFO:ALLOWALL vs DENY, no nosniff/XSS-protection) on all /q endpoints including 
 - LEARN: CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
 - LEARN: ACCEPTED NG @ api.hypofriend.de: 000 timeout re-confirmed 2026-09-13 — dead 9th consecutive cycle, no surface
+
+## RANKED HYPOTHESES 2026-09-15 00:50:32 UTC
+- [95] core.hypofriend.de/property-search-api: property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence (from art/lead_bigpickle.txt)
