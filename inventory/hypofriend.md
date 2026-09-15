@@ -641,3 +641,7 @@ www.hypofriend.de
 ## 2026-09-14 22:17:06 UTC
 
 ## 2026-09-15 00:50:32 UTC
+
+## 2026-09-15 05:48:13 UTC
+- NEW property-search.hypofriend.de — bundle-mined default `propertySearchApiUrl` host (resolves ELB 52.59.28.94/63.182.220.70/63.184.235.89), HTTPS 503 awselb/2.0 / HTTP 301; NOT in inventory; runtime `__N
+- CHANGED S3 meta-refresh object hypofriend.de/en/health — `last-modified` refreshed 2026-09-14 17:22:23Z (static redeploy), content bit-identical 89B; not a finding. All other tracked surface bit-identical (re

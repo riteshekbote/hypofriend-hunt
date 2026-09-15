@@ -21412,3 +21412,252 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA + live introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None session + auth-free upload/lead mutations on a financial platform (all re-proven live 00:42Z this cycle); GET-page retirement at /en/health* narrows the PoC window, not the exposure. api.hypofriend.de (designated target) dead 13th consecutive cycle. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-15 05:48:13 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m# [0mTodos
+[•] STEP 1: DELTA — passive sweep of live surface for changes
+[ ] STEP 2-7: Analyze, hypothesize, critique, learn, risk
+[ ] STEP 8: Emit structured output
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B" -H "Host: api.hypofriend.de" https://api.hypofriend.de/ 2>&1 || echo "FAIL"
+curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443 
+000 0.134179s 0BFAIL
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B" https://hypofriend.de/ 2>&1
+302 0.490336s 0B
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B" -X POST https://hypofriend.de/property-search-api -H "Content-Type: application/json" -d '{"query":"{__typename}"}' 2>&1
+200 0.245984s 31B
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B" -X POST https://core.hypofriend.de/property-search-api -H "Content-Type: application/json" -d '{"query":"{__typename}"}' 2>&1
+200 0.390119s 31B
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B" -X POST https://hypofriend.de/q -H "Content-Type: application/json" -d '{"query":"{__typename}"}' 2>&1
+200 0.221521s 101B
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B" -X POST https://core.hypofriend.de/q -H "Content-Type: application/json" -d '{"query":"{__typename}"}' 2>&1
+200 0.352851s 101B
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B" -X POST https://core.hypofriend.de/en/health/q -H "Content-Type: application/json" -d '{"query":"{__typename}"}' 2>&1
+200 0.346463s 101B
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B" -X POST https://core.hypofriend.de/en/plus/q -H "Content-Type: application/json" -d '{"query":"{__typename}"}' 2>&1
+200 0.350469s 101B
+[0m
+[0m$ [0mcurl -sS -D - -o /dev/null -X OPTIONS https://core.hypofriend.de/en/health/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | tr -d '\r' | sed 's/^/  /'
+HTTP/2 200 
+  date: Tue, 15 Sep 2026 05:42:16 GMT
+  content-length: 0
+  access-control-allow-origin: https://evil.example
+  access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+  access-control-expose-headers: 
+  access-control-max-age: 7200
+  access-control-allow-credentials: true
+  vary: Accept-Encoding
+[0m
+[0m$ [0mcurl -sS -D - -o /dev/null -X OPTIONS https://core.hypofriend.de/property-search-api -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | tr -d '\r' | sed 's/^/  /'
+HTTP/2 200 
+  date: Tue, 15 Sep 2026 05:42:17 GMT
+  content-length: 0
+[0m
+[0m$ [0mcurl -sS -o /tmp/health_q.json -X POST https://hypofriend.de/en/health -D /tmp/health_h.txt 2>&1; tr -d '\r' < /tmp/health_h.txt | sed 's/^/  /'
+HTTP/2 403 
+  server: CloudFront
+  date: Tue, 15 Sep 2026 05:42:18 GMT
+  content-type: text/html
+  content-length: 1053
+  x-cache: Error from cloudfront
+  via: 1.1 b7dd001578b73a6989e710df24ccc0ce.cloudfront.net (CloudFront)
+  x-amz-cf-pop: IAD55-P10
+  alt-svc: h3=":443"; ma=86400
+  x-amz-cf-id: 2XbEv6U-7WvMEMZFSFK4Bp2TCFykMoJ2vahtNklocyBrP8RDKrCZIA==
+[0m
+[0m$ [0mcurl -sS -D - -o /dev/null https://hypofriend.de/en/health 2>&1 | tr -d '\r' | sed 's/^/  /'
+HTTP/2 200 
+  content-type: text/html; charset=utf-8
+  content-length: 89
+  date: Tue, 15 Sep 2026 05:42:44 GMT
+  last-modified: Mon, 14 Sep 2026 17:22:23 GMT
+  etag: "d5ac925598bd89bb61a220d74aa1a9a1"
+  x-amz-server-side-encryption: AES256
+  cache-control: public, max-age=0, must-revalidate
+  accept-ranges: bytes
+  server: AmazonS3
+  x-cache: Hit from cloudfront
+  via: 1.1 2a7a4ecb5582eb9a6f330e471a8a9e92.cloudfront.net (CloudFront)
+  x-amz-cf-pop: IAD55-P10
+  alt-svc: h3=":443"; ma=86400
+  x-amz-cf-id: WMjeaSu2nlcvC4X-LExlkIxgskef06pTdsBycKqhRjNEevpTMumYfg==
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code} %{size_download}B\n" https://hypofriend.de/en/health 2>&1; curl -sS -o /dev/null -w "%{http_code} %{size_download}B\n" https://hypofriend.de/en/health/ 2>&1; curl -sS -o /dev/null -w "%{http_code} %{size_download}B\n" https://core.hypofriend.de/en/health 2>&1
+200 89B
+301 0B
+301 0B
+[0m
+[0m$ [0mcurl -sS https://hypofriend.de/en/health 2>&1; echo; curl -sS https://hypofriend.de/en/plus 2>&1 | head -c 300; echo
+<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=/en"></head></html>
+<!DOCTYPE html><html  lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Buyer&#x27;s Agent in Berlin — Hypofriend Plus</title><link rel="preconnect" href="https://app.usercentrics.eu"><link rel="preconnect" href="https://api.usercen
+[0m
+[0m$ [0mfor p in /en/health/api/v3/advisors /en/plus/api/v3/advisors /api/v3/advisors; do printf "%s -> " "$p"; curl -sS -o /dev/null -w "%{http_code}\n" "https://core.hypofriend.de$p" 2>&1; done
+/en/health/api/v3/advisors -> 301
+/en/plus/api/v3/advisors -> 301
+/api/v3/advisors -> 401
+[0m
+[0m$ [0mfor p in /en/health/api/v3/advisors /en/plus/api/v3/advisors; do printf "%s -> " "$p"; curl -sS -o /dev/null -w "%{http_code}\n" "https://hypofriend.de$p" 2>&1; done
+/en/health/api/v3/advisors -> 403
+/en/plus/api/v3/advisors -> 403
+[0m
+[0m$ [0mcurl -sS https://hypofriend.de/en/plus 2>&1 | tr ',' '\n' | grep -ioE '(https?://[^"'"'"' ]*(advisor|api|health|plus)[^"'"'"' ]*|"/[a-z0-9/_-]*(advisor|api)[a-z0-9/_-]*")' | head -30
+https://api.usercentrics.eu
+https://api.usercentrics.eu
+https://api.amplitude.com
+https://hypofriend.de/en/plus
+https://hypofriend.de/en/plus
+https://hypofriend.de/en/plus
+https://hypofriend.de/en/plus
+https://hypofriend.de/en/plus
+https://hypofriend.de/de/plus
+https://hypofriend.de/property-search-api
+https://hypofriend.de/api/v3/advisors
+https://hypofriend.de/en/health
+https://hypofriend.de/en/plus
+https://hypofriend.de/en/health
+https://hypofriend.de/en/plus
+[0m
+[0m$ [0mcurl -sS https://hypofriend.de/en/plus 2>&1 | grep -oE 'src="[^"]+\.js[^"]*"' | head -20
+src="https://app.usercentrics.eu/browser-ui/latest/loader.js"
+src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz"
+src="/m/_nuxt/YLouZh5g.js"
+src="/en/plus/m_payload.json?d90b390e-b784-4f3b-9965-3db862404811"
+[0m
+[0m$ [0mcurl -sS "https://hypofriend.de/en/plus/m_payload.json?d90b390e-b784-4f3b-9965-3db862404811" 2>&1 | head -c 2000; echo
+[{"data":1,"prerenderedAt":3},["ShallowReactive",2],{},1789406463881]
+[0m
+[0m$ [0mcurl -sS "https://hypofriend.de/m/_nuxt/YLouZh5g.js" 2>&1 | tr ',' '\n' | grep -ioE '(https?://[^"'"'"']*(advisor|health|plus|graphql|api)[^"'"'"']*|"/[a-z0-9/_-]*(advisor|health|plus|/q)[a-z0-9/_-]*")' | sort -u | head -40
+"/de/plus"
+"/de/plus/termin"
+"/en/financial-advisor-germany"
+"/en/health"
+"/en/health/appointment"
+"/en/plus"
+"/en/plus/appointment"
+https://a.hypofriend.de/n/advisors/${claimedAdvisorOfReferrerLead(e)}.png`
+https://edge.api.flagsmith.com/api/v1/
+https://grwapi.net/assets/3.1/css/widget.min.css
+[0m
+[0m$ [0mcurl -sS "https://hypofriend.de/m/_nuxt/YLouZh5g.js" 2>&1 | tr ',' '\n' | grep -iE 'advisorEndpoint|coreApiUrl|/q["'"'"']|healthApi|plusApi|graphqlUrl|apiUrl' | head -30
+eh="";function hk(e){jl=e||null}function fk(e){eh=typeof e=="string"?e:""}function c1(){if(typeof window<"u"&&window.location)return window.location.pathname||"";try{if(typeof zo=="function")return zo().pathname||""}catch{}return eh}function pk(){if(typeof window<"u"&&window.location)return window.location.host||"";try{if(typeof zo=="function")return zo().host||""}catch{}return""}const mk=/^\/[a-z]{2}\/(health|gesundheit)(\/|$)/;function gk(){return mk.test(c1())}const Ck=/^\/[a-z]{2}\/plus(\/|$)/;function yk(){return Ck.test(c1())}function _k(){return bs()}function bs(){let e=jl||{};if(!e.coreApiUrl)try{if(typeof St=="function"){const r=St();r?.public&&(jl=r.public
+e=r.public)}}catch{}const t=e.coreApiUrl||R0.NUXT_PUBLIC_CORE_API_URL||R0.NUXT_ENV_CORE_API_URL||"https://hypofriend.de";return{coreApiUrl:t
+healthApiUrl:e.healthApiUrl||R0.NUXT_PUBLIC_HEALTH_API_URL||t
+plusApiUrl:e.plusApiUrl||R0.NUXT_PUBLIC_PLUS_API_URL||t
+contentApiUrl:e.contentApiUrl||R0.NUXT_PUBLIC_CONTENT_API_URL||R0.NUXT_ENV_CONTENT_API_URL||"https://hypofriend.de/content"
+propertySearchApiUrl:e.propertySearchApiUrl||R0.NUXT_PUBLIC_PROPERTY_SEARCH_API_URL||R0.NUXT_ENV_PROPERTY_SEARCH_API_URL||"https://property-search.hypofriend.de"
+advisorEndpoint:e.advisorEndpoint||R0.NUXT_PUBLIC_ADVISOR_ENDPOINT||R0.NUXT_ENV_ADVISOR_ENDPOINT||""}}const ws=(e
+{coreApiUrl:h
+contentApiUrl:m
+healthApiUrl:_
+plusApiUrl:C}=bs();if(!h)throw new Error("Core API URL not configured");if(!e)throw new Error("Data is required");let w;n.forceCoreApi?w=`${h}/q`:gk()?w=`${_}/q`:yk()?w=`${C}/q`:w=`${c||(vk.includes(l)?m:h)}/q`;const k=ws(w)
+r=""){const{coreApiUrl:n}=bs();if(!n)throw new Error("Core API URL not configured");if(!e)throw new Error("Data is required");const s=ws(`${n}/en/profile/`)
+{headers:l})}function wk(e){const{coreApiUrl:t}=bs();return ws(`${t}/api/v3/`).get(e)}function g8(e){if(!e)throw new Error("Endpoint is required");return ws(e
+r=""){const{propertySearchApiUrl:n}=bs();if(!e)throw new Error("Data is required");const s=ws(n)
+title:e.title??e.titleEn}}function l7(e){return e||_k().advisorEndpoint}function dB(e={}){const t=e&&typeof e=="object"?e.endpoint:void 0;return{async fetchAllAdvisors(){const r=l7(t);if(!r)return console.error("Advisor endpoint has not been set")
+baseUrl:c.apiUrl})
+[0m
+[0m$ [0mfor u in "/n/advisors/test.png" "/n/advisors/x" "/n/advisors/"; do printf "%s -> " "$u"; curl -sS -o /dev/null -w "%{http_code}\n" "https://a.hypofriend.de$u" 2>&1; done
+/n/advisors/test.png -> 403
+/n/advisors/x -> 403
+/n/advisors/ -> 200
+[0m
+[0m$ [0mgetent hosts property-search.hypofriend.de || nslookup property-search.hypofriend.de 2>&1 | tail -5; echo "---A:---"; getent ahosts property-search.hypofriend.de | head -5
+63.182.220.70   property-search.hypofriend.de
+63.184.235.89   property-search.hypofriend.de
+52.59.28.94     property-search.hypofriend.de
+---A:---
+52.59.28.94     STREAM property-search.hypofriend.de
+52.59.28.94     DGRAM  
+52.59.28.94     RAW    
+63.182.220.70   STREAM 
+63.182.220.70   DGRAM
+[0m
+New subdomain discovered in the bundle. Let me probe it.
+[0m$ [0mfor scheme in https http; do printf "%s root -> " "$scheme"; curl -sS -o /dev/null -w "%{http_code} %{time_total}s\n" "$scheme://property-search.hypofriend.de/" 2>&1; done
+https root -> 503 0.381910s
+http root -> 301 0.289273s
+[0m
+[0m$ [0mcurl -sS -D - -o /dev/null "https://property-search.hypofriend.de/" 2>&1 | tr -d '\r' | head -15
+HTTP/2 503 
+server: awselb/2.0
+date: Tue, 15 Sep 2026 05:44:00 GMT
+content-type: text/html
+content-length: 162
+[0m
+[0m$ [0mfor p in / /property-search-api /q /graphql /health; do printf "https%s -> " "$p"; curl -sS -o /dev/null -w "%{http_code}\n" -X POST "https://property-search.hypofriend.de$p" -H "Content-Type: application/json" -d '{"query":"{__typename}"}' 2>&1; done
+https/ -> 503
+https/property-search-api -> 503
+https/q -> 503
+https/graphql -> 503
+https/health -> 503
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "/content -> %{http_code}\n" "https://hypofriend.de/content" 2>&1; curl -sS "https://a.hypofriend.de/n/advisors/" 2>&1 | head -c 500; echo
+/content -> 301
+[0m
+[0m$ [0mcurl -sS "https://hypofriend.de/en/plus" 2>&1 | grep -oE 'NUXT_PUBLIC_[A-Z_]+[^,]*|healthApiUrl[^,]*|plusApiUrl[^,]*|coreApiUrl[^,]*|__NUXT__[^<]{0,200}' | head -20
+__NUXT__={};window.__NUXT__.config={public:{deployEnv:"production",coreApiUrl:"https://hypofriend.de",contentApiUrl:"https://hypofriend.de/content",propertySearchApiUrl:"https://hypofriend.de/property-search-
+healthApiUrl:"https://hypofriend.de/en/health"
+plusApiUrl:"https://hypofriend.de/en/plus"
+[0m
+[0m# [0mTodos
+[✓] STEP 1: DELTA — passive sweep of live surface for changes
+[✓] STEP 2-7: Analyze, hypothesize, critique, learn, risk
+[•] STEP 8: Emit structured output
+[0m
+## STEP 1 — DELTA
+[NEW] property-search.hypofriend.de — bundle-mined default `propertySearchApiUrl` host (resolves ELB 52.59.28.94/63.182.220.70/63.184.235.89), HTTPS 503 awselb/2.0 / HTTP 301; NOT in inventory; runtime `__NUXT__` override points to `https://hypofriend.de/property-search-api` so frontend never hits it — dead edge, inventory note only.
+[CHANGED] S3 meta-refresh object hypofriend.de/en/health — `last-modified` refreshed 2026-09-14 17:22:23Z (static redeploy), content bit-identical 89B; not a finding. All other tracked surface bit-identical (re-probed 05:42–05:44Z: api 000 SSL_ERROR_SYSCALL; property-search-api 200 `{__typename}` edge+origin; /q 200 edge+origin; /en/health/q + /en/plus/q 200; `/en/health/q` OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods + max-age 7200; property-search-api OPTIONS → 200, NO ACAO echo).
+
+## STEP 2 — PRIORITIZE
+[PRIO] core.hypofriend.de/property-search-api,8.4 — full-DB auth-free PII BOLA under live introspection + direct-origin WAF bypass; only open gate is HUMAN bulk quantification (unchanged, CRITICAL)
+[PRIO] core.hypofriend.de/en/health/q+plus/q,7.6 — credentialed CORS + SameSite=None;Secure session + auth-free upload/lead mutations; gate is benign handler-execution PoC (unchanged)
+[PRIO] core.hypofriend.de/q,6.8 — covered (anonymous rate engine + BOLA confirmed), no new PoC
+[PRIO] property-search.hypofriend.de,4.9 — fresh host from bundle but 503 dead edge + runtime-overridden; probe-once, no action
+
+## STEP 3 — HYPOTHESES
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth since 09-04; schema unchanged; introspection live; offset-walk limit ~50; closed-CORS + direct-origin bare-header contrast live re-verified 05:42Z (OPTIONS 200 no ACAO vs /q-family echo)
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only, repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set; handler-execution is only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+/en/plus/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200, no Vary:Origin) RE-PROVEN live 05:42Z on direct origin; Runtime config mined from /en/plus bundle: healthApiUrl=https://hypofriend.de/en/health, plusApiUrl=https://hypofriend.de/en/plus (separate instances, own /q); SameSite=None;Secure __hfp___hypofriend.health__ chain intact; uploadDocumentExtended+processLeadForAppointment 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+[HYP] property-search.hypofriend.de takeover/API-host digging — dropped: 503 dead edge, overridden by runtime config, no live surface to test; class NG.
+[HYP] a.hypofriend.de/n/advisors/ bucket-prefix — dropped: index 200 empties, object 403; advisor-image exposure only, below priority floor.
+[PARKED] /q & /en/health/q victim-session variant of already_booked_appointments / root.lead — requires real logged-in cookie; HUMAN_ONLY, chain already ACCEPTED.
+[PARKED] bulk quantification (offset-walk) — AUTH_HELPED, HUMAN-decided; existence frozen high-confidence.
+[FINAL] survivors ranked: [95] property-search-api full-DB PII BOLA; [90] /en/health/q + /en/plus/q credentialed CORS + auth-free mutation set.
+
+## STEP 5 — NEXT ACTION
+[NEXT] HUMAN: two-action sequence — (1) authorized UUID-only offset-walk on core.hypofriend.de/property-search-api (propertySearch BERLIN/APARTMENT → exposes offset 0..N limit 50, UUID counts only; repeat MUNICH for determinism); (2) benign multipart uploadDocumentExtended handler-proof on core.hypofriend.de/en/plus/q with Origin https://evil.example (empty file array, record step/error-class + ACAO). Report via bugs.olivermaicher.eu.
+
+## STEP 6 — LEARNING
+[LEARN] ACCEPTED NG @ api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443, refused/connect-fail :80) re-confirmed live 05:42Z — dead 13th consecutive cycle, A resolves clean, target unchanged.
+[LEARN] ACCEPTED NG @ property-search.hypofriend.de: bundle-mined dedicated property-search host is 503 awselb/2.0 edge and runtime-overridden — inventory note, no surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) + property-search-api no-ACAO contrast re-verified 05:42Z — precondition chain intact.
+
+## STEP 7 — RISK
+[RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA under live introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None sessions + auth-free upload/lead mutations on a financial platform — cross-origin victim-session write/exfil precondition chain live. api.hypofriend.de (designated target) dead 13th consecutive cycle; new bundle-mined host property-search.hypofriend.de is a dead override. All remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
