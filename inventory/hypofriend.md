@@ -684,3 +684,5 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed live — dead 16th consecutive cycle, A 52.15.184.3 resolves clean
 - CHANGED property-search.hypofriend.de — bundle-mined dedicated host, HTTPS 503 awselb/2.0 / HTTP 301; runtime-overridden via Nuxt __NUXT__; NOT in inventory
 - CHANGED All dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*, graph-rates, v3, login, sso) + a./blog/m2 buckets + *.l
+
+## 2026-09-16 18:56:52 UTC
