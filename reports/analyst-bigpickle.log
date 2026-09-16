@@ -21965,3 +21965,73 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA under live introspection + direct-origin WAF/security-header bypass; /q-family credentialed CORS + SameSite=None sessions + auth-free upload/lead mutations on a financial platform — cross-origin victim-session write/exfil precondition chain live. api.hypofriend.de (designated POC target) dead 15th consecutive cycle — phase cannot complete against it; all remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-16 00:33:20 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mgetent hosts api.hypofriend.de || true; echo "---"; timeout 12 curl -sS -o /dev/null -w "HTTPS :443 -> %{http_code} connect=%{time_connect} ssl=%{time_appconnect} err=%{errormsg}\n" https://api.hypofriend.de/ -I 2>&1 || true; timeout 12 curl -sS -o /dev/null -w "HTTP :80 -> %{http_code} connect=%{time_connect} err=%{errormsg}\n" http://api.hypofriend.de/ -I 2>&1 || true
+52.15.184.3     api.hypofriend.de
+---
+curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443 
+HTTPS :443 -> 000 connect=0.097720 ssl=0.000000 err=OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443
+[0m
+[0m$ [0mtimeout 12 curl -sS -o /dev/null -w "HTTP :80 -> %{http_code} connect=%{time_connect} err=%{errormsg}\n" http://api.hypofriend.de/ -I 2>&1; echo "exit=$?"
+exit=124
+[0m
+api.hypofriend.de re-probed (designated POC target, single passive check): A 52.15.184.3 resolves clean; HTTPS :443 → `000 SSL_ERROR_SYSCALL`; HTTP :80 → connect-timeout. Dead 16th consecutive cycle.
+
+STEP 1 — DELTA
+- NO_DELTA on all tracked surface (phase-pinned: only api probed this cycle).
+- api.hypofriend.de 000 re-confirmed (16th consecutive cycle) — no change, no takeover surface.
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api, 8.95, attack_surface=10 business_value=10 tech_exposure=9 gate_ease=10 cloud_surface=6 freshness=5
+- [PRIO] hypofriend.de/en/health/q + /en/plus/q (4 combos), 8.2, attack_surface=8 business_value=9 tech_exposure=8 gate_ease=9 cloud_surface=7 freshness=7
+- [PRIO] core.hypofriend.de/q rates engine, 7.2, attack_surface=6 business_value=7 tech_exposure=7 gate_ease=10 cloud_surface=8 freshness=6
+
+STEP 3 — HYPOTHESES
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth since 09-04; introspection live; offset-walk limit ~50; closed-CORS + direct-origin bare-header WAF bypass live re-confirmed prior cycle; api target dead 16th cycle so probe stayed on api (phase-pinned)
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only; repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set; handler-execution is only open gate
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+/en/plus/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200, no Vary:Origin) live prior cycles; POST `{__typename}` 200 all 4 combos; SameSite=None;Secure __hfp___hypofriend.health__ chain intact; uploadDocumentExtended+processLeadForAppointment 200 auth-free prior cycles; not re-probed this cycle (phase constraint)
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `{"query":"mutation uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){uploadDocumentExtended(input:{type:$type,file:$files,document_type:$document_type,applicant_type:$applicant_type}){step}}","variables":{"type":"test","files":[],"document_type":"test","applicant_type":"test"}}` Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /q — anonymous mortgage-rate engine + BOLA boundary intact
+class: MISCONFIG
+asset: core.hypofriend.de/q (+hypofriend.de/q edge pair)
+confidence: 85
+reasoning: rates_table 0.10% BAYERN vs SAXONY delta 200 auth-free; calculateCityTax 3.5%; already_booked_appointments(lead_id zero-UUID) 200 empty both hosts no auth; introspection disabled; origin XFO:ALLOWALL vs edge DENY; not re-probed this cycle (phase constraint)
+evidence_needed: none new — chain already ACCEPTED; only HUMAN-decided victim-session gate remains
+verify_steps: N/A — parked; requires real logged-in cookie (HUMAN_ONLY)
+impact: competitive-intel leak (per-region lender pricing) + cross-tenant appointment read oracle precondition. HIGH
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [FINAL] property-search-api BOLA — 95, hypothesis-proven existence frozen; only bulk-quantification gate = HUMAN.
+- [FINAL] /en/health/q+/en/plus/q — 90, handler-execution + POST-ACAO proof = HUMAN.
+- [FINAL] /q rates engine — 85, victim-session mutation park = HUMAN_ONLY.
+- [PARKED] none dropped — all three meet gate; no REJECTED-class or sub-40 confidence.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: re-scope decision required — POC phase designated target=api.hypofriend.de, dead 16th consecutive cycle (000 :80/:443, A resolves clean), no live surface exists to complete POC against. Two authorized options: (a) re-scope phase target to a live asset (core.hypofriend.de/property-search-api) and authorize the UUID-only offset-walk bounding query (propertySearch BERLIN/APARTMENT → exposes offset 0..N limit 50, UUID counts only); or (b) accept api-dead and close the phase. Report via bugs.olivermaicher.eu.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed live this cycle (SSL_ERROR_SYSCALL :443 / connect-timeout :80, A 52.15.184.3 resolves clean) — dead 16th consecutive cycle, no takeover surface, target unchanged.
+[LEARN] ACCEPTED NG @ fleet: no host re-probed beyond api (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surface.
+
+STEP 7 — RISK
+[RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA under live introspection + direct-origin WAF/security-header bypass; /q-family credentialed CORS + SameSite=None sessions + auth-free upload/lead mutations on a financial platform — cross-origin victim-session write/exfil precondition chain live. api.hypofriend.de (designated POC target) dead 16th consecutive cycle — phase cannot complete against it; all remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.

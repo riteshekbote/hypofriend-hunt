@@ -2097,3 +2097,9 @@
 - LEARN: ACCEPTED NG @ property-search.hypofriend.de: bundle-mined dedicated property-search host is 503 awselb/2.0 edge and runtime-overridden — inventory note, no surf
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) + property-search-api no-ACAO contras
 - LEARN: REJECTED PHASE-GATE: POC phase designated target=api.hypofriend.de; api dead 14 cycles — no live surface for phase completion. Phase mismatch constrains probe a
+
+## RANKED HYPOTHESES 2026-09-16 00:33:20 UTC
+- [95] core.hypofriend.de/property-search-api: property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: re-scope decision required — POC phase designated target=api.hypofriend.de, dead 16th consecutive cycle (000 :80/:443, A resolves clean), no live surface
+- LEARN: ACCEPTED NG @ api.hypofriend.de: 000 re-confirmed live this cycle (SSL_ERROR_SYSCALL :443 / connect-timeout :80, A 52.15.184.3 resolves clean) — dead 16th conse
+- LEARN: ACCEPTED NG @ fleet: no host re-probed beyond api (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surfac
