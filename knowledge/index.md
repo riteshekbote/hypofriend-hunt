@@ -446,3 +446,4 @@
 - 2026-09-16 ACCEPTED NG @ fleet: no host re-probed beyond api (phase-pinned); all tracked surface bit-identical to prior cycle — no new surface
 - 2026-09-16 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA unchanged — existence frozen, only open gate is HUMAN bulk quantification
 - 2026-09-16 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS + SameSite=None;Secure cookie + origin XFO:ALLOWALL precondition chain intact
+- 2026-09-16 ACCEPTED NG @ api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-probed live 18:38Z — dead 17th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.

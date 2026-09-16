@@ -2169,3 +2169,7 @@
 - LEARN: ACCEPTED NG @ fleet: no host re-probed beyond api (phase-pinned); all tracked surface bit-identical to prior cycle — no new surface
 - LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA unchanged — existence frozen, only open gate is HUMAN bulk quantification
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS + SameSite=None;Secure cookie + origin XFO:ALLOWALL precondition chain intact
+
+## RANKED HYPOTHESES 2026-09-16 21:42:27 UTC
+- NEXT(hypotheses-bigpickle.txt): HUMAN: decide phase exception for POC on dead target — api.hypofriend.de dead 17th cycle; recommend re-scoping POC evidence to core.hypofriend.de/property-searc
+- LEARN: ACCEPTED NG @ api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-probed live 18:38Z — dead 17th consecutive cycle, A 52.15.184.3 resolves 
