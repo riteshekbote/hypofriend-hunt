@@ -27,3 +27,9 @@
 
 - 1 lead(s) marked VALID at 2026-09-13 06:46:05 UTC
   - Please paste the lead findings (URLs, probe results, descriptions) and I'll run each through the 7-Question Gate with the verdict, reasoning, and (for VALID) minimal proof steps, impact assessment, CV
+
+- 4 lead(s) marked VALID at 2026-09-16 01:20:41 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL BOLA/IDOR (property-search-api) | **VALID** | 8.6 High |
+  - | 2 | GraphQL Introspection + Stack-Trace Leak | **VALID** | 5.3 Medium |
