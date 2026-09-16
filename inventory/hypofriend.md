@@ -669,3 +669,10 @@ www.hypofriend.de
 ## 2026-09-16 00:33:20 UTC
 
 ## 2026-09-16 05:13:19 UTC
+
+## 2026-09-16 10:05:36 UTC
+- NEW property-search.hypofriend.de — bundle-mined dedicated property-search host (resolves ELB 52.59.28.94/63.182.220.70/63.184.235.89), HTTPS 503 awselb/2.0, HTTP 301; NOT in inventory; runtime-overridden
+- NEW api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443, connect-timeout :80) re-confirmed live 2026-09-15 05:42Z — dead 13th consecutive cycle, A 52.15.184.3 resolves clean; no surface.
+- NEW core.hypofriend.de/en/plus/q — now live GraphQL endpoint (200 len=228508) on direct origin; previously unprobed/301 on origin
+- CHANGED core.hypofriend.de/en/health/q — response length increased from 227365 to 228508 (Nuxt bundle refresh)
+- CHANGED hypofriend.de/en/health — S3 meta-refresh object last-modified refreshed 2026-09-14 17:22:23Z (static redeploy)
