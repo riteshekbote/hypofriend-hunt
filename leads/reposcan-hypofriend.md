@@ -524,3 +524,12 @@ TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
 ## REPOSCAN 2026-09-17 20:34:20 UTC
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-17 23:03:23 UTC
+[HYP] <none>
+class: N/A
+asset: N/A
+confidence: 0
+reasoning: cands.txt = "no org candidates"; scope.yml github_orgs = "none-configured"
+impact: N/A
+verify_steps: N/A
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
