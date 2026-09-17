@@ -2173,3 +2173,6 @@
 ## RANKED HYPOTHESES 2026-09-16 21:42:27 UTC
 - NEXT(hypotheses-bigpickle.txt): HUMAN: decide phase exception for POC on dead target — api.hypofriend.de dead 17th cycle; recommend re-scoping POC evidence to core.hypofriend.de/property-searc
 - LEARN: ACCEPTED NG @ api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-probed live 18:38Z — dead 17th consecutive cycle, A 52.15.184.3 resolves 
+
+## RANKED HYPOTHESES 2026-09-17 00:02:24 UTC
+- [95] core.hypofriend.de/property-search-api: property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence (from art/lead_bigpickle.txt)
