@@ -23658,3 +23658,428 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations on a financial platform. POC target (api) dead 20th consecutive cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-17 21:44:33 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS -D - -o /dev/null --max-time 15 -X OPTIONS 'https://core.hypofriend.de/en/health/q' -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type' 2>&1
+HTTP/2 200 
+date: Thu, 17 Sep 2026 21:42:56 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+[0m
+[0m$ [0mmkdir -p /tmp/opencode && curl -sS --max-time 20 'https://hypofriend.de/en/plus' -o /tmp/opencode/plus.html 2>&1; wc -c /tmp/opencode/plus.html; rg -o '/_nuxt/[^"]+\.js' /tmp/opencode/plus.html | sort -u | head -30
+298552 /tmp/opencode/plus.html
+/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mecho "== api :443 =="; curl -sS -o /dev/null -w '%{http_code} %{errormsg} %{time_total}s\n' --connect-timeout 8 --max-time 12 https://api.hypofriend.de/ 2>&1; echo "== api :80 =="; curl -sS -o /dev/null -w '%{http_code} %{errormsg} %{time_total}s\n' --connect-timeout 8 --max-time 12 http://api.hypofriend.de/ 2>&1; echo "== A record =="; getent hosts api.hypofriend.de
+== api :443 ==
+curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443 
+000 OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443  0.143959s
+== api :80 ==
+curl: (28) Failed to connect to api.hypofriend.de port 80 after 8002 ms: Timeout was reached
+000 Failed to connect to api.hypofriend.de port 80 after 8002 ms: Timeout was reached 8.002938s
+== A record ==
+52.15.184.3     api.hypofriend.de
+[0m
+[0m✗ [0mGrep "_nuxt/[A-Za-z0-9_.-]+\.js" failed[90m in /tmp/opencode[0m
+[91m[1mError: [0mRipgrep JSON record exceeded 65536 bytes
+[0m
+[0m$ [0mgrep -oE '/_nuxt/[A-Za-z0-9_.-]+\.js' /tmp/opencode/plus.html | sort -u
+/_nuxt/-ez_sPea.js
+/_nuxt/031sR0Dk.js
+/_nuxt/0y70AZ5H.js
+/_nuxt/22Pu5ap6.js
+/_nuxt/2h5MdPRW.js
+/_nuxt/3EB8V85u.js
+/_nuxt/7LJm_38-.js
+/_nuxt/AuiHv9WO.js
+/_nuxt/B0dqiS1K.js
+/_nuxt/B1jEw4nT.js
+/_nuxt/B2soRR1q.js
+/_nuxt/B2vkSg1F.js
+/_nuxt/B35S2sub.js
+/_nuxt/B5BZbSY_.js
+/_nuxt/B6htIPxk.js
+/_nuxt/B7p5xjsD.js
+/_nuxt/B8CvfFn4.js
+/_nuxt/BBxB1IXZ.js
+/_nuxt/BDCKj7Z4.js
+/_nuxt/BFkLEQEW.js
+/_nuxt/BGOMXBgc.js
+/_nuxt/BJcVsjK6.js
+/_nuxt/BLmaZOZ4.js
+/_nuxt/BTAmUJjN.js
+/_nuxt/BV5qoEBw.js
+/_nuxt/BW0GL25j.js
+/_nuxt/BWy4CRdL.js
+/_nuxt/BY38_vQU.js
+/_nuxt/BbB2_50l.js
+/_nuxt/BdeLHqFd.js
+/_nuxt/BffYpcM-.js
+/_nuxt/BfzKNeeB.js
+/_nuxt/Bg2yj5my.js
+/_nuxt/BgWiLdqc.js
+/_nuxt/BisG11dB.js
+/_nuxt/BlBBgIKV.js
+/_nuxt/Bmm7VTnW.js
+/_nuxt/Bo8MFOrv.js
+/_nuxt/BuvF3Au4.js
+/_nuxt/Bv6Thph2.js
+/_nuxt/Bw_TIBNl.js
+/_nuxt/ByI-v17u.js
+/_nuxt/BycaDJVO.js
+/_nuxt/BydQEcj0.js
+/_nuxt/C4lxPvnl.js
+/_nuxt/C6flwG_K.js
+/_nuxt/C7tsFAqe.js
+/_nuxt/C8fqSiI-.js
+/_nuxt/C9fzl-VO.js
+/_nuxt/CApZFFZt.js
+/_nuxt/CBj9jlPt.js
+/_nuxt/CF8HQdX-.js
+/_nuxt/CHqyzhcu.js
+/_nuxt/CL8vUs_s.js
+/_nuxt/CMqKtZsG.js
+/_nuxt/COjG8chx.js
+/_nuxt/COnkJQ1O.js
+/_nuxt/CTJAJ_cm.js
+/_nuxt/CU1GDSTB.js
+/_nuxt/CWcU_ZDr.js
+/_nuxt/CWdRRf7I.js
+/_nuxt/CY5Aj1kz.js
+/_nuxt/C_5clhEe.js
+/_nuxt/C_ElRxRR.js
+/_nuxt/CdmGM4ww.js
+/_nuxt/CiRHD81U.js
+/_nuxt/CialCT8y.js
+/_nuxt/CjjeeDAD.js
+/_nuxt/CkEyLsNN.js
+/_nuxt/Cm5nkiyT.js
+/_nuxt/CmHuIJZU.js
+/_nuxt/Crr4Q-rh.js
+/_nuxt/CtKRFD2U.js
+/_nuxt/Cx_23Hwo.js
+/_nuxt/CyOqqF-h.js
+/_nuxt/Czohv_tr.js
+/_nuxt/CzvdQCNZ.js
+/_nuxt/D2SRprZ4.js
+/_nuxt/D4wufns5.js
+/_nuxt/D5bwBpEa.js
+/_nuxt/D7QNPG-A.js
+/_nuxt/D9Lb6C8Z.js
+/_nuxt/D9a4aFD3.js
+/_nuxt/DEWBi8o4.js
+/_nuxt/DF9PrrOH.js
+/_nuxt/DK-kkcAx.js
+/_nuxt/DOArkTMm.js
+/_nuxt/DOJf9Dky.js
+/_nuxt/DP-D6RgZ.js
+/_nuxt/DPL__t27.js
+/_nuxt/DQq6QSzQ.js
+/_nuxt/DUPa6IsC.js
+/_nuxt/DV0gq9PH.js
+/_nuxt/DVAmhxTv.js
+/_nuxt/DWINoDiI.js
+/_nuxt/DWeAMPqq.js
+/_nuxt/DYjK20T9.js
+/_nuxt/DZp6dZov.js
+/_nuxt/DbW0kd1W.js
+/_nuxt/Dc8W0e4H.js
+/_nuxt/DclOcxVt.js
+/_nuxt/DfZTgj1u.js
+/_nuxt/DgK1VmUc.js
+/_nuxt/Dga8w6q_.js
+/_nuxt/Djtq1I1f.js
+/_nuxt/Dk9P263T.js
+/_nuxt/DlAUqK2U.js
+/_nuxt/DlaCZ5lV.js
+/_nuxt/Dn3pp8Z8.js
+/_nuxt/Doc9nReQ.js
+/_nuxt/Dpt5Ig0p.js
+/_nuxt/DsKNagzm.js
+/_nuxt/DtqAVCob.js
+/_nuxt/DtsejeKc.js
+/_nuxt/Duot2IOx.js
+/_nuxt/DvZn3yXc.js
+/_nuxt/DwgAzv0J.js
+/_nuxt/DyeX3CS3.js
+/_nuxt/FHxxEvhy.js
+/_nuxt/FVr5X0LS.js
+/_nuxt/H0y_NgEi.js
+/_nuxt/Il26dXap.js
+/_nuxt/KgaCoefw.js
+/_nuxt/L2B0Gcg7.js
+/_nuxt/Nd8KR9ml.js
+/_nuxt/PuClALOp.js
+/_nuxt/ReCSESEn.js
+/_nuxt/Rh_LRqCg.js
+/_nuxt/SfbtJ_gf.js
+/_nuxt/VPR86Ybu.js
+/_nuxt/XY0p96vT.js
+/_nuxt/aevdF7cS.js
+/_nuxt/aiItXeM2.js
+/_nuxt/bay_fqAt.js
+/_nuxt/biann3qH.js
+/_nuxt/gkuWYB8W.js
+/_nuxt/grR_3ZkJ.js
+/_nuxt/hDTpo48E.js
+/_nuxt/hcGKOC3E.js
+/_nuxt/iknwwylX.js
+/_nuxt/jbmzVN5R.js
+/_nuxt/lwRGsGNm.js
+/_nuxt/meQDtZYw.js
+/_nuxt/my1HS2Xn.js
+/_nuxt/nZM93vby.js
+/_nuxt/s7zBGpXh.js
+/_nuxt/sEkAaGRi.js
+/_nuxt/u-2pX-mS.js
+/_nuxt/wZco23ri.js
+/_nuxt/zb5ojOem.js
+[0m
+[0m$ [0mgrep -oE 'requestAccountLink|requestAppointmentLink|uploadDocumentExtended|processLeadForAppointment|leadPresent|coreApiUrl' /tmp/opencode/plus.html | sort | uniq -c; echo "---entry chunks---"; grep -oE '<script[^>]*src="[^"]+"[^>]*>' /tmp/opencode/plus.html | head -5
+1 coreApiUrl
+---entry chunks---
+<script id="usercentrics-cmp" src="https://app.usercentrics.eu/browser-ui/latest/loader.js" async data-settings-id="X5kpsOYjdDqaNm">
+<script type="module" src="/m/_nuxt/Crr4Q-rh.js" crossorigin>
+<script type="application/json" data-nuxt-data="nuxt-app" data-ssr="true" id="__NUXT_DATA__" data-src="/en/plus/m_payload.json?7cc2f4ae-aefe-4b51-9c70-239408d11262">
+[0m
+[0m$ [0mcurl -sS --max-time 20 'https://hypofriend.de/m/_nuxt/Crr4Q-rh.js' -o /tmp/opencode/entry.js 2>&1; wc -c /tmp/opencode/entry.js; grep -oE 'requestAccountLink|requestAppointmentLink|uploadDocumentExtended|processLeadForAppointment|leadPresent|alreadyBookedAppointments' /tmp/opencode/entry.js | sort | uniq -c; echo "---coreApiUrl ctx---"; grep -oE '.{80}coreApiUrl.{120}' /tmp/opencode/plus.html | head -1
+1334793 /tmp/opencode/entry.js
+      1 alreadyBookedAppointments
+      3 leadPresent
+      5 processLeadForAppointment
+      3 requestAccountLink
+      7 requestAppointmentLink
+      2 uploadDocumentExtended
+---coreApiUrl ctx---
+cript>window.__NUXT__={};window.__NUXT__.config={public:{deployEnv:"production",coreApiUrl:"https://hypofriend.de",contentApiUrl:"https://hypofriend.de/content",propertySearchApiUrl:"https://hypofriend.de/prope
+[0m
+[0m$ [0mgrep -oE 'mutation [A-Za-z]+\(?\$?[^`]{0,40}?requestAppointmentLink[^`]{0,220}|requestAppointmentLink[^`]{0,220}' /tmp/opencode/entry.js | head -5; echo "=== requestAccountLink ==="; grep -oE 'requestAccountLink[^`]{0,220}' /tmp/opencode/entry.js | head -5; echo "=== uploadDocumentExtended ==="; grep -oE 'uploadDocumentExtended[^`]{0,200}' /tmp/opencode/entry.js | head -5
+requestAppointmentLink:e=>
+requestAppointmentLink {
+requestAppointmentLink(input: {email: "${e}"}) {
+requestAppointmentLink(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){const r=t.getAdminCookie();try{const{data:n}=await Ke(r);return n?.data?.root?.lead?.hasAdminCookie||{hasC
+requestAppointmentLink(t):await s.login.requestLogin(t)}},lT={namespaced:!0,actions:aT},Ri=e=>{if(["string","number"].includes(typeof e)&&(e||e===0))return e.toString().replace(".",",")},l0=e=>new Intl.NumberFormat("de-DE",{currency:"EUR",sty
+=== requestAccountLink ===
+requestAccountLink {
+requestAccountLink(input: {email: "${e}"}) {
+requestAccountLink||!1},async requestAppointmentLink(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){const r=t.getAdminCookie();try{const{data:n}=await Ke(r);return n?.data?
+=== uploadDocumentExtended ===
+uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type: $applicant_type }) {
+[0m
+[0m$ [0mgrep -oE 'requestAppointmentLink\(input: \{email: "\$\{e"\}\) \{.{0,200}' /tmp/opencode/entry.js | head -2; echo "=== account ==="; grep -oE 'requestAccountLink\(input: \{email: "\$\{e"\}\) \{.{0,200}' /tmp/opencode/entry.js | head -2; echo "=== where mutation def sits ==="; grep -oE '.{140}requestAppointmentLink\(input: \{email.{0,40}' /tmp/opencode/entry.js | head -2
+=== account ===
+=== where mutation def sits ===
+[0m
+[0m$ [0mgrep -oE 'requestAppointmentLink\(input: \{email: "\$\{e\}"\}\) \{.{0,180}' /tmp/opencode/entry.js | head -2; echo "=== account ==="; grep -oE 'requestAccountLink\(input: \{email: "\$\{e\}"\}\) \{.{0,180}' /tmp/opencode/entry.js | head -2
+requestAppointmentLink(input: {email: "${e}"}) {
+=== account ===
+requestAccountLink(input: {email: "${e}"}) {
+[0m
+[0m$ [0mgrep -oE '.{0,40}leadPresent[^}]{0,80}' /tmp/opencode/entry.js | sort -u | head -8; echo "=== mutation doc blocks ==="; grep -oE '\{[^`]{0,300}requestAppointmentLink\(input' /tmp/opencode/entry.js | head -2
+leadPresent
+it a2().login.requestLogin(_.email);qe?.leadPresent?(_.name=qe.firstName??"",c.value="login",r?.event("Viewed Website Login Magic L
+=== mutation doc blocks ===
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re
+s=open('/tmp/opencode/entry.js').read()
+for name in ['requestAppointmentLink','requestAccountLink','uploadDocumentExtended']:
+    for m in re.finditer(re.escape(name), s):
+        a=max(0,m.start()-160); b=min(len(s), m.end()+260)
+        ctx=s[a:b]
+        if 'input:' in ctx and ('email' in ctx or 'type:' in ctx):
+            print('###', name)
+            print(ctx[:380].replace('\\n',' '))
+            print('---')
+            break
+EOF
+### requestAppointmentLink
+:e=>`
+    mutation requestAccountLink {
+      requestAccountLink(input: {email: "${e}"}) {
+        step
+        leadPresent
+        firstName
+      }
+    }
+  `,requestAppointmentLink:e=>`
+    mutation requestAppointmentLink {
+      requestAppointmentLink(input: {email: "${e}"}) {
+        leadPresent
+        firstName
+      }
+    }
+  `,getAdminCookie:()=>`
+    query {
+      root
+---
+### requestAccountLink
+turn r?.data?.unclaimLead?.success||!1},async clearCookie(){const{status:r}=await wk("delete-cookie");return r===200}}}const PB={requestLogin:e=>`
+    mutation requestAccountLink {
+      requestAccountLink(input: {email: "${e}"}) {
+        step
+        leadPresent
+        firstName
+      }
+    }
+  `,requestAppointmentLink:e=>`
+    mutation requestAppointmentLink {
+      request
+---
+### uploadDocumentExtended
+est(input: {
+        applicantType: ${e},
+        explicitCreatePayslip: true
+      }
+    ) {
+      success
+      }
+    }
+  `,uploadDocument:()=>`
+    mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+      uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type
+---
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re
+s=open('/tmp/opencode/entry.js').read()
+i=s.find('getAdminCookie')
+print(s[i-80:i+320].replace('\\n',' '))
+print('=======')
+for m in re.finditer(r'\$\{coreApiUrl\}[^`"\'\)]{0,12}', s):
+    seg=s[m.start()-10:m.end()+10]
+    print(seg)
+EOF
+put: {email: "${e}"}) {
+        leadPresent
+        firstName
+      }
+    }
+  `,getAdminCookie:()=>`
+    query {
+      root {
+        lead {
+          has_admin_cookie
+        }
+      }
+    }
+  `};function RB(e={}){const t={...PB,...e};return{async requestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.data?.data?.requestAccountLink||!1},async requestAppointmentLink(r){return(await
+=======
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re
+s=open('/tmp/opencode/entry.js').read()
+for m in re.finditer(r'forceCoreApi', s):
+    a=max(0,m.start()-160); b=min(len(s), m.end()+220)
+    print(s[a:b].replace('\\n',' ')[:380])
+    print('---')
+EOF
+iUrl:h,contentApiUrl:m,healthApiUrl:_,plusApiUrl:C}=bs();if(!h)throw new Error("Core API URL not configured");if(!e)throw new Error("Data is required");let w;n.forceCoreApi?w=`${h}/q`:gk()?w=`${_}/q`:yk()?w=`${C}/q`:w=`${c||(vk.includes(l)?m:h)}/q`;const k=ws(w),M={"Content-Type":s?"multipart/form-data":"application/json"},R=s?e:{query:e,operationName:l,...n.variables?{variable
+---
+
+          has_admin_cookie
+        }
+      }
+    }
+  `};function RB(e={}){const t={...PB,...e};return{async requestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.data?.data?.requestAccountLink||!1},async requestAppointmentLink(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){const r=t.getAdminCook
+---
+alSignupFlow: "${e}"
+      }) {
+        step
+      }
+    }
+  `};function ZB(e={}){const t={...NB,...e};return{async saveLeadName(r){await Ke(t.saveLeadName(r),{forceCoreApi:!0})},async saveLeadEmail(r){await bk({email:r})},async saveOriginalSignupFlow(r){await Ke(t.saveOriginalSignupFlow(r),{forceCoreApi:!0})}}}const hf=()=>{const e=/_fbp=(fb\.1\.\d+\.\d+)/.exec(window.document
+---
+wait Ke(t.saveLeadName(r),{forceCoreApi:!0})},async saveLeadEmail(r){await bk({email:r})},async saveOriginalSignupFlow(r){await Ke(t.saveOriginalSignupFlow(r),{forceCoreApi:!0})}}}const hf=()=>{const e=/_fbp=(fb\.1\.\d+\.\d+)/.exec(window.document.cookie);return e&&e[1]?Promise.resolve(e[1]):Promise.resolve(null)};function u7(){const e=(t,r,n,s)=>{hf().then(l=>{if(l===null)setT
+---
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re
+s=open('/tmp/opencode/entry.js').read()
+# config values
+i=s.find('plusApiUrl')
+print('CONFIG:', s[i-260:i+120].replace('\\n',' ')[-380:])
+print('=======')
+# gk and yk defs
+for name in ['gk','yk','vk']:
+    for m in re.finditer(r'\b'+name+r'\b=\(\)=>|function '+name+r'\(', s):
+        print('###', name)
+        print(s[m.start():m.start()+180].replace('\\n',' '))
+        break
+EOF
+CONFIG: eof St=="function"){const r=St();r?.public&&(jl=r.public,e=r.public)}}catch{}const t=e.coreApiUrl||V0.NUXT_PUBLIC_CORE_API_URL||V0.NUXT_ENV_CORE_API_URL||"https://hypofriend.de";return{coreApiUrl:t,healthApiUrl:e.healthApiUrl||V0.NUXT_PUBLIC_HEALTH_API_URL||t,plusApiUrl:e.plusApiUrl||V0.NUXT_PUBLIC_PLUS_API_URL||t,contentApiUrl:e.contentApiUrl||V0.NUXT_PUBLIC_CONTENT_API_URL||V
+=======
+### gk
+function gk(){return mk.test(c1())}const Ck=/^\/[a-z]{2}\/plus(\/|$)/;function yk(){return Ck.test(c1())}function _k(){return bs()}function bs(){let e=jl||{};if(!e.coreApiUrl)try{i
+### yk
+function yk(){return Ck.test(c1())}function _k(){return bs()}function bs(){let e=jl||{};if(!e.coreApiUrl)try{if(typeof St=="function"){const r=St();r?.public&&(jl=r.public,e=r.publ
+[0m
+STEP 1 — DELTA
+- [CHANGED] api.hypofriend.de: :443 SSL_ERROR_SYSCALL (0.14s), :80 connect-timeout (8s), A 52.15.184.3 clean — dead 20th consecutive cycle, target unchanged.
+- [CHANGED] core.hypofriend.de/en/health/q: credentialed CORS freshness re-verified live 21:42:56Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all-methods (max-age 7200), `vary: Accept-Encoding`; precondition chain intact.
+- [NEW] /en/plus bundle refreshed: module entry now `/m/_nuxt/Crr4Q-rh.js` (1.33MB) vs prior-cycle `CQpUFwUr.js` — current-bundle confirm of `requestAccountLink(input:{email})→{step,leadPresent,firstName}`, `requestAppointmentLink(input:{email})→{leadPresent,firstName}`, `uploadDocumentExtended($type,$files:[File!]!,$document_type,$applicant_type)`, `processLeadForAppointment`.
+- [NEW] Email-link mutation routing CONFIRMED from current bundle `Ke()` dispatch: `forceCoreApi:true` → `${coreApiUrl}/q` = `https://hypofriend.de/q`; `requestAppointmentLink` → `${plusApiUrl}/q` (plusApiUrl defaults to coreApiUrl). Same /q family already holding credentialed CORS + samesite=none session cookies + `already_booked_appointments(lead_id)` BOLA.
+- [NEW] Schema surface note: `query{root{lead{has_admin_cookie}}}` present in bundle (getAdminCookie) — session-derived admin-flag read; anonymous false expected, no standalone value this cycle.
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api, 8.3, full-DB auth-free PII BOLA; introspection live; WAF bypass at origin; frozen existence
+- [PRIO] core.hypofriend.de/en/plus/q (+/en/health/q), 7.4, credentialed CORS + auth-free multipart upload/lead mutations; chain re-proven
+- [PRIO] hypofriend.de/q email→leadPresent+firstName, 5.6, routing+signature now confirmed in refreshed bundle
+- [PRIO] hypofriend.de/q has_admin_cookie, 5.2, victim-session boolean only; schema-note, no exploit path
+
+STEP 3 — HYPOTHESES
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth (2026-09-04+); introspection live; offset-walk limit ~50 proven; direct-origin bare-header WAF bypass re-proven prior cycles; this cycle api dead 20th + CORS freshness only — no PII gate advanced
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only; repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free multipart upload/lead mutations; chain re-proven this cycle
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (+/en/health/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: ACAO+ACAC:true+all-methods OPTIONS re-verified live 21:42:56Z this cycle; bundle `uploadDocumentExtended($type,$files:[File!]!,$document_type,$applicant_type)` re-confirmed in CURRENT bundle (Crr4Q-rh.js); SameSite=None;Secure __hfp cookies prior cycles; mutations returned 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST body
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `mutation($t:String!,$d:String!,$a:String!){uploadDocumentExtended(input:{type:$t,document_type:$d,applicant_type:$a}){step}}` with empty file part + Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus|en/health GraphQL — email→leadPresent+firstName account-existence/PII oracle; routing now confirmed
+class: MISCONFIG
+asset: hypofriend.de/q (email-link mutations; served from refreshed /en/plus bundle)
+confidence: 65
+reasoning: refreshed bundle (Crr4Q-rh.js) re-confirms `requestAccountLink(input:{email})→{step,leadPresent,firstName}` + `requestAppointmentLink(input:{email})→{leadPresent,firstName}`; `Ke()` dispatch shows both POST to `${coreApiUrl}/q` (`forceCoreApi:true` for requestLogin) = https://hypofriend.de/q — same endpoint with credentialed CORS + samesite=none session cookies + already_booked_appointments BOLA; firstName (PII) on anonymous schema; OOS proximity (link-request/email enumeration) holds value down
+evidence_needed: whether mutation distinguishes known vs unknown email and whether it fires magic-link emails
+verify_steps: HUMAN — POST https://hypofriend.de/q `mutation{requestAppointmentLink(input:{email:"probing-<rand>@example.com"}){leadPresent firstName}}` with fresh jar; log only boolean/field presence; do NOT use real customer emails
+impact: automated cross-vertical lead-existence scoring + firstName per email; MEDIUM-HIGH, but OOS-near enumeration class
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- Dropped: has_admin_cookie — victim-session boolean only, no cross-tenant/cross-origin exfil beyond credentialed CORS already reported; schema-note only.
+- Email-link oracle retained at 65 (routing/signature confirmed in current bundle) but flagged OOS-near; email-fire test is HUMAN-only and mutating.
+- property-search-api (95) and CORS+upload chain (90) unchanged, gates unchanged.
+- [PARKED] email→leadPresent+firstName oracle: routing+signature confirmed in refreshed bundle (Crr4Q-rh.js → https://hypofriend.de/q), confidence 55→65; OOS proximity (link-request enumeration) + email-fire HUMAN-gated — keep low priority.
+- [FINAL] survivors ranked: property-search-api BOLA (95) > /en/plus|health credentialed CORS+upload (90) > email-link oracle (65).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: resolve POC phase exception — api.hypofriend.de dead 20th consecutive cycle (21:42Z; :443 SSL_ERROR_SYSCALL / :80 timeout, A clean). Recommend re-scoping POC evidence to core.hypofriend.de/property-search-api HUMAN-authorized UUID-only offset-walk (BERLIN/MUNICH) to close the bulk-quantification gate, OR authorize the benign empty-file POST to core.hypofriend.de/en/plus/q to close the upload-handler gate; primary tracking, evidence-evaluation, and report remain unchanged-CRITICAL.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo evil.example + ACAC:true + all methods, max-age 7200) fresh re-verified 21:42:56Z — precondition chain intact.
+- [LEARN] REJECTED NG @ api.hypofriend.de: 000 re-confirmed 21:42Z on :80/:443 (SSL_ERROR_SYSCALL / 8s connect-timeout, A 52.15.184.3 resolves clean) — dead 20th consecutive cycle, no takeover surface, target unchanged.
+- [LEARN] ACCEPTED NG @ /en/plus bundle refresh: entry now Crr4Q-rh.js; email-link + upload mutations re-confirmed in current bundle; routing confirmed to https://hypofriend.de/q — evidence basis refreshed, no new vuln class.
+- [LEARN] REJECTED PHASE-GATE: POC pinned to api; api dead 20 cycles — phase cannot complete under current pinning; remaining gates HUMAN-decided.
+
+STEP 7 — RISK
+- [RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations; email→firstName oracle on same /q surface. POC target (api) dead 20th consecutive cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.

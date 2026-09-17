@@ -4059,3 +4059,31 @@ evidence_needed: confirm which /q host serves these mutations + whether it fires
 verify_steps: HUMAN — compare coreApiUrl in /en/plus bundle with /en/health bundle; then POST `mutation{requestAppointmentLink(input:{email:"probing-<rand>@example.com"}){leadPresent firstName}}`; log only boolean/field presence
 impact: automated cross-vertical lead existence scoring + firstName disclosure per email. MEDIUM, enum-only (OOS proximity)
 testability: AUTH_HELPED
+## 2026-09-17 21:44:23 UTC [target] (model bigpickle)
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth (2026-09-04+); introspection live; offset-walk limit ~50 proven; direct-origin bare-header WAF bypass re-proven prior cycles; this cycle api dead 20th + CORS freshness only — no PII gate advanced
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only; repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free multipart upload/lead mutations; chain re-proven this cycle
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (+/en/health/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: ACAO+ACAC:true+all-methods OPTIONS re-verified live 21:42:56Z this cycle; bundle `uploadDocumentExtended($type,$files:[File!]!,$document_type,$applicant_type)` re-confirmed in CURRENT bundle (Crr4Q-rh.js); SameSite=None;Secure __hfp cookies prior cycles; mutations returned 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST body
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `mutation($t:String!,$d:String!,$a:String!){uploadDocumentExtended(input:{type:$t,document_type:$d,applicant_type:$a}){step}}` with empty file part + Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus|en/health GraphQL — email→leadPresent+firstName account-existence/PII oracle; routing now confirmed
+class: MISCONFIG
+asset: hypofriend.de/q (email-link mutations; served from refreshed /en/plus bundle)
+confidence: 65
+reasoning: refreshed bundle (Crr4Q-rh.js) re-confirms `requestAccountLink(input:{email})→{step,leadPresent,firstName}` + `requestAppointmentLink(input:{email})→{leadPresent,firstName}`; `Ke()` dispatch shows both POST to `${coreApiUrl}/q` (`forceCoreApi:true` for requestLogin) = https://hypofriend.de/q — same endpoint with credentialed CORS + samesite=none session cookies + already_booked_appointments BOLA; firstName (PII) on anonymous schema; OOS proximity (link-request/email enumeration) holds value down
+evidence_needed: whether mutation distinguishes known vs unknown email and whether it fires magic-link emails
+verify_steps: HUMAN — POST https://hypofriend.de/q `mutation{requestAppointmentLink(input:{email:"probing-<rand>@example.com"}){leadPresent firstName}}` with fresh jar; log only boolean/field presence; do NOT use real customer emails
+impact: automated cross-vertical lead-existence scoring + firstName per email; MEDIUM-HIGH, but OOS-near enumeration class
+testability: AUTH_HELPED
