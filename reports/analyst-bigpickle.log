@@ -23117,3 +23117,544 @@ testability: AUTH_HELPED
 **STEP 7 — RISK**
 
 [RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations on a financial platform. POC target (api) dead 19th consecutive cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-17 18:34:18 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && git log --oneline -5 2>/dev/null
+total 460
+drwxr-xr-x 12 runner runner   4096 Sep 17 18:31 .
+drwxr-xr-x  3 runner runner   4096 Sep 17 18:30 ..
+drwxr-xr-x  7 runner runner   4096 Sep 17 18:31 .git
+drwxr-xr-x  3 runner runner   4096 Sep 17 18:30 .github
+-rw-r--r--  1 runner runner   1885 Sep 17 18:30 README.md
+-rw-r--r--  1 runner runner     32 Sep 17 18:31 analyst-out.txt
+-rw-r--r--  1 runner runner 178476 Sep 17 18:31 analyst-prompt.txt
+-rw-r--r--  1 runner runner 174601 Sep 17 18:31 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 leads
+-rw-r--r--  1 runner runner  25010 Sep 17 18:30 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 reports
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 17 18:30 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 scripts
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 triage
+073690a reposcan 2026-09-17-17-41
+[0m
+[0m$ [0mcat state_bigpickle.json analyst-out.txt README.md scope.yml; ls leads/ knowledge/ reports/ triage/ recon-notes/
+{"phase": "POC", "target": "api"}[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && git log --oneline -5 2>/dev/null
+total 460
+drwxr-xr-x 12 runner runner   4096 Sep 17 18:31 .
+drwxr-xr-x  3 runner runner   4096 Sep 17 18:30 ..
+drwxr-xr-x  7 runner runner   4096 Sep 17 18:31 .git
+drwxr-xr-x  3 runner runner   4096 Sep 17 18:30 .github
+-rw-r--r--  1 runner runner   1885 Sep 17 18:30 README.md
+-rw-r--r--  1 runner runner     32 Sep 17 18:31 analyst-out.txt
+-rw-r--r--  1 runner runner 178476 Sep 17 18:31 analyst-prompt.txt
+-rw-r--r--  1 runner runner 174601 Sep 17 18:31 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 leads
+-rw-r--r--  1 runner runner  25010 Sep 17 18:30 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 reports
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 17 18:30 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 scripts
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 17 18:30 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 17 18:30 triage
+073690a reposcan 2026-09-17-17-41
+[0m
+# hypofriend-hunt
+
+24/7 deep multi-model bug-hunting automation for **Hypofriend GmbH** (Oliver Maicher bug-bounty hub).
+
+Scope: All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands
+(full exclusion + rules list in `scope.yml`)
+
+Pipeline (all workflows run every 20 minutes):
+
+- **Deep Hunt** (`hunt.yml`): analyst hunts the discovered inventory + hypotheses, emits structured
+  leads, chains primitives, self-critiques. Models: mimo.
+- **Triager** (`triage.yml`): second-model 7-Question Gate validation + live passive probe; keeps
+  running count in `reports/valid-bugs.md`.
+- **Reposcan** (`reposcan.yml`): deep source scan of any public GitHub org (if configured).
+- **Sync Issues** (`sync-issues.yml`): mirrors leads to GitHub issues.
+
+Testing discipline: rate-limited (1 rps), no DoS/account-lockout, writes only on non-prod/test
+assets, no exposure of customer/employee/financial/auth data, secrets committed only as hashes.
+
+> IMPORTANT: the pipeline produces CANDIDATE leads. A reportable, validated finding requires
+> human triage + proof against the program's gate. No finding is fabricated; scanner output alone
+> is never accepted. Active testing is gated behind the in-scope hosts in `inventory/hypofriend.md` and
+> must stay within the program's published scope.
+
+Artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+| `reports/valid-bugs.md` | Validated findings + running count |
+| `scope.yml` | Program scope and exclusions (edit to adjust) |
+
+Program description: German digital mortgage broker and financial technology company providing mortgage comparison, financing advice, property search, pension, and investment services
+programs:
+  hypofriend:
+    name: Hypofriend GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+knowledge/:
+index.md
+
+leads/:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-mimo.md
+lead-nemotron3.md
+reposcan-hypofriend.md
+
+recon-notes/:
+DEDICATED-DEEP.md
+
+reports/:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+reposcan-mimo.md
+valid-bugs.md
+
+triage/:
+run-2026-09-02-21-44.md
+run-2026-09-02-23-58.md
+run-2026-09-03-04-11.md
+run-2026-09-03-09-00.md
+run-2026-09-03-13-32.md
+run-2026-09-03-17-14.md
+run-2026-09-03-19-57.md
+run-2026-09-03-22-29.md
+run-2026-09-04-00-31.md
+run-2026-09-04-05-06.md
+run-2026-09-04-09-44.md
+run-2026-09-04-12-00.md
+run-2026-09-04-14-11.md
+run-2026-09-04-17-40.md
+run-2026-09-04-19-58.md
+run-2026-09-04-22-17.md
+run-2026-09-05-00-13.md
+run-2026-09-05-04-40.md
+run-2026-09-05-08-39.md
+run-2026-09-05-12-06.md
+run-2026-09-05-15-23.md
+run-2026-09-05-17-38.md
+run-2026-09-05-19-33.md
+run-2026-09-05-21-42.md
+run-2026-09-05-23-43.md
+run-2026-09-06-04-06.md
+run-2026-09-06-08-44.md
+run-2026-09-06-12-47.md
+run-2026-09-06-16-07.md
+run-2026-09-06-18-24.md
+run-2026-09-06-20-49.md
+run-2026-09-06-22-50.md
+run-2026-09-07-00-49.md
+run-2026-09-07-05-54.md
+run-2026-09-07-12-09.md
+run-2026-09-07-17-48.md
+run-2026-09-07-21-23.md
+run-2026-09-07-23-45.md
+run-2026-09-08-04-07.md
+run-2026-09-08-08-58.md
+run-2026-09-08-13-29.md
+run-2026-09-08-17-31.md
+run-2026-09-08-20-20.md
+run-2026-09-08-22-45.md
+run-2026-09-09-01-08.md
+run-2026-09-09-06-06.md
+run-2026-09-09-11-36.md
+run-2026-09-09-15-17.md
+run-2026-09-09-18-44.md
+run-2026-09-09-21-36.md
+run-2026-09-09-23-33.md
+run-2026-09-10-01-28.md
+run-2026-09-10-06-40.md
+run-2026-09-10-11-52.md
+run-2026-09-10-16-12.md
+run-2026-09-10-19-10.md
+run-2026-09-10-21-42.md
+run-2026-09-10-23-55.md
+run-2026-09-11-04-16.md
+run-2026-09-11-08-59.md
+run-2026-09-11-13-29.md
+run-2026-09-11-17-15.md
+run-2026-09-11-19-50.md
+run-2026-09-11-22-23.md
+run-2026-09-12-00-38.md
+run-2026-09-12-05-05.md
+run-2026-09-12-09-27.md
+run-2026-09-12-13-09.md
+run-2026-09-12-16-24.md
+run-2026-09-12-18-47.md
+run-2026-09-12-21-20.md
+run-2026-09-12-23-22.md
+run-2026-09-13-01-25.md
+run-2026-09-13-06-46.md
+run-2026-09-13-12-39.md
+run-2026-09-13-16-39.md
+run-2026-09-13-19-00.md
+run-2026-09-13-21-25.md
+run-2026-09-13-23-32.md
+run-2026-09-14-01-39.md
+run-2026-09-14-07-08.md
+run-2026-09-14-14-17.md
+run-2026-09-14-19-29.md
+run-2026-09-14-22-46.md
+run-2026-09-15-01-19.md
+run-2026-09-15-06-16.md
+run-2026-09-15-11-54.md
+run-2026-09-15-16-44.md
+run-2026-09-15-20-05.md
+run-2026-09-15-22-58.md
+run-2026-09-16-01-20.md
+run-2026-09-16-06-16.md
+run-2026-09-16-11-50.md
+run-2026-09-16-16-37.md
+run-2026-09-16-19-44.md
+run-2026-09-16-22-49.md
+run-2026-09-17-01-14.md
+run-2026-09-17-06-14.md
+run-2026-09-17-11-54.md
+run-2026-09-17-16-43.md
+[0m
+[0m$ [0mls -la reports/ knowledge/ | head -40; echo ---; ls reports/analyst-*.log | tail -8
+knowledge/:
+total 100
+drwxr-xr-x  2 runner runner  4096 Sep 17 18:30 .
+drwxr-xr-x 12 runner runner  4096 Sep 17 18:31 ..
+-rw-r--r--  1 runner runner 93422 Sep 17 18:30 index.md
+
+reports/:
+total 4248
+drwxr-xr-x  2 runner runner    4096 Sep 17 18:30 .
+drwxr-xr-x 12 runner runner    4096 Sep 17 18:31 ..
+-rw-r--r--  1 runner runner 2051011 Sep 17 18:30 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   21049 Sep 17 18:30 analyst-laguna.log
+-rw-r--r--  1 runner runner   20952 Sep 17 18:30 analyst-ling3.log
+-rw-r--r--  1 runner runner   21146 Sep 17 18:30 analyst-longcat.log
+-rw-r--r--  1 runner runner 1908751 Sep 17 18:30 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    5065 Sep 17 18:30 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 17 18:30 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 17 18:30 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 17 18:30 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12453 Sep 17 18:30 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  337828 Sep 17 18:30 hypotheses.md
+-rw-r--r--  1 runner runner    2703 Sep 17 18:30 reposcan-mimo.md
+-rw-r--r--  1 runner runner    3198 Sep 17 18:30 valid-bugs.md
+---
+reports/analyst-bigpickle.log
+reports/analyst-laguna.log
+reports/analyst-ling3.log
+reports/analyst-longcat.log
+reports/analyst-nemotron3.log
+[0m
+[0m$ [0mtail -30 probe-results.md; echo ===; cat reports/valid-bugs.md; echo ===; cat reports/hypotheses-bigpickle.txt | tail -20
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/en/health/q -> 200 len=228508
+https://hypofriend.de/en/plus -> 200 len=298552
+
+## 2026-09-16 18:56:53 UTC
+
+
+## 2026-09-16 21:42:27 UTC
+
+
+## 2026-09-17 00:02:24 UTC
+
+
+## 2026-09-17 04:59:50 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/en/health/q -> 200 len=228508
+https://hypofriend.de/en/plus -> 200 len=298552
+
+## 2026-09-17 09:53:44 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/en/health/q -> 200 len=228508
+https://hypofriend.de/en/plus -> 200 len=298552
+
+## 2026-09-17 14:41:27 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/en/health/q -> 200 len=228508
+https://hypofriend.de/en/plus -> 200 len=298552
+===
+# Validated findings (running count 0)
+
+- 1 lead(s) marked VALID at 2026-09-04 14:11:03 UTC
+  - | **VALID** | GraphQL BOLA/IDOR on `favoritedExposes`/`favoriteExpose` — arbitrary leadId read+write with no auth, exposing cross-tenant PII (broker phone/email/surname) on a financial mortgage platfo
+
+- 4 lead(s) marked VALID at 2026-09-07 17:48:26 UTC
+  - | Q7 Reasonable | **Yes** — auth-free R/W BOLA over customer-scoped IDs on a mortgage platform is a textbook valid bug |
+  - **VERDICT: VALID**
+  - | Q2 Reachable | **Partially** — endpoint returns 401, but no valid credentials confirmed |
+  - | 1 | GraphQL BOLA/IDOR (favoritedExposes/favoriteExpose) | **VALID** | 8.6 | bugs.olivermaicher.eu |
+
+- 14 lead(s) marked VALID at 2026-09-08 08:58:20 UTC
+  - **Verdict: VALID** — Read-only proof: POST introspection query. **Impact: Medium** (enabler). **CVSS 3.1: 5.3 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: execute GraphQL queries as shown. **Impact: CRITICAL**. **CVSS 3.1: 8.6 (High)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: call mutation with arbitrary leadId, observe error differential. **Impact: High**. **CVSS 3.1: 8.1 (High)**. **Report via:** bugs.olivermaicher.eu
+  - | Q3 Impact? | YES | Returns appointment data for arbitrary lead_id; zero-UUID returns `[]` but valid UUIDs may return booked appointment details |
+  - **Verdict: VALID** — Read-only: POST with zero-UUID. **Impact: Medium-High**. **CVSS 3.1: 6.5 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: OPTIONS request with custom Origin. **Impact: High** (session hijack if authenticated users exist). **CVSS 3.1: 8.1 (High)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: `curl -I` to origin vs edge. **Impact: Medium**. **CVSS 3.1: 5.3 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: HOLD** — Needs active validation to confirm takeover is possible. Risk of false positive if ngrok re-registers. **Impact: Medium if confirmed**. **CVSS 3.1: 6.5 (Medium)** if valid.
+  - | 1 | GraphQL introspection enabled | **VALID** | 5.3 (M) | Enabler for PII leak |
+  - | 2 | Unauthenticated PII enumeration | **VALID** | 8.6 (H) | Direct customer data exposure |
+  - | 3 | Cross-tenant write via `favoriteExpose` | **VALID** | 8.1 (H) | IDOR write + oracle |
+  - | 4 | BOLA on `already_booked_appointments` | **VALID** | 6.5 (M) | Unauth appointment data |
+  - | 5 | Open credentialed CORS on `/q` | **VALID** | 8.1 (H) | Session hijack vector |
+  - | 7 | Direct-origin CloudFront bypass | **VALID** | 5.3 (M) | WAF/security-header bypass |
+
+- 1 lead(s) marked VALID at 2026-09-13 06:46:05 UTC
+  - Please paste the lead findings (URLs, probe results, descriptions) and I'll run each through the 7-Question Gate with the verdict, reasoning, and (for VALID) minimal proof steps, impact assessment, CV
+
+- 4 lead(s) marked VALID at 2026-09-16 01:20:41 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL BOLA/IDOR (property-search-api) | **VALID** | 8.6 High |
+  - | 2 | GraphQL Introspection + Stack-Trace Leak | **VALID** | 5.3 Medium |
+===
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST body
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `mutation($t:String!,$d:String!,$a:String!){uploadDocumentExtended(input:{type:$t,document_type:$d,applicant_type:$a}){step}}` with empty file part + Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus|en/health GraphQL — email→leadPresent+firstName account-existence/PII oracle in client mutation set
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (client bundle CQpUFwUr.js)
+confidence: 55
+reasoning: bundle mine this cycle shows `requestAccountLink(input:{email})→{step,leadPresent,firstName}` and `requestAppointmentLink(input:{email})→{leadPresent,firstName}` in anonymous client code; endpoint routing (coreApiUrl) and reachability not yet confirmed; presence of firstName (PII) beyond existence flag differentiates from plain username-enum; but OOS proximity (username enumeration) reduces value
+evidence_needed: confirm which /q host serves these mutations (HUMAN: benign POST with JSON-scalar-shape args) + whether it fires emails
+verify_steps: HUMAN — compare coreApiUrl in /en/plus bundle with /en/health bundle; then POST `mutation{requestAppointmentLink(input:{email:"probing-<rand>@example.com"}){leadPresent firstName}}`; log only boolean/field presence
+impact: automated cross-vertical lead existence scoring + firstName disclosure per email. MEDIUM, enhonly enum (OOS proximity)
+testability: AUTH_HELPED
+[PARKED] /en/plus|en/health email→leadPresent+firstName oracle: confidence 55 (borderline); OOS proximity (username enumeration); unconfirmed endpoint routing — keep as lower-priority if HUMAN wants breadth.
+[FINAL] survivors ranked:
+[NEXT] HUMAN: decide phase exception for POC on dead target — api.hypofriend.de dead 19th consecutive cycle (000 :80/:443, 04:57Z, A 52.15.184.3). Recommend re-scoping POC evidence to core.hypofriend.de/property-search-api (HUMAN-authorized UUID-only offset-walk vs BERLIN/MUNICH) or close phase with current CRITICAL confirms; alternatively authorize benign multipart POST against core.hypofriend.de/en/plus/q to close the upload-handler gate.
+[LEARN] REJECTED NG @ api.hypofriend.de: 000 re-confirmed 04:57Z on :80/:443 — dead 19th consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) freshness re-verified 04:57Z — precondition chain intact.
+[LEARN] ACCEPTED NG @ fleet: no host re-probed beyond api + single OPTIONS freshness check (phase-pinned); all tracked surface bit-identical to prior cycle — no new surface.
+[RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations on a financial platform. POC target (api) dead 19th consecutive cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+[0m
+[0m$ [0mcat reports/reposcan-mimo.md | head -60; echo ===; tail -40 triage/run-2026-09-17-16-43.md
+# Repository Scan Findings - mimo-v2.5-free
+## Date: 2026-09-03
+
+## Executive Summary
+
+Scanned 44 public repositories in HypoFriend GitHub organization. Found 2 non-fork repositories (HypoFriend/advisor-couching, HypoFriend/browserUtils). browserUtils is empty. No hardcoded secrets, API keys, or credentials were found. One informational finding regarding a Google Cloud Project number.
+
+---
+
+## Findings
+
+### [HYP] Google Cloud Project Number Exposed
+- **class:** OTHER
+- **asset:** HypoFriend/advisor-couching/main.js:17
+- **confidence:** 20
+- **reasoning:** Hardcoded `CLOUD_PROJECT_NUMBER = "910242124570"` found in main.js. This is a GCP project number (not a secret key), used for Google Meet Add-on integration. Project numbers are semi-public and can be found via GCP APIs, but exposure here reduces attack surface for reconnaissance.
+- **impact:** Low - Informational. Project numbers alone don't grant access but can be used for enumeration of GCP resources.
+- **verify_steps:** Passive - Check if this project number is associated with active Hypofriend GCP resources via Google APIs or public datasets.
+
+---
+
+## Repositories Scanned (Non-Fork)
+
+| Repository | Status | Notes |
+|------------|--------|-------|
+| HypoFriend/advisor-couching | Contains code | Google Meet Add-on, hardcoded GCP project number |
+| HypoFriend/browserUtils | Empty | No content |
+
+## Repositories Scanned (Forks - No Findings)
+
+All forked repositories (44 total) were scanned for:
+- AWS access keys (AKIA pattern)
+- Google API keys (AIza pattern)
+- GitHub PATs (ghp_ pattern)
+- Stripe keys (sk_live_, sk-us patterns)
+- Private keys (BEGIN RSA/EC/OPENSSH PRIVATE)
+- Hardcoded passwords, API keys, secrets, tokens
+- AWS S3 bucket references
+- Google Cloud Storage URLs
+- Azure endpoints
+
+**Result:** No secrets or hardcoded credentials found in any repository.
+
+## Environment Variable Usage (Good Practice)
+
+The following repos correctly use environment variables for secrets:
+- HypoFriend/slack-pull-reminder: `SLACK_API_TOKEN`, `GITHUB_API_TOKEN` via `os.environ`
+- HypoFriend/ecs-deploy: AWS credentials via GitHub Action inputs
+- HypoFriend/gulp-cloudfront-invalidate-aws-publish: `process.env.AWS_SECRET_ACCESS_KEY`
+
+---
+
+## Conclusion
+
+No actionable security findings (SECRETS, MISCONFIG, IDOR, SSRF) were identified in the public GitHub repositories. The only finding is informational: a hardcoded GCP project number in advisor-couching that could aid reconnaissance but does not directly compromise security.
+
+**Recommendation:** Consider using environment variables for the GCP project number in advisor-couching if it should remain private, though project numbers are generally not considered sensitive.
+===
+
+===== TRIAGE 2026-09-17 16:43:19 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+I'm ready to triage, but the LEADS section is empty. Please provide the probe results you'd like me to evaluate against the 7-Question Gate.
+[0m
+[0m$ [0mecho "== api HTTPS =="; curl -sk -o /dev/null -w '%{http_code} %{time_total}s\n' --max-time 12 https://api.hypofriend.de/ 2>&1; echo "== api HTTP =="; curl -s -o /dev/null -w '%{http_code} %{time_total}s\n' --max-time 12 http://api.hypofriend.de/ 2>&1; sleep 1
+== api HTTPS ==
+000 0.160281s
+== api HTTP ==
+000 12.002417s
+[0m
+[0m$ [0mcurl -sk -o /dev/null -D - -X OPTIONS 'https://core.hypofriend.de/en/health/q' -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' --max-time 12 2>&1 | head -20
+HTTP/2 200 
+date: Thu, 17 Sep 2026 18:31:48 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+STEP 1 — DELTA
+- [CHANGED] api.hypofriend.de re-probed 18:31Z: :443 SSL_ERROR_SYSCALL (0.16s, instant TLS-fail) + :80 connect-timeout (12s), A 52.15.184.3 — dead 20th consecutive cycle, target unchanged (phase-pinned).
+- [CHANGED] core.hypofriend.de/en/health/q credentialed CORS freshness re-verified live 18:31Z — OPTIONS Origin https://evil.example + ACRM:POST → 200 ACAO echo + access-control-allow-credentials:true + all methods (max-age 7200), `vary: Accept-Encoding` (no Vary:Origin) — precondition chain intact.
+- NO_DELTA elsewhere: no host re-probed beyond api + single OPTIONS freshness check (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301).
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api,9.4 — a:9 b:10 t:9 g:10 c:8 f:10
+- [PRIO] core.hypofriend.de/en/plus/q,8.75 — a:8 b:9 t:9 g:9 c:8 f:10
+- [PRIO] core.hypofriend.de/q,7.65 — a:7 b:8 t:8 g:8 c:7 f:8
+
+STEP 3 — HYPOTHESES
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth (2026-09-04+); introspection live; offset-walk limit ~50 proven; direct-origin bare-header WAF bypass re-proven prior cycles; this cycle only confirmed api dead + CORS freshness — no PII gates advanced
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only; repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free multipart upload/lead mutations; precondition chain re-verified this cycle
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (+/en/health/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: ACAO+ACAC:true+all-methods OPTIONS re-verified live 18:31Z this cycle; bundle `uploadDocumentExtended($type,$files:[File!]!,$document_type,$applicant_type)` → `{step}` recovered passively prior cycles; SameSite=None;Secure __hfp cookies prior cycles; mutations returned 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST body
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `mutation($t:String!,$d:String!,$a:String!){uploadDocumentExtended(input:{type:$t,document_type:$d,applicant_type:$a}){step}}` with empty file part + Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus|en/health GraphQL — email→leadPresent+firstName account-existence/PII oracle in client mutation set
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (client bundle)
+confidence: 55
+reasoning: bundle mine shows `requestAccountLink(input:{email})→{step,leadPresent,firstName}` and `requestAppointmentLink(input:{email})→{leadPresent,firstName}` in anonymous client code; endpoint routing (coreApiUrl) + reachability not confirmed; firstName (PII) beyond existence flag differentiates from plain username-enum; OOS proximity (username enumeration) reduces value
+evidence_needed: confirm which /q host serves these mutations + whether it fires emails
+verify_steps: HUMAN — compare coreApiUrl in /en/plus bundle with /en/health bundle; then POST `mutation{requestAppointmentLink(input:{email:"probing-<rand>@example.com"}){leadPresent firstName}}`; log only boolean/field presence
+impact: automated cross-vertical lead existence scoring + firstName disclosure per email. MEDIUM, enum-only (OOS proximity)
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] /en/plus|en/health email→leadPresent+firstName oracle: confidence 55 (borderline); OOS proximity (username enumeration); unconfirmed endpoint routing — keep as lower-priority if HUMAN wants breadth.
+- [FINAL] survivors ranked: 1) property-search-api full-DB BOLA (95, HUMAN-gated bulk quantification); 2) /en/plus/q credentialed CORS + upload/lead mutations (90, HUMAN-gated benign multipart POST).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: decide phase exception for POC on dead target — api.hypofriend.de re-probed dead 18:31Z this cycle (20th consecutive 000 :80/:443, A 52.15.184.3 resolves clean, resolves fine). Recommend re-scoping POC evidence to core.hypofriend.de/property-search-api (HUMAN-authorized UUID-only offset-walk vs BERLIN/MUNICH) or close phase with current CRITICAL confirms; alternatively authorize benign multipart POST against core.hypofriend.de/en/plus/q to close the upload-handler gate.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED NG @ api.hypofriend.de: :443 SSL_ERROR_SYSCALL (0.16s instant fail) + :80 connect-timeout (12s) re-confirmed live 18:31Z, A 52.15.184.3 — dead 20th consecutive cycle, no takeover surface, target unchanged.
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin) freshness re-verified 18:31Z this cycle — precondition chain intact.
+- [LEARN] ACCEPTED NG @ fleet: no host re-probed beyond api + single OPTIONS freshness check (phase-pinned); all tracked surface bit-identical to prior cycle — no new surface.
+
+STEP 7 — RISK
+- [RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations on a financial platform. POC target (api) dead 20th consecutive cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
