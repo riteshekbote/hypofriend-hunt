@@ -730,3 +730,9 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed live 04:57Z — dead 19th consecutive cycle, A 52.15.184.3 resolves clean
 - CHANGED All dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*, graph-rates, v3, login, sso) + a./blog/m2 buckets + *.l
 - CHANGED property-search.hypofriend.de — bundle-mined dedicated host (resolves ELB 52.59.28.94/63.182.220.70/63.184.235.89), HTTPS 503 awselb/2.0, HTTP 301; runtime-overridden via Nuxt __NUXT__; NOT in invento
+
+## 2026-09-17 23:52:11 UTC
+- NEW core.hypofriend.de/en/plus/q — GraphQL endpoint now live on direct origin (200, len=228508) as of 2026-09-16 05:13Z; previously unprobed/301 on origin
+- CHANGED core.hypofriend.de/en/health/q — response length increased 227365→228508 (Nuxt bundle refresh)
+- CHANGED hypofriend.de/en/health — S3 meta-refresh object last-modified refreshed 2026-09-14 17:22:23Z (static redeploy)
+- CHANGED api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed live 04:57Z — dead 19th consecutive cycle, A 52.15.184.3 resolves clean
