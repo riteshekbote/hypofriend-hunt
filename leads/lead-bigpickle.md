@@ -3910,3 +3910,36 @@ evidence_needed: none new — chain already ACCEPTED; only HUMAN-decided victim-
 verify_steps: N/A — parked; requires real logged-in cookie (HUMAN_ONLY)
 impact: competitive-intel leak (per-region lender pricing) + cross-tenant appointment read oracle precondition. HIGH
 testability: AUTH_HELPED
+## 2026-09-17 04:58:02 UTC [target] (model bigpickle)
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth since 09-04; introspection live; offset-walk limit ~50; closed-CORS + direct-origin bare-header WAF bypass re-proven prior cycles; probe stayed on dead api target this cycle
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only; repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/health/q & /en/plus/q — credentialed CORS + auth-free mutation set; per-vertical session cookies domain-scoped
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+/en/plus/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200) LIVE re-verified 04:57Z this cycle; POST `{__typename}` 200 all 4 combos prior cycles; SameSite=None;Secure __hfp___hypofriend.health__ + __hfp___hypofriend.plus__ cookies; uploadDocumentExtended+processLeadForAppointment 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q with uploadDocumentExtended mutation + Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /q — anonymous mortgage-rate engine + BOLA boundary + domain-wide internal=FALSE cookie intact
+class: MISCONFIG
+asset: core.hypofriend.de/q (+hypofriend.de/q edge pair)
+confidence: 85
+reasoning: rates_table 0.10% BAYERN vs SAXONY delta 200 auth-free; calculateCityTax 3.5%; already_booked_appointments(lead_id zero-UUID) 200 empty both hosts no auth; introspection disabled; origin XFO:ALLOWALL vs edge DENY proven prior cycles; not re-probed this cycle
+evidence_needed: none new — chain already ACCEPTED; only HUMAN-decided victim-session gate remains
+verify_steps: N/A — parked; requires real logged-in cookie (HUMAN_ONLY)
+impact: competitive-intel leak (per-region lender pricing) + cross-tenant appointment read oracle precondition. HIGH
+testability: AUTH_HELPED
+[NEXT] HUMAN: decide phase exception for POC on dead target — api.hypofriend.de dead 18th consecutive cycle (SSL_ERROR_SYSCALL :443 / connect-timeout :80, 04:57Z). Recommend re-scoping POC evidence to core.hypofriend.de/property-search-api (HUMAN-authorized UUID-only offset-walk) or close phase with current confirmed criticals; failing that, replace api with any live scoped host.
+[LEARN] REJECTED NG @ api.hypofriend.de: :443 SSL_ERROR_SYSCALL + :80 connect-timeout re-probed live 04:57Z — dead 18th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin) re-verified live 04:57Z — precondition chain intact.
+[LEARN] ACCEPTED NG @ fleet: no host re-probed beyond api + single OPTIONS freshness check (phase-pinned); all tracked surface bit-identical to prior cycle — no new surface.
+[RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + auth-free upload/lead mutations on a financial platform. Designated POC target (api) dead 18th consecutive cycle — phase cannot complete against it under current pinning; all remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
