@@ -463,3 +463,5 @@
 - 2026-09-17 ACCEPTED NG @ property-search.hypofriend.de: bundle-mined dedicated property-search host is 503 awselb/2.0 edge and runtime-overridden — inventory note, no surface
 - 2026-09-17 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) + property-search-api no-ACAO contrast re-verified 2026-09-15 05:42Z — precondition chain intact
 - 2026-09-17 REJECTED PHASE-GATE: POC phase designated target=api.hypofriend.de; api dead 14 cycles — no live surface for phase completion. Phase mismatch constrains probe actions.
+- 2026-09-17 REJECTED NG @ api.hypofriend.de: 000 re-confirmed 04:57Z on :80/:443 — dead 19th consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+- 2026-09-17 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) freshness re-verified 04:57Z — precondition chain intact.

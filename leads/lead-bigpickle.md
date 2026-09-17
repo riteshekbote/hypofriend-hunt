@@ -3973,3 +3973,41 @@ impact: automated cross-vertical lead existence scoring + firstName disclosure p
 testability: AUTH_HELPED
 [NEXT] HUMAN: decide phase exception for POC on dead target — api.hypofriend.de dead 19th consecutive cycle (000 :80/:443, 09:50Z, A 52.15.184.3). Recommend re-scoping POC evidence to core.hypofriend.de/property-search-api (HUMAN-authorized UUID-only offset-walk vs BERLIN/MUNICH) or close phase with current CRITICAL confirms; alternatively authorize benign multipart POST against core.hypofriend.de/en/plus/q to close the upload-handler gate.
 [RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations on a financial platform. POC target (api) dead 19th consecutive cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+## 2026-09-17 14:36:35 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,9.4 — a:9 b:10 t:9 g:10 c:8 f:10
+[PRIO] core.hypofriend.de/en/plus/q,8.75 — a:8 b:9 t:9 g:9 c:8 f:10
+[PRIO] core.hypofriend.de/q,7.65 — a:7 b:8 t:8 g:8 c:7 f:8
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth (09-04+); introspection live; offset-walk limit ~50; closed-CORS + direct-origin bare-header WAF bypass re-proven prior cycles; probe stayed on dead api target this cycle
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only; repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free multipart upload/lead mutations; client signature now bundle-confirmed
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (+/en/health/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: ACAO+ACAC:true+all-methods OPTIONS re-verified live 04:57Z both endpoints; bundle `uploadDocumentExtended($type,$files:[File!]!,$document_type,$applicant_type)` → `{step}` recovered passively this cycle matching prior /en/health mine; SameSite=None;Secure __hfp cookies prior cycles; mutations returned 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST body
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `mutation($t:String!,$d:String!,$a:String!){uploadDocumentExtended(input:{type:$t,document_type:$d,applicant_type:$a}){step}}` with empty file part + Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+[HYP] /en/plus|en/health GraphQL — email→leadPresent+firstName account-existence/PII oracle in client mutation set
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (client bundle CQpUFwUr.js)
+confidence: 55
+reasoning: bundle mine this cycle shows `requestAccountLink(input:{email})→{step,leadPresent,firstName}` and `requestAppointmentLink(input:{email})→{leadPresent,firstName}` in anonymous client code; endpoint routing (coreApiUrl) and reachability not yet confirmed; presence of firstName (PII) beyond existence flag differentiates from plain username-enum; but OOS proximity (username enumeration) reduces value
+evidence_needed: confirm which /q host serves these mutations (HUMAN: benign POST with JSON-scalar-shape args) + whether it fires emails
+verify_steps: HUMAN — compare coreApiUrl in /en/plus bundle with /en/health bundle; then POST `mutation{requestAppointmentLink(input:{email:"probing-<rand>@example.com"}){leadPresent firstName}}`; log only boolean/field presence
+impact: automated cross-vertical lead existence scoring + firstName disclosure per email. MEDIUM, enhonly enum (OOS proximity)
+testability: AUTH_HELPED
+[PARKED] /en/plus|en/health email→leadPresent+firstName oracle: confidence 55 (borderline); OOS proximity (username enumeration); unconfirmed endpoint routing — keep as lower-priority if HUMAN wants breadth.
+[FINAL] survivors ranked:
+[NEXT] HUMAN: decide phase exception for POC on dead target — api.hypofriend.de dead 19th consecutive cycle (000 :80/:443, 04:57Z, A 52.15.184.3). Recommend re-scoping POC evidence to core.hypofriend.de/property-search-api (HUMAN-authorized UUID-only offset-walk vs BERLIN/MUNICH) or close phase with current CRITICAL confirms; alternatively authorize benign multipart POST against core.hypofriend.de/en/plus/q to close the upload-handler gate.
+[LEARN] REJECTED NG @ api.hypofriend.de: 000 re-confirmed 04:57Z on :80/:443 — dead 19th consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) freshness re-verified 04:57Z — precondition chain intact.
+[LEARN] ACCEPTED NG @ fleet: no host re-probed beyond api + single OPTIONS freshness check (phase-pinned); all tracked surface bit-identical to prior cycle — no new surface.
+[RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations on a financial platform. POC target (api) dead 19th consecutive cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
