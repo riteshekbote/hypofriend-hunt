@@ -22663,3 +22663,369 @@ STEP 6 — LEARNING:
 
 STEP 7 — RISK:
 [RISK] hypofriend: 99 — CRITICAL, unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + auth-free upload/lead mutations on a financial platform. Designated POC target (api) dead 18th consecutive cycle — phase cannot complete against it under current pinning; all remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-17 09:53:36 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sk -o /dev/null -w '%{http_code}' --connect-timeout 8 --max-time 10 https://hypofriend.de/q -X POST -H 'Content-Type: application/json' -d '{"query":"{__typename}"}' 2>/dev/null; echo; curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 8 --max-time 10 https://core.hypofriend.de/en/health/q -X OPTIONS -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' 2>/dev/null
+200
+200
+[0m
+[0m$ [0mcurl -sk -o /dev/null -w '%{http_code}' --connect-timeout 8 --max-time 10 https://api.hypofriend.de/ 2>/dev/null; echo; curl -sk -o /dev/null -w '%{http_code}' --connect-timeout 8 --max-time 10 http://api.hypofriend.de/ 2>/dev/null
+000
+000
+[0m
+[0m$ [0m# Check freshness of key endpoints
+curl -sk -D- -o /dev/null --connect-timeout 8 --max-time 10 'https://core.hypofriend.de/en/health/q' -X OPTIONS -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type' 2>/dev/null | grep -iE 'access-control|x-frame|strict-transport|x-content-type|x-xss|referrer|server:|date:|vary:'
+date: Thu, 17 Sep 2026 09:50:44 GMT
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+[0m
+[0m$ [0m# Quick check /en/plus/q CORS too
+curl -sk -D- -o /dev/null --connect-timeout 8 --max-time 10 'https://hypofriend.de/en/plus/q' -X OPTIONS -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' 2>/dev/null | grep -iE 'access-control|x-frame|strict-transport|server:|date:'
+date: Thu, 17 Sep 2026 09:50:46 GMT
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+[0m
+[0m$ [0m# Get the Nuxt page to find the JS bundle URL for /en/plus
+curl -sk --connect-timeout 8 --max-time 15 'https://hypofriend.de/en/plus' 2>/dev/null | grep -oE 'src="[^"]*\.js"' | head -20
+src="https://app.usercentrics.eu/browser-ui/latest/loader.js"
+src="/m/_nuxt/CQpUFwUr.js"
+[0m
+[0m$ [0m# Download the Nuxt bundle and search for GraphQL mutation/query names
+curl -sk --connect-timeout 8 --max-time 15 'https://hypofriend.de/m/_nuxt/CQpUFwUr.js' 2>/dev/null | grep -oE '[a-zA-Z]+(Mutation|Query|mutation|query)\b' | sort -u | head -40
+forEachMutation
+jQuery
+parseQuery
+stringifyQuery
+[0m
+[0m$ [0m# Search for /q-related GraphQL operation names, upload, document, appointment
+curl -sk --connect-timeout 8 --max-time 15 'https://hypofriend.de/m/_nuxt/CQpUFwUr.js' 2>/dev/null | grep -oiE '(upload[A-Za-z]*|createDocumentsRequest|submitApplicantsInformation|submitPropertyCertificate|processLeadForAppointment|setOriginAppointment|updateLeadAndSchedule|appointmentAvailability|rates_table|calculateCityTax|alreadyBookedAppointments|favoriteExpose|informationRequest|propertySearch|expose[^d]|exposes[^I])' | sort -u
+Exposes(
+Exposes:
+PropertySearch
+RATES_TABLE
+UploadProgress
+alreadyBookedAppointments
+appointmentAvailability
+calculateCityTax
+createDocumentsRequest
+expose"
+expose(
+expose:
+exposeM
+exposeP
+exposes(
+exposes?
+processLeadForAppointment
+propertySearch
+rates_table
+setOriginAppointment
+submitApplicantsInformation
+submitPropertyCertificate
+updateLeadAndSchedule
+upload
+uploadDocument
+uploadDocumentExtended
+[0m
+[0m$ [0m# Extract full bundle and look for the actual GraphQL operation strings (variables + field selections around uploadDocumentExtended)
+curl -sk --connect-timeout 8 --max-time 20 'https://hypofriend.de/m/_nuxt/CQpUFwUr.js' 2>/dev/null > /tmp/opencode/plus-bundle.js; wc -c /tmp/opencode/plus-bundle.js; grep -oE '.{80}uploadDocumentExtended.{80}' /tmp/opencode/plus-bundle.js | head -5
+1334444 /tmp/opencode/plus-bundle.js
+[0m
+[0m$ [0mgrep -oE '.{60}uploadDocumentExtended.{40}' /tmp/opencode/plus-bundle.js | head -5; echo ---; grep -oE '.{60}processLeadForAppointment.{40}' /tmp/opencode/plus-bundle.js | head -5
+---
+eturnerAndCalculateExpectedValue(){const{data:l}=await Ke(s.processLeadForAppointment(),{operationName:"processLeadForAppoint
+[0m
+[0m$ [0mgrep -oE '(mutation|Mutation)\s+[A-Za-z]+' /tmp/opencode/plus-bundle.js | sort -u | head; echo ---; grep -oE '.{70}processLeadForAppointment\(\)\}.{70}' /tmp/opencode/plus-bundle.js | head -3; echo ---; grep -oE 'operationName:"[A-Za-z]+"' /tmp/opencode/plus-bundle.js | sort -u | head -30
+mutation calculateCityTax
+mutation createGoogleConversion
+mutation requestAccountLink
+mutation requestAppointmentLink
+mutation requestFacebookConversion
+mutation setLocale
+mutation setNameAppointment
+mutation unclaimLead
+mutation uploadDocumentExtended
+---
+---
+operationName:"fetchAdvisorAppointmentCalendar"
+operationName:"fetchAppointmentCalendar"
+operationName:"processLeadForAppointment"
+operationName:"saveAppointment"
+operationName:"saveTrackingUTM"
+operationName:"setLocale"
+[0m
+[0m$ [0mgrep -oE 'mutation [A-Za-z]+\{[^}]{0,400}' /tmp/opencode/plus-bundle.js | head -20
+(no output)
+[0m
+[0m$ [0mgrep -oE '.{100}mutation [a-zA-Z]+[^`]{0,300}' /tmp/opencode/plus-bundle.js | head -10
+(no output)
+[0m
+[0m$ [0m# Find context around the mutations
+grep -oE '.{120}(mutation calculateCityTax|mutation uploadDocumentExtended|mutation processLeadForAppointment).{80}' /tmp/opencode/plus-bundle.js | head -10
+(no output)
+[0m
+[0m$ [0mgrep -boE 'mutation [A-Za-z]+' /tmp/opencode/plus-bundle.js | head; echo; grep -bE 'uploadDocumentExtended' /tmp/opencode/plus-bundle.js | head
+386776:mutation uploadDocumentExtended
+389965:mutation setLocale
+390107:mutation unclaimLead
+391511:mutation requestAccountLink
+391693:mutation requestAppointmentLink
+393413:mutation calculateCityTax
+393597:mutation calculateCityTax
+397166:mutation setNameAppointment
+399402:mutation requestFacebookConversion
+399632:mutation createGoogleConversion
+
+386772:    mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+386895:      uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type: $applicant_type }) {
+[0m
+[0m$ [0mdd if=/tmp/opencode/plus-bundle.js bs=1 skip=386760 count=700 2>/dev/null
+ument:()=>`
+    mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+      uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type: $applicant_type }) {
+        step
+      }
+    },
+  `};function xB(e={}){const t={...LB,...e};return{async submitApplicantsInformation(r){const{data:n}=await Ke(t.submitApplicantsInformation(r),!1,"submitApplicantsInformation");return!!n.data.success},async submitPropertyCertificate(r){const{data:n}=await Ke(t.submitPropertyCertificate(r),!1,"submitPropertyCertificate");return!!n.data.success},async createDocumentsRequest(r){const{data:n}=await Ke(t.
+[0m
+[0m$ [0mgrep -oE 'mutation [A-Za-z]+\([^)]*\)\{[^`]{0,400}' /tmp/opencode/plus-bundle.js | head -30
+(no output)
+[0m
+[0m$ [0m# extract all mutation doc strings in the bundle
+grep -oE 'mutation [A-Za-z]+\([^)]*\) \{[^`]{0,350}' /tmp/opencode/plus-bundle.js | head -30
+mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+mutation setLocale($locale: LocaleEnum!) {
+[0m
+[0m$ [0mgrep -oE 'mutation [^`]{40,500}' /tmp/opencode/plus-bundle.js | head -40
+mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+[0m
+[0m$ [0mgrep -oE '.{0,20}mutation [a-zA-Z]+[^`]*`' /tmp/opencode/plus-bundle.js | head -30
+(no output)
+[0m
+[0m$ [0m# Extract all mutation document templates from bundle
+grep -oE 'mutation [a-zA-Z]+[^`]*\.`' /tmp/opencode/plus-bundle.js | head -30
+(no output)
+[0m
+[0m$ [0m# Mutation strings are template literals (backtick). Extract everything between "mutation" and closing backtick that contains "%".
+grep -oE 'mutation .*\`' /tmp/opencode/plus-bundle.js | head
+(no output)
+[0m
+[0m$ [0m# Use node to extract the mutation template literals
+node -e '
+const fs=require("fs");
+const s=fs.readFileSync("/tmp/opencode/plus-bundle.js","utf8");
+const re=/mutation [A-Za-z]+[^`]*`/g;
+let m, seen=new Set();
+while((m=re.exec(s))){
+  const t=m[0];
+  if(!seen.has(t)){seen.add(t);console.log("-----");console.log(t.slice(0,600));}
+}
+' 2>/dev/null | head -80
+-----
+mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {
+      uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type: $applicant_type }) {
+        step
+      }
+    },
+  `
+-----
+mutation setLocale($locale: LocaleEnum!) {
+      setLocale(input: { locale: $locale }) {
+        step
+      }
+    }
+  `
+-----
+mutation unclaimLead {
+      unclaimLead(input: {}) {
+        success
+      }
+    }
+  `
+-----
+mutation requestAccountLink {
+      requestAccountLink(input: {email: "${e}"}) {
+        step
+        leadPresent
+        firstName
+      }
+    }
+  `
+-----
+mutation requestAppointmentLink {
+      requestAppointmentLink(input: {email: "${e}"}) {
+        leadPresent
+        firstName
+      }
+    }
+  `
+-----
+mutation calculateCityTax {
+      calculateCityTax(input: { city_or_postal_code: "${e}" }) {
+        formatted_tax
+        tax
+      }
+    }
+  `
+-----
+mutation calculateCityTax {
+      calculateCityTax(input: { region: "${e}" }) {
+        formatted_tax
+        tax
+      }
+    }
+  `
+-----
+mutation setNameAppointment {
+      setNameAppointment(input: {
+        name: "${e}"
+      }) { step }
+    }
+  `
+-----
+mutation requestFacebookConversion {
+      requestFacebookConversion(input: {
+        facebookId: "${e}",
+        conversionId: "${t}"
+      }) {
+        success
+      }
+    }
+  `
+-----
+mutation createGoogleConversion {
+      createGoogleConversion(input: {
+        gclid: "${e}"
+      }) {
+        success
+      }
+    }
+  `
+[0m
+[0m$ [0mnode -e '
+const fs=require("fs");
+const s=fs.readFileSync("/tmp/opencode/plus-bundle.js","utf8");
+const re=/query [A-Za-z]+[^`]*`/g;
+let m, seen=new Set();
+while((m=re.exec(s))){
+  const t=m[0];
+  if(!seen.has(t)){seen.add(t);console.log("-----");console.log(t.slice(0,700));}
+}
+' 2>/dev/null | head -120
+-----
+query RatesTable {
+        root {
+          rates_table(
+            loan_amount: ${c||"null"},
+            property_price: ${h||"null"},
+            repayment: ${m||"null"},
+            years_fixed: [5,10,15,20,25,30],
+            ${l}
+          )
+        }
+      }
+    `
+-----
+query RatesTable {
+        root {
+          rates_table(
+            loan_amount: ${Number.parseFloat(e)},
+            property_price: ${Number.parseFloat(t)},
+            repayment: ${Number.parseFloat(r)},
+            years_fixed: [5,10,15,20,25,30],
+            ${l}
+          )
+        }
+      }
+    `
+[0m
+[0m$ [0mnode -e '
+const fs=require("fs");
+const s=fs.readFileSync("/tmp/opencode/plus-bundle.js","utf8");
+// capture longer query/mutation templates incl variables
+const re=/(mutation|query) [A-Za-z]+[^`]*`/g;
+let m, seen=new Set();
+while((m=re.exec(s))){
+  const t=m[0];
+  // filter to those containing "Appointment" or "Document" or "Lead"
+  if(/Appointment|Document|Lead|applicants|certificate/i.test(t) && !seen.has(t.split("{")[0])){
+    seen.add(t.split("{")[0]); console.log("-----"); console.log(t.replace(/\s+/g," ").slice(0,400));
+  }
+}
+' 2>/dev/null | head -60
+-----
+mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) { uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type: $applicant_type }) { step } }, `
+-----
+mutation unclaimLead { unclaimLead(input: {}) { success } } `
+-----
+mutation requestAccountLink { requestAccountLink(input: {email: "${e}"}) { step leadPresent firstName } } `
+-----
+mutation requestAppointmentLink { requestAppointmentLink(input: {email: "${e}"}) { leadPresent firstName } } `
+-----
+mutation setNameAppointment { setNameAppointment(input: { name: "${e}" }) { step } } `
+[0m
+STEP 1 — DELTA
+- [CHANGED] /en/plus Nuxt bundle mine (passive, GET): full mutation set recovered from client code — `uploadDocumentExtended($type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!){step}` (multipart `[File!]!`, maps `file` in input); NEW `requestAccountLink(input:{email})→{step,leadPresent,firstName}`; `requestAppointmentLink(input:{email})→{leadPresent,firstName}`; `unclaimLead`; `setNameAppointment`; `calculateCityTax({city_or_postal_code|region})`; `RatesTable` query on `root.rates_table`; operationNames fetchAdvisorAppointmentCalendar/fetchAppointmentCalendar/saveAppointment/saveTrackingUTM.
+- [CONFIRMED] api.hypofriend.de 000 on :80/:443 — dead 19th consecutive cycle (phase target, still unreachable).
+- [RE-VERIFIED] credentialed CORS OPTIONS live this cycle 09:50Z: core.hypofriend.de/en/health/q AND hypofriend.de/en/plus/q echo ACAO + ACAC:true + all methods (max-age 7200, `vary: Accept-Encoding`, no Vary:Origin) with Origin https://evil.example + ACRM:POST.
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api, 9.4, attack2.5+biz2.5+tech1.5(ait core)+gate1.5+cloud1.0+fresh0.4
+- [PRIO] hypofriend.de/en/plus/q + core.hypofriend.de/en/health/q, 9.0, attack2.3+biz2.5+tech1.5(upload/multipart)+gate1.5+cloud1.0+fresh0.3
+- [PRIO] core.hypofriend.de/q (+hypofriend.de/q), 8.6, attack2.3+biz2.3+tech1.4(mortgage Logic)+gate1.5+cloud1.0+fresh0.2
+
+STEP 3 — HYPOTHESES
+[HYP] property-search-api — full-DB auth-free PII BOLA; existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth (09-04+); introspection live; offset-walk limit ~50; closed-CORS + direct-origin bare-header WAF bypass re-proven prior cycles; probe stayed on dead api target this cycle
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only; repeat MUNICH
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth. CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /en/plus/q & /en/health/q — credentialed CORS + auth-free multipart upload/lead mutations; client signature now bundle-confirmed
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (+/en/health/q, hypofriend.de edge pair)
+confidence: 90
+reasoning: ACAO+ACAC:true+all-methods OPTIONS re-verified live 09:50Z both endpoints; bundle `uploadDocumentExtended($type,$files:[File!]!,$document_type,$applicant_type)` → `{step}` recovered passively this cycle matching prior /en/health mine; SameSite=None;Secure __hfp cookies prior cycles; mutations returned 200 auth-free prior cycles
+evidence_needed: benign multipart POST proving real handler vs error-class + ACAO on POST body
+verify_steps: HUMAN — POST core.hypofriend.de/en/plus/q `mutation($t:String!,$d:String!,$a:String!){uploadDocumentExtended(input:{type:$t,document_type:$d,applicant_type:$a}){step}}` with empty file part + Origin https://evil.example; record step/error-class + ACAO
+impact: attacker page plants documents + injects leads under victim SameSite=None session on financial platform. HIGH-CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /en/plus|en/health GraphQL — email→leadPresent+firstName account-existence/PII oracle in client mutation set
+class: MISCONFIG
+asset: core.hypofriend.de/en/plus/q (client bundle CQpUFwUr.js)
+confidence: 55
+reasoning: bundle mine this cycle shows `requestAccountLink(input:{email})→{step,leadPresent,firstName}` and `requestAppointmentLink(input:{email})→{leadPresent,firstName}` in anonymous client code; endpoint routing (coreApiUrl) and reachability not yet confirmed; presence of firstName (PII) beyond existence flag differentiates from plain username-enum; but OOS proximity (username enumeration) reduces value
+evidence_needed: confirm which /q host serves these mutations (HUMAN: benign POST with JSON-scalar-shape args) + whether it fires emails
+verify_steps: HUMAN — compare coreApiUrl in /en/plus bundle with /en/health bundle; then POST `mutation{requestAppointmentLink(input:{email:"probing-<rand>@example.com"}){leadPresent firstName}}`; log only boolean/field presence
+impact: automated cross-vertical lead existence scoring + firstName disclosure per email. MEDIUM, enhonly enum (OOS proximity)
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] requestAccountLink oracle — drops from rank: endpoint attribution unconfirmed, mutating (fires links), overlaps OOS username-enumeration class; kept as evidence_pool not a top hypothesis.
+- [PARKED] /q already_booked_appointments + rate engine — already ACCEPTED; no new evidence possible passively; parked pending HUMAN victim-session gate.
+- [FINAL] survivors: property-search-api BOLA (95), /en/plus/q+/en/health/q credentialed-CORS+auth-free mutations (90). Both unchanged-existence; only gates are HUMAN-authorized bulk walk and handler-execution PoC.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: decide phase exception for POC on dead target — api.hypofriend.de dead 19th consecutive cycle (000 :80/:443, 09:50Z, A 52.15.184.3). Recommend re-scoping POC evidence to core.hypofriend.de/property-search-api (HUMAN-authorized UUID-only offset-walk vs BERLIN/MUNICH) or close phase with current CRITICAL confirms; alternatively authorize benign multipart POST against core.hypofriend.de/en/plus/q to close the upload-handler gate.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/plus bundle: client-side mutation signatures passively recovered — uploadDocumentExtended($type,$files:[File!]!,$document_type,$applicant_type)→{step}; requestAccountLink/requestAppointmentLink(email)→{leadPresent,firstName} new this cycle (bundle CQpUFwUr.js).
+- [LEARN] ACCEPTED NG @ api.hypofriend.de: :80/:443 000 re-probed 09:50Z — dead 19th consecutive cycle, no takeover surface, target unchanged.
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q + hypofriend.de/en/plus/q: credentialed CORS re-verified 09:50Z (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin) — precondition chain intact.
+
+STEP 7 — RISK
+[RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live under introspection + direct-origin WAF bypass; /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations on a financial platform. POC target (api) dead 19th consecutive cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
