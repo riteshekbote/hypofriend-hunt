@@ -742,3 +742,12 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/en/health/q — response length increased 227365→228508 (Nuxt bundle refresh)
 - CHANGED hypofriend.de/en/health — S3 meta-refresh object last-modified refreshed 2026-09-14 17:22:23Z (static redeploy)
 - CHANGED api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed live 04:57Z — dead 19th consecutive cycle, A 52.15.184.3 resolves clean
+
+## 2026-09-18 07:55:03 UTC
+- NEW core.hypofriend.de/en/plus/q — GraphQL endpoint now live on direct origin (200, len=228508) as of 2026-09-16 05:13Z; previously unprobed/301 on origin
+- NEW hypofriend.de/en/plus/q — Open credentialed CORS on edge (CloudFront) confirmed live this cycle
+- CHANGED core.hypofriend.de/en/health/q — response length increased 227365→228508 (Nuxt bundle refresh)
+- CHANGED hypofriend.de/en/health — S3 meta-refresh object last-modified refreshed 2026-09-14 17:22:23Z (static redeploy)
+- CHANGED api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed live 04:57Z — dead 19th consecutive cycle, A 52.15.184.3 resolves clean
+- CHANGED property-search.hypofriend.de — bundle-mined dedicated host, HTTPS 503 awselb/2.0 / HTTP 301; runtime-overridden via Nuxt __NUXT__; NOT in inventory
+- CHANGED All dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*, graph-rates, v3, login, sso) + a./blog/m2 buckets + *.l

@@ -635,3 +635,10 @@ https://core.hypofriend.de/en/health/q -> 200 len=228508
 https://core.hypofriend.de/en/plus/q -> 200 len=228508
 https://hypofriend.de/en/plus -> 200 len=298552
 https://hypofriend.de/q` -> 200 len=228508
+
+## 2026-09-18 07:55:12 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/en/health/q -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://hypofriend.de/en/plus -> 200 len=298552
+https://hypofriend.de/q -> 200 len=228508
