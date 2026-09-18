@@ -2398,3 +2398,18 @@
 - LEARN: ACCEPTED NG @ property-search.hypofriend.de: bundle-mined dedicated property-search host is 503 awselb/2.0 edge and runtime-overridden — inventory note, no surf
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/health/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) + property-search-api no-ACAO contras
 - LEARN: REJECTED PHASE-GATE: POC phase designated target=api.hypofriend.de; api dead 14 cycles — no live surface for phase completion. Phase mismatch constrains probe a
+
+## RANKED HYPOTHESES 2026-09-18 19:28:07 UTC
+- [95] core.hypofriend.de/property-search-api: property-search-api full-DB auth-free PII BOLA — existence frozen at HIGH confidence (from art/lead_bigpickle.txt)
+- [95] core.hypofriend.de: core.hypofriend.de Global Credentialed CORS Middleware → Universal Cross-Origin Authenticated Read/Write Primitive (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: `GET https://hypofriend.de/en/plus` → extract JS bundle URLs from HTML → download → grep `mutation` signatures and appointment fields; compare vs prior u
+- NEXT(hypotheses-nemotron3.txt): PROBE: OPTIONS https://core.hypofriend.de/api/v3/advisors -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" — confirm global credential
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods 
+- LEARN: ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
+- LEARN: REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no surface.
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a **global rack-cors middleware** — arbitrary/nonexistent path `/zzz-3684` and `/api/v3/advisors` 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de: origin `GET /` sets `_hf` HttpOnly/SameSite=None and `internal=FALSE; samesite=none` cookies + XFO:ALLOWALL vs edge XFO
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class).
+- LEARN: CHANGED @ hypofriend.de/en/health: S3 meta-refresh object refreshed 2026-09-18T13:01:18Z, 89B unchanged — static redeploy, not a finding.
+- LEARN: REJECTED NG @ api.hypofriend.de (target): SSL_ERROR_SYSCALL, 000 — dead 21st consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+- LEARN: REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 21 cycles) — no live surface for phase completion; phase mismatch constrains probe actions.

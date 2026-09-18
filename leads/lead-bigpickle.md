@@ -4243,3 +4243,36 @@ testability: AUTH_HELPED
 [LEARN] REJECTED NG @ api.hypofriend.de (target): SSL_ERROR_SYSCALL, 000 — dead 21st consecutive cycle, A resolves clean, no takeover surface, target unchanged.
 [LEARN] REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 21 cycles) — no live surface for phase completion; phase mismatch constrains probe actions.
 [RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA live+frozen (CRITICAL); credentialed CORS now proven app-global on core.hypofriend.de and reflected on actual responses with SameSite=None HttpOnly sessions (cross-origin authenticated read precondition); POC target api dead 21st cycle leaves bulk quantification, handler-execution PoC and report HUMAN-gated.
+## 2026-09-18 19:24:28 UTC [target] (model bigpickle)
+[HYP] property-search-api full-DB auth-free PII BOLA — existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth (09-04+); full introspection live; direct-origin bare-header WAF bypass re-proven prior cycles; unresolved gate unchanged this cycle
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size (BERLIN/MUNICH)
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth — CRITICAL
+testability: AUTH_HELPED
+[HYP] /q-family POST handler liveness after routing change — decides whether credentialed-CORS chain is data-bearing vs config-only
+class: MISCONFIG
+asset: hypofriend.de/q (+core.hypofriend.de/q, /en/health/q, /en/plus/q)
+confidence: 62
+reasoning: rack-cors answers OPTIONS 200 before routing (live 19:23Z); GET /q still 301 Rails shell; historical POST 200 on /q (09-07) then GET/OPTIONS 301'd (09-16); POST status is the sole unmeasured gate
+evidence_needed: HTTP status of read-only POST {__typename} to /q-family on origin+edge
+verify_steps: HUMAN — POST core.hypofriend.de/q and hypofriend.de/q body `{"query":"{__typename}"}` hdr `Origin: https://evil.example`; record status/location/ACAO only
+impact: if 200 → credentialed CORS + SameSite=None sessions = cross-origin GraphQL read/mutate on origin bypassing WAF (HIGH); if 301 → config-level CORS only (MEDIUM)
+testability: AUTH_HELPED
+[HYP] Refreshed /en/plus bundle adds changed appointment/mutation surface
+class: MISCONFIG
+asset: hypofriend.de/en/plus (+core.hypofriend.de/en/plus/q)
+confidence: 55
+reasoning: S3 page last-modified 2026-09-18T13:01:39Z, len grew to 298552; /en/plus/q previously mined only uploadDocumentExtended + processLeadForAppointment; a same-day redeploy may alter the mutation set (cf. calculateMaklerFee removal on /q 09-10)
+evidence_needed: GraphQL signatures present in the refreshed `__NUXT__`/JS bundle vs prior
+verify_steps: PROBE — GET https://hypofriend.de/en/plus, extract JS bundle URLs from HTML, download, grep for `mutation ` signatures and new fields (booking/appointment/advisor)
+impact: new auth-free mutation primitives on appointment/buyer's-agent flow — MEDIUM↔HIGH depending on fields
+testability: PASSIVE
+[NEXT] PROBE: `GET https://hypofriend.de/en/plus` → extract JS bundle URLs from HTML → download → grep `mutation` signatures and appointment fields; compare vs prior uploadDocumentExtended/processLeadForAppointment set (passive, ~1rps). HUMAN POST-authorization for the /q CORS chain remains pending and is the second candidate if bundle mining yields nothing.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; GET /q still 301 Rails shell.
+[LEARN] ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
+[LEARN] REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no surface.
+[RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA live+frozen (CRITICAL); credentialed CORS app-global on core re-verified with SameSite=None HttpOnly-session precondition, POST-liveness the only open data-bearing gate; /en/plus bundle redeployed today; POC target (api) dead 22nd consecutive cycle leaves bulk quantification, handler PoC and report HUMAN-gated.
