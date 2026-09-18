@@ -33,3 +33,13 @@
   - **Verdict: VALID**
   - | 1 | GraphQL BOLA/IDOR (property-search-api) | **VALID** | 8.6 High |
   - | 2 | GraphQL Introspection + Stack-Trace Leak | **VALID** | 5.3 Medium |
+
+- 8 lead(s) marked VALID at 2026-09-18 11:30:54 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID** (bundle with Finding 1 in a single report)
+  - | 1 | GraphQL IDOR/BOLA on property-search-api | **VALID** | 8.6 | Report to program |
+  - | 2 | Open Credentialed CORS on /q endpoints | **VALID** | 8.1 | Report to program |
+  - | 3 | Unauthenticated /q resolvers (rates_table, etc.) | **VALID** | 5.3 | Report to program |
+  - | 7 | GraphQL introspection enabled | **VALID** | 5.3 | Bundle with #1 |
