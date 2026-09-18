@@ -502,3 +502,11 @@
 - 2026-09-18 ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; GET /q still 301 Rails shell.
 - 2026-09-18 ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
 - 2026-09-18 REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no surface.
+- 2026-09-18 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) re-verified live 19:21Z — precondition chain intact
+- 2026-09-18 CONFIRMED NG @ api.hypofriend.de: 000 re-confirmed 21:5?Z — dead 23rd consecutive cycle, no takeover surface, target unchanged
+- 2026-09-18 CONFIRMED NG @ fleet: all dead fleet + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-18 CONFIRMED MISCONFIG @ hypofriend.de/en/plus: bundle refreshed 2026-09-18T13:01:39Z, len 298552 (grew); bundle re-mine produced NEW named mutations (requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead) — new auth-free candidate surface
+- 2026-09-18 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) re-verified live 19:21Z — precondition chain intact
+- 2026-09-18 CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 21:5XZ — dead 23rd consecutive cycle, A resolves clean, no takeover surface
+- 2026-09-18 CONFIRMED NG @ fleet: all dead fleet + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-18 CONFIRMED MISCONFIG @ hypofriend.de/en/plus: bundle refreshed 2026-09-18T13:01:39Z, len 298552; re-mine produced NEW named mutations (requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead) — new auth-free candidate surface

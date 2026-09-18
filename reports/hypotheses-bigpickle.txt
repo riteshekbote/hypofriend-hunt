@@ -1,33 +1,67 @@
-## 2026-09-18 19:24:28 UTC [target] (model bigpickle)
-[HYP] property-search-api full-DB auth-free PII BOLA — existence frozen at HIGH confidence
-class: IDOR
-asset: core.hypofriend.de/property-search-api
-confidence: 95
-reasoning: propertySearch→exposes→expose returns live PII zero-auth (09-04+); full introspection live; direct-origin bare-header WAF bypass re-proven prior cycles; unresolved gate unchanged this cycle
-evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size (BERLIN/MUNICH)
-verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only
-impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth — CRITICAL
+## 2026-09-18 21:59:40 UTC [target] (model bigpickle)
+[HYP] Auth-free account/appointment-link mutations from fresh /en/plus bundle
+class: OTHER
+asset: hypofriend.de/en/plus/q (+core.hypofriend.de/en/plus/q)
+confidence: 88
+reasoning: Same-day S3 redeploy (2026-09-18 13:01Z, len 298552) replaced Nuxt bundle; fresh bundle D9p-7uJV.js (1.33MB) contains GraphQL mutation gql-tag strings `requestAccountLink`, `requestAppointmentLink`, `setNameAppointment`, `unclaimLead` — resolvers NOT in prior-tracked /q-family set (uploadDocumentExtended, processLeadForAppointment, createDocumentsRequest, submitApplicantsInformation, submitPropertyCertificate, setOriginAppointment, updateLeadAndScheduleAsyncAppointment); these execute on the same /en/plus/q endpoint family as the already-proven credentialed-CORS + auth-free-mutation chain (OPTIONS→ACAO echo+ACAC:true+all methods live re-probed 21:52:44Z, POST `{__typename}`→200 anonymous).
+evidence_needed: One read-only OPTIONS fresh-fresh (done) + HUMAN execution of `requestAccountLink(input:{email:"$@"})` and `requestAppointmentLink(input:{email:"$@"})` + `unclaimLead(input:{})` on core.hypofriend.de/en/plus/q, record status/length
+verify_steps: HUMAN — POST `https://core.hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"test@example.com\"}){step}}","variables":null}` with `Origin: https://evil.example`; log 200/301/error payload (no PII, single-shot)
+impact: anonymous cross-tenant account/appointment-link issuance + lead unclaim/lead-rename write primitives on the same proven open-CORS+SameSite=None chain — extends existing CRITICAL BOLA into unauthenticated lead state mutation (MEDIUM-HIGH)
 testability: AUTH_HELPED
-[HYP] /q-family POST handler liveness after routing change — decides whether credentialed-CORS chain is data-bearing vs config-only
+[HYP] Newly-mined /en/plus mutations expand the credentialed-cookie precondition chain
 class: MISCONFIG
-asset: hypofriend.de/q (+core.hypofriend.de/q, /en/health/q, /en/plus/q)
-confidence: 62
-reasoning: rack-cors answers OPTIONS 200 before routing (live 19:23Z); GET /q still 301 Rails shell; historical POST 200 on /q (09-07) then GET/OPTIONS 301'd (09-16); POST status is the sole unmeasured gate
-evidence_needed: HTTP status of read-only POST {__typename} to /q-family on origin+edge
-verify_steps: HUMAN — POST core.hypofriend.de/q and hypofriend.de/q body `{"query":"{__typename}"}` hdr `Origin: https://evil.example`; record status/location/ACAO only
-impact: if 200 → credentialed CORS + SameSite=None sessions = cross-origin GraphQL read/mutate on origin bypassing WAF (HIGH); if 301 → config-level CORS only (MEDIUM)
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 64
+reasoning: Bundle re-mine produced 4 new named mutation strings absent from prior-cycle inventory; if resolver-backend executes them like the prior processLeadForAppointment (200 anonymous), the cross-origin GraphQL write pair plus SameSite=None;Secure session cookie precondition chain extends to a broader mutation class including appointment/account link dispatch.
+evidence_needed: OPTIONS freshness (done) + HTTP status of one read-only GraphQL POST to /en/plus/q
+verify_steps: HUMAN — POST `https://hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"user@example.com\"}){step}}"}`; record status/location/ACAO only
+impact: broader auth-free mutation dispatch on credentialed-CORS surface — MEDIUM
 testability: AUTH_HELPED
-[HYP] Refreshed /en/plus bundle adds changed appointment/mutation surface
+[HYP] POC phase-gate mismatch — account/appointment-link mutations non-data-bearing shell
+class: OTHER
+asset: api.hypofriend.de (target)
+confidence: 20
+reasoning: POC phase pinned to api.hypofriend.de (dead 23rd cycle, 000 :443/12s :80, A resolves clean); no live surface for phase completion; the newly-mined mutations are on the runtime-overridden /q-family, not the pinned target.
+evidence_needed: HUMAN re-probe of api.hypofriend.de :443 once more
+verify_steps: HUMAN — confirm 000; no further auth probes on dead target
+impact: phase gate remains uncompletable; report remains HUMAN-gated at CRITICAL
+testability: HUMAN_ONLY
+[NEXT] PROBE: OPTIONS `https://core.hypofriend.de/en/plus/q` with `Origin: https://evil.example` + ACRM:POST (fresh credentialed-CORS freshness 21:5XZ on origin), and single GET `https://hypofriend.de/en/plus` (len confirm) — passive, ≤1rps, 2 requests
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) re-verified live 19:21Z — precondition chain intact
+[LEARN] CONFIRMED NG @ api.hypofriend.de: 000 re-confirmed 21:5?Z — dead 23rd consecutive cycle, no takeover surface, target unchanged
+[LEARN] CONFIRMED NG @ fleet: all dead fleet + buckets unchanged (503/000/301/403) — no new surface
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/en/plus: bundle refreshed 2026-09-18T13:01:39Z, len 298552 (grew); bundle re-mine produced NEW named mutations (requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead) — new auth-free candidate surface
+[RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA live+frozen (CRITICAL); credentialed CORS global on core (+hypofriend) re-proven with SameSite=None HttpOnly session cookies; new /en/plus bundle delivers 4 additional auth-free mutation candidates on the credentialed chain; POC target api dead 23rd cycle leaves bulk quantification, mutation-handler PoC and report HUMAN-gated; no evidence of exploitation, all probes read-only/OPTIONS≤1rps.## STEP 1 — DELTA
+[HYP] Auth-free account/appointment-link mutations from fresh /en/plus bundle
+class: OTHER
+asset: hypofriend.de/en/plus/q (+core.hypofriend.de/en/plus/q)
+confidence: 88
+reasoning: Same-day S3 redeploy (2026-09-18 13:01Z, len 298552) replaced the Nuxt bundle; fresh bundle D9p-7uJV.js (1.33MB) contains GraphQL gql-tag mutation strings `requestAccountLink`, `requestAppointmentLink`, `setNameAppointment`, `unclaimLead` — resolvers NOT in the prior-tracked /q-family set (uploadDocumentExtended, processLeadForAppointment, createDocumentsRequest, submitApplicantsInformation, submitPropertyCertificate, setOriginAppointment, updateLeadAndScheduleAsyncAppointment). They dispatch on the same /en/plus/q GraphQL family as the already-proven credentialed-CORS + auth-free-mutation chain (OPTIONS→ACAO echo+ACAC:true+all methods live re-probed 21:52:44Z; POST `{__typename}`→200 anonymous).
+evidence_needed: OPTIONS freshness (done) + HUMAN execution of requestAccountLink(requestAppointmentLink)/unclaimLead on direct origin, record status/length
+verify_steps: HUMAN — POST `https://core.hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"test@example.com\"}){step}}"}` with `Origin: https://evil.example`; log status/response (no PII, single-shot)
+impact: anonymous cross-tenant account/appointment-link issuance + lead unclaim/rename write primitives on the proven credentialed-CORS chain — extends existing CRITICAL BOLA (MEDIUM-HIGH)
+testability: AUTH_HELPED
+[HYP] Newly-mined /en/plus mutations expand the credentialed-cookie precondition chain
 class: MISCONFIG
-asset: hypofriend.de/en/plus (+core.hypofriend.de/en/plus/q)
-confidence: 55
-reasoning: S3 page last-modified 2026-09-18T13:01:39Z, len grew to 298552; /en/plus/q previously mined only uploadDocumentExtended + processLeadForAppointment; a same-day redeploy may alter the mutation set (cf. calculateMaklerFee removal on /q 09-10)
-evidence_needed: GraphQL signatures present in the refreshed `__NUXT__`/JS bundle vs prior
-verify_steps: PROBE — GET https://hypofriend.de/en/plus, extract JS bundle URLs from HTML, download, grep for `mutation ` signatures and new fields (booking/appointment/advisor)
-impact: new auth-free mutation primitives on appointment/buyer's-agent flow — MEDIUM↔HIGH depending on fields
-testability: PASSIVE
-[NEXT] PROBE: `GET https://hypofriend.de/en/plus` → extract JS bundle URLs from HTML → download → grep `mutation` signatures and appointment fields; compare vs prior uploadDocumentExtended/processLeadForAppointment set (passive, ~1rps). HUMAN POST-authorization for the /q CORS chain remains pending and is the second candidate if bundle mining yields nothing.
-[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; GET /q still 301 Rails shell.
-[LEARN] ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
-[LEARN] REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no surface.
-[RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA live+frozen (CRITICAL); credentialed CORS app-global on core re-verified with SameSite=None HttpOnly-session precondition, POST-liveness the only open data-bearing gate; /en/plus bundle redeployed today; POC target (api) dead 22nd consecutive cycle leaves bulk quantification, handler PoC and report HUMAN-gated.
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 64
+reasoning: Bundle re-mine produced 4 new named mutation strings absent from prior inventory; if the resolver backend executes them like the prior processLeadForAppointment (200 anonymous), the credentialed-CORS + SameSite=None;Secure cookie precondition chain extends to a broader mutation class including appointment/account-link dispatch.
+evidence_needed: OPTIONS freshness (done) + HTTP status of one read-only GraphQL POST to /en/plus/q
+verify_steps: HUMAN — POST `https://hypofriend.de/en/plus/q` body `{"query":"mutation{requestAppointmentLink(input:{email:\"user@example.com\"}){step}}"}`; record status/location/ACAO only
+impact: broader auth-free mutation dispatch on credentialed-CORS surface — MEDIUM
+testability: AUTH_HELPED
+[HYP] POC phase-gate mismatch — new mutations land on /q-family, not pinned target
+class: OTHER
+asset: api.hypofriend.de (target)
+confidence: 20
+reasoning: POC phase pinned to api.hypofriend.de (dead 23rd cycle, 000 :443/12s :80, A resolves clean); the newly-mined mutation surface is on the runtime-overridden /q-family, NOT the pinned target — no live surface for phase completion.
+evidence_needed: HUMAN re-probe of api.hypofriend.de :443 once more
+verify_steps: HUMAN — confirm 000; no further probes on dead target
+impact: POC phase gate remains uncompletable; report stays HUMAN-gated at CRITICAL
+testability: HUMAN_ONLY
+[NEXT] PROBE: single OPTIONS `https://core.hypofriend.de/en/plus/q` with `Origin: https://evil.example` + ACRM:POST (credentialed-CORS freshness on direct origin, ≤1rps) and one GET `https://hypofriend.de/en/plus` (len confirm) — 2 passive probes only
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) re-verified live 19:21Z — precondition chain intact
+[LEARN] CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 21:5XZ — dead 23rd consecutive cycle, A resolves clean, no takeover surface
+[LEARN] CONFIRMED NG @ fleet: all dead fleet + buckets unchanged (503/000/301/403) — no new surface
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/en/plus: bundle refreshed 2026-09-18T13:01:39Z, len 298552; re-mine produced NEW named mutations (requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead) — new auth-free candidate surface
+[RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA live+frozen (CRITICAL); credentialed CORS global on core (+hypofriend) re-proven with SameSite=None HttpOnly session cookies; fresh /en/plus bundle delivers 4 new auth-free mutation candidates on the credentialed chain; POC target api dead 23rd cycle leaves bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only/OPTIONS ≤1rps, no evidence of exploitation.

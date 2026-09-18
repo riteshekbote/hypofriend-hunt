@@ -1,5 +1,11 @@
-## 2026-09-18 19:27:58 UTC [target] (model nemotron3)
-[PRIO] core.hypofriend.de (global CORS),9.40,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
+## 2026-09-18 21:52:08 UTC [target] (model nemotron3)
+[NEW] core.hypofriend.de: credentialed CORS is a **global rack-cors middleware** — arbitrary/nonexistent path `/zzz-3684` and `/api/v3/advisors` OPTIONS both echo any Origin + ACAC:true + all methods; actual GET 302/301 shells also carry ACAO — not /q-specific
+[NEW] hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine
+[CHANGED] api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
+[CHANGED] core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
+[CHANGED] core.hypofriend.de/en/health/q, /en/plus/q: credentialed CORS + auth-free mutations + bare origin headers vs edge CF stack — persistent
+[CHANGED] hypofriend.de/en/health, /en/plus: separate appointment instances with independent GraphQL surfaces — persistent
+[PRIO] core.hypofriend.de,9.55,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
 [PRIO] core.hypofriend.de/en/plus/q,9.15,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=10
 [PRIO] core.hypofriend.de/en/health/q,9.05,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
 [PRIO] core.hypofriend.de/q,8.70,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=7
@@ -35,7 +41,7 @@ testability: PASSIVE
 [PARKED] hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations (Edge): Duplicate of core.hypofriend.de/en/plus/q — same mutation surface, same CORS config, same cookie posture; edge has full CloudFront stack but CORS misconfiguration overrides it. No marginal evidence needed beyond origin validation.
 [PARKED] hypofriend.de/en/health/q Credentialed CORS + Auth-Free Mutations (Edge): Duplicate of core.hypofriend.de/en/health/q — same rationale.
 [PARKED] property-search.hypofriend.de: 503 awselb/2.0 edge, runtime-overridden — no independent surface; inventory note only.
-[PARKED] api.hypofriend.de: Dead 21st consecutive cycle (000 :80/:443, A 52.15.184.3 clean) — no surface for POC phase; phase gate mismatch.
+[PARKED] api.hypofriend.de: Dead 22nd consecutive cycle (000 :80/:443, A 52.15.184.3 clean) — no surface for POC phase; phase gate mismatch.
 [FINAL] 1. core.hypofriend.de Global Credentialed CORS Middleware → Universal Cross-Origin Authenticated Read/Write Primitive — confidence 95, PASSIVE
 [FINAL] 2. core.hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation — confidence 98, PASSIVE
 [FINAL] 3. core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 99, PASSIVE
@@ -46,4 +52,7 @@ testability: PASSIVE
 [LEARN] CHANGED @ hypofriend.de/en/health: S3 meta-refresh object refreshed 2026-09-18T13:01:18Z, 89B unchanged — static redeploy, not a finding.
 [LEARN] REJECTED NG @ api.hypofriend.de (target): SSL_ERROR_SYSCALL, 000 — dead 21st consecutive cycle, A resolves clean, no takeover surface, target unchanged.
 [LEARN] REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 21 cycles) — no live surface for phase completion; phase mismatch constrains probe actions.
+[LEARN] ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
+[LEARN] REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; GET /q still 301 Rails shell.
 [RISK] hypofriend: 98 — Unauthenticated production GraphQL APIs with full introspection (property-search-api) + auth-free read/write over arbitrary leadId carrying broker/owner PII. Direct Rails origin (core.hypofriend.de) bypasses CloudFront WAF/rate-limiting. **Global credentialed CORS middleware** on core origin extends cross-origin authenticated access to ALL Rails routes — any current/future authenticated endpoint, admin panel, internal API becomes readable/writable from arbitrary origin. Two additional appointment instances (/en/health, /en/plus) with independent GraphQL surfaces replicating auth-free mutation pattern (uploadDocumentExtended, processLeadForAppointment) + OPEN CREDENTIALED CORS on both edge and origin. Anonymous mortgage-rate oracle (rates_table) leaks live per-region lender pricing (0.10% delta BAYERN vs SAXONY). Severity: CRITICAL.

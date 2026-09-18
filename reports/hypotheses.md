@@ -2413,3 +2413,26 @@
 - LEARN: CHANGED @ hypofriend.de/en/health: S3 meta-refresh object refreshed 2026-09-18T13:01:18Z, 89B unchanged — static redeploy, not a finding.
 - LEARN: REJECTED NG @ api.hypofriend.de (target): SSL_ERROR_SYSCALL, 000 — dead 21st consecutive cycle, A resolves clean, no takeover surface, target unchanged.
 - LEARN: REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 21 cycles) — no live surface for phase completion; phase mismatch constrains probe actions.
+
+## RANKED HYPOTHESES 2026-09-18 21:59:52 UTC
+- [95] core.hypofriend.de: core.hypofriend.de Global Credentialed CORS Middleware → Universal Cross-Origin Authenticated Read/Write Primitive (from art/lead_nemotron3.txt)
+- [88] hypofriend.de/en/plus/q: Auth-free account/appointment-link mutations from fresh /en/plus bundle (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: OPTIONS `https://core.hypofriend.de/en/plus/q` with `Origin: https://evil.example` + ACRM:POST (fresh credentialed-CORS freshness 21:5XZ on origin), and 
+- NEXT(hypotheses-nemotron3.txt): PROBE: OPTIONS https://core.hypofriend.de/api/v3/advisors -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" — confirm global credential
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) re-verified live 19:21Z — precondition 
+- LEARN: CONFIRMED NG @ api.hypofriend.de: 000 re-confirmed 21:5?Z — dead 23rd consecutive cycle, no takeover surface, target unchanged
+- LEARN: CONFIRMED NG @ fleet: all dead fleet + buckets unchanged (503/000/301/403) — no new surface
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/en/plus: bundle refreshed 2026-09-18T13:01:39Z, len 298552 (grew); bundle re-mine produced NEW named mutations (requestAccou
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200) re-verified live 19:21Z — precondition 
+- LEARN: CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 21:5XZ — dead 23rd consecutive cycle, A resolves clean, no takeover surface
+- LEARN: CONFIRMED NG @ fleet: all dead fleet + buckets unchanged (503/000/301/403) — no new surface
+- LEARN: CONFIRMED MISCONFIG @ hypofriend.de/en/plus: bundle refreshed 2026-09-18T13:01:39Z, len 298552; re-mine produced NEW named mutations (requestAccountLink, reques
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a **global rack-cors middleware** — arbitrary/nonexistent path `/zzz-3684` and `/api/v3/advisors` 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de: origin `GET /` sets `_hf` HttpOnly/SameSite=None and `internal=FALSE; samesite=none` cookies + XFO:ALLOWALL vs edge XFO
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class).
+- LEARN: CHANGED @ hypofriend.de/en/health: S3 meta-refresh object refreshed 2026-09-18T13:01:18Z, 89B unchanged — static redeploy, not a finding.
+- LEARN: REJECTED NG @ api.hypofriend.de (target): SSL_ERROR_SYSCALL, 000 — dead 21st consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+- LEARN: REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 21 cycles) — no live surface for phase completion; phase mismatch constrains probe actions.
+- LEARN: ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
+- LEARN: REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no surface.
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods 
