@@ -24621,3 +24621,129 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 99 — CRITICAL unchanged. property-search-api full-DB auth-free PII BOLA live (introspection + direct-origin WAF bypass); /q-family credentialed CORS + SameSite=None;Secure sessions + bundle-confirmed auth-free multipart upload/lead mutations on a financial platform. POC target (api) dead ~20th cycle — phase cannot complete under current pinning; remaining gates (bulk quantification, handler-execution PoC, victim-session mutation, report) are HUMAN-decided.
+===== ANALYST bigpickle 2026-09-18 12:42:52 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mgetent hosts api.hypofriend.de; echo "---"; curl -sS -o /dev/null -D - --connect-timeout 8 --max-time 12 -X OPTIONS -H "Origin: https://evil.example" https://core.hypofriend.de/en/health/q 2>&1 | head -20
+52.15.184.3     api.hypofriend.de
+---
+HTTP/2 301 
+date: Fri, 18 Sep 2026 12:36:36 GMT
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-request-id: 5c784612-9dfe-4f50-8dd0-669a0c791a75
+x-runtime: 0.004011
+strict-transport-security: max-age=63072000; includeSubDomains
+vary: Origin,Accept-Encoding
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code}\n" --connect-timeout 8 --max-time 12 https://api.hypofriend.de/ 2>&1; echo "---"; curl -sS -o /dev/null -w "%{http_code}\n" --connect-timeout 8 --max-time 12 http://api.hypofriend.de/ 2>&1
+curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443 
+000
+---
+curl: (28) Failed to connect to api.hypofriend.de port 80 after 8002 ms: Timeout was reached
+000
+[0m
+[0m$ [0mcurl -sS -o /dev/null -D - --connect-timeout 8 --max-time 12 -X OPTIONS -H "Origin: https://evil.example" https://hypofriend.de/en/health/q 2>&1 | head -25
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/
+date: Fri, 18 Sep 2026 12:37:00 GMT
+vary: Origin,Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-request-id: feb254fa-1257-4566-a4a5-4f67fb35b8f3
+x-runtime: 0.003623
+strict-transport-security: max-age=63072000; includeSubDomains
+x-cache: Miss from cloudfront
+via: 1.1 6873f16a6d0b76dd734d6001dd636e86.cloudfront.net (CloudFront)
+x-amz-cf-pop: ORD58-P16
+x-amz-cf-id: dJDhCydvJYh1fRFIqnOghUAnl8apfE5F_A7sRl1DKtI4Q-jdfXuH6g==
+[0m
+[0m$ [0mcurl -sS -o /dev/null -D - --connect-timeout 8 --max-time 12 -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" https://hypofriend.de/ 2>&1 | head -20
+HTTP/2 200 
+server: CloudFront
+content-length: 0
+date: Fri, 18 Sep 2026 12:37:28 GMT
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+via: 1.1 04cfc0fd58c6f7eab88ddd556032bc4e.cloudfront.net (CloudFront)
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: ORD58-P16
+x-amz-cf-id: tlKqyFHFwGz5RFjzI8FMsskuOHQFE09QpdNm5Gc17rdHG3D4RalfFQ==
+[0m
+STEP 1 — DELTA
+- CHANGED core.hypofriend.de/en/health/q + hypofriend.de/en/health/q: OPTIONS now `301 → https://hypofriend.de/` on BOTH origin and edge (previously origin 200-bare / edge full-CF-200); credentialed CORS echo persists on the 301 (ACAO:evil + ACAC:true + all methods + max-age 7200, `vary: Origin,Accept-Encoding`).
+- NEW hypofriend.de/ (root): `OPTIONS Origin:https://evil.example, ACRM:POST` → `200` with `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` + all methods + max-age 7200 (server: CloudFront, full CF stack, `vary: Accept-Encoding` only — no Vary:Origin) — credentialed CORS open on the MAIN APP ROOT, adjacent to samesite=none session cookies.
+- CHANGED precondition-chain semantics: /q-family handler access is now 301-wrapped (routing change of 09-16 bundle refresh), so browser cross-origin requests can no longer reach the GraphQL handler via /en/health/q|/en/plus/q; the redirect chain is itself CORS-open end-to-end (endpoint 301 echoes, root 200 echoes), meaning the open-CORS-config persists but the data path moved behind the redirect shell.
+- NO_CHANGE api.hypofriend.de (target): :443 SSL_ERROR_SYSCALL / :80 connect-timeout (8s), A 52.15.184.3 resolves clean — dead 20th consecutive cycle.
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api, 8.8, a=10 b=10 t=8 g=10 c=6 f=5 — auth-free full-DB PII BOLA, introspection live, direct-origin WAF bypass
+- [PRIO] hypofriend.de/ (+ /q-family), 7.7, a=7 b=7 t=7 g=10 c=7 f=9 — credentialed CORS now re-located on root, new this cycle
+- [PRIO] core.hypofriend.de/q, 7.3, a=7 b=8 t=8 g=10 c=6 f=6 — anonymous rates engine + appointment oracle + BOLA, POST-liveness post-routing-change unverified
+
+STEP 3 — HYPOTHESES
+[HYP] property-search-api full-DB auth-free PII BOLA — existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth (2026-09-04+); introspection live; offset-walk limit ~50 proven; direct-origin bare-header WAF bypass re-confirmed prior cycles; this cycle only api dead 20th + CORS re-location observed — no PII gate advanced
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size (BERLIN/MUNICH)
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only, no PII
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth — CRITICAL
+testability: AUTH_HELPED
+[HYP] credentialed CORS open relocated to main-app root + persistent on /q-family 301s — config-level any-origin+credentials
+class: MISCONFIG
+asset: hypofriend.de/ (+core.hypofriend.de/en/health/q, hypofriend.de/en/health/q, /en/plus/q)
+confidence: 85
+reasoning: live this cycle 12:37Z on fresh probes — root OPTIONS 200 ACAO:evil.example+ACAC:true+all methods (max-age 7200, no Vary:Origin); /en/health/q OPTIONS 301→root on both origin and edge still echoing the full credentialed set; samesite=none httponly session cookies previously confirmed on /en/health; edge header stack on root (XFO DENY, nosniff, HSTS preload) present but does not gate CORS
+evidence_needed: whether router still serves any GraphQL handler on POST for /q-family after routing change (301 was observed for OPTIONS/GET only) — determines if cross-origin data still reachable vs CORS-open-config-only
+verify_steps: HUMAN — POST `https://core.hypofriend.de/q` `{"query":"{__typename}"}` and POST `https://core.hypofriend.de/en/health/q` `{"query":"{__typename}"}` (read-only); record status/location
+impact: if POST handler live: attacker page (evil origin allowed + credentials) runs unauthorized GraphQL mutations/uploads under victim samesite=None session on financial platform — HIGH-CRITICAL; if POST also 301: config-level misconfig evidence only, MEDIUM
+testability: AUTH_HELPED
+[HYP] hypofriend.de/q — email→leadPresent+firstName account-existence/PII oracle
+class: MISCONFIG
+asset: hypofriend.de/q
+confidence: 60
+reasoning: bundle re-confirms `requestAppointmentLink(input:{email})→{step,leadPresent,firstName}` + `requestAccountLink` dispatched to `${coreApiUrl}/q`; same endpoint carries credentialed CORS + samesite=none cookies + already_booked_appointments BOLA; firstName PII on anonymous schema; OOS-near enumeration class caps value
+evidence_needed: whether mutation distinguishes known vs unknown email (fires magic-link vs error)
+verify_steps: HUMAN — POST https://hypofriend.de/q `mutation{requestAppointmentLink(input:{email:"probing-<rand>@example.com"}){leadPresent firstName}}` fresh jar; log boolean only; do NOT use real customer emails
+impact: automated cross-vertical lead-existence scoring + firstName per email — MEDIUM
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] /q-family credentialed-CORS x SameSite=None exfil chain at HIGH-CRITICAL: previous evidence (up to 09-11) showed origin POST 200 handler reachable; today's routing change returns 301 on OPTIONS/GET path, so browser-reachable data access is now uncertain — chain downgraded pending POST-liveness (HUMAN).
+- Drop nothing: all three survivors have concrete verify steps and exceed 40.
+- [FINAL] 1) property-search-api BOLA (95)  2) root + /q-family credentialed CORS, POST-liveness gate (85)  3) email→leadPresent oracle (60)
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: authorize (a) forced POST-liveness check on `https://core.hypofriend.de/q` and `https://core.hypofriend.de/en/health/q` (`{"query":"{__typename}"}`, read-only) to decide whether credentialed-CORS chain still yields cross-origin handler access or is config-level-only after the 09-16 routing change; and/or (b) UUID-only offset-walk on core.hypofriend.de/property-search-api (BERLIN→MUNICH) to bound DB size; or close phase on existing CRITICAL confirms. POC target api.hypofriend.de dead 20th consecutive cycle (000 :80/:443, A 52.15.184.3 clean).
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/ (root): credentialed CORS open on main-app root — OPTIONS returns ACAO echo + ACAC:true + all methods + max-age 7200 via CloudFront edge, `vary: Accept-Encoding` only; new location of the same rack-cors misconfig, adjacent to samesite=none session cookies.
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/health/q (+core.hypofriend.de/en/health/q): OPTIONS now 301→root on edge AND origin but still echoes credentialed CORS on the 301 — /q-family preflight moved behind Rails redirect shell post 09-16 bundle refresh; server-side any-origin+credentials config persists.
+- [LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 12:36Z (:443 SSL_ERROR_SYSCALL / :80 connect-timeout, A 52.15.184.3 clean) — dead 20th consecutive cycle, target unchanged.
+- [LEARN] CHANGED @ /q-family: credentialed-CORS chain re-located — veto value now depends on POST liveness; config-level open-CORS (root + endpoints) confirmed regardless.
+
+STEP 7 — RISK
+[RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA remains live+frozen CRITICAL; credentialed CORS newly confirmed open on main-app ROOT (any origin + credentials + samesite=none sessions) though current /q-family routing 301s OPTIONS/GET, with POST-liveness the deciding gate; POC target (api) dead 20th consecutive cycle leaves phase completion HUMAN-decided.
