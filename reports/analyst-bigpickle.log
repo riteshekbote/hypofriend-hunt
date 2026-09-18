@@ -24747,3 +24747,229 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA remains live+frozen CRITICAL; credentialed CORS newly confirmed open on main-app ROOT (any origin + credentials + samesite=none sessions) though current /q-family routing 301s OPTIONS/GET, with POST-liveness the deciding gate; POC target (api) dead 20th consecutive cycle leaves phase completion HUMAN-decided.
+===== ANALYST bigpickle 2026-09-18 16:48:59 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u; echo "--- probe 1: OPTIONS core.hypofriend.de/q ---"; curl -sk -o /dev/null -D - -X OPTIONS "https://core.hypofriend.de/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 15; sleep 1; echo "--- probe 2: OPTIONS core.hypofriend.de/en/health/q ---"; curl -sk -o /dev/null -D - -X OPTIONS "https://core.hypofriend.de/en/health/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 15; sleep 1; echo "--- probe 3: OPTIONS hypofriend.de/ root ---"; curl -sk -o /dev/null -D - -X OPTIONS "https://hypofriend.de/" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 15
+Fri Sep 18 16:43:00 UTC 2026
+--- probe 1: OPTIONS core.hypofriend.de/q ---
+HTTP/2 200 
+date: Fri, 18 Sep 2026 16:43:01 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+
+--- probe 2: OPTIONS core.hypofriend.de/en/health/q ---
+HTTP/2 200 
+date: Fri, 18 Sep 2026 16:43:03 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+
+--- probe 3: OPTIONS hypofriend.de/ root ---
+HTTP/2 200 
+server: CloudFront
+content-length: 0
+date: Fri, 18 Sep 2026 16:43:04 GMT
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+via: 1.1 9700e21a05aca0d81f38b94bed520244.cloudfront.net (CloudFront)
+alt-svc: h3=":443"; ma=86400
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: SFO53-P9
+x-amz-cf-id: 14xfKaCZP87DPkcDEILjIQcTpCPWo2DZbJeYf8DCtd8eWTBqa9-PMw==
+[0m
+[0m$ [0msleep 1; echo "--- probe 4: GET core.hypofriend.de/q ---"; curl -sk -o /dev/null -D - "https://core.hypofriend.de/q" --max-time 15; sleep 1; echo "--- probe 5: OPTIONS hypofriend.de/en/health/q (edge) ---"; curl -sk -o /dev/null -D - -X OPTIONS "https://hypofriend.de/en/health/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 15; sleep 1; echo "--- probe 6: target api.hypofriend.de ---"; curl -sk -o /dev/null -D - "https://api.hypofriend.de/" --max-time 12; echo "exit=$?"
+--- probe 4: GET core.hypofriend.de/q ---
+HTTP/2 301 
+date: Fri, 18 Sep 2026 16:43:45 GMT
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/
+x-robots-tag: none
+cache-control: no-cache
+x-request-id: 96319222-1f75-4d87-8982-47dc7ac6462d
+x-runtime: 0.008945
+strict-transport-security: max-age=63072000; includeSubDomains
+vary: Origin,Accept-Encoding
+
+--- probe 5: OPTIONS hypofriend.de/en/health/q (edge) ---
+HTTP/2 200 
+content-length: 0
+date: Fri, 18 Sep 2026 16:43:46 GMT
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-cache: Miss from cloudfront
+via: 1.1 d5e209f16453f19497406e1993d03d68.cloudfront.net (CloudFront)
+x-amz-cf-pop: SFO53-P9
+x-amz-cf-id: BY9loI5PgDGmPK-mM8Dw8qRNYvUa6uymwUi8ZMSpQaOlMrNTPgYTzQ==
+
+--- probe 6: target api.hypofriend.de ---
+exit=35
+[0m
+[0m$ [0msleep 1; R=$RANDOM; echo "--- probe 7: OPTIONS core.hypofriend.de/zzz-$R (nonexistent path) ---"; curl -sk -o /dev/null -D - -X OPTIONS "https://core.hypofriend.de/zzz-$R" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 15; sleep 1; echo "--- probe 8: OPTIONS core.hypofriend.de/property-search-api (contrast) ---"; curl -sk -o /dev/null -D - -X OPTIONS "https://core.hypofriend.de/property-search-api" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 15; sleep 1; echo "--- probe 9: OPTIONS core.hypofriend.de/api/v3/advisors (contrast) ---"; curl -sk -o /dev/null -D - -X OPTIONS "https://core.hypofriend.de/api/v3/advisors" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 15
+--- probe 7: OPTIONS core.hypofriend.de/zzz-3684 (nonexistent path) ---
+HTTP/2 200 
+date: Fri, 18 Sep 2026 16:44:11 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+
+--- probe 8: OPTIONS core.hypofriend.de/property-search-api (contrast) ---
+HTTP/2 200 
+date: Fri, 18 Sep 2026 16:44:12 GMT
+content-length: 0
+
+--- probe 9: OPTIONS core.hypofriend.de/api/v3/advisors (contrast) ---
+HTTP/2 200 
+date: Fri, 18 Sep 2026 16:44:14 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0msleep 1; echo "--- probe 10: GET core.hypofriend.de/ w/ Origin ---"; curl -sk -o /dev/null -D - "https://core.hypofriend.de/" -H "Origin: https://evil.example" --max-time 15; sleep 1; echo "--- probe 11: GET core.hypofriend.de/en/health w/ Origin ---"; curl -sk -o /dev/null -D - "https://core.hypofriend.de/en/health" -H "Origin: https://evil.example" --max-time 15; sleep 1; echo "--- probe 12: GET hypofriend.de/en/health w/ Origin (edge) ---"; curl -sk -o /dev/null -D - "https://hypofriend.de/en/health" -H "Origin: https://evil.example" --max-time 15
+--- probe 10: GET core.hypofriend.de/ w/ Origin ---
+HTTP/2 302 
+date: Fri, 18 Sep 2026 16:44:36 GMT
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/en
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: ALLOWALL
+x-robots-tag: none
+cache-control: no-cache
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Tue, 18 Sep 2029 16:44:36 GMT; secure; samesite=none
+set-cookie: _hf=4c9ac63798a855688aedc4b31890e5f6; domain=hypofriend.de; path=/; expires=Thu, 18 Sep 2036 16:44:36 GMT; secure; httponly
+x-request-id: aa72a32d-930b-403b-87bb-9801b3377fc4
+x-runtime: 0.015054
+strict-transport-security: max-age=63072000; includeSubDomains
+vary: Origin,Accept-Encoding
+
+--- probe 11: GET core.hypofriend.de/en/health w/ Origin ---
+HTTP/2 301 
+date: Fri, 18 Sep 2026 16:44:37 GMT
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-request-id: 086f5923-330d-4561-aa41-9e542e4b1aa5
+x-runtime: 0.007214
+strict-transport-security: max-age=63072000; includeSubDomains
+vary: Origin,Accept-Encoding
+
+--- probe 12: GET hypofriend.de/en/health w/ Origin (edge) ---
+HTTP/2 200 
+content-type: text/html; charset=utf-8
+content-length: 89
+date: Fri, 18 Sep 2026 16:44:40 GMT
+last-modified: Fri, 18 Sep 2026 13:01:18 GMT
+etag: "d5ac925598bd89bb61a220d74aa1a9a1"
+x-amz-server-side-encryption: AES256
+cache-control: public, max-age=0, must-revalidate
+accept-ranges: bytes
+server: AmazonS3
+x-cache: Miss from cloudfront
+via: 1.1 ebf55ca9c2011caf25578fcdad5baea4.cloudfront.net (CloudFront)
+x-amz-cf-pop: SFO53-P9
+x-amz-cf-id: oKSQhADvuP5IxQXRmcQY4K2II8mWVOp6mTxjT7z1Oo0-5FUgvKFwWQ==
+[0m
+STEP 1 — DELTA
+- [CHANGED] `core.hypofriend.de`: OPTIONS now **200 + credentialed CORS on /q, /en/health/q, /api/v3/advisors AND an arbitrary nonexistent path /zzz-<rand>** (earlier today 12:37Z these were 301→root) — rack-cors pre-empts routing app-wide. Credentialed CORS now confirmed on **actual GET responses** too, not just preflight.
+- [CHANGED] `hypofriend.de/` edge: OPTIONS root echoes arbitrary Origin + ACAC:true + all methods through CloudFront (full CF security stack present).
+- [CHANGED] `hypofriend.de/en/health`: S3 meta-refresh `last-modified` refreshed 2026-09-18 13:01:18Z (was 09-14), 89B content bit-identical — static redeploy.
+- [CHANGED] `api.hypofriend.de` (target): SSL_ERROR_SYSCALL (curl exit 35) — dead 21st consecutive cycle, A resolves clean.
+- [NG] `property-search-api` OPTIONS still 200 with **no ACAO** — CORS closed there (contrast preserved).
+
+STEP 2 — PRIORITIZE
+- [PRIO] `core.hypofriend.de`, 8.9, auth=9 biz=9 tech=8 gate=10 cloud=8 fresh=9
+- [PRIO] `core.hypofriend.de/property-search-api`, 8.9, auth=9 biz=10 tech=8 gate=10 cloud=7 fresh=8
+- [PRIO] `hypofriend.de/q` (+/en/health/q,/en/plus/q), 8.5, auth=8 biz=9 tech=8 gate=9 cloud=9 fresh=8
+
+STEP 3 — HYPOTHESES
+
+[HYP] Global credentialed CORS on core Rails app reflects arbitrary Origin on real responses + SameSite=None HttpOnly session cookie — cross-origin authenticated read primitive
+class: MISCONFIG
+asset: core.hypofriend.de (app-wide, incl. /q, /en/health/q, /api/v3/advisors)
+confidence: 88
+reasoning: Live 16:44Z — `OPTIONS /q`, `/en/health/q`, `/api/v3/advisors` and a random nonexistent path `/zzz-3684` all return 200 with `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` + all methods (max-age 7200, no Vary:Origin); `GET /` (302→/en) and `GET /en/health` (301) actual responses also carry ACAO+ACAC:true; `GET /` also sets `_hf` (HttpOnly, domain=hypofriend.de, samesite=none) and `internal=FALSE; samesite=none; secure`, plus origin `x-frame-options: ALLOWALL`; `property-search-api` (separate mount) returns no ACAO.
+evidence_needed: a data-bearing auth'd route (non-30x) on this app that reflects ACAO cross-origin — i.e. whether `/q` POST still routes after the 09-16 change
+verify_steps: HUMAN — POST `https://core.hypofriend.de/q` body `{"query":"{__typename}"}` with `Origin: https://evil.example` (read-only, no PII) → expect 200 + ACAO if handler live; same for `https://core.hypofriend.de/en/health/q`
+impact: attacker page reads authenticated responses using victim's SameSite=None cookies — lead/account data theft and read-capable mutation abuse on a financial platform — HIGH
+testability: AUTH_HELPED
+
+[HYP] property-search-api full-DB auth-free PII BOLA — existence frozen at HIGH confidence
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose returns live PII zero-auth (2026-09-04+); full introspection live; offset-walk limit ~50 proven; direct-origin bare-header WAF bypass re-confirmed prior cycles; no PII gate advanced this cycle
+evidence_needed: HUMAN-authorized UUID-only offset-walk to bound DB size (BERLIN/MUNICH)
+verify_steps: HUMAN — POST core.hypofriend.de/property-search-api `mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){id}}` then `query{exposes(id:<sid>,offset:0..N,limit:50){id}}`; log UUID counts only, no PII
+impact: full-DB listing dump (phones/emails/owner surnames/companies) zero auth — CRITICAL
+testability: AUTH_HELPED
+
+[HYP] /q-family POST handler liveness after routing change — decides whether credentialed-CORS chain is data-bearing vs config-only
+class: MISCONFIG
+asset: hypofriend.de/q (+core.hypofriend.de/q, /en/health/q, /en/plus/q)
+confidence: 62
+reasoning: `GET core.hypofriend.de/q` still 301→https://hypofriend.de/ (Rails shell, x-request-id), but rack-cors answers OPTIONS 200 for every path BEFORE routing; historical POST `{__typename}` returned 200 (09-07) then /q 301'd (09-16); POST status is the sole unmeasured gate
+evidence_needed: HTTP status of a read-only POST to /q-family on origin and edge
+verify_steps: HUMAN — POST `https://core.hypofriend.de/q` and `https://hypofriend.de/q` body `{"query":"{__typename}"}` with `Origin: https://evil.example`; record status/location/ACAO
+impact: if 200→ credentialed CORS + SameSite=None sessions yield cross-origin GraphQL read/mutate on origin bypassing WAF; if 301→config-level CORS only — HIGH vs MEDIUM
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] hypofriend.de/q email→leadPresent+firstName oracle: confidence 60 but OOS-near (username-enumeration class on login/recovery) — not carried.
+- [PARKED] origin XFO:ALLOWALL clickjacking differential: standalone clickjacking is REJECTED-class; retained only as evidence inside the CORS chain.
+- [FINAL] 1) Global credentialed CORS on core Rails app (88) 2) property-search-api full-DB auth-free PII BOLA (95) 3) /q-family POST-liveness gate (62).
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: authorize one read-only POST to decide the CORS chain — `POST https://core.hypofriend.de/q` body `{"query":"{__typename}"}` with header `Origin: https://evil.example` (and same to `https://hypofriend.de/q`); record status/location/ACAO. POC target api.hypofriend.de dead 21st cycle (SSL_ERROR_SYSCALL, A 52.15.184.3 clean) — phase cannot complete under current pinning; request phase exception or close on existing CRITICAL confirms.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a **global rack-cors middleware** — arbitrary/nonexistent path `/zzz-3684` and `/api/v3/advisors` OPTIONS both echo any Origin + ACAC:true + all methods; actual GET 302/301 shells also carry ACAO — not /q-specific.
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de: origin `GET /` sets `_hf` HttpOnly/SameSite=None and `internal=FALSE; samesite=none` cookies + XFO:ALLOWALL vs edge XFO:DENY — provenance/header differential only, already tracked.
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class).
+[LEARN] CHANGED @ hypofriend.de/en/health: S3 meta-refresh object refreshed 2026-09-18T13:01:18Z, 89B unchanged — static redeploy, not a finding.
+[LEARN] REJECTED NG @ api.hypofriend.de (target): SSL_ERROR_SYSCALL, 000 — dead 21st consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+[LEARN] REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 21 cycles) — no live surface for phase completion; phase mismatch constrains probe actions.
+
+STEP 7 — RISK
+[RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA live+frozen (CRITICAL); credentialed CORS now proven app-global on core.hypofriend.de and reflected on actual responses with SameSite=None HttpOnly sessions (cross-origin authenticated read precondition); POC target api dead 21st cycle leaves bulk quantification, handler-execution PoC and report HUMAN-gated.

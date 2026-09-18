@@ -759,3 +759,9 @@ www.hypofriend.de
 - CHANGED hypofriend.de/en/health — S3 meta-refresh object last-modified refreshed 2026-09-14 17:22:23Z (static redeploy)
 - CHANGED api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed live 04:57Z — dead 19th consecutive cycle, A 52.15.184.3 resolves clean
 - CHANGED All dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*, graph-rates, v3, login, sso) + a./blog/m2 buckets + *.l
+
+## 2026-09-18 16:48:59 UTC
+- NEW hypofriend.de/en/plus/q — Open credentialed CORS on edge (CloudFront) confirmed live this cycle (ACAO echo + ACAC:true + all methods)
+- CHANGED core.hypofriend.de/en/health/q — Response length increased 227365→228508 (Nuxt bundle refresh)
+- CHANGED hypofriend.de/en/health — S3 meta-refresh object last-modified refreshed 2026-09-14 17:22:23Z (static redeploy)
+- CHANGED api.hypofriend.de — 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed — dead 19th consecutive cycle, A 52.15.184.3 resolves clean
