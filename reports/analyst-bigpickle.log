@@ -25413,3 +25413,165 @@ testability: HUMAN_ONLY
 
 ## STEP 7 — RISK
 [RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA live+frozen (CRITICAL); credentialed CORS global on core (+hypofriend) re-proven with SameSite=None HttpOnly session cookies; fresh /en/plus bundle delivers 4 new auth-free mutation candidates on the credentialed chain; POC target api dead 23rd cycle leaves bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only/OPTIONS ≤1rps, no evidence of exploitation.
+===== ANALYST bigpickle 2026-09-18 23:50:08 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS -D - -o /dev/null -X OPTIONS "https://core.hypofriend.de/en/plus/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 25
+HTTP/2 200 
+date: Fri, 18 Sep 2026 23:48:55 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "plus_page HTTP %{http_code} SIZE %{size_download} TIME %{time_total}s\n" "https://hypofriend.de/en/plus" --max-time 25
+plus_page HTTP 200 SIZE 298552 TIME 1.155068s
+[0m
+[0m$ [0mcurl -sS "https://hypofriend.de/en/plus" -o /tmp/opencode/enplus.html --max-time 25 && rg -o '<script[^>]*src="[^"]*\.js[^"]*"' /tmp/opencode/enplus.html | head -30
+/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mgrep -oE '<script[^>]*src="[^"]*\.js[^"]*"' /tmp/opencode/enplus.html | head -40
+<script id="usercentrics-cmp" src="https://app.usercentrics.eu/browser-ui/latest/loader.js"
+<script type="module" src="/m/_nuxt/D9p-7uJV.js"
+<script type="application/json" data-nuxt-data="nuxt-app" data-ssr="true" id="__NUXT_DATA__" data-src="/en/plus/m_payload.json?79524b0e-201a-45be-bf20-be85e4075538"
+[0m
+[0m$ [0mcurl -sS "https://hypofriend.de/m/_nuxt/D9p-7uJV.js" -o /tmp/opencode/enplus.bundle.js --max-time 60; ls -la /tmp/opencode/enplus.bundle.js; echo "---"; grep -c "requestAccountLink\|requestAppointmentLink\|setNameAppointment\|unclaimLead" /tmp/opencode/enplus.bundle.js
+-rw-r--r-- 1 runner runner 1334793 Sep 18 23:49 /tmp/opencode/enplus.bundle.js
+---
+13
+[0m
+[0m$ [0mgrep -oE 'mutation\s*\(?\s*\$?[a-zA-Z]*\)?\s*\{[^}]{0,220}(requestAccountLink|requestAppointmentLink|setNameAppointment|unclaimLead)[^}]{0,220}\}' /tmp/opencode/enplus.bundle.js | head; echo "===RAW==="; grep -oE '.{80}(requestAccountLink|requestAppointmentLink|setNameAppointment|unclaimLead).{180}' /tmp/opencode/enplus.bundle.js | head -20
+===RAW===
+ables:{locale:r}});return n.data.setLocale.step?n.data.setLocale.step:!1},async unclaimLead(){const{data:r}=await Ke(t.unclaimLead(),!1,"unclaimLead");return r?.data?.unclaimLead?.success||!1},async clearCookie(){const{status:r}=await wk("delete-cookie");return r===200}}
+uestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.data?.data?.requestAccountLink||!1},async requestAppointmentLink(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){const r=t.getAdminCookie();try{c
+("setAdvisor",t)},setAdvisorExplicit({commit:e}){e("setAdvisorExplicit")},async unclaimLead(){await a2().lead.unclaimLead()},async checkIfLeadIsEligible({commit:e}){const t=await a2().lead.checkIfLeadIsEligible();if(t){e("setLeadIsEligible",t.eligibleForAccount);return}e
+){const n=!!r?.match(/^appointment(?!.*confirm)/),s=a2();return n?await s.login.requestAppointmentLink(t):await s.login.requestLogin(t)}},lT={namespaced:!0,actions:aT},Ri=e=>{if(["string","number"].includes(typeof e)&&(e||e===0))return e.toString().replace(".",",")},l0=e=>new Intl.
+[0m
+[0m$ [0mgrep -oE '\{filename}[^{}]{0,40}\}\s*\}\)' /tmp/opencode/enplus.bundle.js >/dev/null 2>&1; grep -oE '.{0,60}(unclaimLead|requestAppointmentLink|requestAccountLink|setNameAppointment)\s*:\s*\([^)]*\)\s*=>\s*`[^`]{0,260}`' /tmp/opencode/enplus.bundle.js | head -20
+(no output)
+[0m
+[0m$ [0mgrep -oE '`[^`]{0,300}(unclaimLead|requestAppointmentLink|requestAccountLink|setNameAppointment|requestLogin|setLocale|getAdminCookie)[^`]{0,120}`' /tmp/opencode/enplus.bundle.js | head -40
+`,setLocale:()=>`
+`,unclaimLead:()=>`
+`,requestAppointmentLink:e=>`
+`,getAdminCookie:()=>`
+`,getAdminCookie:()=>`
+`getAdminCookie`
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re
+b=open('/tmp/opencode/enplus.bundle.js').read()
+for name in ['unclaimLead','requestAppointmentLink','requestAccountLink','setNameAppointment','requestLogin','setLocale','getAdminCookie']:
+    hits=[]
+    for m in re.finditer(re.escape(name)+r'\s*:\s*\([^)]*\)\s*=>\s*`([^`]{5,500})`', b):
+        hits.append(m.group(1))
+    for h in hits[:3]:
+        print('### '+name)
+        print(h.replace('\n',' ')[:400])
+        print()
+EOF
+### unclaimLead
+     mutation unclaimLead {       unclaimLead(input: {}) {         success       }     }   
+
+### setLocale
+     mutation setLocale($locale: LocaleEnum!) {       setLocale(input: { locale: $locale }) {         step       }     }   
+
+### getAdminCookie
+     query {       root {         lead {           has_admin_cookie         }       }     }   
+
+### getAdminCookie
+     query {       root {         lead {           has_admin_cookie         }       }     }
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re
+b=open('/tmp/opencode/enplus.bundle.js').read()
+pat=re.compile(r'`([^`]{5,600})`')
+# find template literals that contain mutation/query keywords for our names
+for name in ['requestAppointmentLink','requestAccountLink','requestLogin','alreadyBooked','appointmentLink','has_admin_cookie','delete-cookie','eligibleForAccount']:
+    for m in pat.finditer(b):
+        s=m.group(1)
+        if name in s and ('mutation' in s or 'query' in s.lower()):
+            print('### '+name+' :: '+s.replace('\n',' ')[:340]); print()
+EOF
+### requestAppointmentLink ::      mutation requestAppointmentLink {       requestAppointmentLink(input: {email: "${e}"}) {         leadPresent         firstName       }     }   
+
+### requestAccountLink ::      mutation requestAccountLink {       requestAccountLink(input: {email: "${e}"}) {         step         leadPresent         firstName       }     }   
+
+### has_admin_cookie ::      query {       root {         lead {           has_admin_cookie         }       }     }   
+
+### has_admin_cookie ::      query {       root {         lead {           has_admin_cookie         }       }     }
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re
+b=open('/tmp/opencode/enplus.bundle.js').read()
+pat=re.compile(r'`([^`]{5,600})`')
+for name in ['requestLogin','setNameAppointment','setLocale','alreadyBooked','appointments','LocaleEnum','credential','signIn','verify','accountLinkByToken','unclaimLead']:
+    for m in pat.finditer(b):
+        s=m.group(1)
+        if (name+' ' in s or name+'(input' in s) and ('mutation ' in s or 'query' in s or 'input' in s):
+            print('### '+name+' :: '+s.replace('\n',' ')[:340]); print()
+EOF
+### setNameAppointment ::      mutation setNameAppointment {       setNameAppointment(input: {         name: "${e}"       }) { step }     }
+[0m
+STEP 1 — DELTA
+- [CHANGED] hypofriend.de/en/plus bundle D9p-7uJV.js (1,334,793 B, hash unchanged from prior cycle) deep re-mine extracted EXACT gql shapes for the 4 new mutations — `requestAccountLink(input:{email}){step leadPresent firstName}`, `requestAppointmentLink(input:{email}){leadPresent firstName}`, `setNameAppointment(input:{name}){step}`, `unclaimLead(input:{}){success}` — plus `setLocale(LocaleEnum!){step}` and `query{root{lead{has_admin_cookie}}}` oracle; `leadPresent`/`firstName` return fields imply a server-side email-existence + firstName PII response path (new evidence class, prior cycle only had mutation names).
+- [CHANGED] core.hypofriend.de/en/plus/q credentialed CORS live re-verified 2026-09-18 23:48:55Z — OPTIONS 200, ACAO:https://evil.example + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding no Vary:Origin, origin response bare (date/content-length only).
+- [NO_CHANGE] hypofriend.de/en/plus still 200/298552 (13:01:39Z deploy, no second redeploy); api.hypofriend.de NOT re-probed (phase-pinned, dead 24th cycle).
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api, 7.75, full-DB auth-free PII BOLA (frozen CRITICAL, attack_surface 9/business 9/gate 10) — retained, unchanged
+- [PRIO] core.hypofriend.de/en/plus/q (+/q family), 7.55, fresh anonymous mutation surface + leadPresent/firstName oracle (graphql 8/gate 10/freshness 9)
+- [PRIO] core.hypofriend.de global credentialed CORS, 6.85, cross-origin authenticated read/write primitive (gate 10, freshness 8)
+- [PARKED] api.hypofriend.de, 0.0, dead 24th cycle — no attack surface
+
+STEP 3 — HYPOTHESES
+[HYP] requestAccountLink/requestAppointmentLink act as anonymous email-existence + firstName PII oracle on credentialed-CORS chain
+class: IDOR
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: Fresh bundle gql templates confirmed server-side fields `requestAccountLink(input:{email}){step leadPresent firstName}` and `requestAppointmentLink(input:{email}){leadPresent firstName}`; the /q-family executes mutations anonymously (processLeadForAppointment & uploadDocumentExtended → 200 no auth, prior cycles) on edge AND origin; `leadPresent`/`firstName` are response branches of the email resolver, i.e. existence + name disclosure gated only by the resolver's own logic.
+evidence_needed: one HTTP POST to /en/plus/q on direct origin with a disposable email; observe leadPresent/firstName/step vs error, and whether a session cookie is required (fresh jar).
+verify_steps: HUMAN — POST `https://core.hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"hb-test-8831@example.com\"}){step leadPresent firstName}}"}` with `Origin: https://evil.example`, fresh cookie jar; log status + body-length + ACAO only; do NOT use a real person's address.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering vector) riding the proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends the CRITICAL BOLA family into the lead-account mutation class.
+testability: AUTH_HELPED
+
+[HYP] root.lead.has_admin_cookie returns admin-session state anonymously
+class: OTHER
+asset: core.hypofriend.de/en/plus/q
+confidence: 42
+reasoning: bundle exposes `query{root{lead{has_admin_cookie}}}` plus a getAdminCookie gql and a `delete-cookie` HTTP call; if the backend resolves has_admin_cookie from session per anonymous request it is an admin-presence oracle; but direct precedent `internal` cookie flag was proven server-forced (REJECTED) on same origin.
+evidence_needed: anonymous POST query to /en/plus/q — has_admin_cookie value.
+verify_steps: HUMAN — POST `{"query":"query{root{lead{has_admin_cookie}}}"}` to /en/plus/q fresh jar; record value/status.
+impact: admin session-existence oracle only — LOW-MEDIUM
+testability: AUTH_HELPED
+
+[HYP] POC phase-gate mismatch — all new mutation surface on /q-family, pinned target remains dead
+class: OTHER
+asset: api.hypofriend.de (target)
+confidence: 18
+reasoning: 24th consecutive dead cycle; bundle-mined mutations dispatch on runtime-overridden /q-family hosts, not the pinned target; A record clean.
+evidence_needed: none
+verify_steps: none
+impact: phase completion and mutation-handler report remain HUMAN-gated
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] has_admin_cookie oracle: confidence 42, borderline REJECTED class (cookie provenance flag, mirrors REJECTED `internal` cookie) — verify only if HUMAN already executing on /en/plus/q; not a standalone push.
+- [PARKED] POC phase-gate mismatch: confidence 18 <40, repeated prior cycles, no new evidence.
+- [FINAL] survivors: H-requestAccountLink/requestAppointmentLink oracle (74) — only actionable hypothesis this cycle. requestLogin client-side alias reads requestAccountLink response field (`.data.requestAccountLink`) — corroborates shared backend resolver, no separate finding.
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN — single-shot mutating POC on direct origin: POST `https://core.hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"hb-test-8831@example.com\"}){step leadPresent firstName}}"}` with `Origin: https://evil.example` + fresh jar; log status/body-length/ACAO, ≤1 request, disposable email only.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified 2026-09-18 23:48:55Z — OPTIONS ACAO echo + ACAC:true + all methods (max-age 7200), origin bare headers, no Vary:Origin — precondition chain intact.
+- [LEARN] ACCEPTED MISCONFIG @ hypofriend.de/en/plus bundle D9p-7uJV.js: deep-mine produced exact gql for requestAccountLink/requestAppointmentLink(email, returns leadPresent+firstName), setNameAppointment(name), unclaimLead, setLocale(LocaleEnum), and root.lead.has_admin_cookie oracle — email-existence/firstName PII response branch is newly-material evidence for the anonymous mutation class.
+- [LEARN] CONFIRMED NG @ hypofriend.de/en/plus: 200/298552, no second redeploy since 13:01:39Z.
+- [LEARN] REJECTED NG @ api.hypofriend.de (target): not re-probed (phase-pinned, dead 24th consecutive cycle).
+
+STEP 7 — RISK
+- [RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA frozen (CRITICAL); global credentialed CORS (re-verified 23:48Z) + SameSite=None HttpOnly session cookies intact; fresh /en/plus bundle confirms auth-free mutation class incl. requestAccountLink/requestAppointmentLink with leadPresent+firstName oracle potential on the credentialed chain; bulk quantification, mutation-handler PoC and report remain HUMAN-gated behind dead pinned target; all probes read-only/OPTIONS ≤1rps, no evidence of exploitation.

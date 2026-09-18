@@ -4343,3 +4343,31 @@ testability: HUMAN_ONLY
 [LEARN] CONFIRMED NG @ fleet: all dead fleet + buckets unchanged (503/000/301/403) — no new surface
 [LEARN] CONFIRMED MISCONFIG @ hypofriend.de/en/plus: bundle refreshed 2026-09-18T13:01:39Z, len 298552; re-mine produced NEW named mutations (requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead) — new auth-free candidate surface
 [RISK] hypofriend: 98 — property-search-api full-DB auth-free PII BOLA live+frozen (CRITICAL); credentialed CORS global on core (+hypofriend) re-proven with SameSite=None HttpOnly session cookies; fresh /en/plus bundle delivers 4 new auth-free mutation candidates on the credentialed chain; POC target api dead 23rd cycle leaves bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only/OPTIONS ≤1rps, no evidence of exploitation.
+## 2026-09-18 23:49:59 UTC [target] (model bigpickle)
+[HYP] requestAccountLink/requestAppointmentLink act as anonymous email-existence + firstName PII oracle on credentialed-CORS chain
+class: IDOR
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: Fresh bundle gql templates confirmed server-side fields `requestAccountLink(input:{email}){step leadPresent firstName}` and `requestAppointmentLink(input:{email}){leadPresent firstName}`; the /q-family executes mutations anonymously (processLeadForAppointment & uploadDocumentExtended → 200 no auth, prior cycles) on edge AND origin; `leadPresent`/`firstName` are response branches of the email resolver, i.e. existence + name disclosure gated only by the resolver's own logic.
+evidence_needed: one HTTP POST to /en/plus/q on direct origin with a disposable email; observe leadPresent/firstName/step vs error, and whether a session cookie is required (fresh jar).
+verify_steps: HUMAN — POST `https://core.hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"hb-test-8831@example.com\"}){step leadPresent firstName}}"}` with `Origin: https://evil.example`, fresh cookie jar; log status + body-length + ACAO only; do NOT use a real person's address.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering vector) riding the proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends the CRITICAL BOLA family into the lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] root.lead.has_admin_cookie returns admin-session state anonymously
+class: OTHER
+asset: core.hypofriend.de/en/plus/q
+confidence: 42
+reasoning: bundle exposes `query{root{lead{has_admin_cookie}}}` plus a getAdminCookie gql and a `delete-cookie` HTTP call; if the backend resolves has_admin_cookie from session per anonymous request it is an admin-presence oracle; but direct precedent `internal` cookie flag was proven server-forced (REJECTED) on same origin.
+evidence_needed: anonymous POST query to /en/plus/q — has_admin_cookie value.
+verify_steps: HUMAN — POST `{"query":"query{root{lead{has_admin_cookie}}}"}` to /en/plus/q fresh jar; record value/status.
+impact: admin session-existence oracle only — LOW-MEDIUM
+testability: AUTH_HELPED
+[HYP] POC phase-gate mismatch — all new mutation surface on /q-family, pinned target remains dead
+class: OTHER
+asset: api.hypofriend.de (target)
+confidence: 18
+reasoning: 24th consecutive dead cycle; bundle-mined mutations dispatch on runtime-overridden /q-family hosts, not the pinned target; A record clean.
+evidence_needed: none
+verify_steps: none
+impact: phase completion and mutation-handler report remain HUMAN-gated
+testability: HUMAN_ONLY

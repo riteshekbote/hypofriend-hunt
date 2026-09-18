@@ -775,3 +775,11 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
 - CHANGED core.hypofriend.de/en/health/q, /en/plus/q: credentialed CORS + auth-free mutations + bare origin headers vs edge CF stack — persistent
 - CHANGED hypofriend.de/en/health, /en/plus: separate appointment instances with independent GraphQL surfaces — persistent
+
+## 2026-09-18 23:50:08 UTC
+- NEW core.hypofriend.de: credentialed CORS is a **global rack-cors middleware** — arbitrary/nonexistent path `/zzz-3684` and `/api/v3/advisors` OPTIONS both echo any Origin + ACAC:true + all methods; actua
+- NEW hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine
+- CHANGED api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
+- CHANGED core.hypofriend.de/property-search-api: full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
+- CHANGED core.hypofriend.de/en/health/q, /en/plus/q: credentialed CORS + auth-free mutations + bare origin headers vs edge CF stack — persistent
+- CHANGED hypofriend.de/en/health, /en/plus: separate appointment instances with independent GraphQL surfaces — persistent
