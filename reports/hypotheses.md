@@ -2506,3 +2506,22 @@
 - LEARN: CHANGED @ core.hypofriend.de/en/plus/q & /en/health/q: GET 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin
 - LEARN: ACCEPTED ENDPOINT @ hypofriend.de/m/_nuxt/D9p-7uJV.js: current bundle (200, 1,334,793B) re-confirms new mutation surface shipped — requestAccountLink, requestAp
 - LEARN: CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 07:44Z (:80/:443) — dead 24th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+
+## RANKED HYPOTHESES 2026-09-19 15:59:29 UTC
+- [95] core.hypofriend.de: core.hypofriend.de Global Credentialed CORS Middleware → Universal Cross-Origin Authenticated Read/Write Primitive (from art/lead_nemotron3.txt)
+- [50] core.hypofriend.de/en/plus/q: requestAccountLink/requestAppointmentLink run as unauthenticated server-side email-dispatch handlers on the credentialed-CORS chain, reframed as email-abuse/BUSLOGIC rather than enumeration (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"
+- NEXT(hypotheses-nemotron3.txt): PROBE: OPTIONS https://core.hypofriend.de/api/v3/advisors -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" — confirm global credential
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a **global rack-cors middleware** — arbitrary/nonexistent path `/zzz-3684` and `/api/v3/advisors` 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de: origin `GET /` sets `_hf` HttpOnly/SameSite=None and `internal=FALSE; samesite=none` cookies + XFO:ALLOWALL vs edge XFO
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class).
+- LEARN: CHANGED @ hypofriend.de/en/health: S3 meta-refresh object refreshed 2026-09-18T13:01:18Z, 89B unchanged — static redeploy, not a finding.
+- LEARN: REJECTED NG @ api.hypofriend.de (target): SSL_ERROR_SYSCALL, 000 — dead 21st+ consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+- LEARN: REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 21+ cycles) — no live surface for phase completion; phase mismatch constrains probe actions.
+- LEARN: ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
+- LEARN: REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd+ consecutive cycle, A 52.15.184.3 resolves clean, no surface.
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q & /en/health/q: credentialed CORS re-proven live 2026-09-19 07:45Z — OPTIONS Origin https://evil.example → ACA
+- LEARN: CHANGED @ core.hypofriend.de/en/plus/q & /en/health/q: GET 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin
+- LEARN: ACCEPTED ENDPOINT @ hypofriend.de/m/_nuxt/D9p-7uJV.js: current bundle (200, 1,334,793B) re-confirms new mutation surface shipped — requestAccountLink, requestAp
+- LEARN: CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 07:44Z (:80/:443) — dead 24th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.

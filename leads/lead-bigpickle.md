@@ -4467,3 +4467,33 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt/D9p-7uJV.js: bundle bit-unchanged (200, 1,334,793B) — no new mutation surface delta this cycle; requestAccountLink/requestAppointmentLink/unclaimLead/setNameAppointment still shipped.
 [LEARN] CONFIRMED NG @ fleet: no host re-probed beyond api + bundle + single CORS OPTIONS (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301).
 [RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain intact-reverified; email-account-link mutations shipped on that chain (fresh vector, HUMAN-gated confirmation pending); POC target api dead 25th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only GET/HEAD/OPTIONS ≤1rps, no evidence of exploitation.
+## 2026-09-19 15:59:22 UTC [target] (model bigpickle)
+[HYP] requestAccountLink/requestAppointmentLink run as unauthenticated server-side email-dispatch handlers on the credentialed-CORS chain, reframed as email-abuse/BUSLOGIC rather than enumeration
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 50
+reasoning: New entry bundle g8upYJar.js ships requestAccountLink(3)/requestAppointmentLink(7, up from 5)/unclaimLead(9, up from 5); `requestLogin`→requestAccountLink fires "Viewed Website Login Magic Link Popup"; /q-family mutations (processLeadForAppointment, uploadDocumentExtended) already execute 200 with zero auth; credentialed CORS re-verified 12:13Z (ACAO echo + ACAC:true). The `leadPresent`/`firstName` response language is keyed only on the email argument.
+evidence_needed: One POST with a reserved non-deliverable email (example.com) — logs whether the handler branch returns step/leadPresent/firstName vs error under a fresh-jar no-session POST; if reachable, the handler runs with no session for arbitrary addresses.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q, body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body only; single-shot.
+impact: Unauthenticated triggering of transactional account-link email generation for arbitrary addresses (abuse/spam/social-engineering fuel) on a credentialed-CORS enabled surface — MEDIUM. Lead-existence/firstName linkage kept PARKED (see STEP 4).
+testability: AUTH_HELPED
+[HYP] Full-DB auth-free PII enumeration remains the headline CRITICAL; only open gate is bulk quantification with offset-walk
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, PII incl. phone/owner/email), offset-walk primitives + full introspection, direct-origin WAF bypass — unchanged and re-pinned CRITICAL; no remediation signal this cycle.
+evidence_needed: none beyond prior live confirmations; quantification is the unanswered extent question.
+verify_steps: HUMAN — bounded offset-walk under a single city, caps ≤50/req, read-only; program custodial rule limits volume.
+impact: Full-BD listing-PII extraction — CRITICAL.
+testability: HUMAN_ONLY
+[HYP] unclaimLead executes as auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead references rose 5→9 in new bundle; returns `{success}` resolution (`?.data?.unclaimLead?.success`); sibling processLeadForAppointment executes 200 anonymously proving no session gate on this mutation class; CORS + SameSite=None chain intact.
+evidence_needed: error-branch differentiation on a mutation POST (favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{id:\"00000000-0000-0000-0000-000000000000\"}){success}}" } to /en/plus/q, fresh jar; compare error vs success branch; no real lead data.
+impact: Cross-tenant appointment-ownership tampering if resolver keys on caller-supplied id — MEDIUM; arg shape unproven (no introspection).
+testability: AUTH_HELPED
+[NEXT] HUMAN: one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/body only; reserved non-deliverable address, no real PII, no retries; all other surface stays frozen (bundle re-mine complete this cycle).
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None chain intact with refreshed bundle (requestAppointmentLink/unclaimLead references grew) shipping on that chain; POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes this cycle read-only GET/HEAD ≤1rps, no evidence of exploitation.

@@ -25982,3 +25982,163 @@ STEP 6 — LEARNING:
 
 STEP 7 — RISK:
 [RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain intact-reverified; email-account-link mutations shipped on that chain (fresh vector, HUMAN-gated confirmation pending); POC target api dead 25th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only GET/HEAD/OPTIONS ≤1rps, no evidence of exploitation.
+===== ANALYST bigpickle 2026-09-19 15:59:29 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sSI --max-time 15 https://hypofriend.de/m/_nuxt/D9p-7uJV.js 2>&1 | rg -i "HTTP/|content-length|last-modified|etag" ; curl -sSI --max-time 15 https://core.hypofriend.de/en/plus/q 2>&1 | rg -i "HTTP/|location|x-frame"
+/bin/bash: line 1: rg: command not found
+/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "api:443 => %{http_code} connect=%{time_connect} ssl=%{time_appconnect}\n" --connect-timeout 6 --max-time 12 https://api.hypofriend.de/ 2>&1; curl -sS -o /dev/null -w "api:80 => %{http_code} connect=%{time_connect}\n" --connect-timeout 6 --max-time 12 http://api.hypofriend.de/ 2>&1
+curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443 
+api:443 => 000 connect=0.161795 ssl=0.000000
+curl: (28) Failed to connect to api.hypofriend.de port 80 after 6002 ms: Timeout was reached
+api:80 => 000 connect=0.000000
+[0m
+[0m$ [0mcurl -sSI --max-time 15 https://hypofriend.de/m/_nuxt/D9p-7uJV.js 2>&1 | grep -i "HTTP/\|content-length\|last-modified\|etag"; echo "---"; curl -sSI --max-time 15 https://core.hypofriend.de/en/plus/q 2>&1 | grep -i "HTTP/\|location\|x-frame\|access-control"
+HTTP/2 403 
+---
+HTTP/2 301 
+location: https://hypofriend.de/
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "bundle GET range => %{http_code} size=%{size_download}\n" --max-time 15 -r 0-1023 https://hypofriend.de/m/_nuxt/D9p-7uJV.js 2>&1; echo "---"; curl -sS -o /dev/null -w "plus page GET => %{http_code} size=%{size_download}\n" --max-time 15 https://hypofriend.de/en/plus 2>&1
+bundle GET range => 403 size=111
+---
+plus page GET => 200 size=298552
+[0m
+[0m$ [0mcurl -sS --max-time 15 -r 0-1023 https://hypofriend.de/m/_nuxt/D9p-7uJV.js 2>&1 | head -c 300; echo; echo "---full GET with UA---"; curl -sS -o /dev/null -w "=> %{http_code} size=%{size_download} ct=%{content_type}\n" --max-time 20 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36" https://hypofriend.de/m/_nuxt/D9p-7uJV.js 2>&1
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message></Error>
+---full GET with UA---
+=> 403 size=111 ct=application/xml
+[0m
+[0m$ [0mcurl -sS --max-time 20 https://hypofriend.de/en/plus 2>&1 | grep -oE '_nuxt/[A-Za-z0-9_-]+\.js' | sort -u | head; echo "---page grep nuxt/scripts---"; curl -sS --max-time 20 https://hypofriend.de/en/plus 2>&1 | grep -oE 'src="[^"]+"' | grep -iE 'nuxt|js' | head
+_nuxt/-ez_sPea.js
+_nuxt/031sR0Dk.js
+_nuxt/22Pu5ap6.js
+_nuxt/25HfxJIp.js
+_nuxt/3y9GfY-G.js
+_nuxt/7LJm_38-.js
+_nuxt/86Ap2ZNx.js
+_nuxt/8kU-xc9e.js
+_nuxt/9UYEfEG3.js
+_nuxt/9aifwFbc.js
+---page grep nuxt/scripts---
+src="https://app.usercentrics.eu/browser-ui/latest/loader.js"
+src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz"
+src="/m/_nuxt/g8upYJar.js"
+src="/en/plus/m_payload.json?76d767a1-05ec-45d1-8c63-43179470cbb2"
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "g8upYJar.js => %{http_code} size=%{size_download}\n" --max-time 25 https://hypofriend.de/m/_nuxt/g8upYJar.js 2>&1
+g8upYJar.js => 200 size=1334793
+[0m
+[0m$ [0mcurl -sS --max-time 30 https://hypofriend.de/m/_nuxt/g8upYJar.js -o /tmp/opencode/bundle_new.js 2>&1; wc -c /tmp/opencode/bundle_new.js; for n in requestAccountLink requestAppointmentLink unclaimLead setNameAppointment already_booked_appointments rates_table uploadDocumentExtended processLeadForAppointment has_admin_cookie; do c=$(grep -o "$n" /tmp/opencode/bundle_new.js | wc -l); echo "$n: $c"; done
+1334793 /tmp/opencode/bundle_new.js
+requestAccountLink: 3
+requestAppointmentLink: 7
+unclaimLead: 9
+setNameAppointment: 2
+already_booked_appointments: 1
+rates_table: 2
+uploadDocumentExtended: 2
+processLeadForAppointment: 5
+has_admin_cookie: 3
+[0m
+[0m$ [0mgrep -oE '.{80}requestAccountLink.{220}' /tmp/opencode/bundle_new.js | head -3; echo "===="; grep -oE '.{60}leadPresent.{100}' /tmp/opencode/bundle_new.js | head -3; echo "===="; grep -oE '.{60}unclaimLead.{140}' /tmp/opencode/bundle_new.js | head -4
+uestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.data?.data?.requestAccountLink||!1},async requestAppointmentLink(r){return(await Ke(t.requestAppointmentLink(r)))?.data?.data?.requestAppointmentLink||!1},async getAdminCookie(){const r=t.getAdminCookie();try{const{data:n}=await Ke(r);return n?.data?
+====
+=!0;try{const qe=await a2().login.requestLogin(_.email);qe?.leadPresent?(_.name=qe.firstName??"",c.value="login",r?.event("Viewed Website Login Magic Link Popup",{Product:
+====
+eturn n.data.setLocale.step?n.data.setLocale.step:!1},async unclaimLead(){const{data:r}=await Ke(t.unclaimLead(),!1,"unclaimLead");return r?.data?.unclaimLead?.success||!1},async clearCookie(){const{status:r}=aw
+tAdvisorExplicit({commit:e}){e("setAdvisorExplicit")},async unclaimLead(){await a2().lead.unclaimLead()},async checkIfLeadIsEligible({commit:e}){const t=await a2().lead.checkIfLeadIsEligible();if(t){e("setLeadIs
+[0m
+[0m$ [0mgrep -oE 'async [a-zA-Z_]+\([^)]*\)\{return' /tmp/opencode/bundle_new.js | sort -u | head -40; echo "===="; grep -oE '"[a-zA-Z]+{\\s*[a-zA-Z_]+\\s*\{' /tmp/opencode/bundle_new.js | head; grep -oE 'getAdminCookie|requestLogin' /tmp/opencode/bundle_new.js | sort | uniq -c
+async fetchAverageCityStatistics(r,n){return
+async fetchBookedAppointments(l){return
+async fetchCities(){return
+async fetchLeadGivenName(){return
+async fetchLeadState(){return
+async fetchLocationCityFee(r){return
+async fetchLocationMaklerFee(r,n){return
+async fetchMaklerFeeAndCityTax(r){return
+async fetchRatesTable(r,n,s,l){return
+async fetchRatesTable(s,l,c,h){return
+async fetchRegionCityFee(r){return
+async fetchRegionMaklerFee(r,n){return
+async fetchRegions(){return
+async fetchRegionsAndCities(){return
+async fetchStaticPage(r,n){return
+async function(m,_){return
+async function({commit:t},r){return
+async getAdvisor(){return
+async requestAppointmentLink(r){return
+async requestLogin(r){return
+async saveLeadEmail(e,t){return
+async saveLeadName(e,t){return
+async saveOriginalSignupFlow(e,t){return
+async validateItem(r,n){return
+====
+      9 getAdminCookie
+      6 requestLogin
+[0m
+Probes this cycle (read-only, GET/HEAD/OPTIONS ≤1rps): api.hypofriend.de :80/:443, /en/plus page + referenced bundle, /en/plus/q origin header check. Output below.
+
+## STEP 1 — DELTA
+- [CHANGED] Bundle rehash: /en/plus now references `/m/_nuxt/g8upYJar.js` (200, 1,334,793B); prior `/m/_nuxt/D9p-7uJV.js` now 403 S3 `AccessDenied` (removed). Same-length hash keeps /en/plus page at 298552B.
+- [CHANGED] Re-mined entry bundle: requestAppointmentLink occ 5→7, unclaimLead 5→9, requestAccountLink 3 stable, has_admin_cookie 3; `leadPresent→firstName` branch + `Viewed Website Login Magic Link Popup` event confirmed wired in login flow; app-layer names saveLeadEmail/saveLeadName/fetchLeadGivenName/fetchBookedAppointments present.
+- [CHANGED] api.hypofriend.de re-probed 09-19 late-cycle: 000 on :443 (SSL_ERROR_SYSCALL) + :80 (6s connect-timeout) — dead **26th consecutive cycle**, A 52.15.184.3 resolves clean, target unchanged.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/en/plus/q (+edge), 8.0, attack+business+auth-free GraphQL mutations on credentialed-CORS chain; freshness high (new names this week, occurrence drift this cycle)
+- [PRIO] hypofriend.de/property-search-api, 8.2, full-DB BOLA CRITICAL but frozen — sole open gate is HUMAN bulk quantification
+- [PRIO] core.hypofriend.de/q, 6.3, anonymous rates/scheduling engine — saturated, no new resolver
+
+## STEP 3 — HYPOTHESES
+[HYP] requestAccountLink/requestAppointmentLink run as unauthenticated server-side email-dispatch handlers on the credentialed-CORS chain, reframed as email-abuse/BUSLOGIC rather than enumeration
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 50
+reasoning: New entry bundle g8upYJar.js ships requestAccountLink(3)/requestAppointmentLink(7, up from 5)/unclaimLead(9, up from 5); `requestLogin`→requestAccountLink fires "Viewed Website Login Magic Link Popup"; /q-family mutations (processLeadForAppointment, uploadDocumentExtended) already execute 200 with zero auth; credentialed CORS re-verified 12:13Z (ACAO echo + ACAC:true). The `leadPresent`/`firstName` response language is keyed only on the email argument.
+evidence_needed: One POST with a reserved non-deliverable email (example.com) — logs whether the handler branch returns step/leadPresent/firstName vs error under a fresh-jar no-session POST; if reachable, the handler runs with no session for arbitrary addresses.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q, body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body only; single-shot.
+impact: Unauthenticated triggering of transactional account-link email generation for arbitrary addresses (abuse/spam/social-engineering fuel) on a credentialed-CORS enabled surface — MEDIUM. Lead-existence/firstName linkage kept PARKED (see STEP 4).
+testability: AUTH_HELPED
+
+[HYP] Full-DB auth-free PII enumeration remains the headline CRITICAL; only open gate is bulk quantification with offset-walk
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, PII incl. phone/owner/email), offset-walk primitives + full introspection, direct-origin WAF bypass — unchanged and re-pinned CRITICAL; no remediation signal this cycle.
+evidence_needed: none beyond prior live confirmations; quantification is the unanswered extent question.
+verify_steps: HUMAN — bounded offset-walk under a single city, caps ≤50/req, read-only; program custodial rule limits volume.
+impact: Full-BD listing-PII extraction — CRITICAL.
+testability: HUMAN_ONLY
+
+[HYP] unclaimLead executes as auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead references rose 5→9 in new bundle; returns `{success}` resolution (`?.data?.unclaimLead?.success`); sibling processLeadForAppointment executes 200 anonymously proving no session gate on this mutation class; CORS + SameSite=None chain intact.
+evidence_needed: error-branch differentiation on a mutation POST (favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{id:\"00000000-0000-0000-0000-000000000000\"}){success}}" } to /en/plus/q, fresh jar; compare error vs success branch; no real lead data.
+impact: Cross-tenant appointment-ownership tampering if resolver keys on caller-supplied id — MEDIUM; arg shape unproven (no introspection).
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] requestAccountLink `leadPresent`/`firstName` oracle — the lead-existence branch of a magic-link login flow falls inside REJECTED class "username enumeration on login/forgot-password"; only the dispatch-abuse framing survives above (50).
+- [PARKED] Global credentialed CORS → session-scoped exfil via root.lead — needs a victim session, HUMAN_ONLY and program note bars customer-data handling; the CORS primitive itself is already ACCEPTED MISCONFIG.
+- [PARKED] appointment_availability oracle — saturated/saturated accepted, no new angle.
+- [FINAL] 1) property-search-api bulk quantification (95, HUMAN_ONLY) 2) requestAccountLink dispatch (50, AUTH_HELPED) 3) unclaimLead (45, AUTH_HELPED).
+
+## STEP 5 — NEXT ACTION
+[NEXT] HUMAN: one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/body only; reserved non-deliverable address, no real PII, no retries; all other surface stays frozen (bundle re-mine complete this cycle).
+
+## STEP 6 — LEARNING
+- [LEARN] CHANGED @ hypofriend.de/m/_nuxt: entry bundle rehashed g8upYJar.js (200, 1,334,793B, byte-identical size); D9p-7uJV.js 403 S3 AccessDenied; requestAppointmentLink 5→7 and unclaimLead 5→9 occurrence drift confirms more shipped references this build.
+- [LEARN] CHANGED @ hypofriend.de/en/plus: page len stable 298552B w/ hash-name swap (equal-length names preserve byte count) — consistent deploy rotation, not a separate finding.
+- [LEARN] CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed this cycle — dead 26th consecutive cycle, A resolves clean, no takeover surface.
+- [LEARN] REJECTED (class) @ core.hypofriend.de/en/plus/q: `leadPresent`/`firstName` oracle sits inside login magic-link enumeration — REJECTED class; dispatch-abuse framing only.
+
+## STEP 7 — RISK
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None chain intact with refreshed bundle (requestAppointmentLink/unclaimLead references grew) shipping on that chain; POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes this cycle read-only GET/HEAD ≤1rps, no evidence of exploitation.
