@@ -817,3 +817,13 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin /q paths; bundle now only at edge `/m/_nuxt/D
 - CHANGED api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed — dead 25th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
 - CHANGED core.hypofriend.de/property-search-api: Full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
+
+## 2026-09-19 18:24:46 UTC
+- CHANGED core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ both hosts (was 200 SPA shell 228508) — origin no longer serves SPA HTML at /q paths; bundle now only at edge /m/_nuxt/D
+- NEW Current shipped bundle re-mined: /en/plus page references /m/_nuxt/D9p-7uJV.js (200, 1,334,793B) containing requestAccountLink(3), requestAppointmentLink(5), unclaimLead(5), setNameAppointment(2), lea
+- CHANGED api.hypofriend.de: 000 re-probed 07:44Z (:443 rpc-fail) — 24th consecutive dead cycle
+- CHANGED hypofriend.de/m/_nuxt entry bundle: D9p-7uJV.js now 403 (removed) → g8upYJar.js 200 (1,334,793B, same size) — mutation-template counts bit-identical (requestAccountLink=3, requestAppointmentLink=7, un
+- NEW hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z (len 298552, grew) — same-day redeploy; current bundle `/m/_nuxt/D9p-7uJV.js` (200, 1,334,793B) contains new mutation surface (requestAcco
+- CHANGED core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin /q paths; bundle now only at edge `/m/_nuxt/D
+- CHANGED api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed — dead 25th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
+- CHANGED core.hypofriend.de/property-search-api: Full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL

@@ -721,3 +721,13 @@ https://core.hypofriend.de/ -> 200 len=228508
 https://core.hypofriend.de/en/plus/q -> 200 len=228508
 https://core.hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+
+## 2026-09-19 18:24:59 UTC
+https://hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/en/plus/q` -> 200 len=228508
+https://core.hypofriend.de/en/health/q` -> 200 len=228508

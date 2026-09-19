@@ -26142,3 +26142,889 @@ testability: AUTH_HELPED
 
 ## STEP 7 — RISK
 [RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None chain intact with refreshed bundle (requestAppointmentLink/unclaimLead references grew) shipping on that chain; POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes this cycle read-only GET/HEAD ≤1rps, no evidence of exploitation.
+===== ANALYST bigpickle 2026-09-19 18:24:46 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art 2>/dev/null; ls -la inventory 2>/dev/null; cat scope.yml 2>/dev/null | head -50
+total 520
+drwxr-xr-x 12 runner runner   4096 Sep 19 18:21 .
+drwxr-xr-x  3 runner runner   4096 Sep 19 18:21 ..
+drwxr-xr-x  7 runner runner   4096 Sep 19 18:21 .git
+drwxr-xr-x  3 runner runner   4096 Sep 19 18:21 .github
+-rw-r--r--  1 runner runner   1885 Sep 19 18:21 README.md
+-rw-r--r--  1 runner runner     32 Sep 19 18:21 analyst-out.txt
+-rw-r--r--  1 runner runner 204919 Sep 19 18:21 analyst-prompt.txt
+-rw-r--r--  1 runner runner 201044 Sep 19 18:21 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 leads
+-rw-r--r--  1 runner runner  29859 Sep 19 18:21 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 reports
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 19 18:21 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 scripts
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 triage
+total 88
+drwxr-xr-x  2 runner runner  4096 Sep 19 18:21 .
+drwxr-xr-x 12 runner runner  4096 Sep 19 18:21 ..
+-rw-r--r--  1 runner runner 79120 Sep 19 18:21 hypofriend.md
+programs:
+  hypofriend:
+    name: Hypofriend GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+[0m
+[0m$ [0mcat state_bigpickle.json analyst-out.txt; echo "---LEADS---"; ls -la leads; echo "---KNOWLEDGE---"; ls -la knowledge
+{"phase": "POC", "target": "api"}[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art 2>/dev/null; ls -la inventory 2>/dev/null; cat scope.yml 2>/dev/null | head -50
+total 520
+drwxr-xr-x 12 runner runner   4096 Sep 19 18:21 .
+drwxr-xr-x  3 runner runner   4096 Sep 19 18:21 ..
+drwxr-xr-x  7 runner runner   4096 Sep 19 18:21 .git
+drwxr-xr-x  3 runner runner   4096 Sep 19 18:21 .github
+-rw-r--r--  1 runner runner   1885 Sep 19 18:21 README.md
+-rw-r--r--  1 runner runner     32 Sep 19 18:21 analyst-out.txt
+-rw-r--r--  1 runner runner 204919 Sep 19 18:21 analyst-prompt.txt
+-rw-r--r--  1 runner runner 201044 Sep 19 18:21 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 leads
+-rw-r--r--  1 runner runner  29859 Sep 19 18:21 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 reports
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 19 18:21 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 scripts
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 19 18:21 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 triage
+total 88
+drwxr-xr-x  2 runner runner  4096 Sep 19 18:21 .
+drwxr-xr-x 12 runner runner  4096 Sep 19 18:21 ..
+-rw-r--r--  1 runner runner 79120 Sep 19 18:21 hypofriend.md
+programs:
+  hypofriend:
+    name: Hypofriend GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+[0m
+---LEADS---
+total 1856
+drwxr-xr-x  2 runner runner    4096 Sep 19 18:21 .
+drwxr-xr-x 12 runner runner    4096 Sep 19 18:21 ..
+-rw-r--r--  1 runner runner  653727 Sep 19 18:21 lead-bigpickle.md
+-rw-r--r--  1 runner runner    5661 Sep 19 18:21 lead-laguna.md
+-rw-r--r--  1 runner runner    5550 Sep 19 18:21 lead-ling3.md
+-rw-r--r--  1 runner runner    5772 Sep 19 18:21 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 19 18:21 lead-mimo.md
+-rw-r--r--  1 runner runner 1162591 Sep 19 18:21 lead-nemotron3.md
+-rw-r--r--  1 runner runner   42520 Sep 19 18:21 reposcan-hypofriend.md
+---KNOWLEDGE---
+total 112
+drwxr-xr-x  2 runner runner   4096 Sep 19 18:21 .
+drwxr-xr-x 12 runner runner   4096 Sep 19 18:21 ..
+-rw-r--r--  1 runner runner 105958 Sep 19 18:21 index.md
+[0m
+[0m$ [0mcat leads/lead-laguna.md leads/lead-ling3.md leads/lead-longcat.md 2>/dev/null | head -200
+## 2026-09-03 15:38:31 UTC [target] (model laguna)
+## 2026-09-03 18:52:09 UTC [target] (model laguna)
+## 2026-09-03 21:32:41 UTC [target] (model laguna)
+## 2026-09-03 23:31:03 UTC [target] (model laguna)
+## 2026-09-04 01:20:08 UTC [target] (model laguna)
+## 2026-09-04 06:01:32 UTC [target] (model laguna)
+## 2026-09-04 11:23:43 UTC [target] (model laguna)
+## 2026-09-04 15:05:11 UTC [target] (model laguna)
+## 2026-09-04 18:28:04 UTC [target] (model laguna)
+## 2026-09-04 21:00:53 UTC [target] (model laguna)
+## 2026-09-04 23:03:59 UTC [target] (model laguna)
+## 2026-09-05 01:00:59 UTC [target] (model laguna)
+## 2026-09-05 05:48:21 UTC [target] (model laguna)
+## 2026-09-05 09:49:57 UTC [target] (model laguna)
+## 2026-09-05 13:11:49 UTC [target] (model laguna)
+## 2026-09-05 16:06:41 UTC [target] (model laguna)
+## 2026-09-05 18:21:13 UTC [target] (model laguna)
+## 2026-09-05 20:41:11 UTC [target] (model laguna)
+## 2026-09-05 22:35:05 UTC [target] (model laguna)
+## 2026-09-06 00:11:33 UTC [target] (model laguna)
+## 2026-09-06 04:44:50 UTC [target] (model laguna)
+## 2026-09-06 09:07:05 UTC [target] (model laguna)
+## 2026-09-06 12:54:24 UTC [target] (model laguna)
+## 2026-09-06 15:56:32 UTC [target] (model laguna)
+## 2026-09-06 18:00:16 UTC [target] (model laguna)
+## 2026-09-06 20:18:50 UTC [target] (model laguna)
+## 2026-09-06 22:10:00 UTC [target] (model laguna)
+## 2026-09-06 23:58:23 UTC [target] (model laguna)
+## 2026-09-07 03:33:13 UTC [target] (model laguna)
+## 2026-09-07 08:37:00 UTC [target] (model laguna)
+## 2026-09-07 14:25:59 UTC [target] (model laguna)
+## 2026-09-07 18:50:53 UTC [target] (model laguna)
+## 2026-09-07 21:52:00 UTC [target] (model laguna)
+## 2026-09-07 23:53:54 UTC [target] (model laguna)
+## 2026-09-08 02:37:52 UTC [target] (model laguna)
+## 2026-09-08 07:25:06 UTC [target] (model laguna)
+## 2026-09-08 12:16:57 UTC [target] (model laguna)
+## 2026-09-08 16:43:02 UTC [target] (model laguna)
+## 2026-09-08 19:42:11 UTC [target] (model laguna)
+## 2026-09-08 22:17:40 UTC [target] (model laguna)
+## 2026-09-09 00:20:20 UTC [target] (model laguna)
+## 2026-09-09 05:09:46 UTC [target] (model laguna)
+## 2026-09-09 09:50:06 UTC [target] (model laguna)
+## 2026-09-09 14:06:09 UTC [target] (model laguna)
+## 2026-09-09 17:51:11 UTC [target] (model laguna)
+## 2026-09-09 20:17:50 UTC [target] (model laguna)
+## 2026-09-09 22:37:06 UTC [target] (model laguna)
+## 2026-09-10 00:33:34 UTC [target] (model laguna)
+## 2026-09-10 05:12:30 UTC [target] (model laguna)
+## 2026-09-10 09:48:10 UTC [target] (model laguna)
+## 2026-09-10 14:00:32 UTC [target] (model laguna)
+## 2026-09-10 17:43:17 UTC [target] (model laguna)
+## 2026-09-10 20:19:58 UTC [target] (model laguna)
+## 2026-09-10 22:40:24 UTC [target] (model laguna)
+## 2026-09-11 00:46:24 UTC [target] (model laguna)
+## 2026-09-11 05:32:33 UTC [target] (model laguna)
+## 2026-09-11 09:59:10 UTC [target] (model laguna)
+## 2026-09-11 14:09:45 UTC [target] (model laguna)
+## 2026-09-11 17:45:57 UTC [target] (model laguna)
+## 2026-09-11 20:20:18 UTC [target] (model laguna)
+## 2026-09-11 22:46:15 UTC [target] (model laguna)
+## 2026-09-12 00:50:23 UTC [target] (model laguna)
+## 2026-09-12 05:19:28 UTC [target] (model laguna)
+## 2026-09-12 09:28:39 UTC [target] (model laguna)
+## 2026-09-12 13:05:50 UTC [target] (model laguna)
+## 2026-09-12 16:21:16 UTC [target] (model laguna)
+## 2026-09-12 18:42:50 UTC [target] (model laguna)
+## 2026-09-12 21:08:23 UTC [target] (model laguna)
+## 2026-09-12 23:04:25 UTC [target] (model laguna)
+## 2026-09-13 01:04:05 UTC [target] (model laguna)
+## 2026-09-13 06:15:03 UTC [target] (model laguna)
+## 2026-09-13 11:57:35 UTC [target] (model laguna)
+## 2026-09-13 15:43:56 UTC [target] (model laguna)
+## 2026-09-13 18:28:42 UTC [target] (model laguna)
+## 2026-09-13 21:06:43 UTC [target] (model laguna)
+## 2026-09-13 23:11:57 UTC [target] (model laguna)
+## 2026-09-14 01:10:02 UTC [target] (model laguna)
+## 2026-09-14 06:22:21 UTC [target] (model laguna)
+## 2026-09-14 13:17:25 UTC [target] (model laguna)
+## 2026-09-14 18:41:34 UTC [target] (model laguna)
+## 2026-09-14 22:14:16 UTC [target] (model laguna)
+## 2026-09-15 00:41:11 UTC [target] (model laguna)
+## 2026-09-15 05:41:29 UTC [target] (model laguna)
+## 2026-09-15 10:51:43 UTC [target] (model laguna)
+## 2026-09-15 15:24:15 UTC [target] (model laguna)
+## 2026-09-15 19:10:29 UTC [target] (model laguna)
+## 2026-09-15 22:17:02 UTC [target] (model laguna)
+## 2026-09-16 00:27:26 UTC [target] (model laguna)
+## 2026-09-16 05:11:02 UTC [target] (model laguna)
+## 2026-09-16 09:59:47 UTC [target] (model laguna)
+## 2026-09-16 14:45:39 UTC [target] (model laguna)
+## 2026-09-16 18:36:45 UTC [target] (model laguna)
+## 2026-09-16 21:41:06 UTC [target] (model laguna)
+## 2026-09-17 00:00:55 UTC [target] (model laguna)
+## 2026-09-17 04:57:08 UTC [target] (model laguna)
+## 2026-09-17 09:50:08 UTC [target] (model laguna)
+## 2026-09-17 14:35:34 UTC [target] (model laguna)
+## 2026-09-17 18:31:18 UTC [target] (model laguna)
+## 2026-09-17 21:42:38 UTC [target] (model laguna)
+## 2026-09-17 23:50:58 UTC [target] (model laguna)
+## 2026-09-18 02:45:04 UTC [target] (model laguna)
+## 2026-09-18 07:52:40 UTC [target] (model laguna)
+## 2026-09-18 12:36:13 UTC [target] (model laguna)
+## 2026-09-18 16:42:11 UTC [target] (model laguna)
+## 2026-09-18 19:23:03 UTC [target] (model laguna)
+## 2026-09-18 21:49:44 UTC [target] (model laguna)
+## 2026-09-18 23:48:27 UTC [target] (model laguna)
+## 2026-09-19 02:43:43 UTC [target] (model laguna)
+## 2026-09-19 07:43:59 UTC [target] (model laguna)
+## 2026-09-19 12:12:41 UTC [target] (model laguna)
+## 2026-09-19 15:55:45 UTC [target] (model laguna)
+## 2026-09-03 15:38:26 UTC [target] (model ling3)
+## 2026-09-03 18:52:13 UTC [target] (model ling3)
+## 2026-09-03 21:32:38 UTC [target] (model ling3)
+## 2026-09-03 23:31:01 UTC [target] (model ling3)
+## 2026-09-04 01:20:03 UTC [target] (model ling3)
+## 2026-09-04 06:01:30 UTC [target] (model ling3)
+## 2026-09-04 11:23:40 UTC [target] (model ling3)
+## 2026-09-04 15:05:10 UTC [target] (model ling3)
+## 2026-09-04 18:28:03 UTC [target] (model ling3)
+## 2026-09-04 21:00:53 UTC [target] (model ling3)
+## 2026-09-04 23:04:01 UTC [target] (model ling3)
+## 2026-09-05 01:00:57 UTC [target] (model ling3)
+## 2026-09-05 05:48:15 UTC [target] (model ling3)
+## 2026-09-05 09:49:50 UTC [target] (model ling3)
+## 2026-09-05 13:11:49 UTC [target] (model ling3)
+## 2026-09-05 16:06:44 UTC [target] (model ling3)
+## 2026-09-05 18:21:10 UTC [target] (model ling3)
+## 2026-09-05 20:41:29 UTC [target] (model ling3)
+## 2026-09-05 22:35:07 UTC [target] (model ling3)
+## 2026-09-06 00:11:41 UTC [target] (model ling3)
+## 2026-09-06 04:44:46 UTC [target] (model ling3)
+## 2026-09-06 09:07:02 UTC [target] (model ling3)
+## 2026-09-06 12:54:25 UTC [target] (model ling3)
+## 2026-09-06 15:56:29 UTC [target] (model ling3)
+## 2026-09-06 18:00:16 UTC [target] (model ling3)
+## 2026-09-06 20:18:50 UTC [target] (model ling3)
+## 2026-09-06 22:09:58 UTC [target] (model ling3)
+## 2026-09-06 23:58:20 UTC [target] (model ling3)
+## 2026-09-07 03:33:11 UTC [target] (model ling3)
+## 2026-09-07 08:37:03 UTC [target] (model ling3)
+## 2026-09-07 14:25:58 UTC [target] (model ling3)
+## 2026-09-07 18:50:51 UTC [target] (model ling3)
+## 2026-09-07 21:52:03 UTC [target] (model ling3)
+## 2026-09-07 23:53:57 UTC [target] (model ling3)
+## 2026-09-08 02:37:15 UTC [target] (model ling3)
+## 2026-09-08 07:25:08 UTC [target] (model ling3)
+## 2026-09-08 12:16:57 UTC [target] (model ling3)
+## 2026-09-08 16:43:01 UTC [target] (model ling3)
+## 2026-09-08 19:42:08 UTC [target] (model ling3)
+## 2026-09-08 22:17:37 UTC [target] (model ling3)
+## 2026-09-09 00:20:21 UTC [target] (model ling3)
+## 2026-09-09 05:09:45 UTC [target] (model ling3)
+## 2026-09-09 09:50:04 UTC [target] (model ling3)
+## 2026-09-09 14:06:08 UTC [target] (model ling3)
+## 2026-09-09 17:51:11 UTC [target] (model ling3)
+## 2026-09-09 20:17:48 UTC [target] (model ling3)
+## 2026-09-09 22:37:09 UTC [target] (model ling3)
+## 2026-09-10 00:33:37 UTC [target] (model ling3)
+## 2026-09-10 05:12:28 UTC [target] (model ling3)
+## 2026-09-10 09:48:11 UTC [target] (model ling3)
+## 2026-09-10 14:00:54 UTC [target] (model ling3)
+## 2026-09-10 17:43:19 UTC [target] (model ling3)
+## 2026-09-10 20:19:57 UTC [target] (model ling3)
+## 2026-09-10 22:40:26 UTC [target] (model ling3)
+## 2026-09-11 00:46:24 UTC [target] (model ling3)
+## 2026-09-11 05:32:30 UTC [target] (model ling3)
+## 2026-09-11 09:59:08 UTC [target] (model ling3)
+## 2026-09-11 14:09:46 UTC [target] (model ling3)
+## 2026-09-11 17:45:54 UTC [target] (model ling3)
+## 2026-09-11 20:20:21 UTC [target] (model ling3)
+## 2026-09-11 22:46:18 UTC [target] (model ling3)
+## 2026-09-12 00:50:25 UTC [target] (model ling3)
+## 2026-09-12 05:19:30 UTC [target] (model ling3)
+## 2026-09-12 09:28:38 UTC [target] (model ling3)
+## 2026-09-12 13:05:52 UTC [target] (model ling3)
+## 2026-09-12 16:21:14 UTC [target] (model ling3)
+## 2026-09-12 18:42:56 UTC [target] (model ling3)
+## 2026-09-12 21:08:23 UTC [target] (model ling3)
+## 2026-09-12 23:04:24 UTC [target] (model ling3)
+## 2026-09-13 01:04:03 UTC [target] (model ling3)
+## 2026-09-13 06:15:06 UTC [target] (model ling3)
+## 2026-09-13 11:57:37 UTC [target] (model ling3)
+## 2026-09-13 15:44:15 UTC [target] (model ling3)
+## 2026-09-13 18:28:43 UTC [target] (model ling3)
+## 2026-09-13 21:06:48 UTC [target] (model ling3)
+## 2026-09-13 23:11:54 UTC [target] (model ling3)
+## 2026-09-14 01:10:06 UTC [target] (model ling3)
+## 2026-09-14 06:22:21 UTC [target] (model ling3)
+## 2026-09-14 13:17:30 UTC [target] (model ling3)
+## 2026-09-14 18:41:31 UTC [target] (model ling3)
+## 2026-09-14 22:14:15 UTC [target] (model ling3)
+## 2026-09-15 00:41:08 UTC [target] (model ling3)
+## 2026-09-15 05:41:34 UTC [target] (model ling3)
+## 2026-09-15 10:51:45 UTC [target] (model ling3)
+## 2026-09-15 15:24:19 UTC [target] (model ling3)
+## 2026-09-15 19:10:23 UTC [target] (model ling3)
+## 2026-09-15 22:17:02 UTC [target] (model ling3)
+## 2026-09-16 00:27:25 UTC [target] (model ling3)
+## 2026-09-16 05:11:03 UTC [target] (model ling3)
+[0m
+[0m$ [0mtail -120 leads/lead-bigpickle.md
+evidence_needed: one HTTP POST to /en/plus/q direct origin with disposable email; observe leadPresent/firstName/step vs error branch and whether fresh-jar session required.
+verify_steps: HUMAN — POST `https://core.hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"hb-test-0201@example.com\"}){step leadPresent firstName}}"}` with `Origin: https://evil.example`, fresh jar; log status + body-len + ACAO + values only; disposable address, single-shot, no real PII.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering) riding proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-scoped identity read on core.hypofriend.de into a cross-origin exfil primitive
+class: OTHER
+asset: core.hypofriend.de (+hypofriend.de, any path)
+confidence: 50
+reasoning: rack-cors middleware is global (arbitrary path /zzz-3684 and /api/v3/advisors echo, prior cycle); SameSite=None;Secure session cookies (_hf, __hfp___hypofriend.health__) are set at origin; any GET/POST response carrying session-scoped JSON (e.g. root.lead{...} PII incl. shareLink, referrer{primary_advisor}) becomes cross-origin readable by an attacker origin with the victim's cookies forwarded. Precondition chain (CORS+credentials+cookie flags) re-proven 02:44Z.
+evidence_needed: identify a session-scoped read endpoint that returns lead JSON without admin scoping; the CORS+flag half is already live-proven.
+verify_steps: HUMAN — no new probe required beyond bundle-mine of a session-scoped query name; the read itself needs a victim session (HUMAN-gated); this cycle the CORS half was re-proven at 02:44Z.
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (uncertain need for victim session).
+testability: HUMAN_ONLY
+[HYP] Same-day redeploy may have refreshed the /en/health instance bundle too — parallel mutation-surface delta unchecked
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+hypofriend.de/en/health/q)
+confidence: 42
+reasoning: /en/plus S3 page redeployed 2026-09-18T13:01:39Z (grew to 298552B) and its bundle was re-mined (4 new mutations); /en/health is the separate health-insurance instance with its own bundle; only /en/plus was re-mined this cycle, /en/health bundle delta not checked since the refresh.
+evidence_needed: re-fetch /en/health/q bundle and grep for gql mutation templates (requestAccountLink, unclaimLead, processLeadForAppointment) vs prior inventory.
+verify_steps: PASSIVE — GET `https://core.hypofriend.de/en/health/q` (200 len 228508 baseline) and grep returned bundle for mutation/query names; no mutation executes.
+impact: additional auth-free mutation surface on the health instance if its bundle carried the same redeploy — LOW-MEDIUM.
+testability: PASSIVE
+## 2026-09-19 07:45:36 UTC [target] (model bigpickle)
+[CHANGED] core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ both hosts (was 200 SPA shell 228508) — origin no longer serves SPA HTML at /q paths; bundle now only at edge /m/_nuxt/D9p-7uJV.js
+[NEW] Current shipped bundle re-mined: /en/plus page references /m/_nuxt/D9p-7uJV.js (200, 1,334,793B) containing requestAccountLink(3), requestAppointmentLink(5), unclaimLead(5), setNameAppointment(2), leadPresent(3), has_admin_cookie(3), processLeadForAppointment(3), uploadDocumentExtended(2)
+[CHANGED] api.hypofriend.de: 000 re-probed 07:44Z (:443 rpc-fail) — 24th consecutive dead cycle
+[PRIO] core.hypofriend.de/en/plus/q,8.05,attack8/biz8/tech8/gate10/cloud5/fresh6
+[PRIO] core.hypofriend.de (global credentialed CORS),6.70,attack7/biz8/tech7/gate4/cloud6/fresh7
+[PRIO] api.hypofriend.de,0.0,dead-24-cycles-target
+[HYP] requestAccountLink/requestAppointmentLink are anonymous email-existence + firstName PII oracles on the credentialed-CORS chain
+class: IDOR
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: Shipped bundle D9p-7uJV.js (re-mined live this cycle, /m/_nuxt, 200) still contains server templates requestAccountLink(input:{email}){step leadPresent firstName} and requestAppointmentLink(input:{email}){leadPresent firstName}; /q-family executes mutations anonymously (processLeadForAppointment, uploadDocumentExtended 200 no-auth, prior cycles); credentialed CORS re-proven live 07:45Z on origin /en/plus/q and /en/health/q (ACAO echo + ACAC:true). leadPresent/firstName are response branches keyed only on the email argument.
+evidence_needed: one HTTP POST to /en/plus/q origin with a disposable email; observe step/leadPresent/firstName vs error branch and whether fresh-jar session required.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin: https://evil.example, fresh jar; log status+ACAO+values only; single-shot disposable address, no real PII.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering) riding proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] unclaimLead executes as an auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead present 5x in shipped bundle alongside setNameAppointment (2x); both are appointment-ownership mutations; sibling processLeadForAppointment executes 200 anonymously (prior cycles) proving no session gate on this mutation class; credentialed CORS + SameSite=None cookie chain intact.
+evidence_needed: POST mutation with/without lead ownership context and observe error branch differentiation (like favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{}){...}}" } to /en/plus/q fresh jar with dead-lead id; compare error branch vs processLeadForAppointment; no real lead data targeted.
+impact: cross-tenant appointment ownership tampering if resolver keys on caller-supplied id — MEDIUM; unproven arg shape from bundle (no introspection).
+testability: AUTH_HELPED
+[PARKED] core.hypofriend.de/en/health/q distinct-instance bundle delta: GET now 301 origin+edge — no passive bundle source remains; per-instance schema only via POST error-probing (HUMAN). Prior len 228508 readings were the main-app shell, not a distinct health bundle.
+[PARKED] root.lead.has_admin_cookie anonymous oracle: 42→40 — server-forced-flag precedent (`internal` cookie REJECTED on same origin) makes anonymous value carry unproven signal; lows value.
+[FINAL] 1) requestAccountLink/requestAppointmentLink oracle (74, AUTH_HELPED) 2) unclaimLead cross-tenant write (45, AUTH_HELPED)
+[NEXT] HUMAN: single one-shot credential-led POST to https://core.hypofriend.de/en/plus/q with requestAccountLink(input:{email:"hb-test-0919@example.com"}){step leadPresent firstName}, Origin https://evil.example, fresh jar — log status/ACAO/branch only; all other surface stays frozen; bundle re-mine for this cycle is complete.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q & /en/health/q: credentialed CORS re-proven live 2026-09-19 07:45Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin.
+[LEARN] CHANGED @ core.hypofriend.de/en/plus/q & /en/health/q: GET 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin /q paths; shell now only via edge; prior 228508 readings were the main-app shell, NOT distinct instance bundles.
+[LEARN] ACCEPTED ENDPOINT @ hypofriend.de/m/_nuxt/D9p-7uJV.js: current bundle (200, 1,334,793B) re-confirms new mutation surface shipped — requestAccountLink, requestAppointmentLink, unclaimLead, setNameAppointment, plus leadPresent & has_admin_cookie fields.
+[LEARN] CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 07:44Z (:80/:443) — dead 24th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain re-proven this cycle; refreshed bundle ships account-link/email-dispatch mutations on that chain (fresh vector); POC target api dead 24th cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only GET/HEAD/OPTIONS ≤1rps, no evidence of exploitation.
+## 2026-09-19 12:13:51 UTC [target] (model bigpickle)
+[HYP] requestAccountLink/requestAppointmentLink are anonymous email-existence + firstName PII oracles on the credentialed-CORS chain
+class: IDOR
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: Shipped bundle D9p-7uJV.js still carries requestAccountLink(input:{email}){step leadPresent firstName} + requestAppointmentLink(input:{email}){leadPresent firstName} (unchanged 200 this cycle); /q-family mutations execute anonymously (processLeadForAppointment, uploadDocumentExtended → 200 no auth, prior cycles); credentialed CORS re-verified live 12:13Z at origin (ACAO echo + ACAC:true); response branches keyed only on the email arg.
+evidence_needed: one HTTP POST to /en/plus/q origin with disposable email; observe step/leadPresent/firstName vs error branch and whether fresh-jar session required.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin: https://evil.example, fresh jar; log status+body-len+ACAO+values only; single-shot disposable address, no real PII.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering) riding proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-scoped identity read into cross-origin exfil
+class: OTHER
+asset: core.hypofriend.de (+hypofriend.de, any path)
+confidence: 50
+reasoning: rack-cors global middleware (arbitrary path and /api/v3/advisors echo, prior cycle); CORS half re-proven live 12:13Z; SameSite=None;Secure session cookies (_hf, __hfp___hypofriend.health__) set at origin; any GET/POST response carrying session-scoped JSON becomes cross-origin readable with victim cookies forwarded.
+evidence_needed: identify a session-scoped read resolver returning lead JSON (bundle unchanged this cycle — no new names); the CORS+flag half is already live-proven.
+verify_steps: HUMAN — no new probe beyond bundle-mine of a session-scoped query name; the read itself requires a victim session (HUMAN-gated).
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency).
+testability: HUMAN_ONLY
+[HYP] unclaimLead executes as auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead shipped 5x + setNameAppointment 2x in unchanged bundle; both appointment-ownership mutations; sibling processLeadForAppointment executes 200 anonymously proving no session gate on this mutation class; credentialed CORS + SameSite=None chain intact.
+evidence_needed: POST mutation with/without ownership context and observe error-branch differentiation (favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{}){...}}" } to /en/plus/q fresh jar with dead-lead id; compare error branch vs processLeadForAppointment; no real lead data targeted.
+impact: cross-tenant appointment ownership tampering if resolver keys on caller-supplied id — MEDIUM; arg shape only from bundle (no introspection, origin GET 301s so no passive schema source remains).
+testability: AUTH_HELPED
+[NEXT] HUMAN: single one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/branch only; single-shot disposable address; all other surface stays frozen (bundle re-mine complete, both hosts re-verified this cycle).
+[LEARN] REJECTED NG @ api.hypofriend.de (target): 000 re-confirmed live 12:13Z (:443 SSL_ERROR_SYSCALL / :80 8s connect-timeout) — dead 25th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-19 12:13Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; GET origin 301→https://hypofriend.de/ unchanged (edge-only shell).
+[LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt/D9p-7uJV.js: bundle bit-unchanged (200, 1,334,793B) — no new mutation surface delta this cycle; requestAccountLink/requestAppointmentLink/unclaimLead/setNameAppointment still shipped.
+[LEARN] CONFIRMED NG @ fleet: no host re-probed beyond api + bundle + single CORS OPTIONS (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301).
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain intact-reverified; email-account-link mutations shipped on that chain (fresh vector, HUMAN-gated confirmation pending); POC target api dead 25th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only GET/HEAD/OPTIONS ≤1rps, no evidence of exploitation.
+## 2026-09-19 15:59:22 UTC [target] (model bigpickle)
+[HYP] requestAccountLink/requestAppointmentLink run as unauthenticated server-side email-dispatch handlers on the credentialed-CORS chain, reframed as email-abuse/BUSLOGIC rather than enumeration
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 50
+reasoning: New entry bundle g8upYJar.js ships requestAccountLink(3)/requestAppointmentLink(7, up from 5)/unclaimLead(9, up from 5); `requestLogin`→requestAccountLink fires "Viewed Website Login Magic Link Popup"; /q-family mutations (processLeadForAppointment, uploadDocumentExtended) already execute 200 with zero auth; credentialed CORS re-verified 12:13Z (ACAO echo + ACAC:true). The `leadPresent`/`firstName` response language is keyed only on the email argument.
+evidence_needed: One POST with a reserved non-deliverable email (example.com) — logs whether the handler branch returns step/leadPresent/firstName vs error under a fresh-jar no-session POST; if reachable, the handler runs with no session for arbitrary addresses.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q, body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body only; single-shot.
+impact: Unauthenticated triggering of transactional account-link email generation for arbitrary addresses (abuse/spam/social-engineering fuel) on a credentialed-CORS enabled surface — MEDIUM. Lead-existence/firstName linkage kept PARKED (see STEP 4).
+testability: AUTH_HELPED
+[HYP] Full-DB auth-free PII enumeration remains the headline CRITICAL; only open gate is bulk quantification with offset-walk
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, PII incl. phone/owner/email), offset-walk primitives + full introspection, direct-origin WAF bypass — unchanged and re-pinned CRITICAL; no remediation signal this cycle.
+evidence_needed: none beyond prior live confirmations; quantification is the unanswered extent question.
+verify_steps: HUMAN — bounded offset-walk under a single city, caps ≤50/req, read-only; program custodial rule limits volume.
+impact: Full-BD listing-PII extraction — CRITICAL.
+testability: HUMAN_ONLY
+[HYP] unclaimLead executes as auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead references rose 5→9 in new bundle; returns `{success}` resolution (`?.data?.unclaimLead?.success`); sibling processLeadForAppointment executes 200 anonymously proving no session gate on this mutation class; CORS + SameSite=None chain intact.
+evidence_needed: error-branch differentiation on a mutation POST (favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{id:\"00000000-0000-0000-0000-000000000000\"}){success}}" } to /en/plus/q, fresh jar; compare error vs success branch; no real lead data.
+impact: Cross-tenant appointment-ownership tampering if resolver keys on caller-supplied id — MEDIUM; arg shape unproven (no introspection).
+testability: AUTH_HELPED
+[NEXT] HUMAN: one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/body only; reserved non-deliverable address, no real PII, no retries; all other surface stays frozen (bundle re-mine complete this cycle).
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None chain intact with refreshed bundle (requestAppointmentLink/unclaimLead references grew) shipping on that chain; POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes this cycle read-only GET/HEAD ≤1rps, no evidence of exploitation.
+[0m
+[0m$ [0mgit log --oneline -20; echo "---STATUS---"; git status --short | head -30; echo "---TIME---"; date -u
+1646ff8 triage 2026-09-19-17-54
+---STATUS---
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+---TIME---
+Sat Sep 19 18:22:06 UTC 2026
+[0m
+[0m$ [0mls -la triage reports scripts recon-notes 2>/dev/null; echo "---PROBE TAIL---"; tail -60 probe-results.md
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 19 18:21 .
+drwxr-xr-x 12 runner runner 4096 Sep 19 18:21 ..
+-rw-r--r--  1 runner runner  824 Sep 19 18:21 DEDICATED-DEEP.md
+
+reports:
+total 4744
+drwxr-xr-x  2 runner runner    4096 Sep 19 18:21 .
+drwxr-xr-x 12 runner runner    4096 Sep 19 18:21 ..
+-rw-r--r--  1 runner runner 2260741 Sep 19 18:21 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   24087 Sep 19 18:21 analyst-laguna.log
+-rw-r--r--  1 runner runner   23976 Sep 19 18:21 analyst-ling3.log
+-rw-r--r--  1 runner runner   24198 Sep 19 18:21 analyst-longcat.log
+-rw-r--r--  1 runner runner 2165228 Sep 19 18:21 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    4118 Sep 19 18:21 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 19 18:21 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 19 18:21 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 19 18:21 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   13296 Sep 19 18:21 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  382141 Sep 19 18:21 hypotheses.md
+-rw-r--r--  1 runner runner    2703 Sep 19 18:21 reposcan-mimo.md
+-rw-r--r--  1 runner runner    3742 Sep 19 18:21 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 19 18:21 .
+drwxr-xr-x 12 runner runner  4096 Sep 19 18:21 ..
+-rw-r--r--  1 runner runner 16987 Sep 19 18:21 sync-issues.py
+
+triage:
+total 544
+drwxr-xr-x  2 runner runner  4096 Sep 19 18:21 .
+drwxr-xr-x 12 runner runner  4096 Sep 19 18:21 ..
+-rw-r--r--  1 runner runner     0 Sep 19 18:21 .gitkeep
+-rw-r--r--  1 runner runner   209 Sep 19 18:21 run-2026-09-02-21-44.md
+-rw-r--r--  1 runner runner   156 Sep 19 18:21 run-2026-09-02-23-58.md
+-rw-r--r--  1 runner runner   202 Sep 19 18:21 run-2026-09-03-04-11.md
+-rw-r--r--  1 runner runner   165 Sep 19 18:21 run-2026-09-03-09-00.md
+-rw-r--r--  1 runner runner   767 Sep 19 18:21 run-2026-09-03-13-32.md
+-rw-r--r--  1 runner runner   251 Sep 19 18:21 run-2026-09-03-17-14.md
+-rw-r--r--  1 runner runner   263 Sep 19 18:21 run-2026-09-03-19-57.md
+-rw-r--r--  1 runner runner   188 Sep 19 18:21 run-2026-09-03-22-29.md
+-rw-r--r--  1 runner runner   154 Sep 19 18:21 run-2026-09-04-00-31.md
+-rw-r--r--  1 runner runner   172 Sep 19 18:21 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   231 Sep 19 18:21 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner 17101 Sep 19 18:21 run-2026-09-04-12-00.md
+-rw-r--r--  1 runner runner  3019 Sep 19 18:21 run-2026-09-04-14-11.md
+-rw-r--r--  1 runner runner   147 Sep 19 18:21 run-2026-09-04-17-40.md
+-rw-r--r--  1 runner runner   186 Sep 19 18:21 run-2026-09-04-19-58.md
+-rw-r--r--  1 runner runner   220 Sep 19 18:21 run-2026-09-04-22-17.md
+-rw-r--r--  1 runner runner   237 Sep 19 18:21 run-2026-09-05-00-13.md
+-rw-r--r--  1 runner runner   932 Sep 19 18:21 run-2026-09-05-04-40.md
+-rw-r--r--  1 runner runner   468 Sep 19 18:21 run-2026-09-05-08-39.md
+-rw-r--r--  1 runner runner   210 Sep 19 18:21 run-2026-09-05-12-06.md
+-rw-r--r--  1 runner runner 17900 Sep 19 18:21 run-2026-09-05-15-23.md
+-rw-r--r--  1 runner runner   146 Sep 19 18:21 run-2026-09-05-17-38.md
+-rw-r--r--  1 runner runner   143 Sep 19 18:21 run-2026-09-05-19-33.md
+-rw-r--r--  1 runner runner   213 Sep 19 18:21 run-2026-09-05-21-42.md
+-rw-r--r--  1 runner runner   232 Sep 19 18:21 run-2026-09-05-23-43.md
+-rw-r--r--  1 runner runner   327 Sep 19 18:21 run-2026-09-06-04-06.md
+-rw-r--r--  1 runner runner   220 Sep 19 18:21 run-2026-09-06-08-44.md
+-rw-r--r--  1 runner runner   143 Sep 19 18:21 run-2026-09-06-12-47.md
+-rw-r--r--  1 runner runner   200 Sep 19 18:21 run-2026-09-06-16-07.md
+-rw-r--r--  1 runner runner   183 Sep 19 18:21 run-2026-09-06-18-24.md
+-rw-r--r--  1 runner runner   211 Sep 19 18:21 run-2026-09-06-20-49.md
+-rw-r--r--  1 runner runner   194 Sep 19 18:21 run-2026-09-06-22-50.md
+-rw-r--r--  1 runner runner   191 Sep 19 18:21 run-2026-09-07-00-49.md
+-rw-r--r--  1 runner runner   214 Sep 19 18:21 run-2026-09-07-05-54.md
+-rw-r--r--  1 runner runner   284 Sep 19 18:21 run-2026-09-07-12-09.md
+-rw-r--r--  1 runner runner 17477 Sep 19 18:21 run-2026-09-07-17-48.md
+-rw-r--r--  1 runner runner   127 Sep 19 18:21 run-2026-09-07-21-23.md
+-rw-r--r--  1 runner runner   154 Sep 19 18:21 run-2026-09-07-23-45.md
+-rw-r--r--  1 runner runner   150 Sep 19 18:21 run-2026-09-08-04-07.md
+-rw-r--r--  1 runner runner 16051 Sep 19 18:21 run-2026-09-08-08-58.md
+-rw-r--r--  1 runner runner   211 Sep 19 18:21 run-2026-09-08-13-29.md
+-rw-r--r--  1 runner runner   161 Sep 19 18:21 run-2026-09-08-17-31.md
+-rw-r--r--  1 runner runner  1606 Sep 19 18:21 run-2026-09-08-20-20.md
+-rw-r--r--  1 runner runner   221 Sep 19 18:21 run-2026-09-08-22-45.md
+-rw-r--r--  1 runner runner   190 Sep 19 18:21 run-2026-09-09-01-08.md
+-rw-r--r--  1 runner runner   226 Sep 19 18:21 run-2026-09-09-06-06.md
+-rw-r--r--  1 runner runner   344 Sep 19 18:21 run-2026-09-09-11-36.md
+-rw-r--r--  1 runner runner   159 Sep 19 18:21 run-2026-09-09-15-17.md
+-rw-r--r--  1 runner runner   130 Sep 19 18:21 run-2026-09-09-18-44.md
+-rw-r--r--  1 runner runner   237 Sep 19 18:21 run-2026-09-09-21-36.md
+-rw-r--r--  1 runner runner   171 Sep 19 18:21 run-2026-09-09-23-33.md
+-rw-r--r--  1 runner runner   156 Sep 19 18:21 run-2026-09-10-01-28.md
+-rw-r--r--  1 runner runner   189 Sep 19 18:21 run-2026-09-10-06-40.md
+-rw-r--r--  1 runner runner   241 Sep 19 18:21 run-2026-09-10-11-52.md
+-rw-r--r--  1 runner runner   245 Sep 19 18:21 run-2026-09-10-16-12.md
+-rw-r--r--  1 runner runner   157 Sep 19 18:21 run-2026-09-10-19-10.md
+-rw-r--r--  1 runner runner   234 Sep 19 18:21 run-2026-09-10-21-42.md
+-rw-r--r--  1 runner runner   229 Sep 19 18:21 run-2026-09-10-23-55.md
+-rw-r--r--  1 runner runner   188 Sep 19 18:21 run-2026-09-11-04-16.md
+-rw-r--r--  1 runner runner   173 Sep 19 18:21 run-2026-09-11-08-59.md
+-rw-r--r--  1 runner runner   208 Sep 19 18:21 run-2026-09-11-13-29.md
+-rw-r--r--  1 runner runner   163 Sep 19 18:21 run-2026-09-11-17-15.md
+-rw-r--r--  1 runner runner   189 Sep 19 18:21 run-2026-09-11-19-50.md
+-rw-r--r--  1 runner runner   184 Sep 19 18:21 run-2026-09-11-22-23.md
+-rw-r--r--  1 runner runner   561 Sep 19 18:21 run-2026-09-12-00-38.md
+-rw-r--r--  1 runner runner   186 Sep 19 18:21 run-2026-09-12-05-05.md
+-rw-r--r--  1 runner runner   200 Sep 19 18:21 run-2026-09-12-09-27.md
+-rw-r--r--  1 runner runner   232 Sep 19 18:21 run-2026-09-12-13-09.md
+-rw-r--r--  1 runner runner   697 Sep 19 18:21 run-2026-09-12-16-24.md
+-rw-r--r--  1 runner runner   761 Sep 19 18:21 run-2026-09-12-18-47.md
+-rw-r--r--  1 runner runner   169 Sep 19 18:21 run-2026-09-12-21-20.md
+-rw-r--r--  1 runner runner   161 Sep 19 18:21 run-2026-09-12-23-22.md
+-rw-r--r--  1 runner runner   179 Sep 19 18:21 run-2026-09-13-01-25.md
+-rw-r--r--  1 runner runner   475 Sep 19 18:21 run-2026-09-13-06-46.md
+-rw-r--r--  1 runner runner   148 Sep 19 18:21 run-2026-09-13-12-39.md
+-rw-r--r--  1 runner runner  1534 Sep 19 18:21 run-2026-09-13-16-39.md
+-rw-r--r--  1 runner runner   147 Sep 19 18:21 run-2026-09-13-19-00.md
+-rw-r--r--  1 runner runner   214 Sep 19 18:21 run-2026-09-13-21-25.md
+-rw-r--r--  1 runner runner   177 Sep 19 18:21 run-2026-09-13-23-32.md
+-rw-r--r--  1 runner runner   164 Sep 19 18:21 run-2026-09-14-01-39.md
+-rw-r--r--  1 runner runner   189 Sep 19 18:21 run-2026-09-14-07-08.md
+-rw-r--r--  1 runner runner   156 Sep 19 18:21 run-2026-09-14-14-17.md
+-rw-r--r--  1 runner runner   272 Sep 19 18:21 run-2026-09-14-19-29.md
+-rw-r--r--  1 runner runner   195 Sep 19 18:21 run-2026-09-14-22-46.md
+-rw-r--r--  1 runner runner   141 Sep 19 18:21 run-2026-09-15-01-19.md
+-rw-r--r--  1 runner runner   213 Sep 19 18:21 run-2026-09-15-06-16.md
+-rw-r--r--  1 runner runner   260 Sep 19 18:21 run-2026-09-15-11-54.md
+-rw-r--r--  1 runner runner  2891 Sep 19 18:21 run-2026-09-15-16-44.md
+-rw-r--r--  1 runner runner   200 Sep 19 18:21 run-2026-09-15-20-05.md
+-rw-r--r--  1 runner runner   229 Sep 19 18:21 run-2026-09-15-22-58.md
+-rw-r--r--  1 runner runner 11636 Sep 19 18:21 run-2026-09-16-01-20.md
+-rw-r--r--  1 runner runner   163 Sep 19 18:21 run-2026-09-16-06-16.md
+-rw-r--r--  1 runner runner   157 Sep 19 18:21 run-2026-09-16-11-50.md
+-rw-r--r--  1 runner runner   187 Sep 19 18:21 run-2026-09-16-16-37.md
+-rw-r--r--  1 runner runner   173 Sep 19 18:21 run-2026-09-16-19-44.md
+-rw-r--r--  1 runner runner   152 Sep 19 18:21 run-2026-09-16-22-49.md
+-rw-r--r--  1 runner runner   178 Sep 19 18:21 run-2026-09-17-01-14.md
+-rw-r--r--  1 runner runner   605 Sep 19 18:21 run-2026-09-17-06-14.md
+-rw-r--r--  1 runner runner   776 Sep 19 18:21 run-2026-09-17-11-54.md
+-rw-r--r--  1 runner runner   221 Sep 19 18:21 run-2026-09-17-16-43.md
+-rw-r--r--  1 runner runner   221 Sep 19 18:21 run-2026-09-17-20-07.md
+-rw-r--r--  1 runner runner   211 Sep 19 18:21 run-2026-09-17-22-54.md
+-rw-r--r--  1 runner runner   180 Sep 19 18:21 run-2026-09-18-01-10.md
+-rw-r--r--  1 runner runner   143 Sep 19 18:21 run-2026-09-18-06-04.md
+-rw-r--r--  1 runner runner 13000 Sep 19 18:21 run-2026-09-18-11-30.md
+-rw-r--r--  1 runner runner   231 Sep 19 18:21 run-2026-09-18-15-10.md
+-rw-r--r--  1 runner runner   231 Sep 19 18:21 run-2026-09-18-18-35.md
+-rw-r--r--  1 runner runner   205 Sep 19 18:21 run-2026-09-18-21-17.md
+-rw-r--r--  1 runner runner   196 Sep 19 18:21 run-2026-09-18-23-23.md
+-rw-r--r--  1 runner runner   202 Sep 19 18:21 run-2026-09-19-01-36.md
+-rw-r--r--  1 runner runner   184 Sep 19 18:21 run-2026-09-19-06-38.md
+-rw-r--r--  1 runner runner   178 Sep 19 18:21 run-2026-09-19-11-34.md
+-rw-r--r--  1 runner runner   219 Sep 19 18:21 run-2026-09-19-14-49.md
+-rw-r--r--  1 runner runner   161 Sep 19 18:21 run-2026-09-19-17-54.md
+---PROBE TAIL---
+
+## 2026-09-18 19:28:19 UTC
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://hypofriend.de/en/plus -> 200 len=298552
+https://hypofriend.de/en/plus` -> HTTP 403
+
+## 2026-09-18 22:00:06 UTC
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/en/plus/q` -> 200 len=228508
+https://hypofriend.de/en/plus/q` -> 200 len=228508
+https://hypofriend.de/en/plus` -> HTTP 403
+
+## 2026-09-18 23:50:18 UTC
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/en/plus/q` -> 200 len=228508
+
+## 2026-09-19 02:48:40 UTC
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/en/plus/q` -> 200 len=228508
+https://core.hypofriend.de/en/health/q` -> 200 len=228508
+
+## 2026-09-19 07:46:45 UTC
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://hypofriend.de/ -> 200 len=228508
+
+## 2026-09-19 12:19:00 UTC
+https://hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+
+## 2026-09-19 15:59:39 UTC
+https://hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+[0m
+Conducting a small set of read-only freshness probes (≤1 rps).
+[0m$ [0mcurl -s -o /dev/null -m 12 -w "api443:%{http_code}:%{time_total}\n" https://api.hypofriend.de/ 2>&1; sleep 1.2; curl -s -o /dev/null -m 10 -w "api80:%{http_code}:%{errormsg}\n" http://api.hypofriend.de/ 2>&1
+api443:000:0.146204
+api80:000:Connection timed out after 10002 milliseconds
+[0m
+[0m$ [0mcurl -s -m 20 https://hypofriend.de/en/plus 2>/dev/null | grep -oE '/_nuxt/[A-Za-z0-9_-]+\.js' | sort -u | head -20
+/_nuxt/-ez_sPea.js
+/_nuxt/031sR0Dk.js
+/_nuxt/22Pu5ap6.js
+/_nuxt/25HfxJIp.js
+/_nuxt/3y9GfY-G.js
+/_nuxt/7LJm_38-.js
+/_nuxt/86Ap2ZNx.js
+/_nuxt/8kU-xc9e.js
+/_nuxt/9UYEfEG3.js
+/_nuxt/9aifwFbc.js
+/_nuxt/AuiHv9WO.js
+/_nuxt/B0dqiS1K.js
+/_nuxt/B1jEw4nT.js
+/_nuxt/B2vkSg1F.js
+/_nuxt/B35S2sub.js
+/_nuxt/B4KTqVZf.js
+/_nuxt/B5BZbSY_.js
+/_nuxt/B6htIPxk.js
+/_nuxt/B7Wp8beB.js
+/_nuxt/B8CvfFn4.js
+[0m
+[0m$ [0mcurl -s -m 20 https://hypofriend.de/en/plus 2>/dev/null | grep -oE '/_nuxt/[A-Za-z0-9_-]+\.js' | sort -u | grep -iE 'D9p|g8up|G8up'; echo "---entry script tags---"; curl -s -m 20 https://hypofriend.de/en/plus 2>/dev/null | grep -oE '<script[^>]*src="[^"]*"' | grep -oE '/_nuxt/[A-Za-z0-9_-]+\.js' | head
+/_nuxt/g8upYJar.js
+---entry script tags---
+/_nuxt/g8upYJar.js
+[0m
+[0m$ [0mfor name in requestAccountLink requestAppointmentLink unclaimLead setNameAppointment leadPresent has_admin_cookie processLeadForAppointment uploadDocumentExtended; do c=$(curl -s -m 30 https://hypofriend.de/m/_nuxt/g8upYJar.js 2>/dev/null | grep -o "$name" | wc -l); echo "g8up $name=$c"; sleep 1; done
+g8up requestAccountLink=3
+g8up requestAppointmentLink=7
+g8up unclaimLead=9
+g8up setNameAppointment=2
+g8up leadPresent=3
+g8up has_admin_cookie=3
+g8up processLeadForAppointment=5
+g8up uploadDocumentExtended=2
+[0m
+[0m$ [0mfor h in D9p-7uJV g8upYJar; do code=$(curl -s -o /dev/null -w "%{http_code}:%{size_download}" -m 20 https://hypofriend.de/m/_nuxt/$h.js 2>/dev/null); echo "$h -> $code"; sleep 1.2; done
+D9p-7uJV -> 403:111
+g8upYJar -> 200:1334793
+[0m
+[0m$ [0mcurl -s -m 30 https://hypofriend.de/m/_nuxt/g8upYJar.js 2>/dev/null | grep -oE 'requestAccountLink\(input:[^)]*\)' | head -3; echo "---"; curl -s -m 30 https://hypofriend.de/m/_nuxt/g8upYJar.js 2>/dev/null | grep -oE '\.requestAccountLink' | wc -l
+requestAccountLink(input: {email: "${e}"})
+---
+1
+[0m
+[0m$ [0mecho "--- origin OPTIONS /en/plus/q ---"; curl -s -D- -o /dev/null -m 15 -X OPTIONS https://core.hypofriend.de/en/plus/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | grep -iE 'HTTP/|access-control|vary|date|cache|server'; sleep 1.2; echo "--- origin GET /en/plus/q ---"; curl -s -o /dev/null -w "%{http_code} -> %{redirect_url} len=%{size_download}\n" -m 15 https://core.hypofriend.de/en/plus/q 2>&1
+--- origin OPTIONS /en/plus/q ---
+HTTP/2 200 
+date: Sat, 19 Sep 2026 18:23:14 GMT
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+--- origin GET /en/plus/q ---
+301 -> https://hypofriend.de/ len=0
+[0m
+[0m$ [0mecho "--- edge OPTIONS /en/plus/q ---"; curl -s -D- -o /dev/null -m 15 -X OPTIONS https://hypofriend.de/en/plus/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | grep -iE 'HTTP/|access-control|vary|server|x-|cache' | head -20; sleep 1.2; echo "--- edge GET /en/plus/q ---"; curl -s -o /dev/null -w "%{http_code} -> %{redirect_url} len=%{size_download}\n" -m 15 https://hypofriend.de/en/plus/q 2>&1
+--- edge OPTIONS /en/plus/q ---
+HTTP/2 200 
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-cache: Miss from cloudfront
+x-amz-cf-pop: IAD55-P10
+x-amz-cf-id: cbKpDUGU3sWsIxPv4RmbS9nrLzXgjFOOPrn6IrnYuDlV5sBeQ8so9Q==
+--- edge GET /en/plus/q ---
+301 -> https://hypofriend.de/ len=0
+[0m
+[0m$ [0mcurl -s -m 30 https://hypofriend.de/m/_nuxt/g8upYJar.js 2>/dev/null > /tmp/bundle_g8up.js; wc -c /tmp/bundle_g8up.js; for t in "magicLink" "redirect_uri" "code_challenge" "id_token" "access_token" "webAuthn" "loginWith" "magic" "email_link" "accountLinkUrl" "setPassword" "resetPassword" "forgot"; do c=$(grep -o "$t" /tmp/bundle_g8up.js | wc -l); [ "$c" -gt 0 ] && echo "$t=$c"; done
+1334793 /tmp/bundle_g8up.js
+magic=3
+[0m
+[0m$ [0mgrep -oE '.{60}magic.{60}' /tmp/bundle_g8up.js | head; echo "---step/leadPresent context---"; grep -oE '.{40}leadPresent.{40}' /tmp/bundle_g8up.js | head -3
+ts/illustrations/lightbulb.svg":hI,"../assets/illustrations/magic-email.svg":fI,"../assets/illustrations/mail-1.svg":pI,"../a
+house";case"signup":return"verification";case"login":return"magic-email";default:return""}}),V=Se(()=>w.value&&C.value?t("log
+l"}]}},subtitle:{t:0,b:{t:2,i:[{t:3,v:"We've just sent your magic link to "},{t:4,k:"email"},{t:3,v:". Click it to instantly 
+---step/leadPresent context---
+it a2().login.requestLogin(_.email);qe?.leadPresent?(_.name=qe.firstName??"",c.value="login
+[0m
+[0m$ [0mgrep -oE '(setNameAppointment|unclaimLead)\(input: [^)]*\)' /tmp/bundle_g8up.js | sort -u | head; echo "---requestLogin context---"; grep -oE '.{80}requestLogin.{40}' /tmp/bundle_g8up.js | head -2
+unclaimLead(input: {})
+---requestLogin context---
+on RB(e={}){const t={...PB,...e};return{async requestLogin(r){return(await Ke(t.requestLogin(r),{forceCoreApi:!0}))?.data?.data?.req
+a:p7}),oT={namespaced:!0,actions:rT,getters:nT,mutations:iT,state:sT},aT={async requestLogin(e,{email:t,routeName:r}){const n=!!r?.m
+[0m
+STEP 1 — DELTA
+[CHANGED] hypofriend.de/m/_nuxt entry bundle: D9p-7uJV.js now 403 (removed) → g8upYJar.js 200 (1,334,793B, same size) — mutation-template counts bit-identical (requestAccountLink=3, requestAppointmentLink=7, unclaimLead=9, setNameAppointment=2, leadPresent=3, has_admin_cookie=3, processLeadForAppointment=5, uploadDocumentExtended=2); shape unchanged `requestAccountLink(input:{email:"${e}"})` + dispatch branch `qe?.leadPresent?(_.name=qe.firstName??"")` + unconditional copy "We've just sent your magic link to"; `unclaimLead(input:{})` empty-arg template — rebuild/rename only, NO new names.
+[CONFIRMED] credentialed CORS @ core.hypofriend.de/en/plus/q re-proven live 18:23Z on EDGE (via CloudFront IAD55-P10, x-cache Miss) AND origin — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods + max-age 7200, no Vary:Origin; GET /en/plus/q now 301→https://hypofriend.de/ on BOTH edge and origin (origin SPA shell no longer served).
+[CONFIRMED] api.hypofriend.de (target): 000 :443 (0.15s) / :80 connect-timeout — dead 26th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+
+STEP 2 — PRIORITIZE
+[PRIO] core.hypofriend.de/property-search-api,8.45,attack10/biz10/tech8/gate9/cloud5/fresh4
+[PRIO] core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q),7.80,attack8/biz8/tech8/gate10/cloud5/fresh6
+[PRIO] core.hypofriend.de global credentialed CORS,6.50,attack7/biz8/tech7/gate4/cloud6/fresh5
+
+STEP 3 — HYPOTHESES
+[HYP] requestAccountLink/requestAppointmentLink are unauthenticated lead-existence oracles + arbitrary magic-link email dispatch on the credentialed-CORS chain
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, +/en/health/q)
+confidence: 62
+reasoning: Live bundle g8upYJar.js (200 this cycle) carries `requestAccountLink(input:{email:"${e}"})`, wired to `a2().login.requestLogin(_.email)` with branch `qe?.leadPresent?(_.name=qe.firstName??"")` and magic-link copy shown unconditionally; /q-family mutations already execute 200 auth-free (processLeadForAppointment, uploadDocumentExtended); credentialed CORS re-proven 18:23Z edge+origin.
+evidence_needed: fresh-jar POST of the confirmed template; observe step/leadPresent/firstName vs error branch and whether link is dispatched for a non-existent (non-deliverable) address.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body-only; single-shot reserved address, no real PII, no retries.
+impact: (a) lead/account existence oracle + firstName disclosure keyed on email; (b) unbounded transactional magic-link email generation for arbitrary addresses (abuse/social-engineering fuel) on a credentialed-CORS + SameSite=None surface — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account dispatch class.
+testability: AUTH_HELPED
+
+[HYP] Full-DB auth-free listing-PII enumeration remains the headline CRITICAL; sole open gate is bounded bulk quantification
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, phone/owner/email PII), offset-walk + geo-bounds primitives, full introspection, direct-origin WAF bypass — unchanged, zero remediation signal all cycles.
+evidence_needed: none beyond prior live confirmations; extent (record count) is the unanswered question.
+verify_steps: HUMAN — bounded offset-walk under a single city, limit ≤50/req, read-only; program custodial rule caps volume.
+impact: Full-DB listing-PII extraction incl. provider/owner contact data — CRITICAL.
+testability: HUMAN_ONLY
+
+[HYP] Global credentialed CORS + SameSite=None;Secure session cookies convert any session-scoped /q read into cross-origin lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors middleware, any path incl. /api/v3/advisors)
+confidence: 50
+reasoning: rack-cors is global (arbitrary/nonexistent paths echo, prior cycle); CORS+credentials half re-proven 18:23Z; SameSite=None;Secure flags on session cookies set at origin mean a victim-origin script with cookie forwarding can read session-scoped JSON responses; bundle still ships root.lead PII schema (referrer{primary_advisor}, shareLink).
+evidence_needed: a session-bound read resolver returning lead JSON — no new name shipped this cycle (bundle delta empty); read itself needs a victim session.
+verify_steps: HUMAN — no new probe; the resolver identification requires a logged-in session (HUMAN-gated); CORS half is live-proven.
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency).
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] unclaimLead auth-free cross-tenant write (45): template is `unclaimLead(input:{})` — empty input means resolvers derive target from session, not caller-supplied id; no cross-tenant reference without a victim session; arg shape leaves the favoriteExpose exist-vs-not discriminator unreachable. Needs live session to matter.
+[PARKED] /en/health/q distinct-instance bundle delta: origin AND edge GET /q both 301 — no passive bundle source remains; per-instance schema only via POST error-probing (HUMAN); prior 228508 readings were the main-app shell.
+[PARKED] has_admin_cookie anonymous oracle: server-forced provenance-flag precedent (`internal` cookie REJECTED on same origin) makes anonymous value carry unproven signal.
+[FINAL] 1) requestAccountLink/requestAppointmentLink email-dispatch oracle (62, AUTH_HELPED)  2) property-search-api full-DB BOLA (95, HUMAN_ONLY)  3) global credentialed CORS → cross-origin session exfil (50, HUMAN_ONLY)
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: single one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/body only; reserved non-deliverable address, single-shot, no retries; all other surface stays frozen (bundle re-mine + CORS re-probe complete this cycle).
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q): credentialed CORS re-proven live 2026-09-19 18:23Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200) on edge (CloudFront IAD55-P10) AND origin; no Vary:Origin; GET /en/plus/q 301→https://hypofriend.de/ on both.
+[LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt/g8upYJar.js: entry bundle renamed D9p-7uJV.js→g8upYJar.js (D9p-7uJV now 403; g8upYJar 200, 1,334,793B) — identical size and mutation-template counts; requestAccountLink(input:{email:"${e}"})/{step leadPresent firstName} and dispatch branch (`qe?.leadPresent?(_.name=qe.firstName)` + "We've just sent your magic link to") confirmed present; no new surface delta beyond rename.
+[LEARN] REJECTED NG @ api.hypofriend.de (target): 000 re-probed 18:23Z (:443 0.15s fail / :80 connect-timeout) — dead 26th consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+[LEARN] REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 26 cycles) — no live surface for phase completion; phase mismatch constrains probe actions; all activity remains read-only GET/HEAD/OPTIONS ≤1rps.
+
+STEP 7 — RISK
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain live-re-proven 18:23Z edge+origin; bundle rename (D9p-7uJV→g8upYJar) reverified with identical mutation surface incl. magic-link/account-link dispatch templates keyed on email arg (HUMAN confirmation of oracle+dispatch pending); POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only ≤1rps, no evidence of exploitation.

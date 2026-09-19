@@ -4497,3 +4497,162 @@ impact: Cross-tenant appointment-ownership tampering if resolver keys on caller-
 testability: AUTH_HELPED
 [NEXT] HUMAN: one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/body only; reserved non-deliverable address, no real PII, no retries; all other surface stays frozen (bundle re-mine complete this cycle).
 [RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None chain intact with refreshed bundle (requestAppointmentLink/unclaimLead references grew) shipping on that chain; POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes this cycle read-only GET/HEAD ≤1rps, no evidence of exploitation.
+## 2026-09-19 18:24:38 UTC [target] (model bigpickle)
+evidence_needed: one HTTP POST to /en/plus/q direct origin with disposable email; observe leadPresent/firstName/step vs error branch and whether fresh-jar session required.
+verify_steps: HUMAN — POST `https://core.hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"hb-test-0201@example.com\"}){step leadPresent firstName}}"}` with `Origin: https://evil.example`, fresh jar; log status + body-len + ACAO + values only; disposable address, single-shot, no real PII.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering) riding proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-scoped identity read on core.hypofriend.de into a cross-origin exfil primitive
+class: OTHER
+asset: core.hypofriend.de (+hypofriend.de, any path)
+confidence: 50
+reasoning: rack-cors middleware is global (arbitrary path /zzz-3684 and /api/v3/advisors echo, prior cycle); SameSite=None;Secure session cookies (_hf, __hfp___hypofriend.health__) are set at origin; any GET/POST response carrying session-scoped JSON (e.g. root.lead{...} PII incl. shareLink, referrer{primary_advisor}) becomes cross-origin readable by an attacker origin with the victim's cookies forwarded. Precondition chain (CORS+credentials+cookie flags) re-proven 02:44Z.
+evidence_needed: identify a session-scoped read endpoint that returns lead JSON without admin scoping; the CORS+flag half is already live-proven.
+verify_steps: HUMAN — no new probe required beyond bundle-mine of a session-scoped query name; the read itself needs a victim session (HUMAN-gated); this cycle the CORS half was re-proven at 02:44Z.
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (uncertain need for victim session).
+testability: HUMAN_ONLY
+[HYP] Same-day redeploy may have refreshed the /en/health instance bundle too — parallel mutation-surface delta unchecked
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+hypofriend.de/en/health/q)
+confidence: 42
+reasoning: /en/plus S3 page redeployed 2026-09-18T13:01:39Z (grew to 298552B) and its bundle was re-mined (4 new mutations); /en/health is the separate health-insurance instance with its own bundle; only /en/plus was re-mined this cycle, /en/health bundle delta not checked since the refresh.
+evidence_needed: re-fetch /en/health/q bundle and grep for gql mutation templates (requestAccountLink, unclaimLead, processLeadForAppointment) vs prior inventory.
+verify_steps: PASSIVE — GET `https://core.hypofriend.de/en/health/q` (200 len 228508 baseline) and grep returned bundle for mutation/query names; no mutation executes.
+impact: additional auth-free mutation surface on the health instance if its bundle carried the same redeploy — LOW-MEDIUM.
+testability: PASSIVE
+[CHANGED] core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ both hosts (was 200 SPA shell 228508) — origin no longer serves SPA HTML at /q paths; bundle now only at edge /m/_nuxt/D9p-7uJV.js
+[NEW] Current shipped bundle re-mined: /en/plus page references /m/_nuxt/D9p-7uJV.js (200, 1,334,793B) containing requestAccountLink(3), requestAppointmentLink(5), unclaimLead(5), setNameAppointment(2), leadPresent(3), has_admin_cookie(3), processLeadForAppointment(3), uploadDocumentExtended(2)
+[CHANGED] api.hypofriend.de: 000 re-probed 07:44Z (:443 rpc-fail) — 24th consecutive dead cycle
+[PRIO] core.hypofriend.de/en/plus/q,8.05,attack8/biz8/tech8/gate10/cloud5/fresh6
+[PRIO] core.hypofriend.de (global credentialed CORS),6.70,attack7/biz8/tech7/gate4/cloud6/fresh7
+[PRIO] api.hypofriend.de,0.0,dead-24-cycles-target
+[HYP] requestAccountLink/requestAppointmentLink are anonymous email-existence + firstName PII oracles on the credentialed-CORS chain
+class: IDOR
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: Shipped bundle D9p-7uJV.js (re-mined live this cycle, /m/_nuxt, 200) still contains server templates requestAccountLink(input:{email}){step leadPresent firstName} and requestAppointmentLink(input:{email}){leadPresent firstName}; /q-family executes mutations anonymously (processLeadForAppointment, uploadDocumentExtended 200 no-auth, prior cycles); credentialed CORS re-proven live 07:45Z on origin /en/plus/q and /en/health/q (ACAO echo + ACAC:true). leadPresent/firstName are response branches keyed only on the email argument.
+evidence_needed: one HTTP POST to /en/plus/q origin with a disposable email; observe step/leadPresent/firstName vs error branch and whether fresh-jar session required.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin: https://evil.example, fresh jar; log status+ACAO+values only; single-shot disposable address, no real PII.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering) riding proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] unclaimLead executes as an auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead present 5x in shipped bundle alongside setNameAppointment (2x); both are appointment-ownership mutations; sibling processLeadForAppointment executes 200 anonymously (prior cycles) proving no session gate on this mutation class; credentialed CORS + SameSite=None cookie chain intact.
+evidence_needed: POST mutation with/without lead ownership context and observe error branch differentiation (like favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{}){...}}" } to /en/plus/q fresh jar with dead-lead id; compare error branch vs processLeadForAppointment; no real lead data targeted.
+impact: cross-tenant appointment ownership tampering if resolver keys on caller-supplied id — MEDIUM; unproven arg shape from bundle (no introspection).
+testability: AUTH_HELPED
+[PARKED] core.hypofriend.de/en/health/q distinct-instance bundle delta: GET now 301 origin+edge — no passive bundle source remains; per-instance schema only via POST error-probing (HUMAN). Prior len 228508 readings were the main-app shell, not a distinct health bundle.
+[PARKED] root.lead.has_admin_cookie anonymous oracle: 42→40 — server-forced-flag precedent (`internal` cookie REJECTED on same origin) makes anonymous value carry unproven signal; lows value.
+[FINAL] 1) requestAccountLink/requestAppointmentLink oracle (74, AUTH_HELPED) 2) unclaimLead cross-tenant write (45, AUTH_HELPED)
+[NEXT] HUMAN: single one-shot credential-led POST to https://core.hypofriend.de/en/plus/q with requestAccountLink(input:{email:"hb-test-0919@example.com"}){step leadPresent firstName}, Origin https://evil.example, fresh jar — log status/ACAO/branch only; all other surface stays frozen; bundle re-mine for this cycle is complete.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q & /en/health/q: credentialed CORS re-proven live 2026-09-19 07:45Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin.
+[LEARN] CHANGED @ core.hypofriend.de/en/plus/q & /en/health/q: GET 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin /q paths; shell now only via edge; prior 228508 readings were the main-app shell, NOT distinct instance bundles.
+[LEARN] ACCEPTED ENDPOINT @ hypofriend.de/m/_nuxt/D9p-7uJV.js: current bundle (200, 1,334,793B) re-confirms new mutation surface shipped — requestAccountLink, requestAppointmentLink, unclaimLead, setNameAppointment, plus leadPresent & has_admin_cookie fields.
+[LEARN] CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 07:44Z (:80/:443) — dead 24th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain re-proven this cycle; refreshed bundle ships account-link/email-dispatch mutations on that chain (fresh vector); POC target api dead 24th cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only GET/HEAD/OPTIONS ≤1rps, no evidence of exploitation.
+[HYP] requestAccountLink/requestAppointmentLink are anonymous email-existence + firstName PII oracles on the credentialed-CORS chain
+class: IDOR
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: Shipped bundle D9p-7uJV.js still carries requestAccountLink(input:{email}){step leadPresent firstName} + requestAppointmentLink(input:{email}){leadPresent firstName} (unchanged 200 this cycle); /q-family mutations execute anonymously (processLeadForAppointment, uploadDocumentExtended → 200 no auth, prior cycles); credentialed CORS re-verified live 12:13Z at origin (ACAO echo + ACAC:true); response branches keyed only on the email arg.
+evidence_needed: one HTTP POST to /en/plus/q origin with disposable email; observe step/leadPresent/firstName vs error branch and whether fresh-jar session required.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin: https://evil.example, fresh jar; log status+body-len+ACAO+values only; single-shot disposable address, no real PII.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering) riding proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-scoped identity read into cross-origin exfil
+class: OTHER
+asset: core.hypofriend.de (+hypofriend.de, any path)
+confidence: 50
+reasoning: rack-cors global middleware (arbitrary path and /api/v3/advisors echo, prior cycle); CORS half re-proven live 12:13Z; SameSite=None;Secure session cookies (_hf, __hfp___hypofriend.health__) set at origin; any GET/POST response carrying session-scoped JSON becomes cross-origin readable with victim cookies forwarded.
+evidence_needed: identify a session-scoped read resolver returning lead JSON (bundle unchanged this cycle — no new names); the CORS+flag half is already live-proven.
+verify_steps: HUMAN — no new probe beyond bundle-mine of a session-scoped query name; the read itself requires a victim session (HUMAN-gated).
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency).
+testability: HUMAN_ONLY
+[HYP] unclaimLead executes as auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead shipped 5x + setNameAppointment 2x in unchanged bundle; both appointment-ownership mutations; sibling processLeadForAppointment executes 200 anonymously proving no session gate on this mutation class; credentialed CORS + SameSite=None chain intact.
+evidence_needed: POST mutation with/without ownership context and observe error-branch differentiation (favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{}){...}}" } to /en/plus/q fresh jar with dead-lead id; compare error branch vs processLeadForAppointment; no real lead data targeted.
+impact: cross-tenant appointment ownership tampering if resolver keys on caller-supplied id — MEDIUM; arg shape only from bundle (no introspection, origin GET 301s so no passive schema source remains).
+testability: AUTH_HELPED
+[NEXT] HUMAN: single one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/branch only; single-shot disposable address; all other surface stays frozen (bundle re-mine complete, both hosts re-verified this cycle).
+[LEARN] REJECTED NG @ api.hypofriend.de (target): 000 re-confirmed live 12:13Z (:443 SSL_ERROR_SYSCALL / :80 8s connect-timeout) — dead 25th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-19 12:13Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; GET origin 301→https://hypofriend.de/ unchanged (edge-only shell).
+[LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt/D9p-7uJV.js: bundle bit-unchanged (200, 1,334,793B) — no new mutation surface delta this cycle; requestAccountLink/requestAppointmentLink/unclaimLead/setNameAppointment still shipped.
+[LEARN] CONFIRMED NG @ fleet: no host re-probed beyond api + bundle + single CORS OPTIONS (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301).
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain intact-reverified; email-account-link mutations shipped on that chain (fresh vector, HUMAN-gated confirmation pending); POC target api dead 25th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only GET/HEAD/OPTIONS ≤1rps, no evidence of exploitation.
+[HYP] requestAccountLink/requestAppointmentLink run as unauthenticated server-side email-dispatch handlers on the credentialed-CORS chain, reframed as email-abuse/BUSLOGIC rather than enumeration
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 50
+reasoning: New entry bundle g8upYJar.js ships requestAccountLink(3)/requestAppointmentLink(7, up from 5)/unclaimLead(9, up from 5); `requestLogin`→requestAccountLink fires "Viewed Website Login Magic Link Popup"; /q-family mutations (processLeadForAppointment, uploadDocumentExtended) already execute 200 with zero auth; credentialed CORS re-verified 12:13Z (ACAO echo + ACAC:true). The `leadPresent`/`firstName` response language is keyed only on the email argument.
+evidence_needed: One POST with a reserved non-deliverable email (example.com) — logs whether the handler branch returns step/leadPresent/firstName vs error under a fresh-jar no-session POST; if reachable, the handler runs with no session for arbitrary addresses.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q, body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body only; single-shot.
+impact: Unauthenticated triggering of transactional account-link email generation for arbitrary addresses (abuse/spam/social-engineering fuel) on a credentialed-CORS enabled surface — MEDIUM. Lead-existence/firstName linkage kept PARKED (see STEP 4).
+testability: AUTH_HELPED
+[HYP] Full-DB auth-free PII enumeration remains the headline CRITICAL; only open gate is bulk quantification with offset-walk
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, PII incl. phone/owner/email), offset-walk primitives + full introspection, direct-origin WAF bypass — unchanged and re-pinned CRITICAL; no remediation signal this cycle.
+evidence_needed: none beyond prior live confirmations; quantification is the unanswered extent question.
+verify_steps: HUMAN — bounded offset-walk under a single city, caps ≤50/req, read-only; program custodial rule limits volume.
+impact: Full-BD listing-PII extraction — CRITICAL.
+testability: HUMAN_ONLY
+[HYP] unclaimLead executes as auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead references rose 5→9 in new bundle; returns `{success}` resolution (`?.data?.unclaimLead?.success`); sibling processLeadForAppointment executes 200 anonymously proving no session gate on this mutation class; CORS + SameSite=None chain intact.
+evidence_needed: error-branch differentiation on a mutation POST (favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{id:\"00000000-0000-0000-0000-000000000000\"}){success}}" } to /en/plus/q, fresh jar; compare error vs success branch; no real lead data.
+impact: Cross-tenant appointment-ownership tampering if resolver keys on caller-supplied id — MEDIUM; arg shape unproven (no introspection).
+testability: AUTH_HELPED
+[NEXT] HUMAN: one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/body only; reserved non-deliverable address, no real PII, no retries; all other surface stays frozen (bundle re-mine complete this cycle).
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None chain intact with refreshed bundle (requestAppointmentLink/unclaimLead references grew) shipping on that chain; POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes this cycle read-only GET/HEAD ≤1rps, no evidence of exploitation.
+[CHANGED] hypofriend.de/m/_nuxt entry bundle: D9p-7uJV.js now 403 (removed) → g8upYJar.js 200 (1,334,793B, same size) — mutation-template counts bit-identical (requestAccountLink=3, requestAppointmentLink=7, unclaimLead=9, setNameAppointment=2, leadPresent=3, has_admin_cookie=3, processLeadForAppointment=5, uploadDocumentExtended=2); shape unchanged `requestAccountLink(input:{email:"${e}"})` + dispatch branch `qe?.leadPresent?(_.name=qe.firstName??"")` + unconditional copy "We've just sent your magic link to"; `unclaimLead(input:{})` empty-arg template — rebuild/rename only, NO new names.
+[PRIO] core.hypofriend.de/property-search-api,8.45,attack10/biz10/tech8/gate9/cloud5/fresh4
+[PRIO] core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q),7.80,attack8/biz8/tech8/gate10/cloud5/fresh6
+[PRIO] core.hypofriend.de global credentialed CORS,6.50,attack7/biz8/tech7/gate4/cloud6/fresh5
+[HYP] requestAccountLink/requestAppointmentLink are unauthenticated lead-existence oracles + arbitrary magic-link email dispatch on the credentialed-CORS chain
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, +/en/health/q)
+confidence: 62
+reasoning: Live bundle g8upYJar.js (200 this cycle) carries `requestAccountLink(input:{email:"${e}"})`, wired to `a2().login.requestLogin(_.email)` with branch `qe?.leadPresent?(_.name=qe.firstName??"")` and magic-link copy shown unconditionally; /q-family mutations already execute 200 auth-free (processLeadForAppointment, uploadDocumentExtended); credentialed CORS re-proven 18:23Z edge+origin.
+evidence_needed: fresh-jar POST of the confirmed template; observe step/leadPresent/firstName vs error branch and whether link is dispatched for a non-existent (non-deliverable) address.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body-only; single-shot reserved address, no real PII, no retries.
+impact: (a) lead/account existence oracle + firstName disclosure keyed on email; (b) unbounded transactional magic-link email generation for arbitrary addresses (abuse/social-engineering fuel) on a credentialed-CORS + SameSite=None surface — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account dispatch class.
+testability: AUTH_HELPED
+[HYP] Full-DB auth-free listing-PII enumeration remains the headline CRITICAL; sole open gate is bounded bulk quantification
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, phone/owner/email PII), offset-walk + geo-bounds primitives, full introspection, direct-origin WAF bypass — unchanged, zero remediation signal all cycles.
+evidence_needed: none beyond prior live confirmations; extent (record count) is the unanswered question.
+verify_steps: HUMAN — bounded offset-walk under a single city, limit ≤50/req, read-only; program custodial rule caps volume.
+impact: Full-DB listing-PII extraction incl. provider/owner contact data — CRITICAL.
+testability: HUMAN_ONLY
+[HYP] Global credentialed CORS + SameSite=None;Secure session cookies convert any session-scoped /q read into cross-origin lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors middleware, any path incl. /api/v3/advisors)
+confidence: 50
+reasoning: rack-cors is global (arbitrary/nonexistent paths echo, prior cycle); CORS+credentials half re-proven 18:23Z; SameSite=None;Secure flags on session cookies set at origin mean a victim-origin script with cookie forwarding can read session-scoped JSON responses; bundle still ships root.lead PII schema (referrer{primary_advisor}, shareLink).
+evidence_needed: a session-bound read resolver returning lead JSON — no new name shipped this cycle (bundle delta empty); read itself needs a victim session.
+verify_steps: HUMAN — no new probe; the resolver identification requires a logged-in session (HUMAN-gated); CORS half is live-proven.
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency).
+testability: HUMAN_ONLY
+[PARKED] unclaimLead auth-free cross-tenant write (45): template is `unclaimLead(input:{})` — empty input means resolvers derive target from session, not caller-supplied id; no cross-tenant reference without a victim session; arg shape leaves the favoriteExpose exist-vs-not discriminator unreachable. Needs live session to matter.
+[PARKED] /en/health/q distinct-instance bundle delta: origin AND edge GET /q both 301 — no passive bundle source remains; per-instance schema only via POST error-probing (HUMAN); prior 228508 readings were the main-app shell.
+[PARKED] has_admin_cookie anonymous oracle: server-forced provenance-flag precedent (`internal` cookie REJECTED on same origin) makes anonymous value carry unproven signal.
+[FINAL] 1) requestAccountLink/requestAppointmentLink email-dispatch oracle (62, AUTH_HELPED)  2) property-search-api full-DB BOLA (95, HUMAN_ONLY)  3) global credentialed CORS → cross-origin session exfil (50, HUMAN_ONLY)
+[NEXT] HUMAN: single one-shot credential-led POST to https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin https://evil.example, fresh jar — log status/ACAO/body only; reserved non-deliverable address, single-shot, no retries; all other surface stays frozen (bundle re-mine + CORS re-probe complete this cycle).
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q): credentialed CORS re-proven live 2026-09-19 18:23Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200) on edge (CloudFront IAD55-P10) AND origin; no Vary:Origin; GET /en/plus/q 301→https://hypofriend.de/ on both.
+[LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt/g8upYJar.js: entry bundle renamed D9p-7uJV.js→g8upYJar.js (D9p-7uJV now 403; g8upYJar 200, 1,334,793B) — identical size and mutation-template counts; requestAccountLink(input:{email:"${e}"})/{step leadPresent firstName} and dispatch branch (`qe?.leadPresent?(_.name=qe.firstName)` + "We've just sent your magic link to") confirmed present; no new surface delta beyond rename.
+[LEARN] REJECTED NG @ api.hypofriend.de (target): 000 re-probed 18:23Z (:443 0.15s fail / :80 connect-timeout) — dead 26th consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+[LEARN] REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 26 cycles) — no live surface for phase completion; phase mismatch constrains probe actions; all activity remains read-only GET/HEAD/OPTIONS ≤1rps.
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain live-re-proven 18:23Z edge+origin; bundle rename (D9p-7uJV→g8upYJar) reverified with identical mutation surface incl. magic-link/account-link dispatch templates keyed on email arg (HUMAN confirmation of oracle+dispatch pending); POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only ≤1rps, no evidence of exploitation.
