@@ -790,3 +790,13 @@ www.hypofriend.de
 - NEW hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z (len 298552, grew) — same-day redeploy; bundle re-mine needed for full mutation surface
 - CHANGED api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
 - CHANGED core.hypofriend.de/property-search-api: Full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
+
+## 2026-09-19 07:46:36 UTC
+- CHANGED core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ both hosts (was 200 SPA shell 228508) — origin no longer serves SPA HTML at /q paths; bundle now only at edge /m/_nuxt/D
+- NEW Current shipped bundle re-mined: /en/plus page references /m/_nuxt/D9p-7uJV.js (200, 1,334,793B) containing requestAccountLink(3), requestAppointmentLink(5), unclaimLead(5), setNameAppointment(2), lea
+- CHANGED api.hypofriend.de: 000 re-probed 07:44Z (:443 rpc-fail) — 24th consecutive dead cycle
+- NEW core.hypofriend.de: Global credentialed CORS middleware confirmed on arbitrary path `/zzz-3684` and `/api/v3/advisors` — OPTIONS echoes any Origin + `access-control-allow-credentials:true` + all metho
+- NEW core.hypofriend.de/en/plus/q: Four new auth-free mutations execute 200 — `requestAccountLink`, `requestAppointmentLink`, `setNameAppointment`, `unclaimLead` (discovered via error-schema probing); exis
+- NEW hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z (len 298552, grew) — same-day redeploy; bundle re-mine needed for full mutation surface
+- CHANGED api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
+- CHANGED core.hypofriend.de/property-search-api: Full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL

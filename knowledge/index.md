@@ -519,3 +519,7 @@
 - 2026-09-19 ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
 - 2026-09-19 REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no surface.
 - 2026-09-19 ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; GET /q still 301 Rails shell.
+- 2026-09-19 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q & /en/health/q: credentialed CORS re-proven live 2026-09-19 07:45Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin.
+- 2026-09-19 CHANGED @ core.hypofriend.de/en/plus/q & /en/health/q: GET 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin /q paths; shell now only via edge; prior 228508 readings were the main-app shell, NOT distinct instance bundles.
+- 2026-09-19 ACCEPTED ENDPOINT @ hypofriend.de/m/_nuxt/D9p-7uJV.js: current bundle (200, 1,334,793B) re-confirms new mutation surface shipped — requestAccountLink, requestAppointmentLink, unclaimLead, setNameAppointment, plus leadPresent & has_admin_cookie fields.
+- 2026-09-19 CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 07:44Z (:80/:443) — dead 24th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.

@@ -4399,3 +4399,37 @@ evidence_needed: re-fetch /en/health/q bundle and grep for gql mutation template
 verify_steps: PASSIVE — GET `https://core.hypofriend.de/en/health/q` (200 len 228508 baseline) and grep returned bundle for mutation/query names; no mutation executes.
 impact: additional auth-free mutation surface on the health instance if its bundle carried the same redeploy — LOW-MEDIUM.
 testability: PASSIVE
+## 2026-09-19 07:45:36 UTC [target] (model bigpickle)
+[CHANGED] core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ both hosts (was 200 SPA shell 228508) — origin no longer serves SPA HTML at /q paths; bundle now only at edge /m/_nuxt/D9p-7uJV.js
+[NEW] Current shipped bundle re-mined: /en/plus page references /m/_nuxt/D9p-7uJV.js (200, 1,334,793B) containing requestAccountLink(3), requestAppointmentLink(5), unclaimLead(5), setNameAppointment(2), leadPresent(3), has_admin_cookie(3), processLeadForAppointment(3), uploadDocumentExtended(2)
+[CHANGED] api.hypofriend.de: 000 re-probed 07:44Z (:443 rpc-fail) — 24th consecutive dead cycle
+[PRIO] core.hypofriend.de/en/plus/q,8.05,attack8/biz8/tech8/gate10/cloud5/fresh6
+[PRIO] core.hypofriend.de (global credentialed CORS),6.70,attack7/biz8/tech7/gate4/cloud6/fresh7
+[PRIO] api.hypofriend.de,0.0,dead-24-cycles-target
+[HYP] requestAccountLink/requestAppointmentLink are anonymous email-existence + firstName PII oracles on the credentialed-CORS chain
+class: IDOR
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: Shipped bundle D9p-7uJV.js (re-mined live this cycle, /m/_nuxt, 200) still contains server templates requestAccountLink(input:{email}){step leadPresent firstName} and requestAppointmentLink(input:{email}){leadPresent firstName}; /q-family executes mutations anonymously (processLeadForAppointment, uploadDocumentExtended 200 no-auth, prior cycles); credentialed CORS re-proven live 07:45Z on origin /en/plus/q and /en/health/q (ACAO echo + ACAC:true). leadPresent/firstName are response branches keyed only on the email argument.
+evidence_needed: one HTTP POST to /en/plus/q origin with a disposable email; observe step/leadPresent/firstName vs error branch and whether fresh-jar session required.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q body {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"} with Origin: https://evil.example, fresh jar; log status+ACAO+values only; single-shot disposable address, no real PII.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering) riding proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] unclaimLead executes as an auth-free cross-tenant write on appointment ownership
+class: IDOR
+asset: core.hypofriend.de/en/plus/q
+confidence: 45
+reasoning: unclaimLead present 5x in shipped bundle alongside setNameAppointment (2x); both are appointment-ownership mutations; sibling processLeadForAppointment executes 200 anonymously (prior cycles) proving no session gate on this mutation class; credentialed CORS + SameSite=None cookie chain intact.
+evidence_needed: POST mutation with/without lead ownership context and observe error branch differentiation (like favoriteExpose exist-vs-not pattern).
+verify_steps: HUMAN — single POST {"query":"mutation{unclaimLead(input:{}){...}}" } to /en/plus/q fresh jar with dead-lead id; compare error branch vs processLeadForAppointment; no real lead data targeted.
+impact: cross-tenant appointment ownership tampering if resolver keys on caller-supplied id — MEDIUM; unproven arg shape from bundle (no introspection).
+testability: AUTH_HELPED
+[PARKED] core.hypofriend.de/en/health/q distinct-instance bundle delta: GET now 301 origin+edge — no passive bundle source remains; per-instance schema only via POST error-probing (HUMAN). Prior len 228508 readings were the main-app shell, not a distinct health bundle.
+[PARKED] root.lead.has_admin_cookie anonymous oracle: 42→40 — server-forced-flag precedent (`internal` cookie REJECTED on same origin) makes anonymous value carry unproven signal; lows value.
+[FINAL] 1) requestAccountLink/requestAppointmentLink oracle (74, AUTH_HELPED) 2) unclaimLead cross-tenant write (45, AUTH_HELPED)
+[NEXT] HUMAN: single one-shot credential-led POST to https://core.hypofriend.de/en/plus/q with requestAccountLink(input:{email:"hb-test-0919@example.com"}){step leadPresent firstName}, Origin https://evil.example, fresh jar — log status/ACAO/branch only; all other surface stays frozen; bundle re-mine for this cycle is complete.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q & /en/health/q: credentialed CORS re-proven live 2026-09-19 07:45Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin.
+[LEARN] CHANGED @ core.hypofriend.de/en/plus/q & /en/health/q: GET 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin /q paths; shell now only via edge; prior 228508 readings were the main-app shell, NOT distinct instance bundles.
+[LEARN] ACCEPTED ENDPOINT @ hypofriend.de/m/_nuxt/D9p-7uJV.js: current bundle (200, 1,334,793B) re-confirms new mutation surface shipped — requestAccountLink, requestAppointmentLink, unclaimLead, setNameAppointment, plus leadPresent & has_admin_cookie fields.
+[LEARN] CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 07:44Z (:80/:443) — dead 24th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+[RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain re-proven this cycle; refreshed bundle ships account-link/email-dispatch mutations on that chain (fresh vector); POC target api dead 24th cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only GET/HEAD/OPTIONS ≤1rps, no evidence of exploitation.

@@ -1,4 +1,4 @@
-## 2026-09-19 02:48:21 UTC [target] (model nemotron3)
+## 2026-09-19 07:46:27 UTC [target] (model nemotron3)
 [NEW] core.hypofriend.de: Global credentialed CORS middleware confirmed on arbitrary path `/zzz-3684` and `/api/v3/advisors` — OPTIONS echoes any Origin + `access-control-allow-credentials:true` + all methods (max-age 7200), `vary:Accept-Encoding` (no Vary:Origin)
 [NEW] core.hypofriend.de/en/plus/q: Four new auth-free mutations execute 200 — `requestAccountLink`, `requestAppointmentLink`, `setNameAppointment`, `unclaimLead` (discovered via error-schema probing); existing `uploadDocumentExtended` + `processLeadForAppointment` also work
 [NEW] hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z (len 298552, grew) — same-day redeploy; bundle re-mine needed for full mutation surface
@@ -37,6 +37,7 @@ verify_steps: POST https://core.hypofriend.de/property-search-api -H "Content-Ty
 impact: Full production mortgage listing database enumeration via direct origin bypassing CloudFront WAF — broker/owner PII (phone, email, surname, company) at scale across all cities. Direct origin enables unrestricted throughput. Severity: CRITICAL
 testability: PASSIVE
 [PARKED] core.hypofriend.de/q Anonymous Mortgage-Rate Oracle + Credentialed CORS: Already confirmed (rates_table 0.10% delta, calculateMaklerFee bifurcation, XFO:ALLOWALL vs DENY); no new mutation surface beyond /en/health/q. Subsumed by global CORS finding.
+[PARKED] hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations (Edge): Duplicate of core.hypofriend.de/en/
 [PARKED] hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations (Edge): Duplicate of core.hypofriend.de/en/plus/q — same mutation surface, same CORS config, same cookie posture; edge has full CloudFront stack but CORS misconfiguration overrides it. No marginal evidence needed beyond origin validation.
 [PARKED] hypofriend.de/en/health/q Credentialed CORS + Auth-Free Mutations (Edge): Duplicate of core.hypofriend.de/en/health/q — same rationale.
 [PARKED] property-search.hypofriend.de: 503 awselb/2.0 edge, runtime-overridden — no independent surface; inventory note only.
