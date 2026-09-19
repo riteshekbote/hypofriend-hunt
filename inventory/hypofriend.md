@@ -829,3 +829,11 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/property-search-api: Full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
 
 ## 2026-09-19 21:01:22 UTC
+
+## 2026-09-19 22:44:03 UTC
+- NEW core.hypofriend.de/api/v3/advisors: Global credentialed CORS middleware confirmed live on HTTP Basic auth endpoint — OPTIONS echoes arbitrary Origin + ACAC:true + all methods (max-age 7200), vary:Acce
+- NEW core.hypofriend.de/ (root GET): ACAO echo on canonical 302 redirect response + sets `_hf` HttpOnly/SameSite=None + `internal=FALSE; samesite=none` cookies + XFO:ALLOWALL vs edge XFO:DENY
+- CHANGED hypofriend.de/m/_nuxt/g8upYJar.js: Bundle renamed (D9p-7uJV.js→403, g8upYJar.js→200, 1,334,793B), identical size/mutation-template counts; requestAccountLink/requestAppointmentLink/unclaimLead/setName
+- CHANGED api.hypofriend.de: 000 re-confirmed (SSL_ERROR_SYSCALL :443 / connect-timeout :80) — dead 26th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, POC phase target mismatch
+- CHANGED core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ on both hosts (was 200 SPA shell 228508) — origin no longer serves SPA HTML at /q paths; bundle now edge-only
+- CHANGED core.hypofriend.de/en/plus/q: Credentialed CORS re-verified live 2026-09-19 18:23Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods on edge (CloudFront IAD55-P10) AND origin
