@@ -4371,3 +4371,31 @@ evidence_needed: none
 verify_steps: none
 impact: phase completion and mutation-handler report remain HUMAN-gated
 testability: HUMAN_ONLY
+## 2026-09-19 02:44:51 UTC [target] (model bigpickle)
+[HYP] requestAccountLink/requestAppointmentLink execute anonymously as email-existence + firstName PII oracle on credentialed-CORS chain
+class: IDOR
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q)
+confidence: 74
+reasoning: Fresh bundle D9p-7uJV.js gql-templates confirm server fields requestAccountLink(input:{email}){step leadPresent firstName} and requestAppointmentLink(input:{email}){leadPresent firstName}; /q-family dispatches mutations anonymously (processLeadForAppointment, uploadDocumentExtended → 200 no auth, prior cycles); credentialed CORS re-proven live 02:44Z on origin AND edge; leadPresent/firstName are response branches keyed only on the email arg.
+evidence_needed: one HTTP POST to /en/plus/q direct origin with disposable email; observe leadPresent/firstName/step vs error branch and whether fresh-jar session required.
+verify_steps: HUMAN — POST `https://core.hypofriend.de/en/plus/q` body `{"query":"mutation{requestAccountLink(input:{email:\"hb-test-0201@example.com\"}){step leadPresent firstName}}"}` with `Origin: https://evil.example`, fresh jar; log status + body-len + ACAO + values only; disposable address, single-shot, no real PII.
+impact: anonymous email-existence oracle + firstName PII leak + unbounded account/appointment-link email dispatch (spam/social-engineering) riding proven credentialed-CORS + SameSite=None chain — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account mutation class.
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-scoped identity read on core.hypofriend.de into a cross-origin exfil primitive
+class: OTHER
+asset: core.hypofriend.de (+hypofriend.de, any path)
+confidence: 50
+reasoning: rack-cors middleware is global (arbitrary path /zzz-3684 and /api/v3/advisors echo, prior cycle); SameSite=None;Secure session cookies (_hf, __hfp___hypofriend.health__) are set at origin; any GET/POST response carrying session-scoped JSON (e.g. root.lead{...} PII incl. shareLink, referrer{primary_advisor}) becomes cross-origin readable by an attacker origin with the victim's cookies forwarded. Precondition chain (CORS+credentials+cookie flags) re-proven 02:44Z.
+evidence_needed: identify a session-scoped read endpoint that returns lead JSON without admin scoping; the CORS+flag half is already live-proven.
+verify_steps: HUMAN — no new probe required beyond bundle-mine of a session-scoped query name; the read itself needs a victim session (HUMAN-gated); this cycle the CORS half was re-proven at 02:44Z.
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (uncertain need for victim session).
+testability: HUMAN_ONLY
+[HYP] Same-day redeploy may have refreshed the /en/health instance bundle too — parallel mutation-surface delta unchecked
+class: MISCONFIG
+asset: core.hypofriend.de/en/health/q (+hypofriend.de/en/health/q)
+confidence: 42
+reasoning: /en/plus S3 page redeployed 2026-09-18T13:01:39Z (grew to 298552B) and its bundle was re-mined (4 new mutations); /en/health is the separate health-insurance instance with its own bundle; only /en/plus was re-mined this cycle, /en/health bundle delta not checked since the refresh.
+evidence_needed: re-fetch /en/health/q bundle and grep for gql mutation templates (requestAccountLink, unclaimLead, processLeadForAppointment) vs prior inventory.
+verify_steps: PASSIVE — GET `https://core.hypofriend.de/en/health/q` (200 len 228508 baseline) and grep returned bundle for mutation/query names; no mutation executes.
+impact: additional auth-free mutation surface on the health instance if its bundle carried the same redeploy — LOW-MEDIUM.
+testability: PASSIVE

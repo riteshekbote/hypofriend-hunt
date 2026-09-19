@@ -510,3 +510,12 @@
 - 2026-09-18 CONFIRMED NG @ api.hypofriend.de (target): 000 re-confirmed 21:5XZ — dead 23rd consecutive cycle, A resolves clean, no takeover surface
 - 2026-09-18 CONFIRMED NG @ fleet: all dead fleet + buckets unchanged (503/000/301/403) — no new surface
 - 2026-09-18 CONFIRMED MISCONFIG @ hypofriend.de/en/plus: bundle refreshed 2026-09-18T13:01:39Z, len 298552; re-mine produced NEW named mutations (requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead) — new auth-free candidate surface
+- 2026-09-19 ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a **global rack-cors middleware** — arbitrary/nonexistent path `/zzz-3684` and `/api/v3/advisors` OPTIONS both echo any Origin + ACAC:true + all methods; actual GET 302/301 shells also carry ACAO — not /q-specific.
+- 2026-09-19 REJECTED MISCONFIG @ core.hypofriend.de: origin `GET /` sets `_hf` HttpOnly/SameSite=None and `internal=FALSE; samesite=none` cookies + XFO:ALLOWALL vs edge XFO:DENY — provenance/header differential only, already tracked.
+- 2026-09-19 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class).
+- 2026-09-19 CHANGED @ hypofriend.de/en/health: S3 meta-refresh object refreshed 2026-09-18T13:01:18Z, 89B unchanged — static redeploy, not a finding.
+- 2026-09-19 REJECTED NG @ api.hypofriend.de (target): SSL_ERROR_SYSCALL, 000 — dead 21st consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+- 2026-09-19 REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 21 cycles) — no live surface for phase completion; phase mismatch constrains probe actions.
+- 2026-09-19 ACCEPTED NG @ hypofriend.de/en/plus: S3 page refreshed 2026-09-18T13:01:39Z, len 298552 (grew) — same-day redeploy warrants bundle re-mine.
+- 2026-09-19 REJECTED NG @ api.hypofriend.de (target): 000 :443 SSL_ERROR_SYSCALL / :80 timeout — dead 22nd consecutive cycle, A 52.15.184.3 resolves clean, no surface.
+- 2026-09-19 ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS re-verified 2026-09-18 19:23Z — OPTIONS /q echoes ACAO:evil.example + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; GET /q still 301 Rails shell.
