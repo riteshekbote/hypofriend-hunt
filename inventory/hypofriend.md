@@ -827,3 +827,5 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ (was 200 SPA shell 228508 on origin) — SPA HTML no longer served at origin /q paths; bundle now only at edge `/m/_nuxt/D
 - CHANGED api.hypofriend.de: 000 (SSL_ERROR_SYSCALL :443 / connect-timeout :80) re-confirmed — dead 25th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
 - CHANGED core.hypofriend.de/property-search-api: Full-DB BOLA via propertySearch→exposes→expose chain, offset-walk primitives, direct-origin WAF bypass — unchanged, CRITICAL
+
+## 2026-09-19 21:01:22 UTC

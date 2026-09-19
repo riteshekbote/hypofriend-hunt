@@ -4656,3 +4656,31 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED NG @ api.hypofriend.de (target): 000 re-probed 18:23Z (:443 0.15s fail / :80 connect-timeout) — dead 26th consecutive cycle, A resolves clean, no takeover surface, target unchanged.
 [LEARN] REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 26 cycles) — no live surface for phase completion; phase mismatch constrains probe actions; all activity remains read-only GET/HEAD/OPTIONS ≤1rps.
 [RISK] hypofriend: 98 — full-DB auth-free PII BOLA via property-search-api unchanged CRITICAL; global credentialed CORS + SameSite=None session chain live-re-proven 18:23Z edge+origin; bundle rename (D9p-7uJV→g8upYJar) reverified with identical mutation surface incl. magic-link/account-link dispatch templates keyed on email arg (HUMAN confirmation of oracle+dispatch pending); POC target api dead 26th consecutive cycle keeps bulk quantification, mutation-handler PoC and report HUMAN-gated; all probes read-only ≤1rps, no evidence of exploitation.
+## 2026-09-19 20:58:26 UTC [target] (model bigpickle)
+[HYP] Full-DB auth-free listing-PII enumeration remains the headline CRITICAL; sole open gate is bounded bulk quantification
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany PII), offset-walk + geo-bounds primitives, full introspection, direct-origin WAF bypass (bare headers re-proven this cycle) — unchanged 27 cycles, zero remediation signal.
+evidence_needed: none beyond prior live confirmations; extent (record count) is the unanswered question.
+verify_steps: HUMAN — bounded offset-walk under a single city, limit ≤50/req, read-only; program custodial rule caps volume.
+impact: Full-DB listing-PII extraction incl. provider/owner contact data — CRITICAL.
+testability: HUMAN_ONLY
+[HYP] requestAccountLink/requestAppointmentLink are unauthenticated lead-existence oracles + arbitrary magic-link email dispatch on the credentialed-CORS chain
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, +/en/health/q)
+confidence: 62
+reasoning: Current bundle g8upYJar.js ships `requestAccountLink(input:{email:"${e}"})` wired to login.requestLogin(_.email) with branch `qe?.leadPresent?(_.name=qe.firstName??"")` and unconditional magic-link copy; /q-family mutations execute 200 auth-free (processLeadForAppointment, uploadDocumentExtended); credentialed CORS re-proven 20:58Z on origin (bare, no CF stack).
+evidence_needed: fresh-jar POST of the confirmed template; observe step/leadPresent/firstName vs error branch and whether a link is dispatched for a non-existent (reserved non-deliverable) address.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body only; single-shot, no retries, no real PII.
+impact: (a) lead/account existence oracle + firstName disclosure keyed on email; (b) unbounded transactional magic-link generation for arbitrary addresses on a credentialed-CORS + SameSite=None surface — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account dispatch class.
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS + SameSite=None;Secure session cookies convert any session-scoped /q read into cross-origin lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors middleware, any path incl. /api/v3/advisors)
+confidence: 50
+reasoning: rack-cors is global (arbitrary/nonexistent paths echo, prior cycle); CORS+credentials half re-proven 20:58Z; SameSite=None;Secure on session cookies; bundle still ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}).
+evidence_needed: a session-bound read resolver returning lead JSON — read itself needs a victim session (no new resolver name shipped this cycle).
+verify_steps: HUMAN — no new probe; resolver identification requires a logged-in session (HUMAN-gated); CORS half is live-proven.
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency).
+testability: HUMAN_ONLY
