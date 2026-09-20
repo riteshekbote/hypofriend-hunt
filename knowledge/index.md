@@ -561,3 +561,5 @@
 - 2026-09-20 ACCEPTED NG @ api.hypofriend.de: 000 re-probed 18:23Z (:443 0.15s fail / :80 connect-timeout) — dead 26th consecutive cycle, A resolves clean, no takeover surface, target unchanged.
 - 2026-09-20 CONFIRMED NG @ api.hypofriend.de (target): 000 re-probed live this cycle (:443 SSL_ERROR_SYSCALL exit 35 / :80 8s connect-timeout exit 28) — dead 27th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
 - 2026-09-20 CONFIRMED NG @ fleet: no host re-probed beyond api (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surface.
+- 2026-09-20 CONFIRMED NG @ api.hypofriend.de (target): 000 re-probed live this cycle (:443 SSL_ERROR_SYSCALL exit 35 / :80 8s connect-timeout exit 28), A 52.15.184.3 resolves clean — dead 27th consecutive cycle, no takeover surface, target unchanged.
+- 2026-09-20 CONFIRMED NG @ fleet: no host re-probed beyond api (phase-pinned); bundle g8upYJar.js 1,334,793B bit-unchanged; all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surface.

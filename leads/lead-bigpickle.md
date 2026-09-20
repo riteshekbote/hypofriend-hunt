@@ -4880,3 +4880,40 @@ testability: HUMAN_ONLY
 [LEARN] CONFIRMED NG @ api.hypofriend.de (target): 000 re-probed live this cycle (:443 SSL_ERROR_SYSCALL exit 35 / :80 8s connect-timeout exit 28) — dead 27th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
 [LEARN] CONFIRMED NG @ fleet: no host re-probed beyond api (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surface.
 [RISK] hypofriend program: 88 — headline CRITICAL (auth-free full-DB listing PII BOLA via property-search-api) persistent 27+ cycles with zero remediation signal; credentialed-CORS + lead-existence oracle precondition chains intact; only mitigant is quantification and oracle confirmation remain HUMAN-gated.
+## 2026-09-20 22:07:20 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api, 8.6, full-DB auth-free PII BOLA — introspection + offset-walk + exposesInBounds/mapExposes primitives, gate=10, direct-origin WAF bypass, unchanged 27+ cycles
+[PRIO] core.hypofriend.de/en/plus/q (+/en/health/q, /q, all four host+path combos), 6.8, auth-free mutations + lead-existence oracle + global credentialed CORS precondition chain
+[PRIO] api.hypofriend.de (phase target), 0.5, 000 27 consecutive cycles — dead, phase gate blocks live completion, no takeover surface
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api remains the headline CRITICAL
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de, direct-origin bypass)
+confidence: 95
+reasoning: propertySearch→exposes→expose returns 200 zero-auth with cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany body fields; offset-walk + geo-bound primitives in schema; introspection on; origin bare-header bypass; no remediation signal across 27+ cycles.
+evidence_needed: none (prior live confirmations stand); only record-count extent open.
+verify_steps: HUMAN only — bounded one-city offset-walk, limit≤50/req, read-only; covered by custodial volume cap; no additional automated probe.
+impact: full-DB extraction of German listing PII incl. provider/owner contact data — CRITICAL
+testability: HUMAN_ONLY
+[HYP] requestAccountLink/requestAppointmentLink are auth-free lead-existence oracles releasing arbitrary firstName
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: shipped bundle (g8upYJar.js, 1,334,793B, bit-unchanged) wires requestAccountLink(input:{email}) → login.requestLogin with `qe?.leadPresent?(_.name=qe.firstName??"")` + unconditional magic-link copy; /q-family mutations previously executed 200 auth-free; global rack-cors reflects any Origin + ACAC:true on all four combos.
+evidence_needed: branch behavior (step/leadPresent/firstName) for synthetic non-existent address; link dispatch not passively observable.
+verify_steps: HUMAN + explicit authorization — confirming POST mutates and sends transactional mail; must NOT be executed under passive rules; keep GET/HEAD/OPTIONS otherwise.
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q, /en/plus/q, /en/health/q
+confidence: 50
+reasoning: rack-cors global echo live-re-proven edge+origin; SameSite=None;Secure session cookies; bundle still ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}); no session-bound read resolver identified.
+evidence_needed: a session-bound read resolver returning lead JSON.
+verify_steps: HUMAN — resolver identification requires logged-in session; CORS half already live-proven; no new probe.
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY
+[PARKED] Global credentialed CORS → cross-origin authenticated lead exfil: confidence 50; no session-bound resolver identified and bundle delta is empty beyond rename — stripped to a precondition chain, kept as chained-context for the two active hypotheses, not standalone.
+[FINAL] 1. property-search-api full-DB PII BOLA (IDOR, 95, HUMAN_ONLY). 2. requestAccountLink/requestAppointmentLink lead-existence + firstName oracle (BUSLOGIC, 65, AUTH_HELPED).
+[NEXT] PROBE: HEAD https://api.hypofriend.de:443 and :80 (curl -sS -o /dev/null -w "%{http_code}" --max-time 12 -k https://api.hypofriend.de, same :80) — single-shot liveness re-check of phase-designated target, already executed 19:42Z this cycle (000, 27th dead); re-run only if a fresh cycle demands freshness; otherwise NO further live action this cycle — phase-pinned, other hosts not re-probed.
+[LEARN] CONFIRMED NG @ api.hypofriend.de (target): 000 re-probed live this cycle (:443 SSL_ERROR_SYSCALL exit 35 / :80 8s connect-timeout exit 28), A 52.15.184.3 resolves clean — dead 27th consecutive cycle, no takeover surface, target unchanged.
+[LEARN] CONFIRMED NG @ fleet: no host re-probed beyond api (phase-pinned); bundle g8upYJar.js 1,334,793B bit-unchanged; all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surface.
+[RISK] hypofriend program: 88 — headline CRITICAL (auth-free full-DB listing PII BOLA via property-search-api) persistent 27+ cycles with zero remediation signal; credentialed-CORS + lead-existence oracle precondition chains intact; only mitigant is that bulk quantification and oracle confirmation remain HUMAN-gated.
