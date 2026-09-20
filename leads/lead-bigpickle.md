@@ -4813,3 +4813,33 @@ evidence_needed: a session-bound read resolver returning lead JSON — no new re
 verify_steps: HUMAN — resolver identification requires a logged-in session; CORS half live-proven; no new probe.
 impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
 testability: HUMAN_ONLY
+## 2026-09-20 17:31:58 UTC [target] (model bigpickle)
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api remains headline CRITICAL
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de, direct-origin bypass)
+confidence: 95
+reasoning: propertySearch→exposes→expose resolves 200 zero-auth returning cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany; offset-walk + exposesInBounds/mapExposes primitives; introspection on; direct-origin bare-header bypass vs edge CF stack; universe unchanged 27th cycle.
+evidence_needed: none beyond prior live confirmations; record-count extent is the sole open question.
+verify_steps: HUMAN only — bounded offset-walk one city, limit≤50/req, GET/HEAD only; covered by custodial volume cap; no automated probe this cycle.
+impact: full-DB extraction of German listing PII incl. provider/owner contact data — CRITICAL
+testability: HUMAN_ONLY
+[HYP] requestAccountLink/requestAppointmentLink are auth-free lead-existence oracles releasing arbitrary firstName
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: shipped bundle (ZUun3JRC.js, 1,334,793B) wires requestAccountLink(input:{email}) → login.requestLogin with `qe?.leadPresent?(_.name=qe.firstName??"")` + unconditional magic-link copy; /q-family mutations previously executed 200 auth-free; global rack-cors reflects any Origin + ACAC:true; new bundle bit-identical surface.
+evidence_needed: branch behavior for a synthetic non-existent address; whether a link is dispatched (not passively observable).
+verify_steps: HUMAN + explicit authorization — confirming POST is mutating and sends transactional mail; under passive rules must NOT be executed; keep GET/HEAD/OPTIONS otherwise.
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path incl. /api/v3/advisors; /en/plus/q, /en/health/q, /q)
+confidence: 50
+reasoning: rack-cors global echo live re-proven this cycle edge+origin; SameSite=None;Secure session cookies; bundle still ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}).
+evidence_needed: a session-bound read resolver returning lead JSON — no new resolver shipped (bundle delta empty beyond rename).
+verify_steps: HUMAN — resolver identification requires logged-in session; CORS half already live-proven; no new probe.
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY
+[NEXT] PROBE: HEAD https://api.hypofriend.de:443 and :80 — single-shot liveness re-check of phase-designated target (000 expected 28th cycle; A 52.15.184.3), read-only ≤1rps; bundle + CORS already refreshed this cycle.
+[RISK] hypofriend program: 88 — headline CRITICAL (auth-free full-DB listing PII BOLA via property-search-api) persistent 27+ cycles with zero remediation signal; credentialed-CORS + lead-existence oracle precondition chains intact; only mitigant is that quantification and oracle confirmation remain HUMAN-gated.
