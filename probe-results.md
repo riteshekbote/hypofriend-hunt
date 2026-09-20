@@ -760,3 +760,11 @@ https://core.hypofriend.de/zzz-3684 -> 200 len=228508
 https://core.hypofriend.de/ -> 200 len=228508
 https://core.hypofriend.de/en/plus/q -> 200 len=228508
 https://hypofriend.de/ -> 200 len=228508
+
+## 2026-09-20 10:08:14 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/zzz-3684 -> 200 len=228508
+https://core.hypofriend.de/ -> 200 len=228508
+https://core.hypofriend.de/en/plus/q -> 200 len=228508
+https://hypofriend.de/ -> 200 len=228508
+https://api.hypofriend.de:443 -> ERR <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING]

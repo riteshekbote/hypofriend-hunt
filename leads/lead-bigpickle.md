@@ -4765,3 +4765,23 @@ evidence_needed: a session-bound read resolver returning lead JSON — no new re
 verify_steps: HUMAN — resolver identification requires a logged-in session; no new probe; CORS half already live-proven.
 impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
 testability: HUMAN_ONLY
+## 2026-09-20 10:04:48 UTC [target] (model bigpickle)
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api remains the headline CRITICAL
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de)
+confidence: 95
+reasoning: propertySearch→exposes→expose resolves 200 with zero auth/key; returns cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany; offset-walk + exposesInBounds/mapExposes primitives; introspection on; direct-origin WAF bypass; unchanged 27+ cycles, zero remediation signal.
+evidence_needed: none beyond prior live confirmations; record-count extent is the only open question (HUMAN-bounded).
+verify_steps: HUMAN only — bounded offset-walk under one city, limit ≤50/req, read-only; covered by program custodial volume cap; no new automated probe this cycle.
+impact: full-DB extraction of listing PII incl. provider/owner contact data — CRITICAL
+testability: HUMAN_ONLY
+[HYP] requestAccountLink/requestAppointmentLink are auth-free lead-existence oracles releasing arbitrary firstName
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: shipped bundle wires `requestAccountLink(input:{email:...})` to login.requestLogin with branch `qe?.leadPresent?(_.name=qe.firstName)` and unconditional magic-link copy; /q-family mutations executed 200 auth-free previously; global rack-cors reflects any Origin + ACAC:true; shadow bundle unchanged this cycle.
+evidence_needed: branch behavior (step/leadPresent/firstName) for a synthetic non-existent address; whether a link is actually dispatched.
+verify_steps: HUMAN + explicit authorization — the confirming POST is mutating and triggers transactional mail; under current passive rules it must NOT be executed; keep GET/HEAD/OPTIONS otherwise.
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on a credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[NEXT] PROBE: HEAD https://api.hypofriend.de:443 and :80 — single-shot liveness re-check of the phase-designated target (000 expected 27th cycle; A 52.15.184.3); read-only, ≤1rps.

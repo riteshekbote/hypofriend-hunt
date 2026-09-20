@@ -841,3 +841,7 @@ www.hypofriend.de
 ## 2026-09-20 00:37:26 UTC
 
 ## 2026-09-20 05:24:43 UTC
+
+## 2026-09-20 10:08:02 UTC
+- NEW None — all tracked endpoints (core.hypofriend.de/property-search-api, core.hypofriend.de global CORS, core.hypofriend.de/en/plus/q, core.hypofriend.de/en/health/q, core.hypofriend.de/q, hypofriend.de/
+- CHANGED None — surface frozen since last probe cycle.
