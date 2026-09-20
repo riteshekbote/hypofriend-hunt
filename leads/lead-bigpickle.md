@@ -4712,3 +4712,28 @@ evidence_needed: a session-bound read resolver returning lead JSON — no new re
 verify_steps: HUMAN — no new probe; resolver identification requires a logged-in session (HUMAN-gated); CORS half is live-proven.
 impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency)
 testability: HUMAN_ONLY
+## 2026-09-20 00:35:28 UTC [target] (model bigpickle)
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, +/en/health/q)
+confidence: 65
+reasoning: g8upYJar.js still ships `requestAccountLink(input:{email:...})` wired to login.requestLogin with branch `qe?.leadPresent?(_.name=qe.firstName)` + unconditional magic-link copy; /q-family mutations execute 200 auth-free (processLeadForAppointment, uploadDocumentExtended); credentialed CORS re-proven 00:34Z on origin (bare headers).
+evidence_needed: fresh-jar POST of the confirmed template; step/leadPresent/firstName vs error branch; whether a link is dispatched for a non-deliverable address.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0920@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body only; single-shot, no retries, no real PII.
+impact: (a) lead/account existence oracle + firstName disclosure keyed on email; (b) unbounded transactional magic-link generation for arbitrary addresses on credentialed-CORS + SameSite=None surface — MEDIUM-HIGH.
+testability: AUTH_HELPED
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany PII), offset-walk + geo-bounds primitives, full introspection, direct-origin WAF bypass — unchanged 27 cycles, zero remediation signal.
+evidence_needed: none beyond prior live confirmations; extent (record count) is the unanswered question.
+verify_steps: HUMAN — bounded offset-walk under a single city, limit ≤50/req, read-only; program custodial rule caps volume.
+impact: Full-DB listing-PII extraction incl. provider/owner contact data — CRITICAL.
+testability: HUMAN_ONLY
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path incl. /api/v3/advisors)
+confidence: 50
+reasoning: rack-cors global (arbitrary/nonexistent path echo, prior cycles); CORS+credentials half re-proven 00:34Z; SameSite=None;Secure session cookies; bundle still ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}).
+evidence_needed: a session-bound read resolver returning lead JSON — no new resolver cost shipped this cycle (bundle delta empty).
+verify_steps: HUMAN — resolver identification requires a logged-in session (HUMAN-gated); CORS half is live-proven.
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency).
+testability: HUMAN_ONLY

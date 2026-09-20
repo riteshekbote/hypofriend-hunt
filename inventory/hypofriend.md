@@ -837,3 +837,5 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de: 000 re-confirmed (SSL_ERROR_SYSCALL :443 / connect-timeout :80) — dead 26th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, POC phase target mismatch
 - CHANGED core.hypofriend.de/en/plus/q & /en/health/q: GET now 301→https://hypofriend.de/ on both hosts (was 200 SPA shell 228508) — origin no longer serves SPA HTML at /q paths; bundle now edge-only
 - CHANGED core.hypofriend.de/en/plus/q: Credentialed CORS re-verified live 2026-09-19 18:23Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods on edge (CloudFront IAD55-P10) AND origin
+
+## 2026-09-20 00:37:26 UTC

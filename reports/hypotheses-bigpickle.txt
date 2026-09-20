@@ -1,28 +1,25 @@
-## 2026-09-19 22:43:12 UTC [target] (model bigpickle)
-[HYP] Full-DB auth-free listing-PII enumeration remains the headline CRITICAL; sole open gate is bounded bulk quantification
-class: IDOR
-asset: core.hypofriend.de/property-search-api
-confidence: 95
-reasoning: propertySearch→exposes→expose chain auth-free (200, cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany PII), offset-walk + geo-bounds primitives, full introspection, direct-origin WAF bypass — unchanged, zero remediation signal.
-evidence_needed: none beyond prior live confirmations; extent (record count) is the unanswered question.
-verify_steps: HUMAN — bounded offset-walk under a single city, limit ≤50/req, read-only; program custodial rule caps volume.
-impact: Full-DB listing-PII extraction incl. provider/owner contact data — CRITICAL
-testability: HUMAN_ONLY
-[HYP] requestAccountLink/requestAppointmentLink are unauthenticated lead-existence oracles + arbitrary magic-link email dispatch on the credentialed-CORS chain
+## 2026-09-20 00:35:28 UTC [target] (model bigpickle)
 class: BUSLOGIC
 asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, +/en/health/q)
 confidence: 65
-reasoning: Current bundle g8upYJar.js ships `requestAccountLink(input:{email:"${e}"})` wired to login.requestLogin with branch `qe?.leadPresent?(_.name=qe.firstName)` and unconditional magic-link copy; /q-family mutations execute 200 auth-free; credentialed CORS re-proven 18:23Z edge+origin; GET /en/plus/q 301 on both hosts (SPA shell edge-only).
-evidence_needed: fresh-jar POST of the confirmed template; observe step/leadPresent/firstName vs error branch and whether a link is dispatched for a non-existent (reserved non-deliverable) address.
-verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0919@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body only; single-shot, no retries, no real PII.
-impact: (a) lead/account existence oracle + firstName disclosure keyed on email; (b) unbounded transactional magic-link generation for arbitrary addresses on a credentialed-CORS + SameSite=None surface — MEDIUM-HIGH, extends CRITICAL BOLA family into lead-account dispatch class
+reasoning: g8upYJar.js still ships `requestAccountLink(input:{email:...})` wired to login.requestLogin with branch `qe?.leadPresent?(_.name=qe.firstName)` + unconditional magic-link copy; /q-family mutations execute 200 auth-free (processLeadForAppointment, uploadDocumentExtended); credentialed CORS re-proven 00:34Z on origin (bare headers).
+evidence_needed: fresh-jar POST of the confirmed template; step/leadPresent/firstName vs error branch; whether a link is dispatched for a non-deliverable address.
+verify_steps: HUMAN — POST https://core.hypofriend.de/en/plus/q {"query":"mutation{requestAccountLink(input:{email:\"hb-test-0920@example.com\"}){step leadPresent firstName}}"}, Origin https://evil.example, fresh jar; log status/ACAO/body only; single-shot, no retries, no real PII.
+impact: (a) lead/account existence oracle + firstName disclosure keyed on email; (b) unbounded transactional magic-link generation for arbitrary addresses on credentialed-CORS + SameSite=None surface — MEDIUM-HIGH.
 testability: AUTH_HELPED
-[HYP] Global credentialed CORS + SameSite=None;Secure session cookies convert any session-scoped /q read into cross-origin lead exfiltration
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 95
+reasoning: propertySearch→exposes→expose chain auth-free (200, cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany PII), offset-walk + geo-bounds primitives, full introspection, direct-origin WAF bypass — unchanged 27 cycles, zero remediation signal.
+evidence_needed: none beyond prior live confirmations; extent (record count) is the unanswered question.
+verify_steps: HUMAN — bounded offset-walk under a single city, limit ≤50/req, read-only; program custodial rule caps volume.
+impact: Full-DB listing-PII extraction incl. provider/owner contact data — CRITICAL.
+testability: HUMAN_ONLY
 class: OTHER
-asset: core.hypofriend.de (global rack-cors middleware, any path incl. /api/v3/advisors)
+asset: core.hypofriend.de (global rack-cors, any path incl. /api/v3/advisors)
 confidence: 50
-reasoning: rack-cors is global (arbitrary/nonexistent paths echo, prior cycle); CORS+credentials half re-proven 18:23Z; SameSite=None;Secure on session cookies; bundle still ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}).
-evidence_needed: a session-bound read resolver returning lead JSON — no new resolver name shipped this cycle (bundle delta empty).
-verify_steps: HUMAN — no new probe; resolver identification requires a logged-in session (HUMAN-gated); CORS half is live-proven.
-impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency)
+reasoning: rack-cors global (arbitrary/nonexistent path echo, prior cycles); CORS+credentials half re-proven 00:34Z; SameSite=None;Secure session cookies; bundle still ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}).
+evidence_needed: a session-bound read resolver returning lead JSON — no new resolver cost shipped this cycle (bundle delta empty).
+verify_steps: HUMAN — resolver identification requires a logged-in session (HUMAN-gated); CORS half is live-proven.
+impact: cross-origin authenticated lead PII exfiltration if any session-bound resolver is reached — MEDIUM (victim-session dependency).
 testability: HUMAN_ONLY
