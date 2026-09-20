@@ -854,3 +854,7 @@ www.hypofriend.de
 - NEW Live confirmation: `POST https://core.hypofriend.de/property-search-api` propertySearch→exposes→expose chain returns PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCom
 - NEW Live confirmation: `OPTIONS https://core.hypofriend.de/zzz-3684` and `/en/plus/q` echo arbitrary Origin + `access-control-allow-credentials:true` + all methods — global rack-cors middleware re-verifie
 - CHANGED None — all other tracked endpoints (core.hypofriend.de/q, /en/health/q, hypofriend.de edge, api.hypofriend.de dead, fleet) bit-identical to prior cycle.
+
+## 2026-09-20 19:47:26 UTC
+- NEW None — all tracked endpoints (core.hypofriend.de/property-search-api, core.hypofriend.de global CORS, core.hypofriend.de/en/plus/q, core.hypofriend.de/en/health/q, core.hypofriend.de/q, hypofriend.de 
+- CHANGED None — surface frozen since last probe cycle (2026-09-19 18:23Z CORS re-verification, 2026-09-19 12:13Z bundle re-mine, 2026-09-13 06:17Z property-search-api PII chain live-confirmation).
