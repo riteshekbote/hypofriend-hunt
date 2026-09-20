@@ -27398,3 +27398,69 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] hypofriend.de: 95 — unchanged CRITICAL auth-free full-DB BOLA (listing PII) with direct-origin WAF bypass + persistent credentialed-CORS precondition chain across the /q-family; only mitigating factor is volume gating on bulk quantification.
+===== ANALYST bigpickle 2026-09-20 14:19:28 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "https://api.hypofriend.de: %{http_code} err=%{errormsg} time=%{time_total}s\n" --connect-timeout 5 --max-time 8 -I https://api.hypofriend.de/ 2>&1; curl -sS -o /dev/null -w "http://api.hypofriend.de: %{http_code} err=%{errormsg} time=%{time_total}s\n" --connect-timeout 5 --max-time 8 -I http://api.hypofriend.de/ 2>&1
+curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443 
+https://api.hypofriend.de: 000 err=OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to api.hypofriend.de:443  time=0.245147s
+curl: (28) Failed to connect to api.hypofriend.de port 80 after 5002 ms: Timeout was reached
+http://api.hypofriend.de: 000 err=Failed to connect to api.hypofriend.de port 80 after 5002 ms: Timeout was reached time=5.002453s
+[0m
+Api probe re-confirms dead (27th consecutive cycle): `https://api.hypofriend.de:443` → SSL_ERROR_SYSCALL (0.25s), `:80` → connect-timeout (5.0s), A 52.15.184.3 resolves clean.
+
+## STEP 1 — DELTA
+- NO_DELTA — no new signals in cycle beyond re-probed api.hypofriend.de; all tracked surface bit-identical (property-search-api 400, /q 301 both hosts, global CORS ACAO echo, bundle g8upYJar.js 1,334,793B, /en/health 89B S3 object, dead fleet 503/000/301/403).
+
+## STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api, 9.3, attack_surface=10,business_value=10,tech=9(gql-introspection),gate=10(no auth),cloud=8,fresh=3
+- [PRIO] core.hypofriend.de/en/plus/q, 7.5, attack_surface=6,business_value=8,tech=8(cred-CORS+mutations),gate=9,cloud=8,fresh=5
+- [PRIO] core.hypofriend.de (global rack-cors middleware), 6.8, attack_surface=7,business_value=7,tech=6,gate=9,cloud=8,fresh=2
+
+## STEP 3 — HYPOTHESES
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api remains the headline CRITICAL
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de)
+confidence: 95
+reasoning: propertySearch→exposes→expose resolves 200 with zero auth; returns cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany; offset-walk + exposesInBounds/mapExposes primitives in schema; introspection on; direct-origin WAF bypass; unchanged 27+ cycles, zero remediation signal.
+evidence_needed: none beyond prior live confirmations; record-count extent is the only open question (HUMAN-bounded).
+verify_steps: HUMAN only — bounded offset-walk under one city, limit ≤50/req, read-only; covered by program custodial volume cap; no new automated probe this cycle.
+impact: full-DB extraction of listing PII incl. provider/owner contact data — CRITICAL
+testability: HUMAN_ONLY
+
+[HYP] requestAccountLink/requestAppointmentLink are auth-free lead-existence oracles releasing arbitrary firstName
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: shipped bundle wires requestAccountLink(input:{email:...}) to login.requestLogin with branch qe?.leadPresent?(_.name=qe.firstName) and unconditional magic-link copy; /q-family mutations executed 200 auth-free previously; global rack-cors reflects any Origin + ACAC:true; bundle g8upYJar.js unchanged this cycle.
+evidence_needed: branch behavior (step/leadPresent/firstName) for a synthetic non-existent address; whether a link is actually dispatched (not passively observable).
+verify_steps: HUMAN + explicit authorization — the confirming POST is mutating and sends transactional mail; under current passive rules it must NOT be executed; keep GET/HEAD/OPTIONS otherwise.
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on a credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors middleware, any path incl. /api/v3/advisors)
+confidence: 50
+reasoning: rack-cors global (arbitrary/nonexistent path echo); CORS+credentials half live-proven edge+origin; SameSite=None;Secure session cookies; bundle still ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}).
+evidence_needed: a session-bound read resolver returning lead JSON — no new resolver shipped this cycle (bundle delta empty).
+verify_steps: HUMAN — resolver identification requires a logged-in session; CORS half live-proven; no new probe.
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] Global credentialed CORS → session-bound exfil: confidence 50, no new resolver evidence for 3+ cycles; remains parked at MEDIUM, HUMAN-gated.
+- [PARKED] requestAccountLink oracle: mutating + mail-emitting POST — parked behind explicit authorization; passive half already proven.
+- [FINAL] 1) full-DB BOLA IDOR (95, CRITICAL, HUMAN quantification) 2) requestAccountLink existence oracle (65, A
+- [FINAL] survivors ranked: 1) property-search-api full-DB BOLA IDOR (95), 2) requestAccountLink/requestAppointmentLink existence oracle (65, AUTH_HELPED), 3) global credentialed CORS → session-bound lead exfil (50, HUMAN_ONLY).
+
+## STEP 5 — NEXT ACTION
+- [NEXT] PROBE: HEAD https://api.hypofriend.de:443 + :80 — single-shot liveness re-check of the phase-designated target (000 reconfirmed 27th cycle this run: SSL_ERROR_SYSCALL / connect-timeout, A 52.15.184.3); read-only, ≤1rps.
+
+## STEP 6 — LEARNING
+- [LEARN] REJECTED NG @ api.hypofriend.de (target): 000 re-probed live this cycle (:443 0.25s SSL_ERROR_SYSCALL / :80 5s connect-timeout) — dead 27th consecutive cycle, A resolves clean, no takeover surface, target unchanged.
+- [LEARN] REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 27 cycles) — no live surface for phase completion; phase mismatch constrains probe actions; all activity remains read-only GET/HEAD/OPTIONS ≤1rps.
+
+## STEP 7 — RISK
+- [RISK] Hypofriend GmbH: 82 — headline full-DB auth-free listing-PII BOLA (property-search-api) unchanged 27+ cycles with zero remediation signal; global credentialed CORS + SameSite=None;Secure session cookies precondition chain intact; mitigated only by phase-gate (target dead) and HUMAN-gated extent quantification.
