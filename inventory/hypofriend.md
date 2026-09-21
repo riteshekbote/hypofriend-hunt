@@ -862,3 +862,5 @@ www.hypofriend.de
 ## 2026-09-20 22:08:13 UTC
 - NEW None — all tracked endpoints (core.hypofriend.de/property-search-api, core.hypofriend.de global CORS, core.hypofriend.de/en/plus/q, core.hypofriend.de/en/health/q, core.hypofriend.de/q, hypofriend.de 
 - CHANGED None — surface frozen since last probe cycle (2026-09-19 18:23Z CORS re-verification, 2026-09-19 12:13Z bundle re-mine, 2026-09-13 06:17Z property-search-api PII chain live-confirmation).
+
+## 2026-09-21 00:22:06 UTC
