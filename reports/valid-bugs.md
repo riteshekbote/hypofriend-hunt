@@ -43,3 +43,9 @@
   - | 2 | Open Credentialed CORS on /q endpoints | **VALID** | 8.1 | Report to program |
   - | 3 | Unauthenticated /q resolvers (rates_table, etc.) | **VALID** | 5.3 | Report to program |
   - | 7 | GraphQL introspection enabled | **VALID** | 5.3 | Bundle with #1 |
+
+- 4 lead(s) marked VALID at 2026-09-21 17:09:26 UTC
+  - **VERDICT: VALID**
+  - **VERDICT: VALID**
+  - | 1 | GraphQL BOLA favoritedExposes/favoriteExpose | **VALID** | HIGH | 7.4 |
+  - | 2 | Auth-free expose(id) PII dump | **VALID** | HIGH | 7.5 |
