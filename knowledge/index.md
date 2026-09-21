@@ -570,3 +570,5 @@
 - 2026-09-21 REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 26 cycles) — no live surface for phase completion; phase mismatch constrains probe actions; all activity remains read-only GET/HEAD/OPTIONS ≤1rps.
 - 2026-09-21 CONFIRMED NG @ api.hypofriend.de (target): 000 re-probed live this cycle (:443 SSL_ERROR_SYSCALL exit 35 / :80 8s connect-timeout exit 28) — dead 27th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
 - 2026-09-21 CONFIRMED NG @ fleet: no host re-probed beyond api (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surface.
+- 2026-09-21 ACCEPTED NG @ api.hypofriend.de: 000 re-probed live this cycle 2026-09-21 (:443 12s connect-timeout / :80 12s connect-timeout) — dead 28th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
+- 2026-09-21 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family).
