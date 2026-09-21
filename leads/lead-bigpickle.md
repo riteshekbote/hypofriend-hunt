@@ -5037,3 +5037,35 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-probed live this cycle 2026-09-21 (:443 12s connect-timeout / :80 12s connect-timeout) — dead 28th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
 [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family).
 [RISK] hypofriend: 58 — standing CRITICAL BOLA (full-DB German listing PII) unpatched for 28+ cycles on a directly-reachable origin with WAF bypass elevates data-exposure risk; credentialed-CORS + magic-link oracle add secondary exfil/abuse chains. Mitigant: no NEW surface discovered; phase pinned to a dead target (api) caps novel exploitation this cycle.
+## 2026-09-21 20:46:21 UTC [target] (model bigpickle)
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api remains headline CRITICAL
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de, direct-origin bypass)
+confidence: 96
+reasoning: propertySearch→exposes→expose returns 200 zero-auth with cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany body fields; introspection on; offset-walk+geo-bounds primitives in schema; origin bare-header bypass; no remediation signal 29+ cycles; target api still dead so phase cannot move.
+evidence_needed: none — prior live confirmations stand; only record-count extent open.
+verify_steps: HUMAN only — bounded one-city offset-walk, limit≤50/req, read-only, custodial volume cap; no additional automated probe.
+impact: full-DB extraction of German listing PII incl. provider/owner contact data — CRITICAL
+testability: HUMAN_ONLY
+[HYP] requestAccountLink/requestAppointmentLink are auth-free lead-existence oracles releasing arbitrary firstName
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: shipped bundle (g8upYJar.js, 1,334,793B, bit-unchanged) wires requestAccountLink(input:{email}) → login.requestLogin with `qe?.leadPresent?(_.name=qe.firstName??"")` + unconditional magic-link copy; /q-family mutations previously executed 200 auth-free; global rack-cors reflects any Origin + ACAC:true on all four host+path combos (origin re-verified 20:45Z).
+evidence_needed: branch behavior (step/leadPresent/firstName) for a synthetic non-existent address; link dispatch not passively observable.
+verify_steps: HUMAN + explicit authorization — confirming POST mutates and sends transactional mail; must NOT be executed under passive rules; keep GET/HEAD/OPTIONS otherwise.
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q, /en/plus/q, /en/health/q
+confidence: 50
+reasoning: rack-cors global echo live re-proven origin 20:45Z (arbitrary path); SameSite=None;Secure session cookies; bundle still ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}); no session-bound read resolver identified after 20+ cycles.
+evidence_needed: a session-bound read resolver returning lead JSON.
+verify_steps: HUMAN — resolver identification requires logged-in session; CORS half already live-proven; no new probe.
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY
+[NEXT] HUMAN: POC phase pinned to dead target api.hypofriend.de (29 cycles 000, re-probed this cycle) — request phase retarget to core.hypofriend.de/property-search-api (or explicit authorization to verify requestAccountLink on /en/plus/q); no further automated probes will add evidence under current phase.
+[LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 2026-09-21 20:45Z (:443 and :80 both 12s connect-timeouts) — dead 29th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 20:45Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/ACAO only) vs edge CF stack.
+[RISK] hypofriend: 58 — standing CRITICAL BOLA (full-DB German listing PII) unpatched 29+ cycles on a directly-reachable origin with WAF bypass elevates data-exposure risk; credentialed-CORS + magic-link oracle add secondary exfil/abuse chains. Mitigant: no NEW surface discovered; phase pinned to a dead target (api) caps novel exploitation this cycle.

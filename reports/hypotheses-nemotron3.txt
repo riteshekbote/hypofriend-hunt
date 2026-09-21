@@ -1,8 +1,8 @@
-## 2026-09-21 16:49:25 UTC [target] (model nemotron3)
+## 2026-09-21 20:46:02 UTC [target] (model nemotron3)
 [PRIO] core.hypofriend.de/property-search-api,99,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=10,freshness=9
 [PRIO] core.hypofriend.de (global rack-cors),98,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=10,freshness=8
 [PRIO] core.hypofriend.de/en/plus/q,97,attack_surface=9,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=10,freshness=7
-[PRIO] core.hypofriend.de/en/health/q,96,attack_surface=9,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=10,freshness=7
+[PRIO] core.hypofriend.de/en/health,q,96,attack_surface=9,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=10,freshness=7
 [PRIO] core.hypofriend.de/q (rates_table),95,attack_surface=8,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=10,freshness=8
 [HYP] core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale
 class: IDOR
@@ -37,7 +37,7 @@ testability: PASSIVE
 [FINAL] 1. core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 99, PASSIVE
 [FINAL] 2. core.hypofriend.de Global Credentialed CORS Middleware → Universal Cross-Origin Authenticated Read/Write Primitive — confidence 98, PASSIVE
 [FINAL] 3. core.hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation — confidence 97, PASSIVE
-[NEXT] HUMAN: POC phase pinned to dead target api.hypofriend.de (27 cycles 000) — request phase retarget to core.hypofriend.de/property-search-api or core.hypofriend.de global CORS to unblock live verification of CRITICAL findings; current phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host.
+[NEXT] HUMAN: POC phase pinned to dead target api.hypofriend.de (28 cycles 000) — request phase retarget to core.hypofriend.de/property-search-api or core.hypofriend.de global CORS to unblock live verification of CRITICAL findings; current phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host.
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS both echo any Origin + ACAC:true + all methods; actual GET 302/301 shells also carry ACAO — not /q-specific.
 [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class).
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q): credentialed CORS re-proven live 2026-09-19 18:23Z — OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200) on edge (CloudFront IAD55-P10) AND origin; no Vary:Origin; GET /en/plus/q 301→https://hypofriend.de/ on both.

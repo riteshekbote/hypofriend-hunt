@@ -572,3 +572,5 @@
 - 2026-09-21 CONFIRMED NG @ fleet: no host re-probed beyond api (phase-pinned); all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surface.
 - 2026-09-21 ACCEPTED NG @ api.hypofriend.de: 000 re-probed live this cycle 2026-09-21 (:443 12s connect-timeout / :80 12s connect-timeout) — dead 28th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
 - 2026-09-21 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family).
+- 2026-09-21 ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 2026-09-21 20:45Z (:443 and :80 both 12s connect-timeouts) — dead 29th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
+- 2026-09-21 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 20:45Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/ACAO only) vs edge CF stack.
