@@ -872,3 +872,10 @@ www.hypofriend.de
 ## 2026-09-21 16:49:34 UTC
 
 ## 2026-09-21 20:46:33 UTC
+
+## 2026-09-21 23:47:03 UTC
+- NEW api.hypofriend.de: 000 re-probed live 2026-09-21 20:45Z (:443 and :80 both 12s connect-timeouts) — dead 29th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
+- NEW core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 20:45Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin b
+- CHANGED core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed (contrast-class vs /q-family)
+- CHANGED Fleet: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- CHANGED Bundle: g8upYJar.js bit-unchanged (200, 1,334,793B) — no mutation delta beyond rename
