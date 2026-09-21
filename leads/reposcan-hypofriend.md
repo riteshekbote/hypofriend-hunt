@@ -590,3 +590,11 @@ reasoning: All 40+ public repos under github.com/HypoFriend are forks of
 impact: N/A
 verify_steps: Visit https://github.com/HypoFriend?tab=repositories
 TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
+## REPOSCAN 2026-09-21 16:47:57 UTC
+class: MISCONFIG
+asset: HypoFriend/advisor-couching:main.js:17
+confidence: 70
+reasoning: |
+impact: Low
+verify_steps: |
+TARGET_ORG not configured for hypofriend; skipping public-org deep scan.
