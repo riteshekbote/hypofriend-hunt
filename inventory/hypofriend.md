@@ -907,3 +907,14 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/property-search-api OPTIONS 200 with NO ACAO echo — CORS remains closed (contrast-class vs /q-family)
 - CHANGED Origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack confirmed on GET / (302 both)
 - CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-22 23:27:36 UTC
+- CHANGED api.hypofriend.de re-probed live 2026-09-22 23:25Z: 000 on :443/:80 — dead 33rd consecutive cycle, A 52.15.184.3 resolves clean, target unchanged.
+- CHANGED Global credentialed CORS fresh re-verified 23:25Z on core.hypofriend.de/en/plus/q (ACAO:+ACAC:true+all methods, max-age 7200) — rack-cors echo path still open at origin.
+- CHANGED Entry bundle B9bmTtuA.js HEAD 200 (1,334,793B) — edge serving current bundle, rename-only state persists, no surface delta.
+- NEW Bundle entry renamed again: g8upYJar.js → B9bmTtuA.js (hypofriend.de/m/_nuxt/B9bmTtuA.js, 200, 1,334,793B, sha256 52a4c832...4e0d) — identical mutation-template counts, no surface delta
+- NEW api.hypofriend.de re-probed 2026-09-22 20:45Z: 000 on :443/:80 (12s connect-timeouts) — dead 32nd consecutive cycle, A 52.15.184.3 resolves clean
+- CHANGED Global credentialed CORS re-verified live 20:46Z on core.hypofriend.de/en/plus/q, /zzz-3684, edge /api/v3/advisors — all echo ACAO + ACAC:true + all methods (max-age 7200), no Vary:Origin
+- CHANGED core.hypofriend.de/property-search-api OPTIONS 200 with NO ACAO echo — CORS remains closed (contrast-class vs /q-family)
+- CHANGED Origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack confirmed on GET / (302 both)
+- CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
