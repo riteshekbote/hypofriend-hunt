@@ -891,3 +891,8 @@ www.hypofriend.de
 - CHANGED Entry bundle renamed AGAIN: g8upYJar.js → B9bmTtuA.js (old g8upYJar/D9p-7uJV/BuTFH6-Z all now 403; new entry `/m/_nuxt/B9bmTtuA.js` 200, 1,334,793B, sha256 `52a4c832278a54ea55813df27026536270fa5a129c7
 - CHANGED api.hypofriend.de re-probed live 2026-09-22 13:27Z: `000` on :443 and :80 (both 12s connect-timeout), A=52.15.184.3 resolves clean — dead 30th consecutive cycle, target unchanged.
 - CHANGED Global credentialed CORS freshness re-verified 13:27Z: OPTIONS `core.hypofriend.de/en/plus/q` and `/zzz-3684` and edge `hypofriend.de/api/v3/advisors` all echo ACAO:evil.example + ACAC:true + all meth
+
+## 2026-09-22 17:51:08 UTC
+- CHANGED api.hypofriend.de re-probed live 2026-09-22 17:45Z: 000 on :443 and :80 (both 15s connect-timeouts) — dead 31st consecutive cycle, A 52.15.184.3 resolves clean, target unchanged.
+- CHANGED Entry bundle B9bmTtuA.js bit-unchanged (hypofriend.de/m/_nuxt, 200, 1,334,793B; previous g8upYJar.js now 403) — no mutation-surface delta, rename-only state persists.
+- CHANGED Global credentialed CORS freshness re-verified 17:44Z: OPTIONS core.hypofriend.de/en/plus/q with Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin — glob
