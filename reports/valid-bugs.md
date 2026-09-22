@@ -49,3 +49,11 @@
   - **VERDICT: VALID**
   - | 1 | GraphQL BOLA favoritedExposes/favoriteExpose | **VALID** | HIGH | 7.4 |
   - | 2 | Auth-free expose(id) PII dump | **VALID** | HIGH | 7.5 |
+
+- 6 lead(s) marked VALID at 2026-09-22 05:12:16 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL BOLA/IDOR property-search-api PII dump | **VALID** | 8.6 | HIGH |
+  - | 2 | Open credentialed CORS on `/q` | **VALID** | 9.1 | CRITICAL |
+  - | 3 | Open CORS + auth-free mutations on `/en/health/q` & `/en/plus/q` | **VALID** | 8.8 | HIGH |
