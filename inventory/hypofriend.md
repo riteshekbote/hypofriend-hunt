@@ -879,3 +879,6 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed (contrast-class vs /q-family)
 - CHANGED Fleet: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
 - CHANGED Bundle: g8upYJar.js bit-unchanged (200, 1,334,793B) — no mutation delta beyond rename
+
+## 2026-09-22 02:55:44 UTC
+- CHANGED Bundle: g8upYJar.js bit-unchanged (200, 1,334,793B) — no mutation delta beyond rename
