@@ -882,3 +882,7 @@ www.hypofriend.de
 
 ## 2026-09-22 02:55:44 UTC
 - CHANGED Bundle: g8upYJar.js bit-unchanged (200, 1,334,793B) — no mutation delta beyond rename
+
+## 2026-09-22 08:14:49 UTC
+- NEW None — no new hosts/subdomains discovered in current cycle (inventory stable at 71 hosts).
+- CHANGED Bundle g8upYJar.js (hypofriend.de/m/_nuxt/g8upYJar.js) bit-unchanged (200, 1,334,793B) — no mutation surface delta beyond prior rename; core.hypofriend.de/en/plus/q credentialed CORS re-verified live 

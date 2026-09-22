@@ -2818,3 +2818,22 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q): credentialed CORS re-proven live 2026-09-19 18:23Z — OPTIONS Origin https://evil.e
+
+## RANKED HYPOTHESES 2026-09-22 08:14:49 UTC
+- [99] core.hypofriend.de/property-search-api: core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [96] core.hypofriend.de/property-search-api: Full-DB auth-free listing-PII enumeration via property-search-api (BOLA + direct-origin WAF bypass) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: POC phase pinned to dead target api.hypofriend.de (29 consecutive cycles 000 :443/:80, re-probed 2026-09-21 20:45Z). Request phase retarget to core.hypof
+- NEXT(hypotheses-nemotron3.txt): HUMAN: POC phase pinned to dead target api.hypofriend.de (29 cycles 000, re-probed this cycle) — request phase retarget to core.hypofriend.de/property-search-ap
+- LEARN: ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 2026-09-21 20:45Z (:443 and :80 both 12s connect-timeouts) — dead 29th consecutive cycle, A 52.15.184.3 reso
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-21 20:45Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global credentialed CORS (rack-cors) on arbitrary paths echoes ACAO:any Origin + ACAC:true + all methods; not /q-specif
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family).
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q): credentialed CORS re-proven live 2026-09-19 18:23Z — OPTIONS Origin https://evil.e
+- LEARN: ACCEPTED NG @ api.hypofriend.de: 000 re-probed 2026-09-19 18:23Z (:443 0.15s fail / :80 connect-timeout) — dead 26th consecutive cycle, A resolves clean, no tak
+- LEARN: REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 26+ cycles) — no live surface for phase completion; phase mismatch constrains probe actions; al
+- LEARN: CONFIRMED NG @ fleet: no host re-probed beyond api (phase-pinned); bundle g8upYJar.js 1,334,793B bit-unchanged; all tracked surface bit-identical to prior cycle
+- LEARN: ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 2026-09-21 20:45Z (:443 and :80 both 12s connect-timeouts) — dead 29th consecutive cycle, A 52.15.184.3 reso
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 20:45Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACA
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q): credentialed CORS re-proven live 2026-09-19 18:23Z — OPTIONS Origin https://evil.e
