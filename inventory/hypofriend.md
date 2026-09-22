@@ -896,3 +896,14 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de re-probed live 2026-09-22 17:45Z: 000 on :443 and :80 (both 15s connect-timeouts) — dead 31st consecutive cycle, A 52.15.184.3 resolves clean, target unchanged.
 - CHANGED Entry bundle B9bmTtuA.js bit-unchanged (hypofriend.de/m/_nuxt, 200, 1,334,793B; previous g8upYJar.js now 403) — no mutation-surface delta, rename-only state persists.
 - CHANGED Global credentialed CORS freshness re-verified 17:44Z: OPTIONS core.hypofriend.de/en/plus/q with Origin https://evil.example → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin — glob
+
+## 2026-09-22 20:48:11 UTC
+- NEW api.hypofriend.de re-probed live 2026-09-22 20:45Z: 000 on :443 and :80 (both 12s connect-timeouts) — dead 32nd consecutive cycle, A 52.15.184.3 resolves clean, target unchanged.
+- CHANGED Global credentialed CORS freshness re-verified 20:46Z: OPTIONS core.hypofriend.de/en/plus/q with Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:O
+- CHANGED Entry bundle B9bmTtuA.js responds 200 on HEAD (hypofriend.de/m/_nuxt) — edge serving current bundle; content-unchanged state presumed (no delta signal).
+- NEW Bundle entry renamed again: g8upYJar.js → B9bmTtuA.js (hypofriend.de/m/_nuxt/B9bmTtuA.js, 200, 1,334,793B, sha256 52a4c832...4e0d) — identical mutation-template counts, no surface delta
+- NEW api.hypofriend.de re-probed 2026-09-22 17:45Z: 000 on :443/:80 (15s connect-timeouts) — dead 31st consecutive cycle, A 52.15.184.3 resolves clean
+- CHANGED Global credentialed CORS re-verified live 17:44Z on core.hypofriend.de/en/plus/q, /zzz-3684, edge /api/v3/advisors — all echo ACAO + ACAC:true + all methods (max-age 7200), no Vary:Origin
+- CHANGED core.hypofriend.de/property-search-api OPTIONS 200 with NO ACAO echo — CORS remains closed (contrast-class vs /q-family)
+- CHANGED Origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack confirmed on GET / (302 both)
+- CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
