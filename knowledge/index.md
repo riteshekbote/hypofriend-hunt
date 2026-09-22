@@ -596,3 +596,7 @@
 - 2026-09-22 ACCEPTED NG @ api.hypofriend.de: 000 re-probed 2026-09-19 18:23Z (:443 0.15s fail / :80 connect-timeout) — dead 26th consecutive cycle, A resolves clean, no takeover surface.
 - 2026-09-22 REJECTED PHASE-GATE: POC phase pinned to api.hypofriend.de (dead 26+ cycles) — no live surface for phase completion; phase mismatch constrains probe actions; all activity remains read-only GET/HEAD/OPTIONS ≤1 rps.
 - 2026-09-22 CONFIRMED NG @ fleet: no host re-probed beyond api (phase-pinned); bundle g8upYJar.js 1,334,793B bit-unchanged; all tracked surface bit-identical to prior cycle (200/400/401/403/503/000/301) — no new surface.
+- 2026-09-22 REJECTED NG @ api.hypofriend.de (target): 000 re-probed live 13:27Z on :443/:80 (12s connect-timeouts each) — dead 30th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
+- 2026-09-22 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q + /zzz-3684 + edge /api/v3/advisors: credentialed CORS re-verified live 13:27Z — OPTIONS Origin https://evil.example echoes ACAO + ACAC:true + all methods (max-age 7200), no Vary:Origin; global rack-cors not path-scoped.
+- 2026-09-22 CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed g8upYJar.js→B9bmTtuA.js (old names 403; new 200, 1,334,793B, identical mutation-template counts, sha256 52a4c832…4e0d) — rename-only, no surface delta.
+- 2026-09-22 ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both).

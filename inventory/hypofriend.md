@@ -886,3 +886,8 @@ www.hypofriend.de
 ## 2026-09-22 08:14:49 UTC
 - NEW None — no new hosts/subdomains discovered in current cycle (inventory stable at 71 hosts).
 - CHANGED Bundle g8upYJar.js (hypofriend.de/m/_nuxt/g8upYJar.js) bit-unchanged (200, 1,334,793B) — no mutation surface delta beyond prior rename; core.hypofriend.de/en/plus/q credentialed CORS re-verified live 
+
+## 2026-09-22 13:28:57 UTC
+- CHANGED Entry bundle renamed AGAIN: g8upYJar.js → B9bmTtuA.js (old g8upYJar/D9p-7uJV/BuTFH6-Z all now 403; new entry `/m/_nuxt/B9bmTtuA.js` 200, 1,334,793B, sha256 `52a4c832278a54ea55813df27026536270fa5a129c7
+- CHANGED api.hypofriend.de re-probed live 2026-09-22 13:27Z: `000` on :443 and :80 (both 12s connect-timeout), A=52.15.184.3 resolves clean — dead 30th consecutive cycle, target unchanged.
+- CHANGED Global credentialed CORS freshness re-verified 13:27Z: OPTIONS `core.hypofriend.de/en/plus/q` and `/zzz-3684` and edge `hypofriend.de/api/v3/advisors` all echo ACAO:evil.example + ACAC:true + all meth

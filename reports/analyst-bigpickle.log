@@ -28336,3 +28336,309 @@ STEP 6 — LEARNING: [LEARN] REJECTED/ACCEPTED <class> @ <asset>: <reason>.
 STEP 7 — RISK: [RISK] <program>: <0-100> reason.
 
 [RISK] hypofriend: 92 — standing CRITICAL BOLA (full-DB German listing PII) unpatched 30+ cycles on directly-reachable origin with WAF bypass elevates data-exposure risk; global credentialed CORS + auth-free magic-link/lead-existence oracles add secondary abuse chains. Mitigant: no NEW surface discovered; phase pinned to dead target (api) caps novel exploitation this cycle; read-only constraints enforced.
+===== ANALYST bigpickle 2026-09-22 13:28:57 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -I --connect-timeout 8 -m 12 -X OPTIONS "https://core.hypofriend.de/en/plus/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | tr -d '\r' | grep -iE "^HTTP|access-control|vary|date|content-length"
+HTTP/2 200 
+date: Tue, 22 Sep 2026 13:27:04 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/bundle_head.bin -w "bundle:%{http_code} len:%{size_download}\n" --connect-timeout 8 -m 20 -r 0-1023 "https://hypofriend.de/m/_nuxt/g8upYJar.js"; curl -s -o /dev/null -w "psa_options:%{http_code}\n" --connect-timeout 8 -m 12 -X OPTIONS "https://core.hypofriend.de/property-search-api" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST"; curl -s -I --connect-timeout 8 -m 12 -X OPTIONS "https://core.hypofriend.de/property-search-api" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | tr -d '\r' | grep -iE "access-control"
+bundle:403 len:111
+psa_options:200
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "api443:%{http_code} time:%{time_total}\n" --connect-timeout 12 -m 15 https://api.hypofriend.de/ ; curl -s -o /dev/null -w "api80:%{http_code} time:%{time_total}\n" --connect-timeout 12 -m 15 http://api.hypofriend.de/
+api443:000 time:12.002363
+api80:000 time:12.002092
+[0m
+[0m$ [0mcurl -s --connect-timeout 8 -m 20 "https://hypofriend.de/en/plus" | grep -oE '/m/_nuxt/[A-Za-z0-9_-]+\.js' | sort -u
+/m/_nuxt/-ez_sPea.js
+/m/_nuxt/031sR0Dk.js
+/m/_nuxt/22Pu5ap6.js
+/m/_nuxt/5pxwmk3I.js
+/m/_nuxt/7LJm_38-.js
+/m/_nuxt/8jBiX1MH.js
+/m/_nuxt/AuiHv9WO.js
+/m/_nuxt/B0VB_Ucn.js
+/m/_nuxt/B0dqiS1K.js
+/m/_nuxt/B1jEw4nT.js
+/m/_nuxt/B2vkSg1F.js
+/m/_nuxt/B35S2sub.js
+/m/_nuxt/B5BZbSY_.js
+/m/_nuxt/B6-LXypa.js
+/m/_nuxt/B6htIPxk.js
+/m/_nuxt/B8CvfFn4.js
+/m/_nuxt/B8nMPAHu.js
+/m/_nuxt/B9bmTtuA.js
+/m/_nuxt/BBxB1IXZ.js
+/m/_nuxt/BDCKj7Z4.js
+/m/_nuxt/BFkLEQEW.js
+/m/_nuxt/BGOMXBgc.js
+/m/_nuxt/BIKzsqQV.js
+/m/_nuxt/BJcVsjK6.js
+/m/_nuxt/BLNo1FTG.js
+/m/_nuxt/BLmaZOZ4.js
+/m/_nuxt/BOWV5lnH.js
+/m/_nuxt/BTAmUJjN.js
+/m/_nuxt/BV5qoEBw.js
+/m/_nuxt/BVz8Up00.js
+/m/_nuxt/BW0GL25j.js
+/m/_nuxt/BbB2_50l.js
+/m/_nuxt/BdeLHqFd.js
+/m/_nuxt/BffYpcM-.js
+/m/_nuxt/BfzKNeeB.js
+/m/_nuxt/Bg2yj5my.js
+/m/_nuxt/BgWiLdqc.js
+/m/_nuxt/BisG11dB.js
+/m/_nuxt/BjB8oneE.js
+/m/_nuxt/Bmm7VTnW.js
+/m/_nuxt/Bpl4acrj.js
+/m/_nuxt/Bsb_jhn6.js
+/m/_nuxt/BuvF3Au4.js
+/m/_nuxt/C35g2fRv.js
+/m/_nuxt/C4lxPvnl.js
+/m/_nuxt/C6flwG_K.js
+/m/_nuxt/C7tsFAqe.js
+/m/_nuxt/C8fqSiI-.js
+/m/_nuxt/C9fzl-VO.js
+/m/_nuxt/CApZFFZt.js
+/m/_nuxt/CBj9jlPt.js
+/m/_nuxt/CHqyzhcu.js
+/m/_nuxt/CL8vUs_s.js
+/m/_nuxt/CMqKtZsG.js
+/m/_nuxt/CNVldahI.js
+/m/_nuxt/COjG8chx.js
+/m/_nuxt/CTJAJ_cm.js
+/m/_nuxt/CU1GDSTB.js
+/m/_nuxt/CWdRRf7I.js
+/m/_nuxt/CY5Aj1kz.js
+/m/_nuxt/C_5clhEe.js
+/m/_nuxt/C_ElRxRR.js
+/m/_nuxt/CedS5iJz.js
+/m/_nuxt/CiRHD81U.js
+/m/_nuxt/CialCT8y.js
+/m/_nuxt/CjjeeDAD.js
+/m/_nuxt/CkGQ2y8d.js
+/m/_nuxt/Cm5nkiyT.js
+/m/_nuxt/CmBp6lXQ.js
+/m/_nuxt/CmHuIJZU.js
+/m/_nuxt/CnAEJMPm.js
+/m/_nuxt/Cq5eCtwO.js
+/m/_nuxt/CtKRFD2U.js
+/m/_nuxt/Cx_23Hwo.js
+/m/_nuxt/CyOqqF-h.js
+/m/_nuxt/CzvdQCNZ.js
+/m/_nuxt/D2SRprZ4.js
+/m/_nuxt/D5bwBpEa.js
+/m/_nuxt/D6wAnl44.js
+/m/_nuxt/D7QNPG-A.js
+/m/_nuxt/D9Lb6C8Z.js
+/m/_nuxt/DCBd8Wvr.js
+/m/_nuxt/DK-kkcAx.js
+/m/_nuxt/DKqg104t.js
+/m/_nuxt/DOArkTMm.js
+/m/_nuxt/DOJf9Dky.js
+/m/_nuxt/DP-D6RgZ.js
+/m/_nuxt/DQq6QSzQ.js
+/m/_nuxt/DSKG_pIs.js
+/m/_nuxt/DUPa6IsC.js
+/m/_nuxt/DVAmhxTv.js
+/m/_nuxt/DWINoDiI.js
+/m/_nuxt/DYjK20T9.js
+/m/_nuxt/DZp6dZov.js
+/m/_nuxt/DclOcxVt.js
+/m/_nuxt/Ddc5roUq.js
+/m/_nuxt/DfZTgj1u.js
+/m/_nuxt/DgK1VmUc.js
+/m/_nuxt/Dga8w6q_.js
+/m/_nuxt/Djtq1I1f.js
+/m/_nuxt/Dk9P263T.js
+/m/_nuxt/DlAUqK2U.js
+/m/_nuxt/Dn3pp8Z8.js
+/m/_nuxt/Doc9nReQ.js
+/m/_nuxt/Dpt5Ig0p.js
+/m/_nuxt/DsKNagzm.js
+/m/_nuxt/DtgdXyLe.js
+/m/_nuxt/DtqAVCob.js
+/m/_nuxt/DtsejeKc.js
+/m/_nuxt/Duot2IOx.js
+/m/_nuxt/DvZn3yXc.js
+/m/_nuxt/DwA9BsSi.js
+/m/_nuxt/DysVr6WU.js
+/m/_nuxt/FHxxEvhy.js
+/m/_nuxt/FVr5X0LS.js
+/m/_nuxt/Gm11hs-V.js
+/m/_nuxt/GttTgH2d.js
+/m/_nuxt/Gzc-dwmd.js
+/m/_nuxt/H0y_NgEi.js
+/m/_nuxt/IhnhoZvy.js
+/m/_nuxt/Il26dXap.js
+/m/_nuxt/KgaCoefw.js
+/m/_nuxt/Nd8KR9ml.js
+/m/_nuxt/Ol4eW98t.js
+/m/_nuxt/ReCSESEn.js
+/m/_nuxt/SfbtJ_gf.js
+/m/_nuxt/XIvB7WLl.js
+/m/_nuxt/XY0p96vT.js
+/m/_nuxt/Z3bdqxWw.js
+/m/_nuxt/bay_fqAt.js
+/m/_nuxt/biann3qH.js
+/m/_nuxt/fe7xe8kX.js
+/m/_nuxt/grR_3ZkJ.js
+/m/_nuxt/hDTpo48E.js
+/m/_nuxt/iknwwylX.js
+/m/_nuxt/jbmzVN5R.js
+/m/_nuxt/kcEgQ0VE.js
+/m/_nuxt/lwRGsGNm.js
+/m/_nuxt/meQDtZYw.js
+/m/_nuxt/nZM93vby.js
+/m/_nuxt/s7zBGpXh.js
+/m/_nuxt/sEkAaGRi.js
+/m/_nuxt/tcW96lxX.js
+/m/_nuxt/u-2pX-mS.js
+/m/_nuxt/v5DHmnnF.js
+/m/_nuxt/y3w5YQxZ.js
+/m/_nuxt/zb5ojOem.js
+/m/_nuxt/zcocC4Mq.js
+/m/_nuxt/zuePyZYC.js
+/m/_nuxt/zxRHKoc2.js
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "d9p:%{http_code} len:%{size_download}\n" --connect-timeout 8 -m 20 -r 0-1023 "https://hypofriend.de/m/_nuxt/D9p-7uJV.js"; curl -s -o /dev/null -w "psa_opts_headers_check:%{http_code}\n" -X OPTIONS --connect-timeout 8 -m 12 "https://core.hypofriend.de/zzz-3684" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST"; curl -s -I -X OPTIONS --connect-timeout 8 -m 12 "https://core.hypofriend.de/zzz-3684" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | tr -d '\r' | grep -iE "access-control-allow"
+d9p:403 len:111
+psa_opts_headers_check:200
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-allow-credentials: true
+[0m
+[0m$ [0mgetent hosts api.hypofriend.de; echo "---"; curl -s -o /dev/null -w "core_root:%{http_code}\n" -I --connect-timeout 8 -m 12 https://core.hypofriend.de/; curl -s -o /dev/null -w "edge_root:%{http_code} redirect:%{redirect_url}\n" -I -L --max-redirs 0 --connect-timeout 8 -m 12 https://hypofriend.de/
+52.15.184.3     api.hypofriend.de
+---
+core_root:302
+edge_root:302 redirect:https://hypofriend.de/en
+[0m
+[0m$ [0mcurl -s --connect-timeout 8 -m 20 "https://hypofriend.de/en/plus" | grep -oE '<script[^>]*src="[^"]*"' | head -20; echo "---preload---"; curl -s --connect-timeout 8 -m 20 "https://hypofriend.de/en/plus" | grep -oE 'entry|g8upYJar|_nuxt/[A-Za-z0-9_-]+\.js' | grep -oE '/m/_nuxt/[A-Za-z0-9_-]+\.js' | head -5; echo "---probe entry candidates---"
+<script id="usercentrics-cmp" src="https://app.usercentrics.eu/browser-ui/latest/loader.js"
+<script type="module" src="/m/_nuxt/B9bmTtuA.js"
+<script type="application/json" data-nuxt-data="nuxt-app" data-ssr="true" id="__NUXT_DATA__" data-src="/en/plus/m_payload.json?bd651398-fa8d-4853-98c4-d5b634067930"
+---preload---
+---probe entry candidates---
+[0m
+[0m$ [0m# Check which prior entry names are alive; also try common pattern from HTML script src
+for f in g8upYJar D9p-7uJV BuTFH6-Z; do curl -s -o /dev/null -w "$f:%{http_code}:%{size_download}\n" --connect-timeout 6 -m 15 "https://hypofriend.de/m/_nuxt/$f.js"; done
+g8upYJar:403:111
+D9p-7uJV:403:111
+BuTFH6-Z:403:111
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/b9bm.js -w "B9bmTtuA:%{http_code} len:%{size_download}\n" --connect-timeout 8 -m 30 "https://hypofriend.de/m/_nuxt/B9bmTtuA.js"; for m in requestAccountLink requestAppointmentLink unclaimLead setNameAppointment uploadDocumentExtended processLeadForAppointment rates_table already_booked_appointments leadPresent has_admin_cookie; do printf "%s:%s\n" "$m" "$(grep -o "$m" /tmp/opencode/b9bm.js | wc -l)"; done; sha256sum /tmp/opencode/b9bm.js
+B9bmTtuA:200 len:1334793
+requestAccountLink:3
+requestAppointmentLink:7
+unclaimLead:9
+setNameAppointment:2
+uploadDocumentExtended:2
+processLeadForAppointment:5
+rates_table:2
+already_booked_appointments:1
+leadPresent:3
+has_admin_cookie:3
+52a4c832278a54ea55813df27026536270fa5a129c72ffd03dfa47e582c04e0d  /tmp/opencode/b9bm.js
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/payload.json -w "payload:%{http_code} len:%{size_download}\n" --connect-timeout 8 -m 20 "https://hypofriend.de/en/plus/m_payload.json?bd651398-fa8d-4853-98c4-d5b634067930"; head -c 400 /tmp/opencode/payload.json; echo; curl -s -o /dev/null -w "advisors_opts:%{http_code}\n" -X OPTIONS --connect-timeout 8 -m 12 "https://hypofriend.de/api/v3/advisors" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET"
+payload:200 len:69
+[{"data":1,"prerenderedAt":3},["ShallowReactive",2],{},1790081787245]
+advisors_opts:200
+[0m
+[0m$ [0mcurl -s -I -X OPTIONS --connect-timeout 8 -m 12 "https://hypofriend.de/api/v3/advisors" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET" 2>&1 | tr -d '\r' | grep -iE "^HTTP|access-control|vary"
+HTTP/2 200 
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+[0m
+[0m$ [0mcurl -s -I --connect-timeout 8 -m 12 "https://hypofriend.de/" 2>&1 | tr -d '\r' | grep -iE "^HTTP|x-frame|strict-transport|x-content|x-xss|referrer|server|age|x-cache" | head -15; echo "---core---"; curl -s -I --connect-timeout 8 -m 12 "https://core.hypofriend.de/" 2>&1 | tr -d '\r' | grep -iE "^HTTP|x-frame|strict-transport|x-content|x-xss|referrer|set-cookie" | head -15
+HTTP/2 302 
+server: CloudFront
+x-frame-options: DENY
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+---core---
+HTTP/2 302 
+x-frame-options: ALLOWALL
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Sat, 22 Sep 2029 13:28:13 GMT; secure; samesite=none
+set-cookie: _hf=f2622c3726034207faffd5c30dc26ef2; domain=hypofriend.de; path=/; expires=Mon, 22 Sep 2036 13:28:13 GMT; secure; httponly
+strict-transport-security: max-age=63072000; includeSubDomains
+[0m
+## 1 — DELTA
+[CHANGED] Entry bundle renamed AGAIN: g8upYJar.js → B9bmTtuA.js (old g8upYJar/D9p-7uJV/BuTFH6-Z all now 403; new entry `/m/_nuxt/B9bmTtuA.js` 200, 1,334,793B, sha256 `52a4c832278a54ea55813df27026536270fa5a129c72ffd03dfa47e582c04e0d` — mutation-template counts bit-identical: requestAccountLink=3, requestAppointmentLink=7, unclaimLead=9, setNameAppointment=2, leadPresent=3, has_admin_cookie=3; no new mutation surface).
+[CHANGED] api.hypofriend.de re-probed live 2026-09-22 13:27Z: `000` on :443 and :80 (both 12s connect-timeout), A=52.15.184.3 resolves clean — dead 30th consecutive cycle, target unchanged.
+[CHANGED] Global credentialed CORS freshness re-verified 13:27Z: OPTIONS `core.hypofriend.de/en/plus/q` and `/zzz-3684` and edge `hypofriend.de/api/v3/advisors` all echo ACAO:evil.example + ACAC:true + all methods (max-age 7200, vary:Accept-Encoding, no Vary:Origin). Edge root still XFO:DENY+full CF stack vs core XFO:ALLOWALL; property-search-api OPTIONS 200 with NO ACAO echo (closed contrast-class reconfirmed).
+
+## 2 — PRIORITIZE
+[PRIO] core.hypofriend.de/property-search-api, score=9.80, axis=a=10,b=10,t=10,g=10,c=9,f=9
+[PRIO] core.hypofriend.de (global rack-cors /q-family + origin bypass), score=8.70, axis=a=9,b=9,t=9,g=9,c=9,f=9
+[PRIO] hypofriend.de/en/plus/q (+core.hypofriend.de/en/plus/q), score=8.25, axis=a=8,b=8,t=9,g=9,c=8,f=9 (fresh bundle re-mine this cycle)
+[PRIO] hypofriend.de/q (+core.hypofriend.de/q), score=7.40, axis=a=7,b=7,t=8,g=8,c=7,f=7
+[PRIO] api.hypofriend.de, score=1.80, axis=a=0,b=2,t=0,g=0,c=3,f=8 (re-probed fresh, still dead)
+
+## 3 — HYPOTHESES
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api (BOLA + direct-origin WAF bypass)
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de)
+confidence: 96
+reasoning: propertySearch→exposes→expose returns 200 with zero credentials exposing cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany; introspection enabled; offset-walk+geo-bounds primitives exist; direct origin serves bare headers (no CF security stack) vs edge — confirmed across 30+ cycles with enumerated UUIDs; OPTIONS 13:27Z still no ACAO (CORS closed there, contrast-class)
+evidence_needed: none — prior live confirmations stand; only full record-count extent unquantified
+verify_steps: GET https://hypofriend.de/ (200, edge XFO:DENY+CF stack) vs HEAD https://core.hypofriend.de/ (200/302, XFO:ALLOWALL bare) — passive header-differential confirmation only; bounded offset-walk not automated per rules
+impact: Full-DB extraction of German listing PII (provider/owner contact data) — CRITICAL
+testability: HUMAN_ONLY
+
+[HYP] Auth-free mutations release lead-existence + firstName oracle and enable magic-link generation
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: fresh bundle B9bmTtuA.js (200, 1,334,793B, mined this cycle) still ships requestAccountLink(input:{email}) → leadPresent?firstName branch + unconditional magic-link copy; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS on all host+path combos (edge+origin) re-verified live 13:27Z
+evidence_needed: Branch behavior (leadPresent/firstName) for synthetic non-existent vs existing email; whether transactional dispatch actually occurs
+verify_steps: OPTIONS https://hypofriend.de/en/plus/q with Origin: https://evil.example + ACRM:POST (ACAO+ACAC:true, passive preflight only). No POST mutations (would send transactional mail) under passive rules
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q, /en/plus/q, /en/health/q, edge /api/v3/advisors
+confidence: 50
+reasoning: rack-cors global echo live re-proven 13:27Z on core origin (/en/plus/q + /zzz-3684) AND edge (/api/v3/advisors); SameSite=None;Secure session cookies (_hf HttpOnly); bundle ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}); no session-bound read resolver identified after 20+ cycles
+evidence_needed: a session-bound read resolver returning lead JSON
+verify_steps: HEAD/OPTIONS https://core.hypofriend.de/zzz-3684 with Origin: https://evil.example — verify ACAO echo + ACAC:true (passive preflight only). No POST/read with session unless HUMAN+authorization
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY
+
+## 4 — SELF-CRITIQUE
+[PARKED] none — all three survivors ≥40 confidence, none REJECTED-class, all have concrete verify_steps.
+[FINAL] rank 1: Full-DB auth-free listing-PII BOLA via property-search-api — conf 96 (IDOR)
+[FINAL] rank 2: Auth-free mutations lead-existence/firstName oracle + magic-link generation — conf 65 (BUSLOGIC)
+[FINAL] rank 3: Global credentialed CORS → cross-origin session-bound lead exfil — conf 50 (OTHER)
+
+## 5 — NEXT ACTION
+[NEXT] HUMAN: POC phase pinned to dead target api.hypofriend.de (30 consecutive cycles 000 :443/:80, re-probed 2026-09-22 13:27Z). Request phase retarget to core.hypofriend.de/property-search-api to validate bounded BOLA extent (read-only, limit≤50/req, one city, custodial volume cap) under explicit authorization; do NOT execute bulk enumeration or any mutations.
+
+## 6 — LEARNING
+[LEARN] REJECTED NG @ api.hypofriend.de (target): 000 re-probed live 13:27Z on :443/:80 (12s connect-timeouts each) — dead 30th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q + /zzz-3684 + edge /api/v3/advisors: credentialed CORS re-verified live 13:27Z — OPTIONS Origin https://evil.example echoes ACAO + ACAC:true + all methods (max-age 7200), no Vary:Origin; global rack-cors not path-scoped.
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family).
+[LEARN] CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed g8upYJar.js→B9bmTtuA.js (old names 403; new 200, 1,334,793B, identical mutation-template counts, sha256 52a4c832…4e0d) — rename-only, no surface delta.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both).
+
+## 7 — RISK
+[RISK] hypofriend: 92 — standing CRITICAL auth-free listing-PII BOLA unpatched 30+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live. Mitigant: zero NEW surface this cycle (inventory stable, bundle rename content-identical), phase pinned to dead target api caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced.
