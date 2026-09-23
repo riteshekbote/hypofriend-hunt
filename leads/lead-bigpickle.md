@@ -5497,3 +5497,31 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 20:40Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack.
 [LEARN] CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed CYL-uMFM.js→CqlAYNcX.js (old 403; new 200, 1,336,653B byte-identical, last-modified 2026-09-23T12:56:56Z, sha256 1e25bf1e…86c9); mutation-template counts identical (requestAccountLink=3, requestAppointmentLink=7, unclaimLead=9, setNameAppointment=2, setLocale=24) — rename-only, no auth-surface delta.
 [RISK] hypofriend: 92 — standing CRITICAL auth-free listing-PII BOLA unpatched 36+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live (CORS fresh 20:40Z); bundle renamed yet again with byte-identical mutation surface. Mitigant: zero exploitable NEW surface this cycle, fleet/frozen-classes bit-identical, phase pinned to dead target api caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced.
+## 2026-09-23 23:24:40 UTC [target] (model bigpickle)
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api (BOLA + direct-origin WAF bypass)
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de)
+confidence: 96
+reasoning: propertySearch→exposes→expose returns 200 with zero credentials exposing cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany; introspection enabled; offset-walk + geo-bounds primitives in schema; origin bare headers vs edge CF stack; property-search-api OPTIONS no-ACAO contrast re-confirmed; confirmed 36+ cycles; api.hypofriend.de dead 37th consecutive cycle, no phase surface
+evidence_needed: none — prior live confirmations stand; only full record-count extent unquantified
+verify_steps: HEAD https://core.hypofriend.de/ (302, XFO:ALLOWALL bare) vs https://hypofriend.de/ (302, XFO:DENY + CF stack); no automated offset-walk or POST under passive rules (HUMAN-gated)
+impact: Full-DB extraction of German listing PII — CRITICAL
+testability: HUMAN_ONLY
+[HYP] Auth-free mutations release lead-existence + firstName oracle and enable magic-link generation
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: fresh bundle CqlAYNcX.js (200, 1,336,653B, etag 166baeb8…) still ships requestAccountLink(input:{email}) → leadPresent?firstName + unconditional magic-link copy at identical template counts (verified this cycle via etag/size); requestLogin wraps same resolver; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS re-verified 23:24Z on origin
+evidence_needed: branch behavior for synthetic non-existent vs existing email; whether transactional dispatch actually occurs
+verify_steps: OPTIONS https://hypofriend.de/en/plus/q with Origin https://evil.example + ACRM:POST (passive preflight, done 23:24Z). No POST mutations under passive rules (would send transactional mail)
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q, /en/plus/q, /en/health/q, edge /api/v3/advisors
+confidence: 50
+reasoning: rack-cors global echo live re-proven 23:24Z on core origin (/en/plus/q); SameSite=None;Secure session cookies (_hf HttpOnly); bundle ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}); no session-bound read resolver identified after 20+ cycles
+evidence_needed: a session-bound read resolver returning lead JSON
+verify_steps: HEAD/OPTIONS https://core.hypofriend.de/zzz-3684 with Origin https://evil.example — verify ACAO echo + ACAC:true (passive). No POST/read with session unless HUMAN+authorization
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY

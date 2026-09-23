@@ -2975,3 +2975,20 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both)
+
+## RANKED HYPOTHESES 2026-09-23 23:26:27 UTC
+- [99] core.hypofriend.de/property-search-api: core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [96] core.hypofriend.de/property-search-api: Full-DB auth-free listing-PII enumeration via property-search-api (BOLA + direct-origin WAF bypass) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): HUMAN: POC phase pinned to dead target api.hypofriend.de (36 consecutive cycles 000 :443/:80, re-probed 2026-09-23 20:40Z). Request phase retarget to core.hypof
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-23 20:40Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-23 20:40Z on :443/:80 (8s connect-timeouts, exit 28) — dead 36th consecutive cycle, A 52.15
+- LEARN: CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed CYL-uMFM.js→CqlAYNcX.js (old 403; new 200, 1,336,653B byte-identical, last-modified 2026-09-23T12:56:56Z, 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed 20:40Z on GET / (302 both)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle CYL-uMFM.js responds 200 (1,336,653B) — still shipped, rename-only state persists, no mutation surface delta
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-23 12:47Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-23 12:47Z on :443/:80 (12s connect-timeouts, exit 28) — dead 35th consecutive cycle, A 52.1
+- LEARN: CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed B9bmTtuA.js→CYL-uMFM.js (old 403; new 200, 1,336,653B grew +1,860B, last-modified 2026-09-23T12:37:26Z); n
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed 12:47Z on GET / (302 both)
