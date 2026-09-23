@@ -5463,3 +5463,4 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family).
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed 12:47Z on GET / (302 both).
 [RISK] hypofriend: 92 — standing CRITICAL auth-free listing-PII BOLA unpatched 35+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live (CORS fresh 12:47Z); entry bundle redeployed 10min pre-probe with unchanged auth-relevant mutation surface. Mitigant: zero exploitable NEW surface this cycle (new bundle entries are tracking/locale only), fleet bit-identical, phase pinned to dead target api caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced.
+## 2026-09-23 17:40:50 UTC [target] (model bigpickle)

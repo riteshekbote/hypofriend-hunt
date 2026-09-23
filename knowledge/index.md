@@ -632,3 +632,4 @@
 - 2026-09-23 CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed B9bmTtuA.js→CYL-uMFM.js (old 403; new 200, 1,336,653B grew +1,860B, last-modified 2026-09-23T12:37:26Z); new named mutations createGoogleConversion/requestFacebookConversion/setLocale (tracking/locale only); magic-link/leadPresent surface unchanged — fresh deploy, no material auth-surface delta.
 - 2026-09-23 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family).
 - 2026-09-23 ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed 12:47Z on GET / (302 both).
+- 2026-09-23 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-23 12:47Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack

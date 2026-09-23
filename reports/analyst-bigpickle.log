@@ -29480,3 +29480,133 @@ testability: HUMAN_ONLY
 
 ### STEP 7 — RISK
 [RISK] hypofriend: 92 — standing CRITICAL auth-free listing-PII BOLA unpatched 35+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live (CORS fresh 12:47Z); entry bundle redeployed 10min pre-probe with unchanged auth-relevant mutation surface. Mitigant: zero exploitable NEW surface this cycle (new bundle entries are tracking/locale only), fleet bit-identical, phase pinned to dead target api caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced.
+===== ANALYST bigpickle 2026-09-23 17:44:53 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "== probe1 api:443 =="; curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" --max-time 12 -I https://api.hypofriend.de/ 2>&1 | tail -2; sleep 1.1
+echo "== probe2 api:80 =="; curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" --max-time 12 -I http://api.hypofriend.de/ 2>&1 | tail -2; sleep 1.1
+echo "== probe3 origin/en/plus/q OPTIONS =="; curl -s -o /dev/null -D - --max-time 15 -X OPTIONS "https://core.hypofriend.de/en/plus/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | head -20; sleep 1.1
+echo "== probe4 bundle HEAD =="; curl -s -o /dev/null -D - --max-time 15 -I "https://hypofriend.de/m/_nuxt/CYL-uMFM.js" 2>&1 | head -14; sleep 1.1
+echo "== probe5 origin/edge GET / =="; curl -s -o /dev/null -D - --max-time 15 "https://core.hypofriend.de/" 2>&1 | head -12; echo "--edge--"; curl -s -o /dev/null -D - --max-time 15 "https://hypofriend.de/" 2>&1 | head -14
+== probe1 api:443 ==
+000 12.002217s
+== probe2 api:80 ==
+000 12.002341s
+== probe3 origin/en/plus/q OPTIONS ==
+HTTP/2 200 
+date: Wed, 23 Sep 2026 17:39:47 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+
+== probe4 bundle HEAD ==
+HTTP/2 403 
+content-type: application/xml
+server: AmazonS3
+date: Wed, 23 Sep 2026 17:39:48 GMT
+x-cache: Error from cloudfront
+via: 1.1 17a0aa80d403fbaf0a5ada3a85a54c22.cloudfront.net (CloudFront)
+x-amz-cf-pop: PHX52-P3
+alt-svc: h3=":443"; ma=86400
+x-amz-cf-id: u8c5Z1jWWBB59a6XXtJ3gGYMW3fQasc9kTJqX8z-HjCjjaAMRxPNCw==
+
+== probe5 origin/edge GET / ==
+HTTP/2 302 
+date: Wed, 23 Sep 2026 17:39:51 GMT
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/en
+x-frame-options: ALLOWALL
+x-robots-tag: none
+cache-control: no-cache
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Sun, 23 Sep 2029 17:39:51 GMT; secure; samesite=none
+set-cookie: _hf=fb1af3aab87bdb585408259a247dc5f3; domain=hypofriend.de; path=/; expires=Tue, 23 Sep 2036 17:39:51 GMT; secure; httponly
+x-request-id: a32d385b-817a-4dd2-8710-d21204d5c071
+x-runtime: 0.010086
+--edge--
+HTTP/2 302 
+server: CloudFront
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/en
+date: Wed, 23 Sep 2026 17:39:52 GMT
+vary: Origin,Accept-Encoding
+x-frame-options: DENY
+x-robots-tag: none
+cache-control: no-cache
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Sun, 23 Sep 2029 17:39:51 GMT; secure; samesite=none
+set-cookie: _hf=52de853d909a6f2eb04847a471752c04; domain=hypofriend.de; path=/; expires=Tue, 23 Sep 2036 17:39:52 GMT; secure; httponly
+x-request-id: a9b31463-6384-4475-8a5c-b0e6faf27a37
+x-runtime: 0.012116
+[0m
+api dead (36th cycle), CORS fresh-live, but bundle `CYL-uMFM.js` now **403** — another rename since 12:37Z. Pulling the current entry name from the /en/plus page.
+[0m$ [0mcurl -s --max-time 20 "https://hypofriend.de/en/plus" | grep -oE '(src|href)="[^"]*_nuxt/[A-Za-z0-9_-]+\.js[^"]*"' | head -8
+href="/m/_nuxt/CqlAYNcX.js"
+href="/m/_nuxt/DKuSE8Qv.js"
+href="/m/_nuxt/XlZoW5nT.js"
+href="/m/_nuxt/BKiW6b_E.js"
+href="/m/_nuxt/DigkxyYO.js"
+href="/m/_nuxt/zwjWJmNP.js"
+href="/m/_nuxt/C8ond4Ij.js"
+href="/m/_nuxt/BjU424AE.js"
+[0m
+Entry bundle rotated again. Sweeping the candidate chunk hashes to find the new entry bundle (previous entries ran ~1.33–1.34MB).
+[0m$ [0mfor b in CqlAYNcX DKuSE8Qv XlZoW5nT BKiW6b_E DigkxyYO zwjWJmNP C8ond4Ij BjU424AE; do
+  r=$(curl -s -o /dev/null -w "%{http_code} %{size_download}" --max-time 15 -I "https://hypofriend.de/m/_nuxt/$b.js" 2>&1)
+  echo "$b -> $r"
+  sleep 1.1
+done
+CqlAYNcX -> 200 0
+DKuSE8Qv -> 200 0
+XlZoW5nT -> 200 0
+BKiW6b_E -> 200 0
+DigkxyYO -> 200 0
+zwjWJmNP -> 200 0
+C8ond4Ij -> 200 0
+BjU424AE -> 200 0
+[0m
+[0m$ [0mfor b in CqlAYNcX DKuSE8Qv XlZoW5nT BKiW6b_E DigkxyYO zwjWJmNP C8ond4Ij BjU424AE; do
+  cl=$(curl -s -D - -o /dev/null --max-time 15 -I "https://hypofriend.de/m/_nuxt/$b.js" 2>&1 | grep -i -E '^(content-length|etag|last-modified)' | tr '\n' ' ')
+  echo "$b -> $cl"
+  sleep 1.1
+done
+CqlAYNcX -> content-length: 1336653
+ last-modified: Wed, 23 Sep 2026 12:56:56 GMT
+ etag: "166baeb8b0c31edb85d097e3f7cf956d"
+ 
+DKuSE8Qv -> content-length: 7634
+ last-modified: Wed, 23 Sep 2026 12:56:57 GMT
+ etag: "a10731cf7c202a7d387ff78ba31092c9"
+ 
+XlZoW5nT -> content-length: 5680
+ last-modified: Wed, 23 Sep 2026 12:56:59 GMT
+ etag: "2b6f372b56b2d0a7dc73442eb5e21721"
+ 
+BKiW6b_E -> content-length: 3808
+ last-modified: Wed, 23 Sep 2026 12:56:53 GMT
+ etag: "fb8a3d966ec09cc60f207d23c7acf2c2"
+ 
+DigkxyYO -> content-length: 3346
+ last-modified: Wed, 23 Sep 2026 12:56:58 GMT
+ etag: "11541594fc22fef3d95e792a73c1c5e0"
+ 
+zwjWJmNP -> content-length: 13054
+ last-modified: Wed, 23 Sep 2026 12:57:01 GMT
+ etag: "2b013fb7c2bd6dcce00c81dde9c13119"
+ 
+C8ond4Ij -> content-length: 8898
+ last-modified: Wed, 23 Sep 2026 12:56:54 GMT
+ etag: "32fb20b2b392148ed248a4ea966999f9"
+ 
+BjU424AE -> content-length: 1473
+ last-modified: Wed, 23 Sep 2026 12:56:53 GMT
+ etag: "912a8ea21fcec67f0c9bf6f2f49220d7"
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcd /tmp && curl -s --max-time 60 -o hf_bundle.js "https://hypofriend.de/m/_nuxt/CqlAYNcX.js" && ls -l hf_bundle.js && for m in createGoogleConversion requestFacebookConversion setLocale requestAccountLink requestAppointmentLink unclaimLead setNameAppointment uploadDocumentExtended processLeadForAppointment already_booked_appointments rates_table leadPresent has_admin_cookie; do c=$(grep -o -F "$m" hf_bundle.js | wc -l); echo "$m: $c"; done; sha256sum hf_bundle.js failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

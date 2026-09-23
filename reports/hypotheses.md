@@ -2940,3 +2940,18 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both)
+
+## RANKED HYPOTHESES 2026-09-23 17:44:53 UTC
+- [99] core.hypofriend.de/property-search-api: core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): HUMAN: POC phase pinned to dead target api.hypofriend.de (35 consecutive cycles 000 :443/:80, re-probed 2026-09-23 12:47Z). Request phase retarget to core.hypof
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-23 12:47Z on :443/:80 (12s connect-timeouts, exit 28) — dead 35th consecutive cycle, A 52.1
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-23 12:47Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO
+- LEARN: CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed B9bmTtuA.js→CYL-uMFM.js (old 403; new 200, 1,336,653B grew +1,860B, last-modified 2026-09-23T12:37:26Z); n
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed 12:47Z on GET / (302 both)
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-23 07:11Z on :443/:80 (12s connect-timeouts each) — dead 34th consecutive cycle, A 52.15.18
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-23 07:11Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle B9bmTtuA.js responds 200 (1,334,793B, etag 297d220a8c196f126b01ffd6b952475f, last-modified 2026-09-22T12:56:57
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both)
