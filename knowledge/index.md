@@ -618,3 +618,9 @@
 - 2026-09-22 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-22 23:25Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack.
 - 2026-09-22 ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle B9bmTtuA.js responds 200 HEAD (1,334,793B) — still shipped, rename-only state persists, no mutation surface delta.
 - 2026-09-22 ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 2026-09-22 20:45Z on :443/:80 (12s connect-timeouts each) — dead 32nd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged
+- 2026-09-23 ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 2026-09-22 23:25Z on :443/:80 — dead 33rd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged
+- 2026-09-23 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-22 23:25Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack
+- 2026-09-23 ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle B9bmTtuA.js responds 200 HEAD (1,334,793B) — still shipped, rename-only state persists, no mutation surface delta
+- 2026-09-23 ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS both echo any Origin + ACAC:true + all methods; actual GET 302/301 shells also carry ACAO — not /q-specific
+- 2026-09-23 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
+- 2026-09-23 ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both)

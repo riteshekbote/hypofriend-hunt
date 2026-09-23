@@ -1,9 +1,7 @@
-## 2026-09-22 23:27:25 UTC [target] (model nemotron3)
-[NEW] Bundle entry renamed again: g8upYJar.js → B9bmTtuA.js (hypofriend.de/m/_nuxt/B9bmTtuA.js, 200, 1,334,793B, sha256 52a4c832...4e0d) — identical mutation-template counts, no surface delta
-[NEW] api.hypofriend.de re-probed 2026-09-22 20:45Z: 000 on :443/:80 (12s connect-timeouts) — dead 32nd consecutive cycle, A 52.15.184.3 resolves clean
-[CHANGED] Global credentialed CORS re-verified live 20:46Z on core.hypofriend.de/en/plus/q, /zzz-3684, edge /api/v3/advisors — all echo ACAO + ACAC:true + all methods (max-age 7200), no Vary:Origin
-[CHANGED] core.hypofriend.de/property-search-api OPTIONS 200 with NO ACAO echo — CORS remains closed (contrast-class vs /q-family)
-[CHANGED] Origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack confirmed on GET / (302 both)
+## 2026-09-23 01:44:35 UTC [target] (model nemotron3)
+[CHANGED] api.hypofriend.de re-probed 2026-09-22 23:25Z: 000 on :443/:80 — dead 33rd consecutive cycle, A 52.15.184.3 resolves clean
+[CHANGED] Global credentialed CORS fresh re-verified 23:25Z on core.hypofriend.de/en/plus/q (ACAO echo + ACAC:true + all methods, max-age 7200) — rack-cors echo path still open at origin
+[CHANGED] Entry bundle B9bmTtuA.js HEAD 200 (1,334,793B) — edge serving current bundle, rename-only state persists, no surface delta
 [CHANGED] All dead fleet + buckets unchanged (503/000/301/403) — no new surface
 [PRIO] core.hypofriend.de/property-search-api,99,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=10,freshness=9
 [PRIO] core.hypofriend.de (global rack-cors),98,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=10,freshness=8
@@ -43,10 +41,10 @@ testability: PASSIVE
 [FINAL] 1. core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 99, PASSIVE
 [FINAL] 2. core.hypofriend.de Global Credentialed CORS Middleware → Universal Cross-Origin Authenticated Read/Write Primitive — confidence 98, PASSIVE
 [FINAL] 3. core.hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation — confidence 97, PASSIVE
-[NEXT] HUMAN: POC phase pinned to dead target api.hypofriend.de (32 consecutive cycles 000 :443/:80, re-probed 2026-09-22 20:45Z). Request phase retarget to core.hypofriend.de/property-search-api or core.hypofriend.de global CORS to unblock live verification of CRITICAL findings; current phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host.
-[LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 2026-09-22 20:45Z on :443/:80 (12s connect-timeouts each) — dead 32nd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged
-[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-22 20:46Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack
-[LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle B9bmTtuA.js responds 200 HEAD — still shipped, rename-only state persists, no mutation surface delta.
+[NEXT] HUMAN: POC phase pinned to dead target api.hypofriend.de (33 consecutive cycles 000 :443/:80, re-probed 2026-09-22 23:25Z). Request phase retarget to core.hypofriend.de/property-search-api or core.hypofriend.de global CORS to unblock live verification of CRITICAL findings; current phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host.
+[LEARN] ACCEPTED NG @ api.hypofriend.de: 000 re-probed live 2026-09-22 23:25Z on :443/:80 — dead 33rd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-22 23:25Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack
+[LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle B9bmTtuA.js responds 200 HEAD (1,334,793B) — still shipped, rename-only state persists, no mutation surface delta
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS both echo any Origin + ACAC:true + all methods; actual GET 302/301 shells also carry ACAO — not /q-specific
 [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both)
