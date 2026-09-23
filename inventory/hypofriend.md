@@ -930,3 +930,9 @@ www.hypofriend.de
 - CHANGED Global credentialed CORS fresh re-verified 23:25Z on core.hypofriend.de/en/plus/q (ACAO echo + ACAC:true + all methods, max-age 7200) — rack-cors echo path still open at origin
 - CHANGED Entry bundle B9bmTtuA.js HEAD 200 (1,334,793B) — edge serving current bundle, rename-only state persists, no surface delta
 - CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-23 12:51:43 UTC
+- NEW Bundle entry renamed: `hypofriend.de/m/_nuxt/B9bmTtuA.js` (200, 1,334,793B, sha256 `52a4c832...`) — third rename in 5 days (D9p-7uJV→g8upYJar→B9bmTtuA); mutation-template counts bit-identical (request
+- NEW `api.hypofriend.de` re-probed 2026-09-23 07:11Z: 000 on :443/:80 (12s connect-timeouts) — dead 34th consecutive cycle, A 52.15.184.3 resolves clean
+- CHANGED Global credentialed CORS fresh re-verified 2026-09-23 07:11Z on `core.hypofriend.de/en/plus/q` — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), n
+- CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
