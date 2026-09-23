@@ -924,3 +924,9 @@ www.hypofriend.de
 - CHANGED Global credentialed CORS fresh re-verified 23:25Z on core.hypofriend.de/en/plus/q (ACAO echo + ACAC:true + all methods, max-age 7200) — rack-cors echo path still open at origin
 - CHANGED Entry bundle B9bmTtuA.js HEAD 200 (1,334,793B) — edge serving current bundle, rename-only state persists, no surface delta
 - CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-23 07:13:35 UTC
+- CHANGED api.hypofriend.de re-probed 2026-09-22 23:25Z: 000 on :443/:80 — dead 33rd consecutive cycle, A 52.15.184.3 resolves clean
+- CHANGED Global credentialed CORS fresh re-verified 23:25Z on core.hypofriend.de/en/plus/q (ACAO echo + ACAC:true + all methods, max-age 7200) — rack-cors echo path still open at origin
+- CHANGED Entry bundle B9bmTtuA.js HEAD 200 (1,334,793B) — edge serving current bundle, rename-only state persists, no surface delta
+- CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
