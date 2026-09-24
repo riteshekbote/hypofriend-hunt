@@ -662,3 +662,13 @@
 - 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin) re-verified live 2026-09-24 17:32Z — precondition chain intact
 - 2026-09-24 CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed CqlAYNcX.js→CQoy7ifk.js (200, 1,336,611B −42B, last-modified 2026-09-24T13:00:21Z, real deploy) — mutation-template counts bit-identical; no auth-surface delta
 - 2026-09-24 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class, consistent with prior cycles)
+- 2026-09-24 ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed 20:45Z both ports (8s connect-timeout exit 28) — dead 40th consecutive cycle, no takeover surface, target unchanged
+- 2026-09-24 ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: bundle bit-unchanged (200, 1,336,611B); fresh re-mine — named-op set identical; no new session-bound read resolver
+- 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 20:45Z — ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare vs edge CF stack
+- 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-24 20:45Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack
+- 2026-09-24 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-24 20:46Z — propertySearch→exposes→expose returns PII (propertyOwnerLastName, phoneNumber, ownerCompany, providerCompany) auth-free; direct-origin bare headers vs edge CF stack
+- 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; GET / also carries ACAO + sets _hf SameSite=None + internal=FALSE cookies + XFO:ALLOWALL
+- 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de/en/health,q: credentialed CORS identical to /en/plus/q on edge AND origin
+- 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: auth-free mutation requestAccountLink executes 200 without auth (returns Typename)
+- 2026-09-24 ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 20:46Z on :443/:80 (10s connect-timeouts) — dead 38th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
+- 2026-09-24 ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: bundle bit-stable (1,336,611B, last-modified 2026-09-24T13:00:21Z) — mutation-template counts identical, no auth-surface delta

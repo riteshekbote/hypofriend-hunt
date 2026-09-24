@@ -3060,3 +3060,20 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed 20:40Z on GET / (302 both)
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
 - LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle CYL-uMFM.js responds 200 (1,336,653B) — still shipped, rename-only state persists, no mutation surface delta
+
+## RANKED HYPOTHESES 2026-09-24 20:47:44 UTC
+- [99] core.hypofriend.de/property-search-api: core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [96] core.hypofriend.de/property-search-api: Full-DB auth-free listing-PII enumeration via property-search-api remains the standing CRITICAL (BOLA + direct-origin WAF/header bypass) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: POC phase remains pinned to dead target api.hypofriend.de (this cycle `000` :443/:80 8s timeout — dead 40th consecutive cycle, A 52.15.184.3 clean). Requ
+- NEXT(hypotheses-nemotron3.txt): HUMAN: POC phase pinned to dead target api.hypofriend.de (38th consecutive cycle: :443/:80 both 10s connect-timeout, `000`; A 52.15.184.3 `getent` clean). Reque
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed 20:45Z both ports (8s connect-timeout exit 28) — dead 40th consecutive cycle, no takeover surface, targe
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: bundle bit-unchanged (200, 1,336,611B); fresh re-mine — named-op set identical; no new session-bound read resol
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 20:45Z — ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origi
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class, consistent with prior cycles)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-24 20:45Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-24 20:46Z — propertySearch→exposes→expose returns PII (prop
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/health,q: credentialed CORS identical to /en/plus/q on edge AND origin
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: auth-free mutation requestAccountLink executes 200 without auth (returns Typename)
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 20:46Z on :443/:80 (10s connect-timeouts) — dead 38th consecutive cycle, A 52.15.184.3 r
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: bundle bit-stable (1,336,611B, last-modified 2026-09-24T13:00:21Z) — mutation-template counts identical, no aut

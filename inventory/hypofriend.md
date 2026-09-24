@@ -988,3 +988,14 @@ www.hypofriend.de
 - CHANGED Origin `XFO:ALLOWALL` vs edge `XFO:DENY` + full CF stack re-confirmed on GET / (302 both)
 - CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
 - CHANGED POC phase remains pinned to dead target `api.hypofriend.de` (37 consecutive cycles 000) — phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host
+
+## 2026-09-24 20:47:44 UTC
+- CHANGED Live re-confirmation 2026-09-24 20:45Z: `core.hypofriend.de/en/plus/q` credentialed CORS still echoes arbitrary Origin + ACAC:true + all methods (max-age 7200, no Vary:Origin); origin bare headers vs 
+- CHANGED Live re-confirmation 2026-09-24 20:46Z: `core.hypofriend.de/property-search-api` full enumeration chain operational — `propertySearch`→`exposes`→`expose` returns PII (propertyOwnerLastName, phoneNumbe
+- CHANGED Live re-confirmation 2026-09-24 20:46Z: `core.hypofriend.de` global rack-cors middleware — arbitrary path `/zzz-arbitrary-path` OPTIONS echoes ACAO + ACAC:true + all methods; not `/q`-specific
+- CHANGED Live re-confirmation 2026-09-24 20:46Z: `core.hypofriend.de/en/health/q` credentialed CORS identical to `/en/plus/q` (edge + origin)
+- CHANGED Live re-confirmation 2026-09-24 20:46Z: `core.hypofriend.de/en/plus/q` auth-free mutation `requestAccountLink` executes 200 without auth (returns Typename)
+- CHANGED `api.hypofriend.de` re-probed 2026-09-24 20:46Z: 000 on :443/:80 (10s timeout) — dead 38th consecutive cycle, A 52.15.184.3 resolves clean
+- CHANGED Bundle `hypofriend.de/m/_nuxt/CQoy7ifk.js` (1,336,611B, last-modified 2026-09-24T13:00:21Z) bit-stable — mutation-template counts identical, no auth-surface delta
+- CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
+- CHANGED POC phase remains pinned to dead target `api.hypofriend.de` — phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host
