@@ -964,3 +964,11 @@ www.hypofriend.de
 - CHANGED Global credentialed CORS fresh re-verified 2026-09-23 20:40Z on `core.hypofriend.de/en/plus/q` — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), n
 - CHANGED Origin `XFO:ALLOWALL` vs edge `XFO:DENY` + full CF stack re-confirmed 20:40Z on GET / (302 both)
 - CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-24 06:45:57 UTC
+- NEW Bundle entry renamed: `hypofriend.de/m/_nuxt/CYL-uMFM.js` → `CqlAYNcX.js` (200, 1,336,653B byte-identical, last-modified 2026-09-23T12:56:56Z, sha256 1e25bf1e…86c9); mutation-template counts identical
+- NEW `api.hypofriend.de` re-probed 2026-09-23 20:40Z: 000 on :443/:80 (8s connect-timeouts, exit 28) — dead 36th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
+- CHANGED Global credentialed CORS fresh re-verified 2026-09-23 20:40Z on `core.hypofriend.de/en/plus/q` — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), n
+- CHANGED Origin `XFO:ALLOWALL` vs edge `XFO:DENY` + full CF stack re-confirmed 20:40Z on GET / (302 both)
+- CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
+- CHANGED POC phase remains pinned to dead target `api.hypofriend.de` (37 consecutive cycles 000) — phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host

@@ -657,3 +657,4 @@
 - 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS both echo any Origin + ACAC:true + all methods; actual GET 302/301 shells also carry ACAO — not /q-specific
 - 2026-09-24 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
 - 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both)
+- 2026-09-24 ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 (:443/:80 both 8s connect-timeouts, exit 124; A 52.15.184.3 `getent` clean) — dead 37th consecutive cycle, no takeover surface, target unchanged.
