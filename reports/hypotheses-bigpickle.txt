@@ -1,19 +1,19 @@
-## 2026-09-24 06:44:32 UTC [target] (model bigpickle)
+## 2026-09-24 12:30:01 UTC [target] (model bigpickle)
 [HYP] Full-DB auth-free listing-PII enumeration via property-search-api (BOLA + direct-origin WAF bypass)
 class: IDOR
 asset: core.hypofriend.de/property-search-api (+hypofriend.de)
 confidence: 96
-reasoning: propertySearch→exposes→expose returns 200 with zero credentials exposing cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany; introspection enabled; offset-walk + geo-bounds primitives; origin bare headers vs edge CF stack; property-search-api OPTIONS no-ACAO contrast; confirmed 37+ cycles; api.hypofriend.de dead 37th consecutive cycle, no phase surface
+reasoning: propertySearch→exposes→expose returns 200 zero-credentials (cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany); introspection enabled; offset-walk + geo-bounds primitives; origin bare headers vs edge CF stack; property-search-api OPTIONS no-ACAO contrast; confirmed 38+ cycles; api.hypofriend.de dead 38th cycle, no phase surface
 evidence_needed: none — prior live confirmations stand; only full record-count extent unquantified
-verify_steps: HEAD https://core.hypofriend.de/ (302, XFO:ALLOWALL bare) vs https://hypofriend.de/ (302, XFO:DENY+CF stack) — previously re-verified; no automated offset-walk or POST under passive rules (HUMAN-gated)
+verify_steps: HEAD https://core.hypofriend.de/ (302, XFO:ALLOWALL bare) vs https://hypofriend.de/ (302, XFO:DENY+CF stack); no automated offset-walk or POST under passive rules (HUMAN-gated)
 impact: Full-DB extraction of German listing PII — CRITICAL
 testability: HUMAN_ONLY
 [HYP] Auth-free mutations release lead-existence + firstName oracle and enable magic-link generation
 class: BUSLOGIC
 asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
 confidence: 65
-reasoning: current bundle ships requestAccountLink(input:{email}) → leadPresent?firstName + unconditional magic-link copy (template counts frozen across renames); requestLogin wraps same resolver; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS live at origin
-evidence_needed: branch behavior for synthetic non-existent vs existing email; whether transactional dispatch actually occurs
+reasoning: bundle CqlAYNcX.js byte-identical (200, 1,336,653B) still ships requestAccountLink(input:{email}) → leadPresent?firstName + magic-link copy at identical template counts (3); requestLogin wraps same resolver; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS live at origin
+evidence_needed: branch behavior for synthetic non-existent vs existing email; whether transactional dispatch occurs
 verify_steps: OPTIONS https://core.hypofriend.de/en/plus/q with Origin https://evil.example + ACRM:POST (passive preflight). No POST mutations under passive rules (would send transactional mail)
 impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
 testability: AUTH_HELPED
@@ -26,6 +26,4 @@ evidence_needed: a session-bound read resolver returning lead JSON
 verify_steps: HEAD/OPTIONS https://core.hypofriend.de/zzz-3684 or /en/plus/q with Origin https://evil.example (passive; ACAO+ACAC re-proven). No POST/read with session unless HUMAN+authorization
 impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
 testability: HUMAN_ONLY
-[NEXT] HUMAN: POC phase remains pinned to dead target api.hypofriend.de (37th consecutive cycle: :443/:80 both 8s connect-timeout exit 124 this cycle, A 52.15.184.3 resolves clean). Request phase retarget to core.hypofriend.de/property-search-api to validate bounded BOLA extent under explicit authorization (read-only, limit≤50/req, single city, custodial volume cap); do NOT execute bulk enumeration or any mutations. No new probe target this cycle.
-[LEARN] ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 (:443/:80 both 8s connect-timeouts, exit 124; A 52.15.184.3 `getent` clean) — dead 37th consecutive cycle, no takeover surface, target unchanged.
-[RISK] hypofriend: 91 — standing CRITICAL auth-free listing-PII BOLA unpatched 37+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live. Mitigants: zero exploitable new surface this cycle, bundle rename-only (byte-identical), phase pinned to dead target api caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced, no customer data touched.
+[NEXT] HUMAN: POC phase remains pinned to dead target api.hypofriend.de (this cycle: :443 and :80 both 8s connect-timeout exit 28, `000`; A 52.15.184.3 `getent` clean — dead 38th consecutive cycle, no takeover surface). Request phase retarget to core.hypofriend.de/property-search-api to validate bounded BOLA extent under explicit authorization (read-only, limit≤50/req, single city, custodial volume cap); do NOT execute bulk enumeration or any mutations. This cycle added no new probe target.
