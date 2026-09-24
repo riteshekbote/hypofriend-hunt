@@ -957,3 +957,10 @@ www.hypofriend.de
 - CHANGED Global credentialed CORS fresh re-verified 2026-09-23 20:40Z on `core.hypofriend.de/en/plus/q` — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), n
 - CHANGED Origin `XFO:ALLOWALL` vs edge `XFO:DENY` + full CF stack re-confirmed 20:40Z on GET / (302 both)
 - CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-24 01:40:37 UTC
+- NEW Bundle entry renamed third time in 5 days: `hypofriend.de/m/_nuxt/B9bmTtuA.js` → `CYL-uMFM.js` (+1,860B) → `CqlAYNcX.js` (byte-identical to CYL-uMFM); new named mutations `createGoogleConversion`, `re
+- NEW `api.hypofriend.de` re-probed 2026-09-23 20:40Z: 000 on :443/:80 (8s connect-timeouts, exit 28) — dead 36th consecutive cycle, A 52.15.184.3 resolves clean
+- CHANGED Global credentialed CORS fresh re-verified 2026-09-23 20:40Z on `core.hypofriend.de/en/plus/q` — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), n
+- CHANGED Origin `XFO:ALLOWALL` vs edge `XFO:DENY` + full CF stack re-confirmed 20:40Z on GET / (302 both)
+- CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface

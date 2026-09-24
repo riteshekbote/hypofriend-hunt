@@ -29840,3 +29840,98 @@ STEP 6 — LEARNING:
 
 STEP 7 — RISK:
 - [RISK] hypofriend: 92 — standing CRITICAL auth-free listing-PII BOLA unpatched 37+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live (CORS fresh 23:24Z); bundle etag-identical, no new auth surface. Mitigant: zero exploitable NEW surface this cycle, fleet/frozen classes bit-identical, phase pinned to dead target api caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced.
+===== ANALYST bigpickle 2026-09-24 01:40:37 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mtimeout 15 curl -sS -k -o /dev/null -w "bundle: %{http_code} len=%{size_download}\n" --connect-timeout 6 -I https://hypofriend.de/m/_nuxt/CqlAYNcX.js 2>&1; for n in CYL-uMFM.js B9bmTtuA.js g8upYJar.js D9p-7uJV.js; do timeout 15 curl -sS -k -o /dev/null -w "$n: %{http_code}\n" --connect-timeout 6 -I https://hypofriend.de/m/_nuxt/$n 2>&1; done; echo "---"; timeout 15 curl -sS -k -o /dev/null -w "edgeQ: %{http_code}\n" --connect-timeout 6 -X OPTIONS -H "Origin: https://evil.example" https://hypofriend.de/q 2>&1
+bundle: 200 len=0
+CYL-uMFM.js: 403
+B9bmTtuA.js: 403
+g8upYJar.js: 403
+D9p-7uJV.js: 403
+---
+edgeQ: 301
+[0m
+[0m$ [0mtimeout 15 curl -sS -k -o /dev/null -w "api443: %{http_code} t=%{time_connect}\n" --connect-timeout 8 https://api.hypofriend.de/ 2>&1; timeout 15 curl -sS -o /dev/null -w "api80: %{http_code} t=%{time_connect}\n" --connect-timeout 8 http://api.hypofriend.de/ 2>&1; echo "---"; timeout 15 curl -sS -k -o /dev/null -w "coreOPT: %{http_code} t=%{time_total}\n" --connect-timeout 6 -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -D - https://core.hypofriend.de/en/plus/q 2>&1 | grep -iE "HTTP/|access-control|vary|x-frame|content-type"
+curl: (28) Failed to connect to api.hypofriend.de port 443 after 8002 ms: Timeout was reached
+api443: 000 t=0.000000
+curl: (28) Failed to connect to api.hypofriend.de port 80 after 8001 ms: Timeout was reached
+api80: 000 t=0.000000
+---
+HTTP/2 200 
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0mtimeout 15 curl -sS -k -D - -o /dev/null --connect-timeout 6 -I https://hypofriend.de/m/_nuxt/CqlAYNcX.js 2>&1 | grep -iE "HTTP/|etag|content-length|last-modified"; echo "---"; timeout 15 curl -sS -k -o /dev/null -w "core/GET: %{http_code}\n" --connect-timeout 6 -D - https://core.hypofriend.de/ 2>&1 | grep -iE "HTTP/|x-frame"; timeout 15 curl -sS -k -o /dev/null -w "edge/GET: %{http_code}\n" --connect-timeout 6 -D - https://hypofriend.de/ 2>&1 | grep -iE "HTTP/|x-frame"
+HTTP/2 200 
+content-length: 1336653
+last-modified: Wed, 23 Sep 2026 12:56:56 GMT
+etag: "166baeb8b0c31edb85d097e3f7cf956d"
+---
+HTTP/2 302 
+x-frame-options: ALLOWALL
+HTTP/2 302 
+x-frame-options: DENY
+[0m
+Live probes this cycle (2026-09-24, read-only ≤1rps): `api.hypofriend.de` :80/:443 both 8s connect-timeouts (000); `OPTIONS core.hypofriend.de/en/plus/q` with `Origin: https://evil.example` + `ACRM: POST` → HTTP/2 200 with `access-control-allow-origin: https://evil.example`, `access-control-allow-credentials: true`, all methods, `max-age: 7200`, `vary: Accept-Encoding`, no `Vary:Origin`; `HEAD CqlAYNcX.js` → 200, 1,336,653B, etag `166baeb8b0c31edb85d097e3f7cf956d`, last-modified 2026-09-23T12:56:56Z (byte-identical to prior cycle); old bundle names all 403; origin `GET /` 302 `X-Frame-Options: ALLOWALL` vs edge 302 `DENY`.
+
+STEP 1 — DELTA
+- [CHANGED] api.hypofriend.de: 000 re-probed live this cycle (:443/:80 both 8s connect-timeouts, exit 28) — dead 37th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
+- [CHANGED] Credentialed CORS freshness re-verified live at origin on core.hypofriend.de/en/plus/q — ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin.
+- [CHANGED] Entry bundle CqlAYNcX.js confirmed byte-identical (etag 166baeb8…, 1,336,653B) — rename-only state persists; old bundle names (CYL-uMFM/B9bmTtuA/g8upYJar/D9p-7uJV) all 403.
+- No other surface delta — fleet/frozen-classes bit-identical.
+
+STEP 2 — PRIORITIZE
+No new assets this cycle. Standing scores:
+- [PRIO] core.hypofriend.de/property-search-api, 9.2, high (live PII BOLA confirmed, introspection+offset-walk, 0 auth, origin WAF bypass; gate=10, business=10)
+- [PRIO] core.hypofriend.de/en/plus/q (+/en/health/q), 7.4, medium-high (auth-free magic-link/lead-existence oracle, credentialed CORS, origin header bypass)
+- [PRIO] api.hypofriend.de, 1.0, dead-37 (A resolves clean, no service — no surface to score)
+
+STEP 3 — HYPOTHESES
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api (BOLA + direct-origin WAF bypass)
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de)
+confidence: 96
+reasoning: propertySearch→exposes→expose returns 200 with zero credentials exposing cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany; introspection enabled; offset-walk + geo-bounds primitives in schema; origin bare headers vs edge CF stack; property-search-api OPTIONS no-ACAO contrast; confirmed 36+ cycles; api.hypofriend.de dead 37th consecutive cycle, no phase surface
+evidence_needed: none — prior live confirmations stand; only full record-count extent unquantified
+verify_steps: HEAD https://core.hypofriend.de/ (302, XFO:ALLOWALL bare) vs https://hypofriend.de/ (302, XFO:DENY + CF stack) — re-verified this cycle; no automated offset-walk or POST under passive rules (HUMAN-gated)
+impact: Full-DB extraction of German listing PII — CRITICAL
+testability: HUMAN_ONLY
+[HYP] Auth-free mutations release lead-existence + firstName oracle and enable magic-link generation
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: bundle CqlAYNcX.js byte-identical (etag 166baeb8…, 200, 1,336,653B) still ships requestAccountLink(input:{email}) → leadPresent?firstName + magic-link copy at identical template counts; requestLogin wraps same resolver; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS re-verified live this cycle on origin
+evidence_needed: branch behavior for synthetic non-existent vs existing email; whether transactional dispatch actually occurs
+verify_steps: OPTIONS https://core.hypofriend.de/en/plus/q with Origin https://evil.example + ACRM:POST (done this cycle, 200 ACAO+ACAC). No POST mutations under passive rules (would send transactional mail)
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q, /en/plus/q, /en/health/q, edge /api/v3/advisors
+confidence: 50
+reasoning: rack-cors global echo live re-proven this cycle on core origin (/en/plus/q, 200 ACAO+ACAC:true+all methods); SameSite=None;Secure session cookies (_hf HttpOnly); bundle ships root.lead PII schema (shareLink(self_disclosure), referrer{primary_advisor{...}}); no session-bound read resolver identified after 20+ cycles
+evidence_needed: a session-bound read resolver returning lead JSON
+verify_steps: HEAD/OPTIONS https://core.hypofriend.de/zzz-3684 or /en/plus/q with Origin https://evil.example (passive; ACAO+ACAC re-proven). No POST/read with session unless HUMAN+authorization
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Global credentialed CORS → session-bound lead exfil: evidence_needed (session-bound read resolver) unmet after 20+ cycles; no new resolver identified; kept at c=50 but inactive.
+- Survivors ranked: property-search-api BOLA (96), magic-link/lead-existence oracle (65), CORS session exfil (50, parked). All verify via passive OPTIONS/HEAD — no rule violation.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: POC phase remains pinned to dead target api.hypofriend.de (37 consecutive cycles 000 :443/:80, re-probed this cycle). Request phase retarget to core.hypofriend.de/property-search-api to validate bounded BOLA extent (read-only, limit≤50/req, single city, custodial volume cap) under explicit authorization; do NOT execute bulk enumeration or any mutations. This cycle added no new probe target (bundle byte-identical; CORS/origin-header states unchanged).
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live this cycle on :443/:80 (8s connect-timeouts, exit 28) — dead 37th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface, target unchanged.
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live this cycle — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), vary:Accept-Encoding, no Vary:Origin; origin bare headers vs edge CF stack.
+- [LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle CqlAYNcX.js byte-identical (200, 1,336,653B, etag 166baeb8b0c31edb85d097e3f7cf956d, last-modified 2026-09-23T12:56:56Z); old names 403 — rename-only persists, no mutation surface delta.
+
+STEP 7 — RISK
+[RISK] hypofriend: 91 — standing CRITICAL auth-free listing-PII BOLA unpatched 37+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live (CORS fresh this cycle at origin); bundle byte-identical otherwise. Mitigants: zero exploitable new surface this cycle, fleet/frozen-classes bit-identical, phase pinned to dead target api caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced.

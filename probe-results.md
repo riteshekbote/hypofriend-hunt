@@ -941,3 +941,11 @@ https://core.hypofriend.de/en/plus/q -> 200 len=228581
 https://core.hypofriend.de/ -> 200 len=228581
 https://hypofriend.de/ -> 200 len=228581
 https://hypofriend.de/en/plus/q -> 200 len=228581
+
+## 2026-09-24 01:40:48 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/zzz-3684 -> 200 len=228581
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/en/plus/q -> 200 len=228581
+https://core.hypofriend.de/ -> 200 len=228581
+https://hypofriend.de/ -> 200 len=228581
