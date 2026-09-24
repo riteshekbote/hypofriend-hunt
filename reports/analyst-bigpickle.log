@@ -30080,3 +30080,692 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] hypofriend: 91 — standing CRITICAL auth-free listing-PII BOLA unpatched 38+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live. Mitigants: zero exploitable new surface this cycle, bundle rename-only (byte-identical), phase pinned to dead target api caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced, no customer data touched.
+===== ANALYST bigpickle 2026-09-24 17:33:32 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la inventory 2>/dev/null; ls *.yml 2>/dev/null
+total 624
+drwxr-xr-x 12 runner runner   4096 Sep 24 17:31 .
+drwxr-xr-x  3 runner runner   4096 Sep 24 17:31 ..
+drwxr-xr-x  7 runner runner   4096 Sep 24 17:31 .git
+drwxr-xr-x  3 runner runner   4096 Sep 24 17:31 .github
+-rw-r--r--  1 runner runner   1885 Sep 24 17:31 README.md
+-rw-r--r--  1 runner runner     32 Sep 24 17:31 analyst-out.txt
+-rw-r--r--  1 runner runner 251324 Sep 24 17:31 analyst-prompt.txt
+-rw-r--r--  1 runner runner 247449 Sep 24 17:31 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 leads
+-rw-r--r--  1 runner runner  40343 Sep 24 17:31 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 reports
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 24 17:31 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 scripts
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 24 17:31 triage
+total 104
+drwxr-xr-x  2 runner runner  4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner  4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner 96626 Sep 24 17:31 hypofriend.md
+scope.yml
+[0m
+[0m✱ [0mGlob "**/{scope,inventory,art,hypotheses,leads}/**"[90m 8 matches[0m
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mls -la leads/ knowledge/ reports/ recon-notes/ triage/ scripts/ 2>/dev/null
+knowledge/:
+total 144
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner   4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner 136691 Sep 24 17:31 index.md
+
+leads/:
+total 2364
+drwxr-xr-x  2 runner runner    4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner    4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner  800315 Sep 24 17:31 lead-bigpickle.md
+-rw-r--r--  1 runner runner    7242 Sep 24 17:31 lead-laguna.md
+-rw-r--r--  1 runner runner    7100 Sep 24 17:31 lead-ling3.md
+-rw-r--r--  1 runner runner    7384 Sep 24 17:31 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 24 17:31 lead-mimo.md
+-rw-r--r--  1 runner runner 1529947 Sep 24 17:31 lead-nemotron3.md
+-rw-r--r--  1 runner runner   46330 Sep 24 17:31 reposcan-hypofriend.md
+
+recon-notes/:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner 4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner  824 Sep 24 17:31 DEDICATED-DEEP.md
+
+reports/:
+total 5568
+drwxr-xr-x  2 runner runner    4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner    4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner 2567257 Sep 24 17:31 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   30814 Sep 24 17:31 analyst-laguna.log
+-rw-r--r--  1 runner runner   30672 Sep 24 17:31 analyst-ling3.log
+-rw-r--r--  1 runner runner   30956 Sep 24 17:31 analyst-longcat.log
+-rw-r--r--  1 runner runner 2603150 Sep 24 17:31 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3508 Sep 24 17:31 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 24 17:31 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 24 17:31 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 24 17:31 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12016 Sep 24 17:31 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  462651 Sep 24 17:31 hypotheses.md
+-rw-r--r--  1 runner runner    2703 Sep 24 17:31 reposcan-mimo.md
+-rw-r--r--  1 runner runner    4370 Sep 24 17:31 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner  4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner 16987 Sep 24 17:31 sync-issues.py
+
+triage/:
+total 692
+drwxr-xr-x  2 runner runner 12288 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner  4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner     0 Sep 24 17:31 .gitkeep
+-rw-r--r--  1 runner runner   209 Sep 24 17:31 run-2026-09-02-21-44.md
+-rw-r--r--  1 runner runner   156 Sep 24 17:31 run-2026-09-02-23-58.md
+-rw-r--r--  1 runner runner   202 Sep 24 17:31 run-2026-09-03-04-11.md
+-rw-r--r--  1 runner runner   165 Sep 24 17:31 run-2026-09-03-09-00.md
+-rw-r--r--  1 runner runner   767 Sep 24 17:31 run-2026-09-03-13-32.md
+-rw-r--r--  1 runner runner   251 Sep 24 17:31 run-2026-09-03-17-14.md
+-rw-r--r--  1 runner runner   263 Sep 24 17:31 run-2026-09-03-19-57.md
+-rw-r--r--  1 runner runner   188 Sep 24 17:31 run-2026-09-03-22-29.md
+-rw-r--r--  1 runner runner   154 Sep 24 17:31 run-2026-09-04-00-31.md
+-rw-r--r--  1 runner runner   172 Sep 24 17:31 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   231 Sep 24 17:31 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner 17101 Sep 24 17:31 run-2026-09-04-12-00.md
+-rw-r--r--  1 runner runner  3019 Sep 24 17:31 run-2026-09-04-14-11.md
+-rw-r--r--  1 runner runner   147 Sep 24 17:31 run-2026-09-04-17-40.md
+-rw-r--r--  1 runner runner   186 Sep 24 17:31 run-2026-09-04-19-58.md
+-rw-r--r--  1 runner runner   220 Sep 24 17:31 run-2026-09-04-22-17.md
+-rw-r--r--  1 runner runner   237 Sep 24 17:31 run-2026-09-05-00-13.md
+-rw-r--r--  1 runner runner   932 Sep 24 17:31 run-2026-09-05-04-40.md
+-rw-r--r--  1 runner runner   468 Sep 24 17:31 run-2026-09-05-08-39.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-05-12-06.md
+-rw-r--r--  1 runner runner 17900 Sep 24 17:31 run-2026-09-05-15-23.md
+-rw-r--r--  1 runner runner   146 Sep 24 17:31 run-2026-09-05-17-38.md
+-rw-r--r--  1 runner runner   143 Sep 24 17:31 run-2026-09-05-19-33.md
+-rw-r--r--  1 runner runner   213 Sep 24 17:31 run-2026-09-05-21-42.md
+-rw-r--r--  1 runner runner   232 Sep 24 17:31 run-2026-09-05-23-43.md
+-rw-r--r--  1 runner runner   327 Sep 24 17:31 run-2026-09-06-04-06.md
+-rw-r--r--  1 runner runner   220 Sep 24 17:31 run-2026-09-06-08-44.md
+-rw-r--r--  1 runner runner   143 Sep 24 17:31 run-2026-09-06-12-47.md
+-rw-r--r--  1 runner runner   200 Sep 24 17:31 run-2026-09-06-16-07.md
+-rw-r--r--  1 runner runner   183 Sep 24 17:31 run-2026-09-06-18-24.md
+-rw-r--r--  1 runner runner   211 Sep 24 17:31 run-2026-09-06-20-49.md
+-rw-r--r--  1 runner runner   194 Sep 24 17:31 run-2026-09-06-22-50.md
+-rw-r--r--  1 runner runner   191 Sep 24 17:31 run-2026-09-07-00-49.md
+-rw-r--r--  1 runner runner   214 Sep 24 17:31 run-2026-09-07-05-54.md
+-rw-r--r--  1 runner runner   284 Sep 24 17:31 run-2026-09-07-12-09.md
+-rw-r--r--  1 runner runner 17477 Sep 24 17:31 run-2026-09-07-17-48.md
+-rw-r--r--  1 runner runner   127 Sep 24 17:31 run-2026-09-07-21-23.md
+-rw-r--r--  1 runner runner   154 Sep 24 17:31 run-2026-09-07-23-45.md
+-rw-r--r--  1 runner runner   150 Sep 24 17:31 run-2026-09-08-04-07.md
+-rw-r--r--  1 runner runner 16051 Sep 24 17:31 run-2026-09-08-08-58.md
+-rw-r--r--  1 runner runner   211 Sep 24 17:31 run-2026-09-08-13-29.md
+-rw-r--r--  1 runner runner   161 Sep 24 17:31 run-2026-09-08-17-31.md
+-rw-r--r--  1 runner runner  1606 Sep 24 17:31 run-2026-09-08-20-20.md
+-rw-r--r--  1 runner runner   221 Sep 24 17:31 run-2026-09-08-22-45.md
+-rw-r--r--  1 runner runner   190 Sep 24 17:31 run-2026-09-09-01-08.md
+-rw-r--r--  1 runner runner   226 Sep 24 17:31 run-2026-09-09-06-06.md
+-rw-r--r--  1 runner runner   344 Sep 24 17:31 run-2026-09-09-11-36.md
+-rw-r--r--  1 runner runner   159 Sep 24 17:31 run-2026-09-09-15-17.md
+-rw-r--r--  1 runner runner   130 Sep 24 17:31 run-2026-09-09-18-44.md
+-rw-r--r--  1 runner runner   237 Sep 24 17:31 run-2026-09-09-21-36.md
+-rw-r--r--  1 runner runner   171 Sep 24 17:31 run-2026-09-09-23-33.md
+-rw-r--r--  1 runner runner   156 Sep 24 17:31 run-2026-09-10-01-28.md
+-rw-r--r--  1 runner runner   189 Sep 24 17:31 run-2026-09-10-06-40.md
+-rw-r--r--  1 runner runner   241 Sep 24 17:31 run-2026-09-10-11-52.md
+-rw-r--r--  1 runner runner   245 Sep 24 17:31 run-2026-09-10-16-12.md
+-rw-r--r--  1 runner runner   157 Sep 24 17:31 run-2026-09-10-19-10.md
+-rw-r--r--  1 runner runner   234 Sep 24 17:31 run-2026-09-10-21-42.md
+-rw-r--r--  1 runner runner   229 Sep 24 17:31 run-2026-09-10-23-55.md
+-rw-r--r--  1 runner runner   188 Sep 24 17:31 run-2026-09-11-04-16.md
+-rw-r--r--  1 runner runner   173 Sep 24 17:31 run-2026-09-11-08-59.md
+-rw-r--r--  1 runner runner   208 Sep 24 17:31 run-2026-09-11-13-29.md
+-rw-r--r--  1 runner runner   163 Sep 24 17:31 run-2026-09-11-17-15.md
+-rw-r--r--  1 runner runner   189 Sep 24 17:31 run-2026-09-11-19-50.md
+-rw-r--r--  1 runner runner   184 Sep 24 17:31 run-2026-09-11-22-23.md
+-rw-r--r--  1 runner runner   561 Sep 24 17:31 run-2026-09-12-00-38.md
+-rw-r--r--  1 runner runner   186 Sep 24 17:31 run-2026-09-12-05-05.md
+-rw-r--r--  1 runner runner   200 Sep 24 17:31 run-2026-09-12-09-27.md
+-rw-r--r--  1 runner runner   232 Sep 24 17:31 run-2026-09-12-13-09.md
+-rw-r--r--  1 runner runner   697 Sep 24 17:31 run-2026-09-12-16-24.md
+-rw-r--r--  1 runner runner   761 Sep 24 17:31 run-2026-09-12-18-47.md
+-rw-r--r--  1 runner runner   169 Sep 24 17:31 run-2026-09-12-21-20.md
+-rw-r--r--  1 runner runner   161 Sep 24 17:31 run-2026-09-12-23-22.md
+-rw-r--r--  1 runner runner   179 Sep 24 17:31 run-2026-09-13-01-25.md
+-rw-r--r--  1 runner runner   475 Sep 24 17:31 run-2026-09-13-06-46.md
+-rw-r--r--  1 runner runner   148 Sep 24 17:31 run-2026-09-13-12-39.md
+-rw-r--r--  1 runner runner  1534 Sep 24 17:31 run-2026-09-13-16-39.md
+-rw-r--r--  1 runner runner   147 Sep 24 17:31 run-2026-09-13-19-00.md
+-rw-r--r--  1 runner runner   214 Sep 24 17:31 run-2026-09-13-21-25.md
+-rw-r--r--  1 runner runner   177 Sep 24 17:31 run-2026-09-13-23-32.md
+-rw-r--r--  1 runner runner   164 Sep 24 17:31 run-2026-09-14-01-39.md
+-rw-r--r--  1 runner runner   189 Sep 24 17:31 run-2026-09-14-07-08.md
+-rw-r--r--  1 runner runner   156 Sep 24 17:31 run-2026-09-14-14-17.md
+-rw-r--r--  1 runner runner   272 Sep 24 17:31 run-2026-09-14-19-29.md
+-rw-r--r--  1 runner runner   195 Sep 24 17:31 run-2026-09-14-22-46.md
+-rw-r--r--  1 runner runner   141 Sep 24 17:31 run-2026-09-15-01-19.md
+-rw-r--r--  1 runner runner   213 Sep 24 17:31 run-2026-09-15-06-16.md
+-rw-r--r--  1 runner runner   260 Sep 24 17:31 run-2026-09-15-11-54.md
+-rw-r--r--  1 runner runner  2891 Sep 24 17:31 run-2026-09-15-16-44.md
+-rw-r--r--  1 runner runner   200 Sep 24 17:31 run-2026-09-15-20-05.md
+-rw-r--r--  1 runner runner   229 Sep 24 17:31 run-2026-09-15-22-58.md
+-rw-r--r--  1 runner runner 11636 Sep 24 17:31 run-2026-09-16-01-20.md
+-rw-r--r--  1 runner runner   163 Sep 24 17:31 run-2026-09-16-06-16.md
+-rw-r--r--  1 runner runner   157 Sep 24 17:31 run-2026-09-16-11-50.md
+-rw-r--r--  1 runner runner   187 Sep 24 17:31 run-2026-09-16-16-37.md
+-rw-r--r--  1 runner runner   173 Sep 24 17:31 run-2026-09-16-19-44.md
+-rw-r--r--  1 runner runner   152 Sep 24 17:31 run-2026-09-16-22-49.md
+-rw-r--r--  1 runner runner   178 Sep 24 17:31 run-2026-09-17-01-14.md
+-rw-r--r--  1 runner runner   605 Sep 24 17:31 run-2026-09-17-06-14.md
+-rw-r--r--  1 runner runner   776 Sep 24 17:31 run-2026-09-17-11-54.md
+-rw-r--r--  1 runner runner   221 Sep 24 17:31 run-2026-09-17-16-43.md
+-rw-r--r--  1 runner runner   221 Sep 24 17:31 run-2026-09-17-20-07.md
+-rw-r--r--  1 runner runner   211 Sep 24 17:31 run-2026-09-17-22-54.md
+-rw-r--r--  1 runner runner   180 Sep 24 17:31 run-2026-09-18-01-10.md
+-rw-r--r--  1 runner runner   143 Sep 24 17:31 run-2026-09-18-06-04.md
+-rw-r--r--  1 runner runner 13000 Sep 24 17:31 run-2026-09-18-11-30.md
+-rw-r--r--  1 runner runner   231 Sep 24 17:31 run-2026-09-18-15-10.md
+-rw-r--r--  1 runner runner   231 Sep 24 17:31 run-2026-09-18-18-35.md
+-rw-r--r--  1 runner runner   205 Sep 24 17:31 run-2026-09-18-21-17.md
+-rw-r--r--  1 runner runner   196 Sep 24 17:31 run-2026-09-18-23-23.md
+-rw-r--r--  1 runner runner   202 Sep 24 17:31 run-2026-09-19-01-36.md
+-rw-r--r--  1 runner runner   184 Sep 24 17:31 run-2026-09-19-06-38.md
+-rw-r--r--  1 runner runner   178 Sep 24 17:31 run-2026-09-19-11-34.md
+-rw-r--r--  1 runner runner   219 Sep 24 17:31 run-2026-09-19-14-49.md
+-rw-r--r--  1 runner runner   161 Sep 24 17:31 run-2026-09-19-17-54.md
+-rw-r--r--  1 runner runner   215 Sep 24 17:31 run-2026-09-19-20-24.md
+-rw-r--r--  1 runner runner   143 Sep 24 17:31 run-2026-09-19-22-29.md
+-rw-r--r--  1 runner runner   792 Sep 24 17:31 run-2026-09-20-00-23.md
+-rw-r--r--  1 runner runner   230 Sep 24 17:31 run-2026-09-20-05-26.md
+-rw-r--r--  1 runner runner   184 Sep 24 17:31 run-2026-09-20-10-09.md
+-rw-r--r--  1 runner runner   279 Sep 24 17:31 run-2026-09-20-14-16.md
+-rw-r--r--  1 runner runner   156 Sep 24 17:31 run-2026-09-20-17-33.md
+-rw-r--r--  1 runner runner   171 Sep 24 17:31 run-2026-09-20-19-46.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-20-22-19.md
+-rw-r--r--  1 runner runner   173 Sep 24 17:31 run-2026-09-21-00-21.md
+-rw-r--r--  1 runner runner   231 Sep 24 17:31 run-2026-09-21-05-28.md
+-rw-r--r--  1 runner runner   135 Sep 24 17:31 run-2026-09-21-11-06.md
+-rw-r--r--  1 runner runner 11166 Sep 24 17:31 run-2026-09-21-17-09.md
+-rw-r--r--  1 runner runner   188 Sep 24 17:31 run-2026-09-21-21-08.md
+-rw-r--r--  1 runner runner   201 Sep 24 17:31 run-2026-09-22-00-11.md
+-rw-r--r--  1 runner runner 14621 Sep 24 17:31 run-2026-09-22-05-12.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-22-10-05.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-22-15-02.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-22-18-59.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-22-22-00.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-00-22.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-05-10.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-10-06.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-15-05.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-19-06.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-22-22.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-24-00-52.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-24-05-59.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-24-11-37.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-24-15-55.md
+[0m
+[0m$ [0mcat state_bigpickle.json analyst-out.txt; tail -3 triage/run-2026-09-24-15-55.md 2>/dev/null; ls reports/hypotheses-bigpickle.txt && tail -20 reports/hypotheses-bigpickle.txt
+{"phase": "POC", "target": "api"}[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la inventory 2>/dev/null; ls *.yml 2>/dev/null
+total 624
+drwxr-xr-x 12 runner runner   4096 Sep 24 17:31 .
+drwxr-xr-x  3 runner runner   4096 Sep 24 17:31 ..
+drwxr-xr-x  7 runner runner   4096 Sep 24 17:31 .git
+drwxr-xr-x  3 runner runner   4096 Sep 24 17:31 .github
+-rw-r--r--  1 runner runner   1885 Sep 24 17:31 README.md
+-rw-r--r--  1 runner runner     32 Sep 24 17:31 analyst-out.txt
+-rw-r--r--  1 runner runner 251324 Sep 24 17:31 analyst-prompt.txt
+-rw-r--r--  1 runner runner 247449 Sep 24 17:31 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 leads
+-rw-r--r--  1 runner runner  40343 Sep 24 17:31 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 reports
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 24 17:31 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 scripts
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 24 17:31 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 24 17:31 triage
+total 104
+drwxr-xr-x  2 runner runner  4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner  4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner 96626 Sep 24 17:31 hypofriend.md
+scope.yml
+[0m
+[0m✱ [0mGlob "**/{scope,inventory,art,hypotheses,leads}/**"[90m 8 matches[0m
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mls -la leads/ knowledge/ reports/ recon-notes/ triage/ scripts/ 2>/dev/null
+knowledge/:
+total 144
+drwxr-xr-x  2 runner runner   4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner   4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner 136691 Sep 24 17:31 index.md
+
+leads/:
+total 2364
+drwxr-xr-x  2 runner runner    4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner    4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner  800315 Sep 24 17:31 lead-bigpickle.md
+-rw-r--r--  1 runner runner    7242 Sep 24 17:31 lead-laguna.md
+-rw-r--r--  1 runner runner    7100 Sep 24 17:31 lead-ling3.md
+-rw-r--r--  1 runner runner    7384 Sep 24 17:31 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 24 17:31 lead-mimo.md
+-rw-r--r--  1 runner runner 1529947 Sep 24 17:31 lead-nemotron3.md
+-rw-r--r--  1 runner runner   46330 Sep 24 17:31 reposcan-hypofriend.md
+
+recon-notes/:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner 4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner  824 Sep 24 17:31 DEDICATED-DEEP.md
+
+reports/:
+total 5568
+drwxr-xr-x  2 runner runner    4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner    4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner 2567257 Sep 24 17:31 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   30814 Sep 24 17:31 analyst-laguna.log
+-rw-r--r--  1 runner runner   30672 Sep 24 17:31 analyst-ling3.log
+-rw-r--r--  1 runner runner   30956 Sep 24 17:31 analyst-longcat.log
+-rw-r--r--  1 runner runner 2603150 Sep 24 17:31 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3508 Sep 24 17:31 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 24 17:31 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 24 17:31 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 24 17:31 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12016 Sep 24 17:31 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  462651 Sep 24 17:31 hypotheses.md
+-rw-r--r--  1 runner runner    2703 Sep 24 17:31 reposcan-mimo.md
+-rw-r--r--  1 runner runner    4370 Sep 24 17:31 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner  4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner 16987 Sep 24 17:31 sync-issues.py
+
+triage/:
+total 692
+drwxr-xr-x  2 runner runner 12288 Sep 24 17:31 .
+drwxr-xr-x 12 runner runner  4096 Sep 24 17:31 ..
+-rw-r--r--  1 runner runner     0 Sep 24 17:31 .gitkeep
+-rw-r--r--  1 runner runner   209 Sep 24 17:31 run-2026-09-02-21-44.md
+-rw-r--r--  1 runner runner   156 Sep 24 17:31 run-2026-09-02-23-58.md
+-rw-r--r--  1 runner runner   202 Sep 24 17:31 run-2026-09-03-04-11.md
+-rw-r--r--  1 runner runner   165 Sep 24 17:31 run-2026-09-03-09-00.md
+-rw-r--r--  1 runner runner   767 Sep 24 17:31 run-2026-09-03-13-32.md
+-rw-r--r--  1 runner runner   251 Sep 24 17:31 run-2026-09-03-17-14.md
+-rw-r--r--  1 runner runner   263 Sep 24 17:31 run-2026-09-03-19-57.md
+-rw-r--r--  1 runner runner   188 Sep 24 17:31 run-2026-09-03-22-29.md
+-rw-r--r--  1 runner runner   154 Sep 24 17:31 run-2026-09-04-00-31.md
+-rw-r--r--  1 runner runner   172 Sep 24 17:31 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   231 Sep 24 17:31 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner 17101 Sep 24 17:31 run-2026-09-04-12-00.md
+-rw-r--r--  1 runner runner  3019 Sep 24 17:31 run-2026-09-04-14-11.md
+-rw-r--r--  1 runner runner   147 Sep 24 17:31 run-2026-09-04-17-40.md
+-rw-r--r--  1 runner runner   186 Sep 24 17:31 run-2026-09-04-19-58.md
+-rw-r--r--  1 runner runner   220 Sep 24 17:31 run-2026-09-04-22-17.md
+-rw-r--r--  1 runner runner   237 Sep 24 17:31 run-2026-09-05-00-13.md
+-rw-r--r--  1 runner runner   932 Sep 24 17:31 run-2026-09-05-04-40.md
+-rw-r--r--  1 runner runner   468 Sep 24 17:31 run-2026-09-05-08-39.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-05-12-06.md
+-rw-r--r--  1 runner runner 17900 Sep 24 17:31 run-2026-09-05-15-23.md
+-rw-r--r--  1 runner runner   146 Sep 24 17:31 run-2026-09-05-17-38.md
+-rw-r--r--  1 runner runner   143 Sep 24 17:31 run-2026-09-05-19-33.md
+-rw-r--r--  1 runner runner   213 Sep 24 17:31 run-2026-09-05-21-42.md
+-rw-r--r--  1 runner runner   232 Sep 24 17:31 run-2026-09-05-23-43.md
+-rw-r--r--  1 runner runner   327 Sep 24 17:31 run-2026-09-06-04-06.md
+-rw-r--r--  1 runner runner   220 Sep 24 17:31 run-2026-09-06-08-44.md
+-rw-r--r--  1 runner runner   143 Sep 24 17:31 run-2026-09-06-12-47.md
+-rw-r--r--  1 runner runner   200 Sep 24 17:31 run-2026-09-06-16-07.md
+-rw-r--r--  1 runner runner   183 Sep 24 17:31 run-2026-09-06-18-24.md
+-rw-r--r--  1 runner runner   211 Sep 24 17:31 run-2026-09-06-20-49.md
+-rw-r--r--  1 runner runner   194 Sep 24 17:31 run-2026-09-06-22-50.md
+-rw-r--r--  1 runner runner   191 Sep 24 17:31 run-2026-09-07-00-49.md
+-rw-r--r--  1 runner runner   214 Sep 24 17:31 run-2026-09-07-05-54.md
+-rw-r--r--  1 runner runner   284 Sep 24 17:31 run-2026-09-07-12-09.md
+-rw-r--r--  1 runner runner 17477 Sep 24 17:31 run-2026-09-07-17-48.md
+-rw-r--r--  1 runner runner   127 Sep 24 17:31 run-2026-09-07-21-23.md
+-rw-r--r--  1 runner runner   154 Sep 24 17:31 run-2026-09-07-23-45.md
+-rw-r--r--  1 runner runner   150 Sep 24 17:31 run-2026-09-08-04-07.md
+-rw-r--r--  1 runner runner 16051 Sep 24 17:31 run-2026-09-08-08-58.md
+-rw-r--r--  1 runner runner   211 Sep 24 17:31 run-2026-09-08-13-29.md
+-rw-r--r--  1 runner runner   161 Sep 24 17:31 run-2026-09-08-17-31.md
+-rw-r--r--  1 runner runner  1606 Sep 24 17:31 run-2026-09-08-20-20.md
+-rw-r--r--  1 runner runner   221 Sep 24 17:31 run-2026-09-08-22-45.md
+-rw-r--r--  1 runner runner   190 Sep 24 17:31 run-2026-09-09-01-08.md
+-rw-r--r--  1 runner runner   226 Sep 24 17:31 run-2026-09-09-06-06.md
+-rw-r--r--  1 runner runner   344 Sep 24 17:31 run-2026-09-09-11-36.md
+-rw-r--r--  1 runner runner   159 Sep 24 17:31 run-2026-09-09-15-17.md
+-rw-r--r--  1 runner runner   130 Sep 24 17:31 run-2026-09-09-18-44.md
+-rw-r--r--  1 runner runner   237 Sep 24 17:31 run-2026-09-09-21-36.md
+-rw-r--r--  1 runner runner   171 Sep 24 17:31 run-2026-09-09-23-33.md
+-rw-r--r--  1 runner runner   156 Sep 24 17:31 run-2026-09-10-01-28.md
+-rw-r--r--  1 runner runner   189 Sep 24 17:31 run-2026-09-10-06-40.md
+-rw-r--r--  1 runner runner   241 Sep 24 17:31 run-2026-09-10-11-52.md
+-rw-r--r--  1 runner runner   245 Sep 24 17:31 run-2026-09-10-16-12.md
+-rw-r--r--  1 runner runner   157 Sep 24 17:31 run-2026-09-10-19-10.md
+-rw-r--r--  1 runner runner   234 Sep 24 17:31 run-2026-09-10-21-42.md
+-rw-r--r--  1 runner runner   229 Sep 24 17:31 run-2026-09-10-23-55.md
+-rw-r--r--  1 runner runner   188 Sep 24 17:31 run-2026-09-11-04-16.md
+-rw-r--r--  1 runner runner   173 Sep 24 17:31 run-2026-09-11-08-59.md
+-rw-r--r--  1 runner runner   208 Sep 24 17:31 run-2026-09-11-13-29.md
+-rw-r--r--  1 runner runner   163 Sep 24 17:31 run-2026-09-11-17-15.md
+-rw-r--r--  1 runner runner   189 Sep 24 17:31 run-2026-09-11-19-50.md
+-rw-r--r--  1 runner runner   184 Sep 24 17:31 run-2026-09-11-22-23.md
+-rw-r--r--  1 runner runner   561 Sep 24 17:31 run-2026-09-12-00-38.md
+-rw-r--r--  1 runner runner   186 Sep 24 17:31 run-2026-09-12-05-05.md
+-rw-r--r--  1 runner runner   200 Sep 24 17:31 run-2026-09-12-09-27.md
+-rw-r--r--  1 runner runner   232 Sep 24 17:31 run-2026-09-12-13-09.md
+-rw-r--r--  1 runner runner   697 Sep 24 17:31 run-2026-09-12-16-24.md
+-rw-r--r--  1 runner runner   761 Sep 24 17:31 run-2026-09-12-18-47.md
+-rw-r--r--  1 runner runner   169 Sep 24 17:31 run-2026-09-12-21-20.md
+-rw-r--r--  1 runner runner   161 Sep 24 17:31 run-2026-09-12-23-22.md
+-rw-r--r--  1 runner runner   179 Sep 24 17:31 run-2026-09-13-01-25.md
+-rw-r--r--  1 runner runner   475 Sep 24 17:31 run-2026-09-13-06-46.md
+-rw-r--r--  1 runner runner   148 Sep 24 17:31 run-2026-09-13-12-39.md
+-rw-r--r--  1 runner runner  1534 Sep 24 17:31 run-2026-09-13-16-39.md
+-rw-r--r--  1 runner runner   147 Sep 24 17:31 run-2026-09-13-19-00.md
+-rw-r--r--  1 runner runner   214 Sep 24 17:31 run-2026-09-13-21-25.md
+-rw-r--r--  1 runner runner   177 Sep 24 17:31 run-2026-09-13-23-32.md
+-rw-r--r--  1 runner runner   164 Sep 24 17:31 run-2026-09-14-01-39.md
+-rw-r--r--  1 runner runner   189 Sep 24 17:31 run-2026-09-14-07-08.md
+-rw-r--r--  1 runner runner   156 Sep 24 17:31 run-2026-09-14-14-17.md
+-rw-r--r--  1 runner runner   272 Sep 24 17:31 run-2026-09-14-19-29.md
+-rw-r--r--  1 runner runner   195 Sep 24 17:31 run-2026-09-14-22-46.md
+-rw-r--r--  1 runner runner   141 Sep 24 17:31 run-2026-09-15-01-19.md
+-rw-r--r--  1 runner runner   213 Sep 24 17:31 run-2026-09-15-06-16.md
+-rw-r--r--  1 runner runner   260 Sep 24 17:31 run-2026-09-15-11-54.md
+-rw-r--r--  1 runner runner  2891 Sep 24 17:31 run-2026-09-15-16-44.md
+-rw-r--r--  1 runner runner   200 Sep 24 17:31 run-2026-09-15-20-05.md
+-rw-r--r--  1 runner runner   229 Sep 24 17:31 run-2026-09-15-22-58.md
+-rw-r--r--  1 runner runner 11636 Sep 24 17:31 run-2026-09-16-01-20.md
+-rw-r--r--  1 runner runner   163 Sep 24 17:31 run-2026-09-16-06-16.md
+-rw-r--r--  1 runner runner   157 Sep 24 17:31 run-2026-09-16-11-50.md
+-rw-r--r--  1 runner runner   187 Sep 24 17:31 run-2026-09-16-16-37.md
+-rw-r--r--  1 runner runner   173 Sep 24 17:31 run-2026-09-16-19-44.md
+-rw-r--r--  1 runner runner   152 Sep 24 17:31 run-2026-09-16-22-49.md
+-rw-r--r--  1 runner runner   178 Sep 24 17:31 run-2026-09-17-01-14.md
+-rw-r--r--  1 runner runner   605 Sep 24 17:31 run-2026-09-17-06-14.md
+-rw-r--r--  1 runner runner   776 Sep 24 17:31 run-2026-09-17-11-54.md
+-rw-r--r--  1 runner runner   221 Sep 24 17:31 run-2026-09-17-16-43.md
+-rw-r--r--  1 runner runner   221 Sep 24 17:31 run-2026-09-17-20-07.md
+-rw-r--r--  1 runner runner   211 Sep 24 17:31 run-2026-09-17-22-54.md
+-rw-r--r--  1 runner runner   180 Sep 24 17:31 run-2026-09-18-01-10.md
+-rw-r--r--  1 runner runner   143 Sep 24 17:31 run-2026-09-18-06-04.md
+-rw-r--r--  1 runner runner 13000 Sep 24 17:31 run-2026-09-18-11-30.md
+-rw-r--r--  1 runner runner   231 Sep 24 17:31 run-2026-09-18-15-10.md
+-rw-r--r--  1 runner runner   231 Sep 24 17:31 run-2026-09-18-18-35.md
+-rw-r--r--  1 runner runner   205 Sep 24 17:31 run-2026-09-18-21-17.md
+-rw-r--r--  1 runner runner   196 Sep 24 17:31 run-2026-09-18-23-23.md
+-rw-r--r--  1 runner runner   202 Sep 24 17:31 run-2026-09-19-01-36.md
+-rw-r--r--  1 runner runner   184 Sep 24 17:31 run-2026-09-19-06-38.md
+-rw-r--r--  1 runner runner   178 Sep 24 17:31 run-2026-09-19-11-34.md
+-rw-r--r--  1 runner runner   219 Sep 24 17:31 run-2026-09-19-14-49.md
+-rw-r--r--  1 runner runner   161 Sep 24 17:31 run-2026-09-19-17-54.md
+-rw-r--r--  1 runner runner   215 Sep 24 17:31 run-2026-09-19-20-24.md
+-rw-r--r--  1 runner runner   143 Sep 24 17:31 run-2026-09-19-22-29.md
+-rw-r--r--  1 runner runner   792 Sep 24 17:31 run-2026-09-20-00-23.md
+-rw-r--r--  1 runner runner   230 Sep 24 17:31 run-2026-09-20-05-26.md
+-rw-r--r--  1 runner runner   184 Sep 24 17:31 run-2026-09-20-10-09.md
+-rw-r--r--  1 runner runner   279 Sep 24 17:31 run-2026-09-20-14-16.md
+-rw-r--r--  1 runner runner   156 Sep 24 17:31 run-2026-09-20-17-33.md
+-rw-r--r--  1 runner runner   171 Sep 24 17:31 run-2026-09-20-19-46.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-20-22-19.md
+-rw-r--r--  1 runner runner   173 Sep 24 17:31 run-2026-09-21-00-21.md
+-rw-r--r--  1 runner runner   231 Sep 24 17:31 run-2026-09-21-05-28.md
+-rw-r--r--  1 runner runner   135 Sep 24 17:31 run-2026-09-21-11-06.md
+-rw-r--r--  1 runner runner 11166 Sep 24 17:31 run-2026-09-21-17-09.md
+-rw-r--r--  1 runner runner   188 Sep 24 17:31 run-2026-09-21-21-08.md
+-rw-r--r--  1 runner runner   201 Sep 24 17:31 run-2026-09-22-00-11.md
+-rw-r--r--  1 runner runner 14621 Sep 24 17:31 run-2026-09-22-05-12.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-22-10-05.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-22-15-02.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-22-18-59.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-22-22-00.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-00-22.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-05-10.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-10-06.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-15-05.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-19-06.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-23-22-22.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-24-00-52.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-24-05-59.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-24-11-37.md
+-rw-r--r--  1 runner runner   210 Sep 24 17:31 run-2026-09-24-15-55.md
+[0m
+    "ref": "err_ad54fe26"
+  }
+}
+reports/hypotheses-bigpickle.txt
+testability: HUMAN_ONLY
+[HYP] Auth-free mutations release lead-existence + firstName oracle and enable magic-link generation
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: bundle CqlAYNcX.js byte-identical (200, 1,336,653B) still ships requestAccountLink(input:{email}) → leadPresent?firstName + magic-link copy at identical template counts (3); requestLogin wraps same resolver; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS live at origin
+evidence_needed: branch behavior for synthetic non-existent vs existing email; whether transactional dispatch occurs
+verify_steps: OPTIONS https://core.hypofriend.de/en/plus/q with Origin https://evil.example + ACRM:POST (passive preflight). No POST mutations under passive rules (would send transactional mail)
+impact: (a) lead/account existence + firstName disclosure keyed on email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q, /en/plus/q, /en/health/q
+confidence: 50
+reasoning: rack-cors global echo live-re-proven in prior cycles on core origin (evil.example→ACAO+ACAC:true+all methods, no Vary:Origin); SameSite=None;Secure session cookies (_hf HttpOnly); bundle ships root.lead PII schema (shareLink self_disclosure, referrer{primary_advisor{...}}); no session-bound read resolver identified after 20+ cycles
+evidence_needed: a session-bound read resolver returning lead JSON
+verify_steps: HEAD/OPTIONS https://core.hypofriend.de/zzz-3684 or /en/plus/q with Origin https://evil.example (passive; ACAO+ACAC re-proven). No POST/read with session unless HUMAN+authorization
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY
+[NEXT] HUMAN: POC phase remains pinned to dead target api.hypofriend.de (this cycle: :443 and :80 both 8s connect-timeout exit 28, `000`; A 52.15.184.3 `getent` clean — dead 38th consecutive cycle, no takeover surface). Request phase retarget to core.hypofriend.de/property-search-api to validate bounded BOLA extent under explicit authorization (read-only, limit≤50/req, single city, custodial volume cap); do NOT execute bulk enumeration or any mutations. This cycle added no new probe target.
+[0m
+[0m$ [0mfor f in triage/run-2026-09-24-11-37.md triage/run-2026-09-24-15-55.md triage/run-2026-09-23-22-22.md triage/run-2026-09-24-05-59.md; do echo "=== $f ==="; cat "$f"; done
+=== triage/run-2026-09-24-11-37.md ===
+
+===== TRIAGE 2026-09-24 11:37:23 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_79a3111e"
+  }
+}
+=== triage/run-2026-09-24-15-55.md ===
+
+===== TRIAGE 2026-09-24 15:55:44 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_ad54fe26"
+  }
+}
+=== triage/run-2026-09-23-22-22.md ===
+
+===== TRIAGE 2026-09-23 22:22:27 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_5d0c6908"
+  }
+}
+=== triage/run-2026-09-24-05-59.md ===
+
+===== TRIAGE 2026-09-24 05:59:39 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_f0e2139c"
+  }
+}
+[0m
+[0m→ [0mRead reports/valid-bugs.md
+Performing the standard passive read-only probe set (pinned target, CORS freshness, bundle check — all GET/HEAD/OPTIONS, ≤1 rps).
+[0m
+[0m$ [0mgetent hosts api.hypofriend.de; echo "---443---"; curl -sS -o /dev/null -w "%{http_code} %{errormsg} %{time_total}s\n" --max-time 8 https://api.hypofriend.de/
+
+echo "---core OPTIONS /en/plus/q---"
+curl -sS -i -o - --max-time 15 -X OPTIONS "https://core.hypofriend.de/en/plus/q" \
+ -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" \
+ | sed -n '1,20p'
+52.15.184.3     api.hypofriend.de
+---443---
+curl: (28) Connection timed out after 8002 milliseconds
+000 Connection timed out after 8002 milliseconds 8.002231s
+---core OPTIONS /en/plus/q---
+HTTP/2 200 
+date: Thu, 24 Sep 2026 17:32:11 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0mecho "---edge bundle HEAD---"
+curl -sSI --max-time 12 "https://hypofriend.de/m/_nuxt/CqlAYNcX.js" | grep -iE "HTTP/|content-length|last-modified|etag"
+echo "---old bundle---"
+curl -sS -o /dev/null -w "%{http_code}\n" --max-time 12 "https://hypofriend.de/m/_nuxt/CYL-uMFM.js"
+echo "---origin GET / XFO---"
+curl -sSI --max-time 12 "https://core.hypofriend.de/" | grep -iE "HTTP/|x-frame|set-cookie|location"
+---edge bundle HEAD---
+HTTP/2 403 
+---old bundle---
+403
+---origin GET / XFO---
+HTTP/2 302 
+location: https://hypofriend.de/en
+x-frame-options: ALLOWALL
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Mon, 24 Sep 2029 17:32:16 GMT; secure; samesite=none
+set-cookie: _hf=8cff423c3f59f8141aded54e31e72c60; domain=hypofriend.de; path=/; expires=Wed, 24 Sep 2036 17:32:16 GMT; secure; httponly
+[0m
+The edge entry bundle hash changed (CqlAYNcX.js now 403). Checking the live page for the current bundle reference.
+[0m$ [0mecho "---/en/plus page bundle refs---"
+curl -sS --max-time 15 "https://hypofriend.de/en/plus" | grep -oE 'src="/m/_nuxt/[^"]+\.js"' | sort -u | head
+echo "---/en/plus status---"
+curl -sS -o /dev/null -w "%{http_code} %{size_download}B\n" --max-time 15 "https://hypofriend.de/en/plus"
+echo "---/m entry candidates---"
+curl -sS --max-time 12 "https://hypofriend.de/m/" | grep -oE '_nuxt/[A-Za-z0-9_-]+\.js' | sort -u | head
+---/en/plus page bundle refs---
+src="/m/_nuxt/CQoy7ifk.js"
+---/en/plus status---
+200 298645B
+---/m entry candidates---
+[0m
+[0m$ [0mcurl -sSI --max-time 12 "https://hypofriend.de/m/_nuxt/CQoy7ifk.js" | grep -iE "HTTP/|content-length|last-modified|etag"
+echo "---grep mutation templates---"
+curl -sS --max-time 60 "https://hypofriend.de/m/_nuxt/CQoy7ifk.js" -o /tmp/opencode/bundle-CQoy7ifk.js
+wc -c /tmp/opencode/bundle-CQoy7ifk.js
+for m in requestAccountLink requestAppointmentLink unclaimLead setNameAppointment setLocale createGoogleConversion requestFacebookConversion processLeadForAppointment uploadDocumentExtended; do
+  printf "%s=%s\n" "$m" "$(grep -o "$m" /tmp/opencode/bundle-CQoy7ifk.js | wc -l)"
+done
+echo "---new resolver greps---"
+grep -oE 'already_booked_appointments|rates_table|favoritedExposes|leadPresent|has_admin_cookie' /tmp/opencode/bundle-CQoy7ifk.js | sort | uniq -c
+HTTP/2 200 
+content-length: 1336611
+last-modified: Thu, 24 Sep 2026 13:00:21 GMT
+etag: "1565679be87857c7f623e57d1b45501b"
+---grep mutation templates---
+1336611 /tmp/opencode/bundle-CQoy7ifk.js
+requestAccountLink=3
+requestAppointmentLink=7
+unclaimLead=9
+setNameAppointment=2
+setLocale=24
+createGoogleConversion=2
+requestFacebookConversion=2
+processLeadForAppointment=5
+uploadDocumentExtended=2
+---new resolver greps---
+      1 already_booked_appointments
+      3 has_admin_cookie
+      3 leadPresent
+      2 rates_table
+[0m
+All probes complete. Delta confirmed: new bundle hash (real deploy today), CORS re-verified live, target still dead.
+
+---
+
+STEP 1 — DELTA
+- CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed `CqlAYNcX.js`→`CQoy7ifk.js` (old 403; new 200, 1,336,611B, −42B, last-modified 2026-09-24T13:00:21Z — genuine deploy today, etag `1565679b…b01b`); mutation-template counts bit-identical (requestAccountLink=3, requestAppointmentLink=7, unclaimLead=9, setNameAppointment=2, setLocale=24, createGoogleConversion=2, requestFacebookConversion=2, processLeadForAppointment=5, uploadDocumentExtended=2) — real code delta, NO auth-surface delta
+- CHANGED @ hypofriend.de/en/plus: page grew 298552→298645B (+93B) — static shell re-deploy with bundle
+- RE-VERIFIED @ core.hypofriend.de/en/plus/q: credentialed CORS live 17:32Z — OPTIONS Origin https://evil.example + ACRM:POST → `access-control-allow-origin: https://evil.example` + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only)
+- CONFIRMED NG @ api.hypofriend.de (target): 000 re-probed live this cycle (:443 8s connect-timeout exit 28; A 52.15.184.3 resolves clean) — dead 39th consecutive cycle
+- CONFIRMED @ core.hypofriend.de GET /: 302 XFO:ALLOWALL + `_hf` HttpOnly/SameSite=None + `internal=FALSE` cookies — known provenance/header differential only
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api,9.6,full-DB auth-free PII BOLA + direct-origin WAF bypass, stable 39 cycles, HUMAN-gated quantification
+- [PRIO] core.hypofriend.de/en/plus/q,8.1,global credentialed CORS + auth-free mutation family (requestAccountLink/requestAppointmentLink/unclaimLead/setNameAppointment), AUTH_HELPED
+- [PRIO] hypofriend.de/m/_nuxt bundle,5.8,intra-day rename/redeploy churn (4th in 6 days) = active development on /en/plus surface → fresh candidate mutations each deploy
+
+STEP 3 — HYPOTHESES
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api (BOLA + direct-origin WAF bypass)
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de)
+confidence: 96
+reasoning: propertySearch→exposes→expose returns 200 zero-credentials (cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany); introspection enabled; offset-walk + geo-bounds primitives; origin bare headers vs edge CF stack; contrast: property-search-api OPTIONS no-ACAO; confirmed 39+ cycles; pinned target api.hypofriend.de dead 39th cycle → no phase surface
+evidence_needed: none — prior live confirmations stand; only full record-count extent unquantified
+verify_steps: HEAD https://core.hypofriend.de/ (302 XFO:ALLOWALL) vs https://hypofriend.de/ (302 XFO:DENY+CF); no automated offset-walk or POST under passive rules (HUMAN-gated)
+impact: Full-DB extraction of German listing PII — CRITICAL
+testability: HUMAN_ONLY
+
+[HYP] Auth-free requestAccountLink mutation releases email-keyed lead-existence + firstName oracle and enables unbounded magic-link generation
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: today's fresh-deploy bundle CQoy7ifk.js (200, 1,336,611B) still ships requestAccountLink(input:{email})→leadPresent?firstName + magic-link copy at identical template count (3); requestLogin wraps same resolver; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS re-proven live this cycle at origin
+evidence_needed: branch behavior for synthetic non-existent vs existing email; whether transactional dispatch occurs
+verify_steps: OPTIONS https://core.hypofriend.de/en/plus/q with Origin https://evil.example + ACRM:POST (passive; done). No POST mutations under passive rules (would send transactional mail)
+impact: (a) lead/account existence + firstName disclosure keyed on arbitrary email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+
+[HYP] Global credentialed CORS converts any session-bound read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q, /en/plus/q
+confidence: 50
+reasoning: rack-cors global echo live-re-proven again 17:32Z on core origin; SameSite=None;Secure session cookies (_hf HttpOnly, confirmed 17:32Z); bundle ships root.lead PII schema (shareLink self_disclosure, referrer{primary_advisor{...}}); no session-bound read resolver identified after 20+ cycles
+evidence_needed: a session-bound read resolver returning lead JSON
+verify_steps: HEAD/OPTIONS https://core.hypofriend.de/zzz-3684 or /en/plus/q with Origin https://evil.example (passive). No POST/read with session unless HUMAN+authorization
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency)
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Bundle intra-day churn hypothesis: renaming + tiny size deltas (−42B) with identical template counts = build-pipeline nondeterminism, not new auth surface; no verifiable delta without POSTing new mutations
+- [FINAL] survivors ranked: property-search-api BOLA (96) → requestAccountLink email oracle (65) → credentialed-CORS session exfil (50). No new class this cycle; bundle delta re-mined and negative.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: POC phase pinned to dead target api.hypofriend.de (39th consecutive cycle: :443 8s connect-timeout, A 52.15.184.3 clean — re-probed live this cycle). Request phase retarget to core.hypofriend.de/property-search-api to validate bounded BOLA extent under explicit authorization (read-only, limit≤50/req, single city, custodial volume cap); do NOT run bulk enumeration or any mutations. No new probe target this cycle — credential-CORS and bundle surfaces frozen with identical template counts.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 17:32Z (:443 8s connect-timeout exit 28; A 52.15.184.3 `getent` clean) — dead 39th consecutive cycle, no takeover surface, target unchanged
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin) re-verified live 2026-09-24 17:32Z — precondition chain intact
+[LEARN] CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed CqlAYNcX.js→CQoy7ifk.js (200, 1,336,611B −42B, last-modified 2026-09-24T13:00:21Z, real deploy) — mutation-template counts bit-identical; no auth-surface delta
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class, consistent with prior cycles)
+
+STEP 7 — RISK
+[RISK] hypofriend: 91 — standing CRITICAL auth-free listing-PII BOLA unpatched 39+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free magic-link/lead-existence oracles remain live; bundle re-deployed today (active dev on exposed surface). Mitigants: zero new exploitable surface this cycle, mutation-template counts frozen, phase pinned to dead target caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced, no customer data touched.

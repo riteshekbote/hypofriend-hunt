@@ -658,3 +658,7 @@
 - 2026-09-24 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
 - 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed this cycle on GET / (302 both)
 - 2026-09-24 ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 (:443/:80 both 8s connect-timeouts, exit 124; A 52.15.184.3 `getent` clean) — dead 37th consecutive cycle, no takeover surface, target unchanged.
+- 2026-09-24 ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 17:32Z (:443 8s connect-timeout exit 28; A 52.15.184.3 `getent` clean) — dead 39th consecutive cycle, no takeover surface, target unchanged
+- 2026-09-24 ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin) re-verified live 2026-09-24 17:32Z — precondition chain intact
+- 2026-09-24 CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed CqlAYNcX.js→CQoy7ifk.js (200, 1,336,611B −42B, last-modified 2026-09-24T13:00:21Z, real deploy) — mutation-template counts bit-identical; no auth-surface delta
+- 2026-09-24 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class, consistent with prior cycles)

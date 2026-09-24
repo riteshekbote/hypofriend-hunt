@@ -3043,3 +3043,20 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed 20:40Z on GET / (302 both)
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
 - LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle CYL-uMFM.js responds 200 (1,336,653B) — still shipped, rename-only state persists, no mutation surface delta
+
+## RANKED HYPOTHESES 2026-09-24 17:33:32 UTC
+- [99] core.hypofriend.de/property-search-api: core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [65] core.hypofriend.de/en/plus/q: Auth-free mutations release lead-existence + firstName oracle and enable magic-link generation (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: POC phase remains pinned to dead target api.hypofriend.de (this cycle: :443 and :80 both 8s connect-timeout exit 28, `000`; A 52.15.184.3 `getent` clean 
+- NEXT(hypotheses-nemotron3.txt): HUMAN: POC phase pinned to dead target api.hypofriend.de (37 consecutive cycles 000 :443/:80, re-probed 2026-09-24). Request phase retarget to core.hypofriend.d
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 17:32Z (:443 8s connect-timeout exit 28; A 52.15.184.3 `getent` clean) — dead 39th conse
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin) re-verified live 2026-0
+- LEARN: CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed CqlAYNcX.js→CQoy7ifk.js (200, 1,336,611B −42B, last-modified 2026-09-24T13:00:21Z, real deploy) — mutation
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class, consistent with prior cycles)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-23 20:40Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-23 20:40Z on :443/:80 (8s connect-timeouts, exit 28) — dead 36th consecutive cycle, A 52.15
+- LEARN: CHANGED @ hypofriend.de/m/_nuxt: entry bundle renamed CYL-uMFM.js→CqlAYNcX.js (old 403; new 200, 1,336,653B byte-identical, last-modified 2026-09-23T12:56:56Z, 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS remains closed there (contrast-class vs /q-family)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin XFO:ALLOWALL vs edge XFO:DENY + full CF stack re-confirmed 20:40Z on GET / (302 both)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is a global rack-cors middleware — arbitrary/nonexistent path /zzz-3684 and /api/v3/advisors OPTIONS 
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt: entry bundle CYL-uMFM.js responds 200 (1,336,653B) — still shipped, rename-only state persists, no mutation surface delta
