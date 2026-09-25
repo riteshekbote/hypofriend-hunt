@@ -5765,3 +5765,39 @@ evidence_needed: a session-bound read resolver returning lead JSON
 verify_steps: HEAD/OPTIONS only (passive). No POST/read with session unless HUMAN+authorization
 impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency + read-resolver gap)
 testability: HUMAN_ONLY
+## 2026-09-25 08:55:19 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,9.6,"attack_surface=10;business_value=10;tech_exposure=10;gate_ease=10;cloud_surface=8;freshness=8"
+[PRIO] core.hypofriend.de/en/plus/q,8.6,"attack_surface=9;business_value=9;tech_exposure=9;gate_ease=8;cloud_surface=7;freshness=8"
+[PRIO] core.hypofriend.de/q,7.6,"attack_surface=8;business_value=9;tech_exposure=8;gate_ease=4;cloud_surface=7;freshness=8"
+[HYP] Full-DB auth-free listing-PII enumeration remains exploitable through the property-search BOLA chain
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 96
+reasoning: Prior evidence records zero-credential HTTP 200 responses from propertySearch→exposes→expose, including propertyOwnerLastName, phoneNumber, ownerCompany, providerCompany, and providerEmail; introspection exposes offset/limit and geo-bounds primitives; the direct origin serves the same schema without CloudFront headers
+evidence_needed: None for vulnerability existence; only bounded affected-record count remains unquantified
+verify_steps: HEAD https://core.hypofriend.de/property-search-api for route freshness; do not repeat data-returning POST requests without explicit authorization and a controlled test dataset
+impact: Auth-free extraction of German property-listing and contact PII at database scale — CRITICAL
+testability: HUMAN_ONLY
+[HYP] requestAccountLink may disclose email-keyed lead existence and firstName while generating magic links
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q
+confidence: 65
+reasoning: The latest supplied bundle CQoy7ifk.js contains requestAccountLink(input:{email}) with leadPresent and firstName response handling; the mutation executed HTTP 200 without authentication but its data branch and transactional dispatch remain unverified; global credentialed CORS is present
+evidence_needed: Differential results for a controlled pre-created address and a synthetic address, plus staging evidence that dispatch occurs
+verify_steps: HEAD https://hypofriend.de/m/_nuxt/CQoy7ifk.js and passively inspect requestAccountLink, leadPresent, and firstName strings; do not submit real or customer email addresses
+impact: Email-keyed account enumeration, firstName disclosure, and potentially repeated magic-link delivery — MEDIUM-HIGH
+testability: HUMAN_ONLY
+[HYP] Global credentialed CORS may expose session-bound root.lead data cross-origin
+class: OTHER
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Prior evidence records arbitrary-Origin reflection with access-control-allow-credentials:true on actual requests; _hf is HttpOnly with SameSite=None and Secure; the mined schema contains session-bound root.lead PII fields; no controlled authenticated response has confirmed the final exfiltration chain
+evidence_needed: An authorized owned test session showing root.lead data and credentialed cross-origin response headers without touching customer data
+verify_steps: HEAD https://core.hypofriend.de/q for route freshness; final confirmation requires an authorized controlled-session POST and cannot be established passively
+impact: Cross-origin exposure of authenticated lead PII — HIGH
+testability: HUMAN_ONLY
+[PARKED] None — all three hypotheses meet the confidence threshold and have concrete verification paths; no rejected-class item was retained.
+[FINAL] 1. property-search-api full-DB BOLA; 2. requestAccountLink account oracle; 3. credentialed-CORS session-data exposure.
+[NEXT] HUMAN: Obtain explicit authorization to retarget from the dead api.hypofriend.de to core.hypofriend.de/property-search-api for one limit-1, read-only BOLA validation against a controlled test record; stop immediately if customer PII appears.
+[LEARN] ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-25T08:53:46Z returned 000 after 5.002-second connection timeouts on both :443 and :80; DNS remains 52.15.184.3; no live surface or delta.
+[RISK] hypofriend: 91 — The confirmed CRITICAL listing-PII BOLA remains unpatched and directly reachable; the magic-link semantic oracle and authenticated CORS exfiltration chain remain unproven; this cycle produced no new exploitable surface.
