@@ -1022,3 +1022,17 @@ https://core.hypofriend.de/en/plus/q -> 200 len=228601
 https://hypofriend.de/m/_nuxt/DRDuhMz8.js -> 200 len=1336611
 https://core.hypofriend.de/q -> 200 len=228601
 https://hypofriend.de/en/plus` -> HTTP 403
+
+## 2026-09-25 22:07:19 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/zzz-arbitrary-path -> 200 len=228601
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/en/plus/q -> 200 len=228601
+https://hypofriend.de/api/v3/advisors` -> 200 len=228601
+https://hypofriend.de/content` -> 200 len=228601
+https://hypofriend.de/` -> 200 len=228601
+https://hypofriend.de/api/v3/advisors -> HTTP 401
+https://hypofriend.de/m/_nuxt/DRDuhMz8.js -> 200 len=1336611
+https://property-search.hypofriend.de` -> ERR <urlopen error [Errno -2] Name or service not know
+https://core.hypofriend.de/property-search-api` -> HTTP 400
+https://core.hypofriend.de/q` -> 200 len=228601

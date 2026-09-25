@@ -1053,3 +1053,16 @@ www.hypofriend.de
 - NEW core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-25T18:51Z — OPTIONS echoes arbitrary Origin + `access-control-allow-credentials:true` + all methods (max-age 7200, no Vary:Orig
 - NEW core.hypofriend.de global rack-cors middleware: arbitrary path `/zzz-arbitrary-path` OPTIONS echoes ACAO + ACAC:true + all methods — not `/q`-specific, applies to ALL Rails routes
 - CHANGED POC phase remains pinned to dead target api.hypofriend.de (39th consecutive cycle: :443/:80 both ~5s connect-timeout, 000; A 52.15.184.3 clean) — phase mismatch constrains all probe actions to read-on
+
+## 2026-09-25 22:06:59 UTC
+- NEW Hardcoded HTTP Basic credential in the public client bundle: `g8()` attaches `Authorization: Basic aHlwbzphZHZpc29yczIwMTgr` → decodes to `hypo:advisors2018+` (sha256 of the b64 token `56f00b87f9a28c8
+- NEW Full 151-chunk re-mine from the `2026-09-25T15:04:49Z` deploy **completed with a negative result**: every named GraphQL op (`requestAccountLink`=3, `requestAppointmentLink`=7, `unclaimLead`=9, `setNam
+- NEW Client-side GraphQL documents are built by **raw `${}` string interpolation** into query text, not variables — the sole exception is `setLocale($locale: LocaleEnum!)`. Interpolation sites include `set
+- NEW Two of those interpolations are **attacker-influenceable without a session**: `setReferrer(document.referrer)` (fires on any inbound referrer) and `setMarketingCampaign` (utm_* from the landing URL). 
+- NEW `contentApiUrl` = `https://hypofriend.de/content` → `/content` 301→`/`, `/content/q` **404** (5201B Nuxt 404). `coreApiUrl`+`/en/profile/` (multipart lead+attribution sink) → 301→`/`. No new live surf
+- NEW Latent `innerHTML` sink in the new `/en/plus`-only chunk `CxXpQ0jt.js` (1125B, `FaqSection`): `innerHTML:a.answer` on the `html:true` branch, while `question` is tag-stripped. **Exactly one call site 
+- CHANGED Deploy `2026-09-25T15:03:29Z` (bundle) / `15:04:49Z` (/en/plus HTML). `/en/plus` 298552 → **298645B** (+93B); `/en` 228601B. Shared `buildId:5df86bf4-d8ef-489a-bd39-4ddeff2f3979`. Entry `DRDuhMz8.js` 
+- CHANGED `unclaimLead` now closed at the **template** level, not just the call site: `mutation unclaimLead { unclaimLead(input: {}) { … } }` — zero arguments, session-scoped. No IDOR.
+- CHANGED `api.hypofriend.de` (target) re-probed live 2026-09-25T21:55:56Z: curl exit 124 on **both** :443 and :80 (12s timeouts), `getent` clean at A 52.15.184.3 — **dead 44th consecutive cycle**, no takeover 
+- CHANGED `core.hypofriend.de/en/plus/q` credentialed CORS re-verified live: ACAO echo + `ACAC:true` + all 7 methods + max-age 7200, `vary: Accept-Encoding`. `core.hypofriend.de/property-search-api` OPTIONS 200
+- CHANGED `/en/health` still an 89B meta-refresh to `/en`; `/en/health/q` and `/en/plus/q` both still 301→`https://hypofriend.de/` on GET from origin.
