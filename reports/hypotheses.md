@@ -3135,3 +3135,22 @@
 - LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 23:43Z on :443/:80 (10s connect-timeouts) — dead 38th consecutive cycle, A 52.15.184.3 r
 - LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: bundle bit-stable (1,336,611B, last-modified 2026-09-24T13:00:21Z) — mutation-template counts identical, no aut
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class vs /q-family, consistent 41+ cycl
+
+## RANKED HYPOTHESES 2026-09-25 18:55:53 UTC
+- [99] core.hypofriend.de/property-search-api: core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [96] core.hypofriend.de/property-search-api: Auth-free listing-PII enumeration via the property-search BOLA chain remains the standing critical issue (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): SCAN: passive re-mine of the 151 bundles referenced by `https://hypofriend.de/en/plus` after the 2026-09-25T18:5xZ deploy, diffing named GraphQL operations, arg
+- NEXT(hypotheses-nemotron3.txt): HUMAN: POC phase pinned to dead target api.hypofriend.de (39th consecutive cycle: :443/:80 both ~5s connect-timeout, 000; A 52.15.184.3 getent clean). Request p
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus/q: `unclaimLead` is not a cross-tenant write primitive — bundle `Ke(t.unclaimLead(),!1,"unclaimLead")` passes no 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: app now emits `vary: Origin, Accept-Encoding` on origin responses (previously `Accept-Encoding` only) while still refle
+- LEARN: ACCEPTED NG @ core.hypofriend.de/api/v3/delete-cookie: unauthenticated 200 on both origin and edge where sibling `/api/v3/advisors` is 401 Basic — new untracked
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): HEAD probes at 2026-09-25T18:51:27Z returned 000 after 10.001s (:443) and 10.002s (:80) connect-timeouts; DNS remains 
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt/DRDuhMz8.js: entry bundle renamed CQoy7ifk.js→DRDuhMz8.js (200, 1,336,611B, sha256 28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-25T18:51Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-25T18:51Z — propertySearch→exposes→expose returns PII (prop
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/health,q: credentialed CORS identical to /en/plus/q on edge AND origin
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: auth-free mutation requestAccountLink executes 200 without auth (returns Typename)
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-25T14:22Z on :443/:80 (~5s connect-timeouts) — dead 39th consecutive cycle, A 52.15.184.3 r
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: bundle bit-stable (1,336,611B, last-modified 2026-09-24T13:00:21Z) — mutation-template counts identical, no aut
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class vs /q-family, consistent 41+ cycl

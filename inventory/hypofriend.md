@@ -1038,3 +1038,18 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de re-probed 2026-09-24 23:43Z: 000 on :443/:80 (10s connect-timeout) — dead 38th consecutive cycle
 - CHANGED core.hypofriend.de/en/health,q credentialed CORS identical to /en/plus,q on edge AND origin — persistent
 - CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
+
+## 2026-09-25 18:55:53 UTC
+- NEW `GET/HEAD core.hypofriend.de/api/v3/delete-cookie` AND `hypofriend.de/api/v3/delete-cookie` → **200 unauthenticated on both origin and edge**; sibling `/api/v3/advisors` in the same namespace is **401
+- NEW `unclaimLead` in entry bundle resolved as **argument-less / session-scoped** — client invokes `Ke(t.unclaimLead(),!1,"unclaimLead")` and reads `.success` with no variables. The 2026-09-18 "new auth-fr
+- NEW Bundle field `getAdvisor()` → `root.lead.claimerAdminEmail` — internal-staff email address on the session-bound lead object. Newly recorded schema field.
+- NEW `propertySearchApiUrl` default in bundle confirmed as `https://property-…` host (runtime-overridden); `xk(path)` helper confirmed as `GET ${coreApiUrl}/api/v3/${path}` — the `/api/v3/` namespace base 
+- CHANGED Entry bundle renamed **CQoy7ifk.js → DRDuhMz8.js** (old 403, new 200, 1,336,611B — byte-size identical, 5th rename in 7 days; sha256 `28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f90d583a85e4b5ee7ec0e2c6`)
+- CHANGED Origin `GET /` now returns `vary: Origin, Accept-Encoding` (previously `Accept-Encoding` only) — the app now correctly varies on Origin across the credentialed-CORS surface. Edge `/api/v3/delete-cooki
+- CHANGED `api.hypofriend.de` (target) re-probed 2026-09-25T18:51:27Z: `000` on :443 and :80 (10.001s / 10.002s connect-timeout), `getent` clean at A 52.15.184.3 — **dead 43rd consecutive cycle**.
+- CHANGED `core.hypofriend.de/en/plus/q` credentialed CORS re-verified 18:51:51Z (ACAO echo + ACAC:true + all methods, max-age 7200, no Vary:Origin). `core.hypofriend.de/zzz-arbitrary-path` global rack-cors ech
+- CHANGED `core.hypofriend.de/` origin 302 → `x-frame-options: ALLOWALL` + HSTS, edge `/api/v3/delete-cookie` 200 → `x-frame-options: DENY` — XFO origin/edge differential persists.
+- NEW core.hypofriend.de/property-search-api: live PII enumeration re-confirmed 2026-09-25T18:51Z — `propertySearch→exposes→expose` chain returns broker/owner PII (propertyOwnerLastName="GmbH", phoneNumber=
+- NEW core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-25T18:51Z — OPTIONS echoes arbitrary Origin + `access-control-allow-credentials:true` + all methods (max-age 7200, no Vary:Orig
+- NEW core.hypofriend.de global rack-cors middleware: arbitrary path `/zzz-arbitrary-path` OPTIONS echoes ACAO + ACAC:true + all methods — not `/q`-specific, applies to ALL Rails routes
+- CHANGED POC phase remains pinned to dead target api.hypofriend.de (39th consecutive cycle: :443/:80 both ~5s connect-timeout, 000; A 52.15.184.3 clean) — phase mismatch constrains all probe actions to read-on

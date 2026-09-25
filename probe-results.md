@@ -1013,3 +1013,12 @@ https://core.hypofriend.de/api/v3/advisors -> HTTP 401
 https://core.hypofriend.de/en/plus/q -> 200 len=228601
 https://hypofriend.de/m/_nuxt/CQoy7ifk.js -> HTTP 403
 https://core.hypofriend.de/q -> 200 len=228601
+
+## 2026-09-25 18:56:04 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/zzz-arbitrary-path -> 200 len=228601
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/en/plus/q -> 200 len=228601
+https://hypofriend.de/m/_nuxt/DRDuhMz8.js -> 200 len=1336611
+https://core.hypofriend.de/q -> 200 len=228601
+https://hypofriend.de/en/plus` -> HTTP 403
