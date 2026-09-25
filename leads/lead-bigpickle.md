@@ -5737,3 +5737,31 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: HEAD 200 — bundle bit-stable, mutation-template surface unchanged, no auth-surface delta.
 [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class vs /q-family, consistent 41+ cycles).
 [RISK] hypofriend: 91 — standing CRITICAL auth-free listing-PII BOLA unpatched 41+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free lead-existence/magic-link oracles remain live (CORS re-verified this cycle); active dev on exposed surface (multiple real bundle deploys in 72h). Mitigants: zero new exploitable surface this cycle, read-side lead resolver still absent (exfil chain incomplete), phase pinned to dead target caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced, no customer data touched.
+## 2026-09-25 03:01:36 UTC [target] (model bigpickle)
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api remains the standing CRITICAL (BOLA + direct-origin WAF/header bypass)
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de)
+confidence: 96
+reasoning: propertySearch→exposes→expose returns 200 zero-credentials (cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany); introspection enabled; offset-walk + geo-bounds primitives; origin responses bare vs edge CF stack (re-verified 03:01Z); limit capped ~50/req; chain live-confirmed 20:46Z prior cycle
+evidence_needed: none — existence frozen 40+ cycles; only full record-count extent unquantified
+verify_steps: HEAD https://core.hypofriend.de/ (302 XFO:ALLOWALL) vs https://hypofriend.de/ (DENY+CF) already done; no POST/offset-walk under passive rules
+impact: Full-DB extraction of German listing PII — CRITICAL
+testability: HUMAN_ONLY
+[HYP] Auth-free requestAccountLink mutation releases email-keyed lead-existence + firstName oracle and enables unbounded magic-link generation
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: current entry bundle CQoy7ifk.js ships requestAccountLink(input:{email})→leadPresent?firstName + magic-link copy; requestLogin wraps same resolver; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS re-verified 03:01Z at origin
+evidence_needed: branch behavior for synthetic non-existent vs existing email; whether transactional dispatch occurs (would send real mail — HUMAN-gated)
+verify_steps: none passive beyond OPTIONS preflight (done this cycle); POST would emit transactional mail — requires HUMAN+authorization
+impact: (a) lead/account existence + firstName disclosure keyed on arbitrary email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q family
+confidence: 48
+reasoning: rack-cors global echo re-verified 03:01Z (ACAO:evil.example + ACAC:true + all methods, no Vary:Origin); SameSite=None;Secure session cookies (_hf HttpOnly, seen 03:01Z); bundle still references read-side lead-store (fetchUserInfo, isLoggedIn, claimedAdvisor) but no named session-bound lead resolver ever observed (introspection disabled, 40+ cycles)
+evidence_needed: a session-bound read resolver returning lead JSON
+verify_steps: HEAD/OPTIONS only (passive). No POST/read with session unless HUMAN+authorization
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency + read-resolver gap)
+testability: HUMAN_ONLY

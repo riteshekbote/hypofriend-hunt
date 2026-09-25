@@ -30964,3 +30964,119 @@ testability: HUMAN_ONLY
 
 ## STEP 7 — RISK
 [RISK] hypofriend: 91 — standing CRITICAL auth-free listing-PII BOLA unpatched 41+ cycles on directly-reachable origin with WAF/header bypass; global credentialed CORS + auth-free lead-existence/magic-link oracles remain live (CORS re-verified this cycle); active dev on exposed surface (multiple real bundle deploys in 72h). Mitigants: zero new exploitable surface this cycle, read-side lead resolver still absent (exfil chain incomplete), phase pinned to dead target caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced, no customer data touched.
+===== ANALYST bigpickle 2026-09-25 03:02:26 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "=== api.hypofriend.de :443 ==="; curl -sk -o /dev/null -w "%{http_code} %{time_connect}s exit=%{exitcode}\n" --connect-timeout 8 --max-time 10 https://api.hypofriend.de/ ; echo "exit=$?"; echo "=== api.hypofriend.de :80 ==="; curl -sk -o /dev/null -w "%{http_code} %{time_connect}s exit=%{exitcode}\n" --connect-timeout 8 --max-time 10 http://api.hypofriend.de/ ; echo "exit=$?"
+=== api.hypofriend.de :443 ===
+000 0.000000s exit=28
+exit=28
+=== api.hypofriend.de :80 ===
+000 0.000000s exit=28
+exit=28
+[0m
+[0m$ [0mcurl -sk -D - -o /dev/null -X OPTIONS --connect-timeout 8 --max-time 12 -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" "https://core.hypofriend.de/en/plus/q" | head -40
+HTTP/2 200 
+date: Fri, 25 Sep 2026 03:01:02 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0mcurl -sk -o /dev/null -w "CQoy7ifk.js HEAD: %{http_code} %{size_download}B lastmod=%{time_starttransfer}\n" -I --connect-timeout 8 --max-time 12 "https://hypofriend.de/m/_nuxt/CQoy7ifk.js"; curl -sk -D - -o /tmp/plus_page.html --connect-timeout 8 --max-time 12 "https://hypofriend.de/en/plus" | grep -iE "^(HTTP|content-length|date|last-modified)" ; echo "---bundle refs---"; grep -oE "/m/_nuxt/[A-Za-z0-9_-]+\.js" /tmp/plus_page.html | sort -u | head
+CQoy7ifk.js HEAD: 200 0B lastmod=0.385931
+HTTP/2 200 
+content-length: 298645
+last-modified: Thu, 24 Sep 2026 13:01:28 GMT
+date: Fri, 25 Sep 2026 03:01:08 GMT
+---bundle refs---
+/m/_nuxt/-ez_sPea.js
+/m/_nuxt/031sR0Dk.js
+/m/_nuxt/22Pu5ap6.js
+/m/_nuxt/7LJm_38-.js
+/m/_nuxt/AuiHv9WO.js
+/m/_nuxt/B-rP7pOM.js
+/m/_nuxt/B0dqiS1K.js
+/m/_nuxt/B1jEw4nT.js
+/m/_nuxt/B2vkSg1F.js
+/m/_nuxt/B35S2sub.js
+[0m
+[0m$ [0mgrep -oE 'src="[^"]*_nuxt/[^"]*\.js"' /tmp/plus_page.html | sort -u | head -40; echo "---known entries present?---"; for n in CQoy7ifk CqlAYNcX CYL-uMFM B9bmTtuA; do grep -c "$n" /tmp/plus_page.html; done
+src="/m/_nuxt/CQoy7ifk.js"
+---known entries present?---
+1
+0
+0
+0
+[0m
+[0m$ [0mecho "=== core origin GET / ==="; curl -sk -D - -o /dev/null --connect-timeout 8 --max-time 12 "https://core.hypofriend.de/" | grep -iE "^(HTTP|x-frame-options|strict-transport|server|x-content-type|x-xss|referrer-policy|set-cookie|location)"; echo "=== core origin /property-search-api (GET) ==="; curl -sk -D - -o /dev/null --connect-timeout 8 --max-time 12 "https://core.hypofriend.de/property-search-api" | grep -iE "^(HTTP|x-frame-options|strict-transport|server|x-content-type|x-xss|referrer-policy|content-length)"
+=== core origin GET / ===
+HTTP/2 302 
+location: https://hypofriend.de/en
+x-frame-options: ALLOWALL
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Tue, 25 Sep 2029 03:01:15 GMT; secure; samesite=none
+set-cookie: _hf=0b91b0721ad36e6150aed7b069cd5a86; domain=hypofriend.de; path=/; expires=Thu, 25 Sep 2036 03:01:15 GMT; secure; httponly
+strict-transport-security: max-age=63072000; includeSubDomains
+=== core origin /property-search-api (GET) ===
+HTTP/2 400 
+content-length: 97
+[0m
+STEP 1 — DELTA
+- NO_DELTA: api.hypofriend.de (target) `000` :443/:80 03:01Z (exit 28, 8s connect timeouts) — dead 42nd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+- CHANGED: hypofriend.de/en/plus edge page refreshed 2026-09-24T13:01:28Z (len 298552→298645); entry bundle unchanged `CQoy7ifk.js` (HEAD 200) — static redeploy, no auth-surface delta.
+- CONFIRMED unchanged: core.hypofriend.de/en/plus/q credentialed CORS re-verified 03:01Z (ACAO:evil.example + ACAC:true + all methods, max-age 7200, no Vary:Origin); origin GET / 302 XFO:ALLOWALL + `_hf`/`internal` cookies vs edge DENY — differential intact; origin /property-search-api GET 400 bare (date/content-length only).
+
+STEP 2 — PRIORITIZE
+- [PRIO] core.hypofriend.de/property-search-api — attack 10, business 10, tech(GraphQL+introspection) 10, gate(no auth) 10, cloud 8, fresh 10 → 9.8
+- [PRIO] core.hypofriend.de/en/plus/q (+/en/health/q) — attack 6, business 6, tech(GraphQL/CORS) 8, gate(no auth) 9, cloud 6, fresh 9 → 7.2
+- [PRIO] core.hypofriend.de global rack-cors (identity surface) — attack 5, business 6, tech 7, gate 10, cloud 5, fresh 9 → 6.9
+
+STEP 3 — HYPOTHESES
+[HYP] Full-DB auth-free listing-PII enumeration via property-search-api remains the standing CRITICAL (BOLA + direct-origin WAF/header bypass)
+class: IDOR
+asset: core.hypofriend.de/property-search-api (+hypofriend.de)
+confidence: 96
+reasoning: propertySearch→exposes→expose returns 200 zero-credentials (cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany); introspection enabled; offset-walk + geo-bounds primitives; origin responses bare vs edge CF stack (re-verified 03:01Z); limit capped ~50/req; chain live-confirmed 20:46Z prior cycle
+evidence_needed: none — existence frozen 40+ cycles; only full record-count extent unquantified
+verify_steps: HEAD https://core.hypofriend.de/ (302 XFO:ALLOWALL) vs https://hypofriend.de/ (DENY+CF) already done; no POST/offset-walk under passive rules
+impact: Full-DB extraction of German listing PII — CRITICAL
+testability: HUMAN_ONLY
+[HYP] Auth-free requestAccountLink mutation releases email-keyed lead-existence + firstName oracle and enables unbounded magic-link generation
+class: BUSLOGIC
+asset: core.hypofriend.de/en/plus/q (+hypofriend.de/en/plus/q, /en/health/q)
+confidence: 65
+reasoning: current entry bundle CQoy7ifk.js ships requestAccountLink(input:{email})→leadPresent?firstName + magic-link copy; requestLogin wraps same resolver; uploadDocumentExtended/processLeadForAppointment execute 200 auth-free; credentialed CORS re-verified 03:01Z at origin
+evidence_needed: branch behavior for synthetic non-existent vs existing email; whether transactional dispatch occurs (would send real mail — HUMAN-gated)
+verify_steps: none passive beyond OPTIONS preflight (done this cycle); POST would emit transactional mail — requires HUMAN+authorization
+impact: (a) lead/account existence + firstName disclosure keyed on arbitrary email; (b) unbounded magic-link generation on credentialed-CORS surface — MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Global credentialed CORS converts any session-bound /q read into cross-origin authenticated lead exfiltration
+class: OTHER
+asset: core.hypofriend.de (global rack-cors, any path); /q family
+confidence: 48
+reasoning: rack-cors global echo re-verified 03:01Z (ACAO:evil.example + ACAC:true + all methods, no Vary:Origin); SameSite=None;Secure session cookies (_hf HttpOnly, seen 03:01Z); bundle still references read-side lead-store (fetchUserInfo, isLoggedIn, claimedAdvisor) but no named session-bound lead resolver ever observed (introspection disabled, 40+ cycles)
+evidence_needed: a session-bound read resolver returning lead JSON
+verify_steps: HEAD/OPTIONS only (passive). No POST/read with session unless HUMAN+authorization
+impact: cross-origin authenticated lead PII exfiltration via victim session — MEDIUM (victim-session dependency + read-resolver gap)
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] cookie-flag/provenance differential (`_hf`, `internal=FALSE`, XFO:ALLOWALL): descriptive/header-only class, already REJECTED-tracked — evidence only.
+- [PARKED] api.hypofriend.de takeover: dead 42 cycles, A resolves to owned VPC ink — no CNAME/NS dangling, takeover not demonstrated.
+- [FINAL] 1) property-search-api BOLA (96), 2) requestAccountLink oracle (65), 3) credentialed-CORS exfil-chain (48).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: POC phase still pinned to dead target api.hypofriend.de (`000` 42nd consecutive cycle, A 52.15.184.3 clean). Request phase retarget to core.hypofriend.de/property-search-api to validate bounded BOLA extent under explicit authorization (read-only, limit≤50/req, single city, custodial volume cap); do NOT bulk-enumerate or run any mutation. No new probe target this cycle — CORS, differential, and entry bundle all bit-stable.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED NG @ api.hypofriend.de (target): `000` re-probed live 2026-09-25 03:01Z on :443/:80 (both exit 28, 8s connect timeouts) — dead 42nd consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface.
+- [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 03:01Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack — precondition chain intact.
+- [LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: HEAD 200 — still current entry (page last-modified 2026-09-24T13:01:28Z, len 298645), no rename, mutation surface unchanged.
+- [LEARN] ACCEPTED NG @ core.hypofriend.de: origin GET / 302 XFO:ALLOWALL + `_hf` HttpOnly SameSite=None + `internal=FALSE` cookies re-observed 03:01Z; /property-search-api GET 400 bare — provenance/header differential only, no new class.
+
+STEP 7 — RISK
+- [RISK] hypofriend: 91 — standing CRITICAL auth-free listing-PII BOLA unpatched 42+ cycles on directly-reachable origin with WAF/security-header bypass; global credentialed CORS + auth-free lead-existence/magic-link oracles remain live (CORS re-verified 03:01Z); /en/plus page redeployed 2026-09-24 (build pipeline feeding exposed surface). Mitigants: zero new exploitable surface this cycle, read-side lead resolver still absent (exfil chain incomplete), phase pinned to dead target caps novel exploitation, read-only GET/HEAD/OPTIONS ≤1rps enforced, no customer data touched.

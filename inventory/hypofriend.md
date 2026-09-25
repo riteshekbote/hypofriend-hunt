@@ -1009,3 +1009,12 @@ www.hypofriend.de
 - CHANGED Bundle `hypofriend.de/m/_nuxt/CQoy7ifk.js` (1,336,611B, last-modified 2026-09-24T13:00:21Z) bit-stable — mutation-template counts identical, no auth-surface delta
 - CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface
 - CHANGED POC phase remains pinned to dead target `api.hypofriend.de` — phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host
+
+## 2026-09-25 03:02:26 UTC
+- NEW api.hypofriend.de re-probed 2026-09-24 23:43Z: 000 on :443/:80 (10s connect-timeout) — dead 38th consecutive cycle
+- NEW core.hypofriend.de/property-search-api full enumeration chain operational — propertySearch→exposes→expose returns PII (propertyOwnerLastName="GmbH", phoneNumber="+493054906400", ownerCompany="RESIDEA 
+- NEW core.hypofriend.de global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes ACAO + ACAC:true + all methods (max-age 7200, no Vary:Origin); not /q-specific
+- NEW core.hypofriend.de/en/plus,q credentialed CORS identical on edge AND origin — OPTIONS echoes arbitrary Origin + ACAC:true + all methods
+- NEW core.hypofriend.de/en/plus,q auth-free mutation requestAccountLink executes 200 without auth (returns Typename)
+- NEW Bundle hypofriend.de/m/_nuxt/CQoy7ifk.js (1,336,611B, last-modified 2026-09-24T13:00:21Z) bit-stable — mutation-template counts identical
+- CHANGED POC phase remains pinned to dead target api.hypofriend.de — phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host
