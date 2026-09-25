@@ -687,3 +687,5 @@
 - 2026-09-25 ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 23:43Z on :443/:80 (10s connect-timeouts) — dead 38th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface
 - 2026-09-25 ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: bundle bit-stable (1,336,611B, last-modified 2026-09-24T13:00:21Z) — mutation-template counts identical, no auth-surface delta
 - 2026-09-25 ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-25T08:53:46Z returned 000 after 5.002-second connection timeouts on both :443 and :80; DNS remains 52.15.184.3; no live surface or delta.
+- 2026-09-25 ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-25T14:22:47Z returned 000 after approximately 5.001-second connection timeouts on both :443 and :80; DNS remains 52.15.184.3; no live surface or delta.
+- 2026-09-25 REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class vs /q-family, consistent 41+ cycles)

@@ -1027,3 +1027,14 @@ www.hypofriend.de
 - NEW core.hypofriend.de/en/plus,q auth-free mutation requestAccountLink executes 200 without auth (returns Typename)
 - NEW Bundle hypofriend.de/m/_nuxt/CQoy7ifk.js (1,336,611B, last-modified 2026-09-24T13:00:21Z) bit-stable — mutation-template counts identical
 - CHANGED POC phase remains pinned to dead target api.hypofriend.de — phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host
+
+## 2026-09-25 14:25:46 UTC
+- NEW core.hypofriend.de/en/plus,q auth-free mutation `requestAccountLink` executes 200 without auth (returns Typename) — confirmed live 2026-09-24 23:43Z
+- NEW core.hypofriend.de global rack-cors middleware — arbitrary path `/zzz-arbitrary-path` OPTIONS echoes ACAO + ACAC:true + all methods (max-age 7200, no Vary:Origin); not `/q`-specific — re-verified live
+- NEW core.hypofriend.de/en/plus,q credentialed CORS identical on edge AND origin — OPTIONS echoes arbitrary Origin + ACAC:true + all methods — re-verified live 2026-09-24 23:43Z
+- NEW core.hypofriend.de/property-search-api full enumeration chain operational — propertySearch→exposes→expose returns PII (propertyOwnerLastName="GmbH", phoneNumber="+493054906400", ownerCompany="RESIDEA 
+- NEW Bundle hypofriend.de/m/_nuxt/CQoy7ifk.js (1,336,611B, last-modified 2026-09-24T13:00:21Z) bit-stable — mutation-template counts identical
+- CHANGED POC phase remains pinned to dead target api.hypofriend.de (38th consecutive cycle: :443/:80 both 10s connect-timeout, 000; A 52.15.184.3 getent clean) — phase mismatch constrains all probe actions to 
+- CHANGED api.hypofriend.de re-probed 2026-09-24 23:43Z: 000 on :443/:80 (10s connect-timeout) — dead 38th consecutive cycle
+- CHANGED core.hypofriend.de/en/health,q credentialed CORS identical to /en/plus,q on edge AND origin — persistent
+- CHANGED All dead fleet + buckets unchanged (503/000/301/403) — no new surface

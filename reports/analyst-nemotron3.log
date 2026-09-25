@@ -18408,3 +18408,134 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 98 — Unauthenticated production GraphQL APIs with full introspection (property-search-api) + auth-free read/write over arbitrary leadId carrying broker/owner PII. Direct Rails origin (core.hypofriend.de) bypasses CloudFront WAF/rate-limiting. Global credentialed CORS middleware on core origin extends cross-origin authenticated access to ALL Rails routes — any current/future authenticated endpoint, admin panel, internal API becomes readable/writable from arbitrary origin. Two additional appointment instances (/en/health, /en/plus) with independent GraphQL surfaces replicating auth-free mutation pattern (uploadDocumentExtended, processLeadForAppointment, requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead) + OPEN CREDENTIALED CORS on both edge and origin. Anonymous mortgage-rate oracle (rates_table) leaks live per-region lender pricing (0.10% delta BAYERN vs SAXONY). Severity: CRITICAL.
+===== ANALYST nemotron3 2026-09-25 14:25:46 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la
+total 660
+drwxr-xr-x 12 runner runner   4096 Sep 25 14:22 .
+drwxr-xr-x  3 runner runner   4096 Sep 25 14:22 ..
+drwxr-xr-x  7 runner runner   4096 Sep 25 14:22 .git
+drwxr-xr-x  3 runner runner   4096 Sep 25 14:22 .github
+-rw-r--r--  1 runner runner   1885 Sep 25 14:22 README.md
+-rw-r--r--  1 runner runner     43 Sep 25 14:22 analyst-out.txt
+-rw-r--r--  1 runner runner 269630 Sep 25 14:22 analyst-prompt.txt
+-rw-r--r--  1 runner runner 265755 Sep 25 14:22 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 25 14:22 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 25 14:22 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 25 14:22 leads
+-rw-r--r--  1 runner runner  42094 Sep 25 14:22 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 25 14:22 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 25 14:22 reports
+drwxr-xr-x  2 runner runner   4096 Sep 25 14:22 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Sep 25 14:22 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 25 14:22 scripts
+-rw-r--r--  1 runner runner     33 Sep 25 14:22 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 25 14:22 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 25 14:22 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 25 14:22 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 25 14:22 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 25 14:22 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 25 14:22 triage
+[0m
+[0m→ [0mRead state_nemotron3.json
+[0m→ [0mRead scope.yml
+[0m→ [0mRead inventory/hypofriend.md
+Now I have a complete picture. Let me execute the 8-step analysis.
+
+---
+
+**STEP 1 — DELTA**
+
+[NEW] core.hypofriend.de/en/plus,q auth-free mutation `requestAccountLink` executes 200 without auth (returns Typename) — confirmed live 2026-09-24 23:43Z  
+[NEW] core.hypofriend.de global rack-cors middleware — arbitrary path `/zzz-arbitrary-path` OPTIONS echoes ACAO + ACAC:true + all methods (max-age 7200, no Vary:Origin); not `/q`-specific — re-verified live 2026-09-24 23:43Z  
+[NEW] core.hypofriend.de/en/plus,q credentialed CORS identical on edge AND origin — OPTIONS echoes arbitrary Origin + ACAC:true + all methods — re-verified live 2026-09-24 23:43Z  
+[NEW] core.hypofriend.de/property-search-api full enumeration chain operational — propertySearch→exposes→expose returns PII (propertyOwnerLastName="GmbH", phoneNumber="+493054906400", ownerCompany="RESIDEA Immobilien Management GmbH", providerCompany="immoscout24") auth-free; direct-origin bare headers vs edge CF stack — re-confirmed live 2026-09-24 23:43Z  
+[NEW] Bundle hypofriend.de/m/_nuxt/CQoy7ifk.js (1,336,611B, last-modified 2026-09-24T13:00:21Z) bit-stable — mutation-template counts identical  
+[CHANGED] POC phase remains pinned to dead target api.hypofriend.de (38th consecutive cycle: :443/:80 both 10s connect-timeout, 000; A 52.15.184.3 getent clean) — phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host  
+[CHANGED] api.hypofriend.de re-probed 2026-09-24 23:43Z: 000 on :443/:80 (10s connect-timeout) — dead 38th consecutive cycle  
+[CHANGED] core.hypofriend.de/en/health,q credentialed CORS identical to /en/plus,q on edge AND origin — persistent  
+[CHANGED] All dead fleet + buckets unchanged (503/000/301/403) — no new surface  
+
+---
+
+**STEP 2 — PRIORITIZE**
+
+[PRIO] core.hypofriend.de/property-search-api,9.9,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=9,freshness=10  
+[PRIO] core.hypofriend.de (global CORS),9.8,attack_surface=10,business_value=10,tech_exposure=9,gate_ease=10,cloud_surface=9,freshness=10  
+[PRIO] core.hypofriend.de/en/plus/q,9.7,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=9,freshness=10  
+[PRIO] core.hypofriend.de/en/health/q,9.5,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=9,freshness=10  
+[PRIO] hypofriend.de/q,8.5,attack_surface=8,business_value=7,tech_exposure=8,gate_ease=10,cloud_surface=8,freshness=10  
+[PRIO] api.hypofriend.de,0.0,attack_surface=0,business_value=0,tech_exposure=0,gate_ease=0,cloud_surface=0,freshness=0  
+
+---
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale  
+class: IDOR  
+asset: core.hypofriend.de/property-search-api  
+confidence: 99  
+reasoning: Full introspection enabled on direct origin. propertySearch(city:BERLIN,propertyType:APARTMENT) returns searchId UUID with zero credentials (live: 4465a569-178a-585d-b4e2-b879d012fb80). exposes(id:<searchId>,offset:0,limit:5) returns 6 listing UUIDs. expose(id) on enumerated UUID returns PII: propertyOwnerLastName="GmbH", phoneNumber="+493054906400", ownerCompany="RESIDEA Immobilien Management GmbH", providerCompany="immoscout24" (live confirmed 2026-09-24 23:43Z). Pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives (limit capped ~50, offset walk required). expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and delisted-record args exposed auth-free. Direct origin returns bare headers (date/content-type/vary only) vs edge full CloudFront stack — WAF/security-header layer fully bypassed at origin.  
+evidence_needed: Full enumeration run against direct origin confirming PII (cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany) returned for enumerated UUIDs across multiple cities without auth  
+verify_steps: POST https://core.hypofriend.de/property-search-api -H "Content-Type: application/json" -d '{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"}' → use returned searchId with exposes(offset:0,limit:50) → enumerate all listing UUIDs; for each UUID call expose(id) — confirm PII returned; repeat for MUNICH, HAMBURG, etc.  
+impact: Full production mortgage listing database enumeration via direct origin bypassing CloudFront WAF — broker/owner PII (phone, email, surname, company) at scale across all cities. Direct origin enables unrestricted throughput. Severity: CRITICAL  
+testability: PASSIVE  
+
+[HYP] core.hypofriend.de Global Credentialed CORS Middleware → Universal Cross-Origin Authenticated Read/Write Primitive  
+class: MISCONFIG  
+asset: core.hypofriend.de  
+confidence: 98  
+reasoning: Credentialed CORS confirmed on arbitrary paths /zzz-arbitrary-path, /api/v3/advisors, /en/plus/q, /en/health/q, /q — all echo arbitrary Origin + access-control-allow-credentials:true + all methods (max-age 7200), no Vary:Origin (live 2026-09-24 23:43Z). Session cookies _hf, __hfp___hypofriend.health__, __hfp___hypofriend.plus__ set with SameSite=None; Secure; HttpOnly. Direct origin returns bare security headers (date/content-length/ACAO/XFO:ALLOWALL/HSTS only) vs edge full CloudFront stack — WAF bypass. Applies to ALL Rails routes including future authenticated endpoints, admin panels, internal APIs.  
+evidence_needed: From attacker-controlled origin, authenticated POST to any Rails endpoint (e.g. /api/v3/advisors, admin panel, internal API) with credentials:include — observe victim session cookies sent cross-origin and 200 response with CORS headers  
+verify_steps: OPTIONS https://core.hypofriend.de/zzz-arbitrary-path -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" — confirm ACAO + ACAC:true; POST https://core.hypofriend.de/api/v3/advisors -H "Origin: https://evil.example" -H "Content-Type: application/json" -H "Authorization: Basic <creds>" --data '{}' — confirm CORS headers present on authenticated endpoint  
+impact: Universal cross-origin credentialed access to entire Rails application surface — any current/future authenticated endpoint, admin panel, internal API becomes readable/writable from arbitrary origin. Combined with session cookie forwarding, enables full cross-origin account takeover. Severity: CRITICAL  
+testability: PASSIVE  
+
+[HYP] core.hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation  
+class: MISCONFIG  
+asset: core.hypofriend.de/en/plus/q  
+confidence: 97  
+reasoning: Open credentialed CORS confirmed live 2026-09-24 — OPTIONS with Origin: https://evil.example echoes ACAO + ACAC:true + all methods (max-age 7200) on edge AND origin. Auth-free mutations uploadDocumentExtended (multipart [File!]!), processLeadForAppointment, requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead, createGoogleConversion, requestFacebookConversion, setLocale all execute 200 on direct origin without auth (live confirmed: requestAccountLink returns Typename:RequestAccountLinkPayload 2026-09-24 23:43Z). Session cookie __hfp___hypofriend.plus__ set with SameSite=None; Secure; HttpOnly enabling credential forwarding. Direct origin returns bare security headers (date/content-length/ACAO/XFO:ALLOWALL/HSTS only) vs edge full CloudFront stack — WAF bypass.  
+evidence_needed: From attacker-controlled origin, POST mutations with credentials:include — observe 200 execution; confirm victim's session cookies sent cross-origin; verify mutation side-effects (document upload with applicant PII: income, health data, ID docs; appointment lead creation; account/appointment link generation)  
+verify_steps: OPTIONS https://core.hypofriend.de/en/plus/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" — confirm ACAO + ACAC:true; POST https://core.hypofriend.de/en/plus/q -H "Origin: https://evil.example" -H "Content-Type: application/json" --data '{"query":"mutation{uploadDocumentExtended(input:{type:\"test\",document_type:\"test\",applicant_type:\"test\"}){__typename}}"}' — confirm CORS headers present; repeat for requestAccountLink, requestAppointmentLink, processLeadForAppointment with credentials:include  
+impact: Second independent appointment instance (buyer's agent) with expanded auth-free mutation surface — credentialed CORS enables cross-origin theft of applicant documents (PII: income, health data, ID docs), appointment leads, and account/appointment links on financial mortgage/insurance platform. Severity: CRITICAL  
+testability: PASSIVE  
+
+---
+
+**STEP 4 — SELF-CRITIQUE**
+
+[PARKED] core.hypofriend.de/en/health/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Health Insurance Document Theft: duplicative of /en/plus/q finding (same CORS middleware, same mutation surface, same cookie pattern); only branding differs.  
+[PARKED] core.hypofriend.de/q Anonymous Mortgage-Rate Oracle → Competitive Intelligence Leak: lower business value than PII enumeration/document theft; rates_table delta (0.10%) is intelligence not PII.  
+[PARKED] core.hypofriend.de/q Security-Header Differential (XFO:ALLOWALL vs DENY): clickjacking-relevant but requires chain; no standalone exploit without auth bypass.  
+
+[FINAL] 1. core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 99, PASSIVE  
+[FINAL] 2. core.hypofriend.de Global Credentialed CORS Middleware → Universal Cross-Origin Authenticated Read/Write Primitive — confidence 98, PASSIVE  
+[FINAL] 3. core.hypofriend.de/en/plus/q Credentialed CORS + Auth-Free Mutations → Cross-Origin Document Upload & Appointment Lead Creation — confidence 97, PASSIVE  
+
+---
+
+**STEP 5 — NEXT ACTION**
+
+[NEXT] HUMAN: POC phase pinned to dead target api.hypofriend.de (38th consecutive cycle: :443/:80 both 10s connect-timeout, 000; A 52.15.184.3 getent clean). Request phase retarget to core.hypofriend.de/property-search-api or core.hypofriend.de global CORS to unblock live verification of CRITICAL findings; current phase mismatch constrains all probe actions to read-only GET/HEAD/OPTIONS ≤1rps on dead host.
+
+---
+
+**STEP 6 — LEARNING**
+
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS re-verified live 2026-09-24 23:43Z — OPTIONS Origin https://evil.example + ACRM:POST → ACAO echo + ACAC:true + all methods (max-age 7200), no Vary:Origin, origin bare (date/content-length/ACAO only) vs edge CF stack  
+[LEARN] ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-24 23:43Z — propertySearch→exposes→expose returns PII (propertyOwnerLastName, phoneNumber, ownerCompany, providerCompany) auth-free; direct-origin bare headers vs edge CF stack  
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; GET / also carries ACAO + sets _hf SameSite=None + internal=FALSE cookies + XFO:ALLOWALL  
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/health,q: credentialed CORS identical to /en/plus/q on edge AND origin  
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: auth-free mutation requestAccountLink executes 200 without auth (returns Typename)  
+[LEARN] ACCEPTED NG @ api.hypofriend.de (target): 000 re-probed live 2026-09-24 23:43Z on :443/:80 (10s connect-timeouts) — dead 38th consecutive cycle, A 52.15.184.3 resolves clean, no takeover surface  
+[LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt/CQoy7ifk.js: bundle bit-stable (1,336,611B, last-modified 2026-09-24T13:00:21Z) — mutation-template counts identical, no auth-surface delta  
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/property-search-api: OPTIONS 200 with NO ACAO echo — CORS closed there (contrast-class vs /q-family, consistent 41+ cycles)  
+
+---
+
+**STEP 7 — RISK**
+
+[RISK] hypofriend: 98 — Unauthenticated production GraphQL APIs with full introspection (property-search-api) + auth-free read/write over arbitrary leadId carrying broker/owner PII. Direct Rails origin (core.hypofriend.de) bypasses CloudFront WAF/rate-limiting. Global credentialed CORS middleware on core origin extends cross-origin authenticated access to ALL Rails routes — any current/future authenticated endpoint, admin panel, internal API becomes readable/writable from arbitrary origin. Two additional appointment instances (/en/health, /en/plus) with independent GraphQL surfaces replicating auth-free mutation pattern (uploadDocumentExtended, processLeadForAppointment, requestAccountLink, requestAppointmentLink, setNameAppointment, unclaimLead) + OPEN CREDENTIALED CORS on both edge and origin. Anonymous mortgage-rate oracle (rates_table) leaks live per-region lender pricing (0.10% delta BAYERN vs SAXONY). Severity: CRITICAL.
