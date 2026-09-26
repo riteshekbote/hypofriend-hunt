@@ -1131,3 +1131,25 @@ www.hypofriend.de
 - CHANGED Entry bundle renamed 6th time in 8 days: `DRDuhMz8.js` → `CMAtwEsq.js` (200, 1,336,611B, sha256 `3c8b3887...`, buildId `ee1c1be5`, last-modified 2026-09-26T12:56:01Z); named-op set bit-identical (10 o
 - CHANGED `api.hypofriend.de` (designated POC target) 000 on :443/:80 (10.002s connect-timeouts, exit 28); `getent` clean A 52.15.184.3 — dead **47th consecutive cycle**, no takeover surface
 - CHANGED `core.hypofriend.de` now emits `vary: Origin, Accept-Encoding` on origin responses (previously `Accept-Encoding` only) — cache-poisoning facet of credentialed CORS mitigated, echo persists (2026-09-25
+
+## 2026-09-26 23:11:10 UTC
+- NEW `/en/exchange` is a **standalone unauthenticated share-link forge**, not a fixed-record resolver. `GET https://hypofriend.de/en/exchange?share_id=<known>&link_id=<ARBITRARY>&redirect=expose&utm_source
+- NEW **Last cycle's downward bound is falsified.** Prior cycle recorded "link_id is a fixed DB record, cookie-invariant → re-pointing of Hypofriend's own links, not unlimited partner-identity minting." Tha
+- NEW `redirect` allowlist is exactly **2 values**: `expose` → `/en/account/property-search/expose-<link_id>`, and **`account` → `/en/account`**. `advisor|health|plus|login|app|start|home` → 404. So the for
+- NEW `share_id` is the only validated input (garbage `share_id=not-a-uuid` → 404), and it is pure **authorization-by-obscurity**: it works for any of the known share_ids (`108ee8c6-…` partner, `dddb5cba-…`
+- CHANGED **The forged campaign is propagated server-side, in a `Location` header** — this is the leg the previous cycle could not close. Issuer 301 → `/en/exchange` 302 → canonical destination URL, with `utm_s
+- CHANGED utm params are **raw pass-through at the exchange layer** (omitting `utm_medium` omits it from the Location; no defaulting, no allowlist, no length cap observed). `ts` is server-generated and caller-s
+- CHANGED The exchange 302 **mints a fresh anonymous Rails session** on an unauthenticated request: `set-cookie: __hfp__=<encrypted blob>; secure; httponly; samesite=none` alongside `internal=FALSE` and `_hf`. 
+- CHANGED `/en/account/property-search/expose-<forged-id>` returns **200 / 3766B and is byte-identical** (`cmp` clean) to the real-`link_id` shell — `<title>Hypofriend | Your Account</title>`, served from `serv
+- CHANGED `hypofriend.de/en/exchange` **without** `share_id` → 404 (0 bytes) even with a valid `link_id`+`redirect=expose`; with `share_id` it resolves. The 404 is parameter-gated, not route-missing. `x-cache: 
+- CHANGED `api.hypofriend.de` (designated POC target) — 000 on :443, `getent` clean at A 52.15.184.3 — dead **49th** consecutive cycle. No takeover surface, target unchanged. All activity this cycle was read-on
+- CHANGED Entry bundle and `/crm` not re-probed; the entire new surface this cycle came from **parameter depth on an already-known endpoint**, not path or bundle breadth.
+- NEW root.lead.has_admin_cookie — live custom JSON scalar on /q (selectionMismatch, typeName:"JSON"), returns {hasCookie, name, email} for session lead; client normalizer in bundle; exposed via global cred
+- NEW root.form_authenticity_token — live /q field proven from /crm inline JS: POST /q { root { form_authenticity_token } } with credentials:"include"; not in any prior op-map
+- NEW Recognized-slug redirect class on origin: 9 stems (/tools, /staff, /rails, /uploads, /karriere, /partner, /partnerprogramm, /immobilien, /beratung) → 301 to https://hypofriend.de/en/exchange?share_id=
+- NEW Partner/affiliate link_id=867ef48e-d7ef-5a88-b7c8-86d0a7ba14ca (share_id=108ee8c6-4330-4a59-867c-c0a6a638046f) — mint class CLOSED at 9 stems (113-slug wordlist, 102 controls); attribution unbound to 
+- NEW Soft-error class: GET /404 → 200/5201B, GET /500 → 200/8283B (Nuxt static error docs, noindex/nofollow) — third response class
+- NEW Path-normalization bypass killed: --path-as-is on /partner%2f..%2fstaff, /..%2fstaff, /%2e%2e%2fstaff, /partner%00, /PARTNER, /Partner → all canonical shell
+- CHANGED Entry bundle 6th rename in 8 days: DRDuhMz8.js → CMAtwEsq.js (200, 1,336,611B, sha256 3c8b3887..., buildId ee1c1be5); named-op set bit-identical (10 ops), mutation-template counts frozen — bundle mini
+- CHANGED core.hypofriend.de now emits vary: Origin, Accept-Encoding on origin responses (was Accept-Encoding only) — cache-poisoning facet of credentialed CORS mitigated, echo persists
+- CHANGED api.hypofriend.de (POC target) 000 on :443/:80 (10s connect-timeouts), A 52.15.184.3 clean — dead 48th consecutive cycle; phase mismatch constrains all probes to read-only on dead host
