@@ -1066,3 +1066,14 @@ www.hypofriend.de
 - CHANGED `api.hypofriend.de` (target) re-probed live 2026-09-25T21:55:56Z: curl exit 124 on **both** :443 and :80 (12s timeouts), `getent` clean at A 52.15.184.3 — **dead 44th consecutive cycle**, no takeover 
 - CHANGED `core.hypofriend.de/en/plus/q` credentialed CORS re-verified live: ACAO echo + `ACAC:true` + all 7 methods + max-age 7200, `vary: Accept-Encoding`. `core.hypofriend.de/property-search-api` OPTIONS 200
 - CHANGED `/en/health` still an 89B meta-refresh to `/en`; `/en/health/q` and `/en/plus/q` both still 301→`https://hypofriend.de/` on GET from origin.
+
+## 2026-09-26 00:25:17 UTC
+- NEW Hardcoded HTTP Basic credential `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`) discovered in public entry bundle `DRDuhMz8.js` — sole authenticated endpoint `/api/v3/advisors` now effectively
+- NEW Full 151-chunk re-mine of 2026-09-25 deploy: all named GraphQL ops resolve to entry chunk only; zero new auth-relevant ops/secrets/hosts in lazy chunks
+- NEW `unclaimLead` definitively session-scoped (zero-arg mutation, reads only `.success`) — 2026-09-18 "new auth-free candidate" closed at template level
+- CHANGED `core.hypofriend.de` now emits `vary: Origin, Accept-Encoding` on origin responses (previously `Accept-Encoding` only) — cache-poisoning facet of credentialed CORS mitigated, echo persists
+- CHANGED `core.hypofriend.de/api/v3/delete-cookie` unauthenticated 200 on origin+edge (sibling `/api/v3/advisors` 401) — new untracked route in `/api/v3/` namespace; NG class (logout-CSRF only)
+- CHANGED `api.hypofriend.de` dead 44th consecutive cycle (000, ~10-12s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target
+- CHANGED Credentialed CORS re-verified live on `/en/plus/q`, `/en/health/q`, `/zzz-arbitrary-path`, `/api/v3/advisors` — global rack-cors middleware confirmed across ALL Rails routes
+- CHANGED Property-search-api PII enumeration chain re-confirmed live 2026-09-25T18:51Z — `propertySearch→exposes→expose` returns broker/owner PII auth-free on direct origin
+- CHANGED Entry bundle renamed 5th time in 7 days: `CQoy7ifk.js` → `DRDuhMz8.js` (sha256 `28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f90d583a85e4b5ee7ec0e2c6`), byte-identical, mutation-template counts frozen

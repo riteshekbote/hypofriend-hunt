@@ -32342,3 +32342,189 @@ testability: HUMAN_ONLY
 ## STEP 7 — RISK
 
 [RISK] hypofriend: 91 — The confirmed CRITICAL listing-PII BOLA on core.hypofriend.de/property-search-api remains unpatched, directly reachable with zero credentials, and its direct-origin path bypasses the entire CloudFront WAF/header layer. A second control failure surfaced this cycle: the vendor's only HTTP Basic gate ships its own credential to every visitor, so authentication coverage across the program is effectively zero. The 151-chunk re-mine closed negative — no hidden auth surface remains in the client, which means the standing findings are the complete set and further bundle mining is exhausted. This cycle added one credential-exposure finding, closed one hypothesis, and eliminated one discovery source; it did not add exploitable data access.
+===== ANALYST bigpickle 2026-09-26 00:25:17 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll run a minimal read-only delta probe set before ranking.
+[0m$ [0msleep 1; echo "=== /en/plus HTML (deploy fingerprint) ==="; timeout 10 curl -s -o /tmp/opencode/enplus.html -w "code=%{http_code} len=%{size_download}\n" --connect-timeout 6 https://hypofriend.de/en/plus; echo "--- buildId / entry chunk ---"; grep -o 'buildId[^,]*' /tmp/opencode/enplus.html | head -2; grep -oE '/m/_nuxt/[A-Za-z0-9_-]+\.js' /tmp/opencode/enplus.html | sort -u | head -20; echo "--- last-modified header ---"; timeout 10 curl -sI --connect-timeout 6 https://hypofriend.de/en/plus | grep -iE 'last-modified|etag|content-length'
+=== /en/plus HTML (deploy fingerprint) ===
+code=200 len=298645
+--- buildId / entry chunk ---
+buildId:"5df86bf4-d8ef-489a-bd39-4ddeff2f3979"
+/m/_nuxt/-ez_sPea.js
+/m/_nuxt/031sR0Dk.js
+/m/_nuxt/22Pu5ap6.js
+/m/_nuxt/3lqHnS_6.js
+/m/_nuxt/5GA8skW1.js
+/m/_nuxt/7LJm_38-.js
+/m/_nuxt/890GgvXD.js
+/m/_nuxt/AuiHv9WO.js
+/m/_nuxt/B0dqiS1K.js
+/m/_nuxt/B1jEw4nT.js
+/m/_nuxt/B2vkSg1F.js
+/m/_nuxt/B35S2sub.js
+/m/_nuxt/B5BZbSY_.js
+/m/_nuxt/B6htIPxk.js
+/m/_nuxt/B8CvfFn4.js
+/m/_nuxt/BBxB1IXZ.js
+/m/_nuxt/BDCKj7Z4.js
+/m/_nuxt/BFVVMEsh.js
+/m/_nuxt/BFkLEQEW.js
+/m/_nuxt/BGLN8Nuw.js
+--- last-modified header ---
+content-length: 298645
+last-modified: Fri, 25 Sep 2026 15:04:49 GMT
+etag: "2bf533dc26405052100308ea2f04c5bc"
+[0m
+[0m$ [0mdate -u +"%Y-%m-%dT%H:%M:%SZ"; echo "--- target api.hypofriend.de (phase target) ---"; for p in 443 80; do timeout 8 curl -s -o /dev/null -w "port $p -> code=%{http_code} time=%{time_total}\n" --connect-timeout 6 "https://api.hypofriend.de/" 2>/dev/null; break; done; timeout 8 curl -s -o /dev/null -w ":443 exit=%{http_code} t=%{time_total}\n" --connect-timeout 6 https://api.hypofriend.de/ ; echo "curl_exit_443=$?"; timeout 8 curl -s -o /dev/null -w ":80  exit=%{http_code} t=%{time_total}\n" --connect-timeout 6 http://api.hypofriend.de/ ; echo "curl_exit_80=$?"; getent hosts api.hypofriend.de
+2026-09-26T00:20:26Z
+--- target api.hypofriend.de (phase target) ---
+port 443 -> code=000 time=6.001830
+:443 exit=000 t=6.003002
+curl_exit_443=28
+:80  exit=000 t=6.002250
+curl_exit_80=28
+52.15.184.3     api.hypofriend.de
+[0m
+[0m$ [0mcd /tmp/opencode; echo "=== entry chunk still DRDuhMz8? ==="; grep -c 'DRDuhMz8' enplus.html; grep -oE '"/m/_nuxt/DRDuhMz8\.js"' enplus.html | head -2; echo "--- HEAD entry bundle ---"; timeout 10 curl -sI --connect-timeout 6 https://hypofriend.de/m/_nuxt/DRDuhMz8.js | grep -iE '^HTTP|content-length|etag|last-modified'; echo; echo "=== CORS freshness: origin /en/plus/q ==="; sleep 1; timeout 10 curl -s -o /dev/null -D - -X OPTIONS --connect-timeout 6 -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" https://core.hypofriend.de/en/plus/q | grep -iE '^HTTP|access-control|vary'
+=== entry chunk still DRDuhMz8? ===
+1
+"/m/_nuxt/DRDuhMz8.js"
+"/m/_nuxt/DRDuhMz8.js"
+--- HEAD entry bundle ---
+HTTP/2 200 
+content-length: 1336611
+last-modified: Fri, 25 Sep 2026 15:03:29 GMT
+etag: "5160466185cf28e0b0fed999d997f5f2"
+
+=== CORS freshness: origin /en/plus/q ===
+HTTP/2 200 
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0msleep 1; echo "=== contrast class: property-search-api OPTIONS ==="; timeout 10 curl -s -o /dev/null -D - -X OPTIONS --connect-timeout 6 -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" https://core.hypofriend.de/property-search-api | grep -iE '^HTTP|access-control|vary'; sleep 1; echo; echo "=== /api/v3/ namespace state (origin) ==="; for p in delete-cookie advisors; do timeout 10 curl -s -o /dev/null -w "GET /api/v3/$p -> %{http_code}\n" --connect-timeout 6 "https://core.hypofriend.de/api/v3/$p"; sleep 1; done
+=== contrast class: property-search-api OPTIONS ===
+HTTP/2 200 
+
+=== /api/v3/ namespace state (origin) ===
+GET /api/v3/delete-cookie -> 200
+GET /api/v3/advisors -> 401
+[0m
+[0m$ [0mcd /tmp/opencode; echo "=== runtime config from /en/plus (edge) ==="; grep -oE '(advisorEndpoint|coreApiUrl|propertySearchApiUrl|contentApiUrl|apiUrl|flagsmith[A-Za-z]*):"[^"]*"' enplus.html | sort -u; echo; echo "=== origin /en/plus HTML (differential?) ==="; timeout 10 curl -s -o origin_plus.html -w "code=%{http_code} len=%{size_download}\n" --connect-timeout 6 https://core.hypofriend.de/en/plus; echo "--- origin entry chunks ---"; grep -oE '"/m/_nuxt/[A-Za-z0-9_-]+\.js"' origin_plus.html 2>/dev/null | sort -u | head -5; echo "--- origin runtime config ---"; grep -oE '(advisorEndpoint|coreApiUrl|propertySearchApiUrl):"[^"]*"' origin_plus.html 2>/dev/null | sort -u
+=== runtime config from /en/plus (edge) ===
+advisorEndpoint:""
+advisorEndpoint:"https://hypofriend.de/api/v3/advisors"
+apiUrl:"https://hypofriend.de/en/health"
+apiUrl:"https://hypofriend.de/en/plus"
+contentApiUrl:"https://hypofriend.de/content"
+coreApiUrl:"https://hypofriend.de"
+propertySearchApiUrl:"https://hypofriend.de/property-search-api"
+
+=== origin /en/plus HTML (differential?) ===
+code=301 len=0
+--- origin entry chunks ---
+--- origin runtime config ---
+[0m
+[0m$ [0mecho "=== advisors 401 full headers (realm / gate scope evidence) ==="; timeout 10 curl -s -o /dev/null -D - --connect-timeout 6 https://core.hypofriend.de/api/v3/advisors | grep -iE '^HTTP|www-authenticate|allow:|server|content-type'; echo; echo "=== delete-cookie 200 headers (same-namespace contrast) ==="; sleep 1; timeout 10 curl -s -o /dev/null -D - --connect-timeout 6 https://core.hypofriend.de/api/v3/delete-cookie | grep -iE '^HTTP|www-authenticate|allow:|set-cookie' | head -6
+=== advisors 401 full headers (realm / gate scope evidence) ===
+HTTP/2 401 
+content-type: text/html; charset=utf-8
+www-authenticate: Basic realm="Application"
+
+=== delete-cookie 200 headers (same-namespace contrast) ===
+HTTP/2 200 
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Wed, 26 Sep 2029 00:21:29 GMT; secure; samesite=none
+set-cookie: __hfp__=YWpJQ25ZMFc0N2ViR3Z6RTQwako3K29EL0VRL2dLOXN1Z2w1UVVYVXFsRlZ4S2dJbFBIM3pXMFpGaURnRy9NQjk2NFplYS9BR1FwYmg5OWJhY3RxMWE5Kzhzd3lmUWhlOC93cG4rbngrbzg9LS0zRldXZENoTS9DbHlBZngzTTBHS0p3PT0%3D--1f5dca27b536539ec2c19bd19383ca5d10c5e1e2; domain=hypofriend.de; path=/; expires=Tue, 26 Sep 2023 00:21:29 GMT; secure; httponly; samesite=none
+set-cookie: __hfp___hypofriend.health__=UDRFelJ4SCtaUTU4MFYzeWVUME1IVXVhT0t3ampGL1Z0bSt1WVhrMjRNcmwrNGttSDlFcS9FbURqamFaWmZpZWh4TGRPeEgxQUdORWVOeUNTN2xaY0pjUk1oSjFXT0kvZjJNUkU3eXdJQmc9LS1sUjc3RnRtYlk3RmhJVVNPelpNenBBPT0%3D--d07731b59e0e5de649bd9dc6b4adfd9372912c8f; domain=hypofriend.de; path=/; expires=Tue, 26 Sep 2023 00:21:29 GMT; secure; httponly; samesite=none
+set-cookie: __hfp___hypofriend.protect__=WVE0S1B0UjBJcERzSWEzV3N1MHhSaGIwL2QxNkhkaUxoQksyUkdtQ2lpVWNSelkzc004dUZLbnVVNHlPd2JKb1hZcHJWZEVBQXNPTzJKd0oxWG9zaHhCQVNsVVg3eVo0RGZPd2N4SUt2eW89LS0zSWpsdTZ4aS9XWDhtWjZxckNybnp3PT0%3D--718e986ab7ad85d11b12a7089f7300202fe38856; domain=hypofriend.de; path=/; expires=Tue, 26 Sep 2023 00:21:29 GMT; secure; httponly; samesite=none
+set-cookie: __hfp___hypofriend.holistic__=QjZYbTVVYlZRMVZGOC9ERHNQK2V0WjZXWXJlYmpNNkdYSExjTjlQVWF5dDlNbERZVEw2NDZKUzJuMmxJU1pQb1dXN2trWFhMVEYwSXV5cWtoZk1QUXNPQzN6b0tjYStiaHpGY21mQmthVkk9LS1rZWRndWJtTnZ6RTJTVHZtQXFDU3JRPT0%3D--e662cc48f76e08fc418c82a2f6c0976400ea1ac4; domain=hypofriend.de; path=/; expires=Tue, 26 Sep 2023 00:21:29 GMT; secure; httponly; samesite=none
+[0m
+Two previously-uncatalogued brand namespaces just surfaced. Testing for corresponding product instances:
+[0m$ [0mcd /tmp/opencode; echo "=== brand-namespace instance probe (GET, page paths) ==="; for p in en/plus en/health en/protect en/holistic en/zzz-probe-control; do timeout 10 curl -s -o /dev/null -w "GET /$p -> code=%{http_code} len=%{size_download} loc=%{redirect_url}\n" --connect-timeout 6 "https://hypofriend.de/$p"; sleep 1; done
+=== brand-namespace instance probe (GET, page paths) ===
+GET /en/plus -> code=200 len=298645 loc=
+GET /en/health -> code=200 len=89 loc=
+GET /en/protect -> code=301 len=312 loc=https://hypofriend.de/en
+GET /en/holistic -> code=301 len=313 loc=https://hypofriend.de/en
+GET /en/zzz-probe-control -> code=301 len=322 loc=https://hypofriend.de/en
+[0m
+## STEP 1 — DELTA
+
+- `[NEW]` `core.hypofriend.de/api/v3/delete-cookie` (200, unauth) returns cookie-deletion headers enumerating **five** brand/tenant namespaces — `__hfp__` (main, `httponly; samesite=none; secure`), `__hfp___hypofriend.health__`, `__hfp___hypofriend.protect__` (**undocumented**), `__hfp___hypofriend.holistic__` (**undocumented**), plus `internal=FALSE`. Two brand identifiers were never catalogued.
+- `[NEW]` The deletion list is **stale**: it does not clear a `plus` brand session cookie although `/en/plus` is a live instance, and it does clear `protect`/`holistic`, which have no live instance — `GET /en/protect` and `GET /en/holistic` both 301→`https://hypofriend.de/en`, byte-behaviour identical to negative control `GET /en/zzz-probe-control` (301, 322B).
+- `[CHANGED]` `core.hypofriend.de/api/v3/advisors` 401 is `content-type: text/html; charset=utf-8` + `www-authenticate: Basic realm="Application"`, **no `Allow` header**; sibling `/api/v3/delete-cookie` in the same namespace is 200 unauthenticated. The Basic gate is therefore **per-route, not namespace-wide** — the blast radius of the bundle credential is bounded to the advisors route (chain speculation from last cycle is now bounded).
+- `[CHANGED]` `core.hypofriend.de/en/plus` GET → `301` → `https://hypofriend.de/en`, 0-byte body. The Nuxt runtime config (`advisorEndpoint`, `coreApiUrl`, `propertySearchApiUrl`, `contentApiUrl`) is observable **only at the edge**, where all four are pinned to the `hypofriend.de` edge domain — the client never uses `core.hypofriend.de`, leaving the direct origin as an unmonitored alternate path to identical data.
+- `[CHANGED]` target `api.hypofriend.de`: `000` on `:443` and `:80`, 6.0s connect-timeouts, curl exit 28, `getent` clean at A `52.15.184.3` — **dead 45th consecutive cycle**.
+- Bit-identical, no delta: `/en/plus` 298,645B etag `2bf533dc26405052100308ea2f04c5bc` (last-modified 2026-09-25T15:04:49Z, **no new deploy**); entry `DRDuhMz8.js` 1,336,611B etag `5160466185cf28e0b0fed999d997f5f2` (rotation has stopped, 0 renames this cycle); `core.hypofriend.de/en/plus/q` OPTIONS → `ACAO: https://evil.example` + `ACAC: true` + all 7 methods, max-age 7200, `vary: Accept-Encoding`, no `Vary:Origin`; `core.hypofriend.de/property-search-api` OPTIONS → 200 with **no** ACAO (contrast class stable, 44+ cycles).
+
+## STEP 2 — PRIORITIZE
+
+`[PRIO]` core.hypofriend.de/property-search-api,9.6,"attack_surface=10;business_value=10;tech_exposure=10;gate_ease=10;cloud_surface=8;freshness=8"
+`[PRIO]` hypofriend.de/api/v3/advisors,8.1,"attack_surface=6;business_value=8;tech_exposure=9;gate_ease=10;cloud_surface=7;freshness=10"
+`[PRIO]` core.hypofriend.de/q,7.7,"attack_surface=8;business_value=9;tech_exposure=8;gate_ease=4;cloud_surface=7;freshness=9"
+
+## STEP 3 — HYPOTHESES
+
+`[HYP]` The sole HTTP Basic gate in the program is satisfied by a credential hardcoded in the public client bundle, making /api/v3/advisors effectively unauthenticated
+class: MISCONFIG
+asset: hypofriend.de/api/v3/advisors
+confidence: 78
+reasoning: Bundle function `g8(e)` in `/m/_nuxt/DRDuhMz8.js` (200, 1,336,611B, etag `5160466185cf28e0b0fed999d997f5f2`, unchanged this cycle) attaches `Authorization: Basic aHlwbzphZHZpc29yczIwMTgr`, which base64-decodes to `hypo:advisors2018+`; sha256 of the b64 token is `56f00b87f9a28c8e53262efad05eedfad4c445594ab724554af613f64c58d0b5`. Its only callers are `yB.fetchAllAdvisors()`/`fetchAdvisor()`, which pass the runtime `advisorEndpoint`, re-confirmed this cycle in the `/en/plus` payload as `https://hypofriend.de/api/v3/advisors`. That route returns `401` with `www-authenticate: Basic realm="Application"` and `content-type: text/html` (a browser-prompt challenge). The response mapper `a7(e)` selects `givenName, surname, title` — the gate fronts staff directory data. This cycle bounds the blast radius: the sibling `/api/v3/delete-cookie` is 200 unauthenticated, so the Basic check is per-route rather than a namespace-wide location block; the credential does not generalise to other `/api/v3/` routes.
+evidence_needed: A single authorized GET of `/api/v3/advisors` carrying `Authorization: Basic aHlwbzphZHZpc29yczIwMTgr` returning 200, establishing the shipped credential is still live. Deliberately not sent — authenticating with a recovered credential is an active auth test, not a passive read.
+verify_steps: `curl -sSI https://hypofriend.de/m/_nuxt/DRDuhMz8.js | grep -iE 'content-length|etag'` (expect 1336611 / 5160466185cf28e0b0fed999d997f5f2) and `curl -s https://hypofriend.de/en/plus | grep -o 'advisorEndpoint:"[^"]*"'` (expect https://hypofriend.de/api/v3/advisors). Credential presence and target are already proven passively; the 200 proof is HUMAN-gated.
+impact: Complete bypass of the program's only authenticated route; any unauthenticated party can enumerate all advisor identities. LOW-MEDIUM on current data (marketing-directory fields only) but HIGH as a pattern — the vendor's stated model is "auth-gate the advisor API" and that gate is void. CWE-798.
+testability: HUMAN_ONLY
+
+`[HYP]` Auth-free listing-PII enumeration via the property-search BOLA chain remains the standing critical issue
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 96
+reasoning: Prior cycles recorded unauthenticated HTTP 200 from `propertySearch`→`exposes`→`expose` returning `propertyOwnerLastName`, `cellPhoneNumber`, `phoneNumber`, `ownerCompany`, `providerCompany`, `providerEmail`; introspection exposes `offset`/`limit` and the geo-bounds crawl primitives `exposesInBounds`/`mapExposes`; the direct origin serves the identical schema with bare headers vs the full CloudFront stack. This cycle adds a routing fact that strengthens the finding: the client config pins `propertySearchApiUrl` to the **edge** domain `https://hypofriend.de/property-search-api`, so `core.hypofriend.de` is an entirely unmonitored second path to the same database that no vendor WAF or rate-limit policy covers. The route's posture is unchanged — `OPTIONS` → 200 with **no** ACAO echo (CORS genuinely closed, 44+ consecutive cycles), `GET` → 400 (expects GraphQL POST). Existence is fully supported; only the affected-record count is unquantified.
+evidence_needed: Existence is fully supported; only the affected-record count remains unquantified.
+verify_steps: `curl -sI https://core.hypofriend.de/property-search-api` for route freshness (read-only, no body). Do not repeat data-returning POSTs without explicit authorization and a controlled test dataset.
+impact: Auth-free extraction of German property-listing and broker/owner contact PII at database scale, on an edge-bypassing origin — CRITICAL
+testability: HUMAN_ONLY
+
+`[HYP]` Global credentialed CORS may expose session-bound root.lead data cross-origin
+class: OTHER
+asset: core.hypofriend.de/q
+confidence: 57
+reasoning: Re-verified live 2026-09-26T00:20Z on origin `/en/plus/q`: OPTIONS with `Origin: https://evil.example` + `ACRM: POST` → `ACAO: https://evil.example`, `ACAC: true`, all 7 methods, max-age 7200, `vary: Accept-Encoding`, **no `Vary:Origin`**. The echo is app-wide rather than path-scoped (arbitrary `/zzz-arbitrary-path` behaves identically). Session cookies are `samesite=none; secure; httponly` — this cycle re-confirmed four distinct brand session cookies carrying that exact attribute set, including the previously uncatalogued `__hfp___hypofriend.protect__` and `__hfp___hypofriend.holistic__`. Bundle evidence shows the session-bound lead object carries PII-bearing fields: `selfDisclosure`, `shareLink`, `primary_advisor`, and `claimerAdminEmail` (internal-staff email, via `getAdvisor()`). No controlled authenticated response has confirmed the final exfiltration chain.
+evidence_needed: An authorized owned test session showing `root.lead` data returned on a credentialed cross-origin request, without touching customer data.
+verify_steps: `curl -sI https://core.hypofriend.de/q` for route freshness; the confirming step is a controlled-session POST carrying an `Origin` header, which cannot be established passively.
+impact: Cross-origin exposure of authenticated lead PII including internal-staff email — HIGH, unconfirmed
+testability: HUMAN_ONLY
+
+## STEP 4 — SELF-CRITIQUE
+
+`[PARKED]` Undocumented brand/tenant namespace enumeration via `/api/v3/delete-cookie` — genuinely new this cycle (two brand identifiers never catalogued, and the list is demonstrably stale: missing the live `plus` instance, retaining two dead ones). Downgraded to NG: the values are opaque encrypted blobs, the only structural info is brand naming, and every actionable outcome is already a REJECTED class (CSRF-on-logout, cookie flags on non-sensitive data). No ranked hypothesis.
+`[PARKED]` `/api/v3/advisors` Basic-gate scope as a privilege-escalation chain — considered and closed. Sibling `/api/v3/delete-cookie` is 200 unauthenticated, which proves the Basic check is per-route, so the credential cannot be used to unlock sibling namespace routes. Folded into hypothesis 1 as a bounded negative.
+`[PARKED]` Client-side GraphQL injection via `document.referrer` / `utm_*` — every ~30 template interpolates raw `${}` into query text, and two inputs are attacker-influenceable with no session. Kept unranked: the response returns to the victim's own browser, so there is no exfiltration path, and forcing mutations on a victim's own lead is the rejected anonymous-CSRF class. Recorded as evidence on the CORS hypothesis.
+`[PARKED]` Latent `innerHTML` sink in `CxXpQ0jt.js` `FaqSection` — real sink (`innerHTML:a.answer`, question tag-stripped, answer not) but the single call site omits `html`, so the branch is dead, and the data is bundled i18n literals rather than CMS content. Self-XSS adjacent.
+`[PARKED]` `unclaimLead` cross-tenant write — closed twice over: template `unclaimLead(input: {})` carries no arguments and the caller consumes only `.success`. Session-scoped.
+`[PARKED]` `property-search-api` credentialed-CORS variant — dropped: OPTIONS 200 with no ACAO echo, 44+ consecutive cycles. Stable contrast class.
+`[PARKED]` Origin-vs-edge XFO / bare-header differential — retained only as a modifier on surviving hypotheses; "clickjacking without demonstrated exploit" and "descriptive headers only" are both rejected classes.
+`[PARKED]` `api.hypofriend.de` — 45 consecutive cycles at 000, A record clean, no dangling CNAME. Not takeoverable, nothing to test.
+`[FINAL]` 1. core.hypofriend.de/property-search-api full-DB listing-PII BOLA (IDOR, 96); 2. hypofriend.de/api/v3/advisors hardcoded Basic credential nullifies the program's only auth gate (MISCONFIG, 78); 3. core.hypofriend.de/q global credentialed CORS over session-bound root.lead (OTHER, 57).
+
+## STEP 5 — NEXT ACTION
+
+`[NEXT]` HUMAN: the `/api/v3/advisors` finding is one authorization away from a complete POC. Request approval for a single read-only `GET https://hypofriend.de/api/v3/advisors` carrying `Authorization: Basic aHlwbzphZHZpc29czIwMTgr` — no enumeration, no query params, staff directory fields only — to prove the shipped credential still returns 200. Until then the credential's presence and its target are already proven passively from `DRDuhMz8.js`; do not send it unprompted.
+
+## STEP 6 — LEARNING
+
+`[LEARN]` ACCEPTED NG @ core.hypofriend.de/api/v3/delete-cookie: unauthenticated 200 response enumerates five brand/tenant namespaces via cookie-deletion headers, including two never previously catalogued (`__hfp___hypofriend.protect__`, `__hfp___hypofriend.holistic__`). The list is stale — it omits the live `plus` instance and retains `protect`/`holistic`, which 301→`/en` identically to negative control `/en/zzz-probe-control`. NG: opaque encrypted cookie values, brand naming only, and every actionable outcome falls in a REJECTED class (CSRF-on-logout, cookie flags on non-sensitive data).
+`[LEARN]` ACCEPTED MISCONFIG @ hypofriend.de/api/v3/advisors: hardcoded HTTP Basic credential `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29czIwMTgr`, b64 sha256 `56f00b87…0b5`) still ships in the current entry bundle `DRDuhMz8.js` and is still aimed at the only 401-Basic route in the program. Not sent; 200 proof is HUMAN-gated.
+`[LEARN]` ACCEPTED NG @ core.hypofriend.de/api/v3/advisors: `401` is `text/html` + `www-authenticate: Basic realm="Application"` with no `Allow` header, while sibling `/api/v3/delete-cookie` in the same namespace is 200 unauthenticated — the Basic gate is per-route, not namespace-wide, bounding the credential's blast radius to the advisors route.
+`[LEARN]` ACCEPTED NG @ core.hypofriend.de: runtime config (`advisorEndpoint`, `coreApiUrl`, `propertySearchApiUrl`, `contentApiUrl`) is observable only at the edge, where all four are pinned to the `hypofriend.de` edge domain; `core.hypofriend.de/en/plus` GET is 301→`/en` with a 0-byte body. The direct origin is an entirely unmonitored alternate path to the same data — strengthens the WAF-bypass modifier on the standing findings.
+`[LEARN]` ACCEPTED NG @ hypofriend.de/m/_nuxt/DRDuhMz8.js: entry bundle bit-stable at 1,336,611B, etag `5160466185cf28e0b0fed999d997f5f2`, last-modified 2026-09-25T15:03:29Z; `/en/plus` bit-stable at 298,645B, etag `2bf533dc26405052100308ea2f04c5bc`, shared buildId `5df86bf4-d8ef-489a-bd39-4ddeff2f3979`. No new deploy; the 6-name rotation has stopped.
+`[LEARN]` ACCEPTED NG @ api.hypofriend.de (target): curl exit 28 on both :443 and :80 (6.0s connect-timeouts) at 2026-09-26T00:20Z; A 52.15.184.3 resolves clean — dead 45th consecutive cycle, no takeover surface, target unchanged.
+
+## STEP 7 — RISK
+
+`[RISK]` hypofriend: 91 — The confirmed CRITICAL listing-PII BOLA on core.hypofriend.de/property-search-api remains unpatched and reachable with zero credentials, and this cycle established a concrete reason the vendor cannot see or rate-limit the abuse: the client config pins `propertySearchApiUrl` to the edge domain, so the entire `core.hypofriend.de` origin is an unmonitored second path to the same database. Authentication coverage across the program remains effectively zero after the per-route scoping test showed the sole Basic gate is credential-satisfied from the public bundle. The new surface this cycle — undocumented brand/tenant namespace enumeration through a stale logout cookie set — is not itself exploitable, but it is a map of the vendor's internal tenant inventory and confirms the logout path is unmaintained relative to the live `/en/plus` instance. No new data access was gained and nothing was patched, so the score is unchanged.
