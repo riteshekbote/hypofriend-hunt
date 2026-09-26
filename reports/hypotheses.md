@@ -3257,3 +3257,30 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/health,q: credentialed CORS identical to /en/plus,q on edge AND origin
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: auth-free mutation requestAccountLink executes 200 without auth (returns Typename)
+
+## RANKED HYPOTHESES 2026-09-26 17:50:58 UTC
+- [99] core.hypofriend.de/property-search-api: core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [60] core.hypofriend.de: Unauthenticated first-party referral links are minted with attacker-chosen campaign attribution that is then persisted client-side into lead state, so lead attribution has no server-side integrity binding (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): SCAN: the recognized-slug set that mints share links is clearly small and bounded and I have only 5 of N (`/tools`, `/staff`, `/rails`, `/uploads`, `/karriere`)
+- NEXT(hypotheses-nemotron3.txt): HUMAN: POC phase pinned to dead target api.hypofriend.de (46th consecutive cycle: :443/:80 both ~10s connect-timeout, 000; A 52.15.184.3 getent clean). Request 
+- LEARN: ACCEPTED BUSLOGIC @ core.hypofriend.de (slug routes) + hypofriend.de/en/exchange: there is a second, previously unmapped 301 class on the origin — recognized sl
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/en/exchange: the `redirect` parameter is **not** an open redirect. `redirect=evil` and `redirect=https://evil.example/x` both
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt/CMAtwEsq.js: 200, 1,336,611B, bit-stable for the third consecutive cycle — op-mining is exhausted as a discovery source, and
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 on :443 at 10.002s connect-timeout, `getent` clean at A 52.15.184.3 — dead 47th consecutive cycle, no takeover sur
+- LEARN: ACCEPTED NG @ core.hypofriend.de 16-path control sweep: `/backoffice`, `/internal`, `/sidekiq`, `/admin`, `/graphql`, `/api`, `/api/v1`, `/api/v2`, `/api/v4`, `
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q + /en/plus/q + /en/health/q: root.lead.has_admin_cookie is a live custom JSON scalar (graphql-ruby s
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: root.form_authenticity_token is a live /q field, proven from /crm's public inline JS: POST /q { roo
+- LEARN: ACCEPTED NG @ hypofriend.de/crm: unchanged at 200/7465B/etag f7a701f6/last-modified 2026-09-24T09:37:52Z — stale stub, no new assets, Lambda rewrite still colla
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt/CMAtwEsq.js: 6th entry rename in 8 days (DRDuhMz8.js→CMAtwEsq.js, 1,336,611B, sha256 3c8b388714b48c0af519ea6259ebd375e2e03fe
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): 000 on :443 and :80 at 14:01Z, 10.002s connect-timeouts (exit 28), A 52.15.184.3 getent clean — dead 46th consecutive 
+- LEARN: ACCEPTED NG @ core.hypofriend.de/property-search-api: not re-probed this cycle. Data-returning POSTs against customer records remain program-excluded; the stand
+- LEARN: ACCEPTED AUTH @ core.hypofriend.de/api/v3/advisors: hardcoded HTTP Basic credential `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt (151-chunk re-mine, 2026-09-25 deploy): all named GraphQL operations resolve to the entry chunk alone (files=1 for every op)
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus/q: `unclaimLead` is definitively not a cross-tenant write — the document is `mutation unclaimLead { unclaimLead(i
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: app now emits `vary: Origin, Accept-Encoding` on origin responses (previously `Accept-Encoding` only) while still refle
+- LEARN: ACCEPTED NG @ core.hypofriend.de/api/v3/delete-cookie: unauthenticated 200 on both origin and edge where sibling `/api/v3/advisors` is 401 Basic — new untracked
+- LEARN: ACCEPTED NG @ core.hypofriend.de/api/v3/delete-admin-cookie: 200 unauth on origin+edge, third /api/v3/ route — corrects last cycle's "namespace exhaustively 2 r
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/crm: the unrendered `<%= htmlWebpackPlugin.options.title %>` build placeholder and the `expires: Tue, 01 Jan 1980` SPA-fallba
+- LEARN: REJECTED OATH @ hypofriend.de/auth/google_oauth2: killed as a hypothesis. GET → 301 → https://hypofriend.de/ on BOTH origin and edge, identical to every unknown
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de (origin responses): new `x-runtime: 0.004028–0.026517` per-request processing-time header is internal timing disclosure 

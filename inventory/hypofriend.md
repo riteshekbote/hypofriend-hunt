@@ -1105,3 +1105,11 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de (target) 000 on :443 and :80 (10.002s connect-timeouts, exit 28); getent clean A 52.15.184.3 — dead 46th consecutive cycle, no takeover surface, target unchanged.
 - CHANGED hypofriend.de/crm unchanged: 200, 7465B, etag f7a701f6, last-modified 2026-09-24T09:37:52Z, x-cache Miss — stale stub, no new assets.
 - CHANGED /q credentialed-CORS precondition re-verified live 14:03Z on origin: OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + 7 methods (GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD) + max-age 7200 + `
+
+## 2026-09-26 17:50:58 UTC
+- NEW **Recognized-slug redirect class on the origin** — `/tools`, `/staff`, `/rails`, `/uploads`, `/karriere` return 301 to a first-party `https://hypofriend.de/en/exchange?share_id=…&link_id=…`, *not* the
+- NEW **`share_id` + `link_id` are deterministic per slug and DB-backed** — `/tools` twice returned the identical pair `share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68`, `link_id=cb8917e2-41d9-5ae9-bf82-d3a5e
+- NEW **Attribution params on that slug route are fully attacker-controlled and reflected verbatim** — `GET core.hypofriend.de/tools?utm_source=attacker&utm_medium=x&utm_campaign=evil&redirect=evil` → 301 `
+- NEW **Client persistence leg proven in the shipped bundle** (`CMAtwEsq.js`, 200, 1,336,611B): `XP=function(){(query.utm_source||query.utm_medium||query.utm_campaign)&&a2().website.setMarketingCampaign({ut
+- CHANGED `api.hypofriend.de` (designated target) 000 on :443 at 10.002s connect-timeout; `getent` clean A 52.15.184.3 — dead **47th** consecutive cycle.
+- CHANGED Entry bundle `CMAtwEsq.js` 200/1,336,611B, bit-stable — third consecutive cycle confirming op-mining is exhausted; this cycle's surface came from path breadth, not the bundle.

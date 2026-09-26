@@ -1080,3 +1080,17 @@ https://core.hypofriend.de/property-search-api` -> HTTP 400
 https://hypofriend.de/crm -> 200 len=7465
 https://core.hypofriend.de/crm` -> 200 len=228601
 https://hypofriend.de/ -> 200 len=228601
+
+## 2026-09-26 17:51:18 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/q -> 200 len=228601
+https://hypofriend.de/ -> 200 len=228601
+https://hypofriend.de/en/exchange?share_id=…&link_id=…` -> ERR 'ascii' codec can't encode character '\u2026' in p
+https://hypofriend.de/` -> 200 len=228601
+https://core.hypofriend.de/tools?utm_source=attacker&utm_medium=x&utm_campaign=evil&redirect=evil' -> HTTP 404
+https://core.hypofriend.de/tools' -> 200 len=3766
+https://core.hypofriend.de/admin' -> 200 len=228601
+https://hypofriend.de/q -> 200 len=228601
+https://core.hypofriend.de/en/plus/q -> 200 len=228601
+https://core.hypofriend.de/property-search-api` -> HTTP 400
