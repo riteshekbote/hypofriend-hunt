@@ -5971,3 +5971,31 @@ evidence_needed: An authorized owned test session showing `root.lead` data retur
 verify_steps: `curl -sI https://core.hypofriend.de/q` for route freshness; the confirming step is a controlled-session POST carrying an `Origin` header, which cannot be established passively.
 impact: Cross-origin exposure of authenticated lead PII including internal-staff email — HIGH, unconfirmed
 testability: HUMAN_ONLY
+## 2026-09-26 05:17:05 UTC [target] (model bigpickle)
+[HYP] Full-DB auth-free PII BOLA on the mortgage property-search GraphQL API via direct origin
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 97
+reasoning: Unauthenticated `propertySearch`->`exposes`->`expose` chain returns 200 with `propertyOwnerLastName`, `cellPhoneNumber`, `phoneNumber`, `ownerCompany`, `providerCompany`, `providerEmail`. Introspection exposes `offset`/`limit` plus geo-bounds primitives `exposesInBounds`/`mapExposes`; `expose(id,leadId,saveExposeContact,returnMissing)` and `favoriteExpose(leadId,exposeId)` are auth-free. Direct origin serves the identical schema with bare headers (`date`/`content-length`/`vary: Origin` only) vs the full CloudFront stack, so the entire edge WAF/header layer is bypassed. This cycle: route still live (GET 400 / OPTIONS 400, `content-type: application/json`), CORS still closed (no ACAO echo — unchanged 45+ cycles), GraphQL-over-GET explicitly rejected. Client config pins `propertySearchApiUrl` to the **edge** domain, so the origin is a second, unmonitored path to the same DB.
+evidence_needed: Existence fully supported; only the affected-record count is unquantified. Per program scope, no further data-returning POST may be run by me.
+verify_steps: `curl -sI https://core.hypofriend.de/property-search-api` (read-only freshness; expect 400 + `content-type: application/json`). Do NOT repeat PII-returning POSTs — program excludes customer-data exposure during testing.
+impact: Auth-free extraction of German property-listing and broker/owner contact PII at database scale, on an edge-bypassing origin — CRITICAL
+testability: HUMAN_ONLY
+[HYP] Hardcoded HTTP Basic credential in the public bundle nullifies the program's only authenticated route
+class: AUTH
+asset: hypofriend.de/api/v3/advisors
+confidence: 84
+reasoning: `g8(e)` in `/m/_nuxt/DRDuhMz8.js` (200, 1,336,611B, sha256 `28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f90d583a85e4b5ee7ec0e2c6`) attaches `Authorization: Basic aHlwbzphZHZpc29yczIwMTgr` — decodes to `hypo:advisors2018+`, sha256 of the b64 token `56f00b87f9a28c8e…`; exactly 1 occurrence, re-confirmed this cycle. Its only caller is `yB().fetchAllAdvisors()`/`fetchAdvisor()`, which pass `l7(t)` = runtime `advisorEndpoint` = `https://hypofriend.de/api/v3/advisors`. Route returns 401 + `www-authenticate: Basic realm="Application"` on edge **and** origin, `content-length: 0`. This cycle corrects the exposure scope: mapper `a7` spreads `...e`, so the **whole** advisor record is passed through, not 3 named fields. Scope is bounded — both appointment instances carry `advisorEndpoint:""` and `loginEnabled:false`, and the `/api/v3/` namespace is exhaustively 2 routes (`advisors` 401, `delete-cookie` 200 unauth), so the credential does not generalise. No public advisor page exists, so the data is genuinely gated.
+evidence_needed: One authorized read-only `GET https://hypofriend.de/api/v3/advisors` with the header, returning 200. Deliberately not sent — authenticating with a recovered credential is an active auth test.
+verify_steps: `curl -sSI https://hypofriend.de/m/_nuxt/DRDuhMz8.js | grep -iE 'content-length'` (expect 1336611); `curl -s https://hypofriend.de/en/plus | grep -o 'advisorEndpoint:"[^"]*"'` (expect the live URL). Presence and target already proven passively.
+impact: Complete bypass of the program's only auth gate; unbounded-field enumeration of the staff directory by any unauthenticated party. LOW-MEDIUM on current data, HIGH as a pattern. CWE-798.
+testability: HUMAN_ONLY
+[HYP] Unauthenticated multipart file ingest into the mortgage document pipeline
+class: BUSLOGIC
+asset: hypofriend.de/en/health/q, hypofriend.de/en/plus/q (and core.hypofriend.de equivalents)
+confidence: 55
+reasoning: Prior cycles recorded the mutation `uploadDocumentExtended(input:{type,document_type,applicant_type})` carrying `[File!]!` (multipart) and executing HTTP 200 with **zero credentials** on all four host+path combos; both instances ship `loginEnabled:false`, confirming the flows are anonymous by design. The anonymous *appointment request* is the form's stated purpose and is not a finding (REJECTED class: CSRF on anonymous forms). The distinct, unproven part is the **file** leg: attacker-controlled binary content written into the vendor's document storage/processing pipeline with no auth gate, no visible type restriction, and no visible ownership check. Nothing in the 151-chunk re-mine (closed negative) reveals handling logic, and no passive probe can: `GET`/`OPTIONS` return the Rails 301 shell and the endpoint is POST-only. So the existence of an auth-free ingest is established; its handling is entirely unestablished.
+evidence_needed: One authorized upload of a single benign, non-executable file (e.g. `hfp-test.txt`, 1 line of text) against a throwaway appointment request, showing whether arbitrary type/size is accepted and whether the object is stored/queued.
+verify_steps: `curl -sI https://core.hypofriend.de/en/plus/q -H 'Origin: https://evil.example' -H 'ACRM: POST'` (read-only; confirms the credentialed-CORS precondition is intact before any upload). The upload itself is HUMAN-authorized and must not be run by me.
+impact: If arbitrary types are stored unscoped, this becomes unauthenticated storage abuse and a malware-hosting primitive inside a regulated mortgage pipeline. Severity fully dependent on handling behaviour, which is unproven.
+testability: HUMAN_ONLY

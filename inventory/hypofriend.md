@@ -1077,3 +1077,13 @@ www.hypofriend.de
 - CHANGED Credentialed CORS re-verified live on `/en/plus/q`, `/en/health/q`, `/zzz-arbitrary-path`, `/api/v3/advisors` — global rack-cors middleware confirmed across ALL Rails routes
 - CHANGED Property-search-api PII enumeration chain re-confirmed live 2026-09-25T18:51Z — `propertySearch→exposes→expose` returns broker/owner PII auth-free on direct origin
 - CHANGED Entry bundle renamed 5th time in 7 days: `CQoy7ifk.js` → `DRDuhMz8.js` (sha256 `28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f90d583a85e4b5ee7ec0e2c6`), byte-identical, mutation-template counts frozen
+
+## 2026-09-26 05:17:14 UTC
+- NEW Hardcoded HTTP Basic credential `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87f9a28c8...`) confirmed live in public entry bundle `DRDuhMz8.js` — sole authenticated endpoi
+- NEW Full 151-chunk re-mine of 2026-09-25 deploy completed: all named GraphQL ops resolve to entry chunk only; zero new auth-relevant ops/secrets/hosts in lazy chunks
+- CHANGED `core.hypofriend.de` now emits `vary: Origin, Accept-Encoding` on origin responses (previously `Accept-Encoding` only) — cache-poisoning facet of credentialed CORS mitigated, echo persists
+- CHANGED `core.hypofriend.de/api/v3/delete-cookie` unauthenticated 200 on origin+edge (sibling `/api/v3/advisors` 401) — new untracked route in `/api/v3/` namespace; NG class (logout-CSRF only)
+- CHANGED `api.hypofriend.de` dead 44th consecutive cycle (000, ~10-12s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target
+- CHANGED Credentialed CORS re-verified live on `/en/plus/q`, `/en/health/q`, `/zzz-arbitrary-path`, `/api/v3/advisors` — global rack-cors middleware confirmed across ALL Rails routes
+- CHANGED Property-search-api PII enumeration chain re-confirmed live 2026-09-25T18:51Z — `propertySearch→exposes→expose` returns broker/owner PII auth-free on direct origin
+- CHANGED Entry bundle renamed 5th time in 7 days: `CQoy7ifk.js` → `DRDuhMz8.js` (sha256 `28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f90d583a85e4b5ee7ec0e2c6`), byte-identical, mutation-template counts frozen
