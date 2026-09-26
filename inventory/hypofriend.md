@@ -1096,3 +1096,12 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/q credentialed CORS re-verified live 09:56Z — ACAO:https://evil.example + ACAC:true + 7 methods + max-age 7200; `vary: Origin,Accept-Encoding` now present; new `x-runtime` timing he
 - CHANGED hypofriend.de/m/_nuxt/DRDuhMz8.js bit-identical — 1,336,611B, etag 5160466185cf28e0b0fed999d997f5f2, sha256 28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f90d583a85e4b5ee7ec0e2c6, last-modified 2026-09-25T1
 - CHANGED api.hypofriend.de (target) 000 on :443, 10.0s connect-timeout, A 52.15.184.3 getent clean — dead 45th consecutive cycle.
+
+## 2026-09-26 14:04:34 UTC
+- NEW root.lead.has_admin_cookie — new /q field, live-confirmed 200 on all three /q instances (hypofriend.de/q edge, core.hypofriend.de/en/plus/q, /en/health/q). Anonymous no-cookie POST returns {"hasAdminC
+- NEW getAdminCookie client query template mined from entry bundle: `query { root { lead { has_admin_cookie } } }` + response normalizer `r=n=>({hasCookie:n?.hasCookie===!0,name:n?.name??null,email:n?.email
+- NEW C8() = "getAPI" second /api/v3/ helper: `GET ${window.location.origin}/api/v3/<path>` with `withCredentials:true` — distinct from xk() which pins coreApiUrl. Only 2 call sites (delete-cookie, delete-a
+- CHANGED New deploy, 6th entry-bundle rename in 8 days: DRDuhMz8.js → CMAtwEsq.js (200, 1,336,611B, sha256 3c8b388714b48c0af519ea6259ebd375e2e03fea49d893c16027b262e626c932, etag 4ee8a43c, last-modified 2026-09
+- CHANGED api.hypofriend.de (target) 000 on :443 and :80 (10.002s connect-timeouts, exit 28); getent clean A 52.15.184.3 — dead 46th consecutive cycle, no takeover surface, target unchanged.
+- CHANGED hypofriend.de/crm unchanged: 200, 7465B, etag f7a701f6, last-modified 2026-09-24T09:37:52Z, x-cache Miss — stale stub, no new assets.
+- CHANGED /q credentialed-CORS precondition re-verified live 14:03Z on origin: OPTIONS Origin https://evil.example → ACAO echo + ACAC:true + 7 methods (GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD) + max-age 7200 + `
