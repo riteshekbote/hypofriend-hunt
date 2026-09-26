@@ -1094,3 +1094,17 @@ https://core.hypofriend.de/admin' -> 200 len=228601
 https://hypofriend.de/q -> 200 len=228601
 https://core.hypofriend.de/en/plus/q -> 200 len=228601
 https://core.hypofriend.de/property-search-api` -> HTTP 400
+
+## 2026-09-26 20:39:14 UTC
+https://hypofriend.de/en/exchange?share_id=...&link_id=...` -> HTTP 404
+https://core.hypofriend.de/q -> 200 len=228601
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://hypofriend.de/ -> 200 len=228601
+https://hypofriend.de/partnerprogramm?utm_source=aff&utm_campaign=steal-lead` -> 200 len=3766
+https://core.hypofriend.de/partnerprogramm?utm_source=aff&utm_medium=cpa&utm_campaign=steal-lead&redirect=expose' -> HTTP 404
+https://core.hypofriend.de/admin' -> 200 len=228601
+https://hypofriend.de/` -> 200 len=228601
+https://core.hypofriend.de/..%2fstaff' -> HTTP 400
+https://hypofriend.de/q -> 200 len=228601
+https://core.hypofriend.de/en/plus/q -> 200 len=228601

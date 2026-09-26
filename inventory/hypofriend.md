@@ -1113,3 +1113,21 @@ www.hypofriend.de
 - NEW **Client persistence leg proven in the shipped bundle** (`CMAtwEsq.js`, 200, 1,336,611B): `XP=function(){(query.utm_source||query.utm_medium||query.utm_campaign)&&a2().website.setMarketingCampaign({ut
 - CHANGED `api.hypofriend.de` (designated target) 000 on :443 at 10.002s connect-timeout; `getent` clean A 52.15.184.3 — dead **47th** consecutive cycle.
 - CHANGED Entry bundle `CMAtwEsq.js` 200/1,336,611B, bit-stable — third consecutive cycle confirming op-mining is exhausted; this cycle's surface came from path breadth, not the bundle.
+
+## 2026-09-26 20:38:51 UTC
+- NEW **Mint-class enumeration CLOSED at 9 path stems** — bounded wordlist of 113 single-segment slugs at ≤1rps against `core.hypofriend.de`: **9 MINT** (`/tools`, `/staff`, `/rails`, `/uploads`, `/karriere
+- NEW **`/partner` + `/partnerprogramm` both resolve to `link_id=867ef48e-d7ef-5a88-b7c8-86d0a7ba14ca` / `share_id=108ee8c6-4330-4a59-867c-c0a6a638046f`** — the **official partner/affiliate referral-program
+- NEW **The mint class is on the edge as well as the origin** — `GET https://hypofriend.de/partnerprogramm?utm_source=aff&utm_campaign=steal-lead` → 301 to `…utm_campaign=steal-lead&utm_source=aff` with `li
+- NEW **Forged attribution re-proven on the partner link itself, with a paired control** — `?utm_source=aff&utm_medium=cpa&utm_campaign=steal-lead&redirect=expose` → echoed verbatim, `link_id` **unchanged**
+- NEW **`link_id` is a fixed DB record, NOT cookie-derivable** — unchanged with a session jar and unchanged with forged `Cookie: referrer=attacker-uuid-1234; affiliate_id=attacker-9; utm_campaign=forged`. T
+- NEW **Third response class found: soft errors.** `GET /404` → **HTTP 200**, 5201B, and `GET /500` → **HTTP 200**, 8283B, both Nuxt static error documents (`<title>The page you were looking for doesn't exi
+- NEW **Negative control kills path-normalization bypass.** `--path-as-is` on `/partner%2f..%2fstaff`, `/..%2fstaff`, `/%2e%2e%2fstaff`, `/partner%00`, `/PARTNER`, `/Partner` → **all canonical shell**. A cr
+- CHANGED `api.hypofriend.de` (designated target): `curl -I` **exit 124 on both :443 and :80**, `getent` clean at A 52.15.184.3 — dead **48th** consecutive cycle, no takeover surface, target unchanged.
+- NEW Recognized-slug redirect class on origin: `/tools`, `/staff`, `/rails`, `/uploads`, `/karriere` → 301 to first-party `https://hypofriend.de/en/exchange?share_id=...&link_id=...` with attacker-controll
+- NEW `root.lead.has_admin_cookie` — new /q GraphQL field (custom JSON scalar, `selectionMismatch`, `extensions.typeName:"JSON"`), live on all three /q instances (`hypofriend.de/q`, `core.hypofriend.de/en/p
+- NEW `root.form_authenticity_token` — new /q field, proven from `/crm` public inline JS: `POST /q { root { form_authenticity_token } }` with `credentials:"include"`; not in any prior mined op-map (2026-09-
+- NEW `hypofriend.de/crm` — internal staff "Backoffice" login page (200/7465B, edge-only S3+Lambda rewrite, last-modified 2026-09-24T09:37:52Z); `/auth/google_oauth2` referenced but 301→`/` on both hosts (2
+- NEW `core.hypofriend.de/api/v3/delete-admin-cookie` — 200 unauth on origin+edge, third `/api/v3/` route; expires 6 `__hfp__*` cookies but re-issues internal cookie (2026-09-26 09:58Z)
+- CHANGED Entry bundle renamed 6th time in 8 days: `DRDuhMz8.js` → `CMAtwEsq.js` (200, 1,336,611B, sha256 `3c8b3887...`, buildId `ee1c1be5`, last-modified 2026-09-26T12:56:01Z); named-op set bit-identical (10 o
+- CHANGED `api.hypofriend.de` (designated POC target) 000 on :443/:80 (10.002s connect-timeouts, exit 28); `getent` clean A 52.15.184.3 — dead **47th consecutive cycle**, no takeover surface
+- CHANGED `core.hypofriend.de` now emits `vary: Origin, Accept-Encoding` on origin responses (previously `Accept-Encoding` only) — cache-poisoning facet of credentialed CORS mitigated, echo persists (2026-09-25
