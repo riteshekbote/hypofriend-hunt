@@ -1057,3 +1057,15 @@ https://core.hypofriend.de/property-search-api` -> HTTP 400
 https://hypofriend.de/api/v3/advisors` -> 200 len=228601
 https://hypofriend.de/m/_nuxt/DRDuhMz8.js -> 200 len=1336611
 https://hypofriend.de/en/plus -> 200 len=298645
+
+## 2026-09-26 09:59:04 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://core.hypofriend.de/en/plus/q -> 200 len=228601
+https://hypofriend.de/crm -> 200 len=7465
+https://core.hypofriend.de/crm -> 200 len=228601
+https://hypofriend.de/ -> 200 len=228601
+https://core.hypofriend.de/crm` -> 200 len=228601
+https://core.hypofriend.de/property-search-api` -> HTTP 400
+https://hypofriend.de/q -> 200 len=228601
+https://hypofriend.de/crm` -> 200 len=7465

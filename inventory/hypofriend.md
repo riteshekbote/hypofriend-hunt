@@ -1087,3 +1087,12 @@ www.hypofriend.de
 - CHANGED Credentialed CORS re-verified live on `/en/plus/q`, `/en/health/q`, `/zzz-arbitrary-path`, `/api/v3/advisors` — global rack-cors middleware confirmed across ALL Rails routes
 - CHANGED Property-search-api PII enumeration chain re-confirmed live 2026-09-25T18:51Z — `propertySearch→exposes→expose` returns broker/owner PII auth-free on direct origin
 - CHANGED Entry bundle renamed 5th time in 7 days: `CQoy7ifk.js` → `DRDuhMz8.js` (sha256 `28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f90d583a85e4b5ee7ec0e2c6`), byte-identical, mutation-template counts frozen
+
+## 2026-09-26 09:58:46 UTC
+- NEW hypofriend.de/crm — 200, 7465B, "Login to Backoffice | Hypofriend": internal staff CRM/backoffice login page, edge-only (S3 + CloudFront Lambda rewrite, last-modified 2026-09-24T09:37:52Z, etag f7a701
+- NEW root.form_authenticity_token — new /q GraphQL field, proven from /crm's public inline JS: POST /q { root { form_authenticity_token } } with credentials:"include". Not in any prior mined op-map.
+- NEW /auth/google_oauth2 — OAuth2 initiation referenced by /crm (POST + authenticity_token). GET 301→/ on both origin and edge; endpoint not live as GET.
+- NEW core.hypofriend.de/api/v3/delete-admin-cookie — 200 unauth, edge+origin. Third /api/v3/ route; corrects last cycle's "namespace exhaustively 2 routes". Expires 6 __hfp__* cookies but re-issues interna
+- CHANGED core.hypofriend.de/q credentialed CORS re-verified live 09:56Z — ACAO:https://evil.example + ACAC:true + 7 methods + max-age 7200; `vary: Origin,Accept-Encoding` now present; new `x-runtime` timing he
+- CHANGED hypofriend.de/m/_nuxt/DRDuhMz8.js bit-identical — 1,336,611B, etag 5160466185cf28e0b0fed999d997f5f2, sha256 28ffba1cd2b1e3dec66d47afd7ac43c06ec284d5f90d583a85e4b5ee7ec0e2c6, last-modified 2026-09-25T1
+- CHANGED api.hypofriend.de (target) 000 on :443, 10.0s connect-timeout, A 52.15.184.3 getent clean — dead 45th consecutive cycle.
