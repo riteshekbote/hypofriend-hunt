@@ -6296,3 +6296,4 @@ evidence_needed: One authorized read on a session the tester owns whose lead is 
 verify_steps: `curl -sS -X POST https://hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"query { root { lead { has_admin_cookie } } }"}'` (expect 200 + {"hasCookie":false}, the anonymous baseline); `curl -sS -m 8 -X OPTIONS -D - -o /dev/null https://core.hypofriend.de/en/plus/q -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' | tr -d '\r' | grep -iE 'access-control-allow-(origin|credentials)'` (expect the echo plus credentials:true, the precondition).
 impact: An attacker-controlled page reads with only ambient cookies whether a session carries an admin/advisor cookie and, per the vendor's own normaliser, the associated staff name and email. HIGH if a non-staff session yields identity; MEDIUM as evidenced.
 testability: HUMAN_ONLY
+## 2026-09-27 07:04:28 UTC [target] (model bigpickle)

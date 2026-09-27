@@ -19692,3 +19692,14 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] hypofriend: 98 — Unauthenticated production GraphQL APIs with full introspection (property-search-api) + auth-free read/write over arbitrary leadId carrying broker/owner PII. Direct Rails origin (core.hypofriend.de) bypasses CloudFront WAF/rate-limiting. Global credentialed CORS middleware on core origin extends cross-origin authenticated access to ALL Rails routes — any current/future authenticated endpoint, admin panel, internal API becomes readable/writable from arbitrary origin. Two additional appointment instances (/en/health, /en/plus) with independent GraphQL surfaces replicating auth-free mutation pattern (uploadDocumentExtended, processLeadForAppointment, requestAccountLink, requestAppointmentLink, setNameAppointment) + OPEN CREDENTIALED CORS on both edge and origin. Sole authenticated endpoint (/api/v3/advisors) gated by hardcoded Basic credential shipped in public JS bundle. Anonymous mortgage-rate oracle (rates_table) leaks live per-region lender pricing (0.10% delta BAYERN vs SAXONY). Share-link forge at /en/exchange mints unlimited first-party URLs with attacker-controlled link_id + campaign attribution persisted server-side into lead state via setMarketingCampaign. New: has_admin_cookie JSON scalar + form_authenticity_token on /q + global credentialed CORS = cross-origin session identity + CSRF token read primitive. Severity: CRITICAL.
+===== ANALYST nemotron3 2026-09-27 07:04:38 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat << 'EOF' > /tmp/delta_check.txt
+# Checking latest entries from knowledge base (2026-09-27)
+grep "2026-09-27" /home/runner/work/hypofriend-hunt/hypofriend-hunt/knowledge_base.md | head -30
+EOF
+cat /tmp/delta_check.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

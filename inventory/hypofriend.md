@@ -1163,3 +1163,5 @@ www.hypofriend.de
 - CHANGED hypofriend.de/crm: unchanged stale stub (200/7465B, etag f7a701f6, last-modified 2026-09-24), Lambda rewrite collapses all `/crm/*` to single object
 - CHANGED core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
 - CHANGED core.hypofriend.de/api/v3/advisors: hardcoded Basic `hypo:advisors2018+` in public bundle + global credentialed CORS on endpoint — sole authenticated endpoint effectively public
+
+## 2026-09-27 07:04:38 UTC

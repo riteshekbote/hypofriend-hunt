@@ -3359,3 +3359,5 @@
 - LEARN: REJECTED MISCONFIG @ hypofriend.de/crm: the unrendered <%= htmlWebpackPlugin.options.title %> build placeholder and the expires: Tue, 01 Jan 1980 SPA-fallback h
 - LEARN: REJECTED OATH @ hypofriend.de/auth/google_oauth2: killed as a hypothesis. GET → 301 → https://hypofriend.de/ on BOTH origin and edge, identical to every unknown
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de (origin responses): new x-runtime: 0.004028–0.026517 per-request processing-time header is internal timing disclosure — 
+
+## RANKED HYPOTHESES 2026-09-27 07:04:38 UTC
