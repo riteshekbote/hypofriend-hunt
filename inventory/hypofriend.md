@@ -1195,3 +1195,5 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de — dead 50th+ consecutive cycle (000, ~10s connect-timeout, A 52.15.184.3 clean); POC phase still pinned to dead target
 - CHANGED core.hypofriend.de/property-search-api — full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
 - CHANGED core.hypofriend.de/api/v3/advisors — hardcoded Basic `hypo:advisors2018+` in public bundle + global credentialed CORS on endpoint; sole authenticated endpoint effectively public
+
+## 2026-09-27 20:45:33 UTC
