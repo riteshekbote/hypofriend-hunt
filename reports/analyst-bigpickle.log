@@ -35792,3 +35792,39 @@ testability: PASSIVE
 ## STEP 7 — RISK
 
 - [RISK] hypofriend: 92 — held, and the reason it holds while nothing new breaks is that the *marginal cost of an attacker* keeps falling. No customer data was touched this cycle: the anonymous session's lead is null, and every probe was a query or a document that failed validation, so nothing was read and nothing was written. What changed is that the last remaining cost — knowing the exact name and signature of a destructive mutation — just went to zero without a single byte of client code. An attacker who previously needed to find and download a 2.4MB account bundle now sends one POST and is told the mutation name, its input type, its required argument and that argument's type, with the resolver never invoked. The gates that remain open (bulk PII quantification, ownership of a document id, attribution persistence on a lead) are all HUMAN_ONLY because they require touching customer data, so the risk is unchanged in kind and materially lower in the effort required to reach it — which is the profile I expect to convert into a bounty payout on the first authorised test rather than within the program.
+===== ANALYST bigpickle 2026-09-27 23:34:47 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll run the hunt cycle now. Starting with the target probe and the highest-value unmapped surface.
+[0m$ [0mdate -u '+%Y-%m-%dT%H:%M:%SZ'; echo "--- target: api.hypofriend.de ---"; for p in 443 80; do curl -sS -I -m 10 -o /dev/null -w "port=$p code=%{http_code} time=%{time_total}\n" "https://api.hypofriend.de/" 2>&1 | head -2; break; done; echo "--- 443 ---"; curl -sS -I -m 10 -o /dev/null -w 'https=%{http_code} t=%{time_total}\n' https://api.hypofriend.de/ 2>&1; echo "--- 80 ---"; curl -sS -I -m 10 -o /dev/null -w 'http=%{http_code} t=%{time_total}\n' http://api.hypofriend.de/ 2>&1; echo "--- dns ---"; getent ahostsv4 api.hypofriend.de
+2026-09-27T23:32:50Z
+--- target: api.hypofriend.de ---
+curl: (28) Connection timed out after 10002 milliseconds
+port=443 code=000 time=10.002275
+--- 443 ---
+curl: (28) Connection timed out after 10002 milliseconds
+https=000 t=10.002826
+--- 80 ---
+curl: (28) Connection timed out after 10002 milliseconds
+http=000 t=10.002794
+--- dns ---
+52.15.184.3     STREAM api.hypofriend.de
+52.15.184.3     DGRAM  
+52.15.184.3     RAW
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencode/*, /tmp/*); auto-rejecting
+[0m✗ [0mcd /tmp/opencode 2>/dev/null || cd /tmp
+J=/tmp/opencode/hf_jar_$$.txt
+echo "=== A: /en/plus/q root + type names (fresh no-cookie jar) ==="
+curl -sS -m 12 -c $J -X POST https://core.hypofriend.de/en/plus/q \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"query { root { zzz_9f3a lead name rates_table appointment_availability } }"}' | head -c 2500
+echo; sleep 1
+echo "=== B: /en/health/q root + type names ==="
+curl -sS -m 12 -c $J -X POST https://core.hypofriend.de/en/health/q \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"query { root { zzz_9f3a lead name rates_table appointment_availability } }"}' | head -c 2500
+echo; echo "--- jar cookies (should be empty/anonymous) ---"; cat $J 2>/dev/null | tail -5 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+Target `api` dead again (51st cycle). Moving to the highest-value unmapped asset: the two sibling `/q` instances declared "distinct schema" three weeks ago and never mapped.

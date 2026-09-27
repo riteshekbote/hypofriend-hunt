@@ -3438,3 +3438,20 @@
 - LEARN: ACCEPTED OTHER @ hypofriend.de/en/account SPA: the "bundle mining is exhausted" conclusion was correct but scoped to the wrong bundle. Three consecutive cycles 
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: introspection is off but the error channel defeats it — `undefinedField` returns the parent `typeNa
 - LEARN: REJECTED IDOR @ core.hypofriend.de/q (document_analysis_status): my own [NEXT] discriminator returned `{"documentAnalysisStatus":null}` for a well-formed non-ex
+
+## RANKED HYPOTHESES 2026-09-27 23:34:47 UTC
+- [99] core.hypofriend.de/property-search-api: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { requestAccountLink(input
+- LEARN: ACCEPTED AUTH @ core.hypofriend.de/api/v3/advisors: hardcoded HTTP Basic credential hypo:advisors2018+ (Basic aHlwbzphZHZpc29yczIwMTgr, b64 sha256 56f00b87...) 
+- LEARN: ACCEPTED NG @ hypofriend.de/m/_nuxt (151-chunk re-mine, 2026-09-25 deploy): all named GraphQL operations resolve to the entry chunk alone (files=1 for every op)
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus/q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: app now emits vary: Origin, Accept-Encoding on origin responses (previously Accept-Encoding only) while still reflectin
+- LEARN: ACCEPTED NG @ core.hypofriend.de/api/v3/delete-cookie: unauthenticated 200 on both origin and edge where sibling /api/v3/advisors is 401 Basic — new untracked r
+- LEARN: ACCEPTED NG @ core.hypofriend.de/api/v3/delete-admin-cookie: 200 unauth on origin+edge, third /api/v3/ route — corrects last cycle's "namespace exhaustively 2 r
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/crm: the unrendered <%= htmlWebpackPlugin.options.title %> build placeholder and the expires: Tue, 01 Jan 1980 SPA-fallback h
+- LEARN: REJECTED OATH @ hypofriend.de/auth/google_oauth2: killed as a hypothesis. GET → 301 → https://hypofriend.de/ on BOTH origin and edge, identical to every unknown
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de (origin responses): new x-runtime: 0.004028–0.026517 per-request processing-time header is internal timing disclosure — 
+- LEARN: CHANGED MISCONFIG @ core.hypofriend.de/q: the Vary:Origin mitigation recorded on 2026-09-25 does not hold on the primary preflight path. Live today, OPTIONS /q 
+- LEARN: ACCEPTED OTHER @ hypofriend.de/en/account SPA: the "bundle mining is exhausted" conclusion was correct but scoped to the wrong bundle. Three consecutive cycles 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: introspection is off but the error channel defeats it — `undefinedField` returns the parent `typeNa
+- LEARN: REJECTED IDOR @ core.hypofriend.de/q (document_analysis_status): my own [NEXT] discriminator returned `{"documentAnalysisStatus":null}` for a well-formed non-ex
