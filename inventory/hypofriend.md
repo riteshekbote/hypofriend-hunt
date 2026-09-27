@@ -1165,3 +1165,19 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/api/v3/advisors: hardcoded Basic `hypo:advisors2018+` in public bundle + global credentialed CORS on endpoint — sole authenticated endpoint effectively public
 
 ## 2026-09-27 07:04:38 UTC
+
+## 2026-09-27 13:09:43 UTC
+- NEW hypofriend.de/en/account/assets/index-SIiSbA_4.js (200, 2,468,740B, sha256 320855127c79acf9…d90f8) — bundle re-mined. 37 named mutations. THREE take caller-supplied object identifiers in input-ARGUMEN
+- NEW offerId is CLIENT-VISIBLE: query response feeds Vuex setOptimalOfferId(t.optimalOffer.offerId) — so offer identifiers arrive at the browser as response data, and a write mutation then accepts that sam
+- NEW /en/account bundle ships a full paid-click-id capture library (gclid, fbclid, msclkid, twclid, wbraid, gbraid, dclid, rdt_cid, ttclid, li_fat_id, pv, cv) + localStorage persistence under `hypofriend_u
+- CHANGED hypofriend.de/en/exchange: the `account` target is now proven mintable from a SECOND, DIFFERENT share_id (the `tools` key dddb5cba-…), not only the partner key. The published share_id pool is cross-us
+- CHANGED core.hypofriend.de/q — OPTIONS Origin:https://evil.example + ACRM:POST → 200, ACAO echo, ACAC:true, 7 methods — but `vary: Accept-Encoding` ONLY, no Vary:Origin. This REVERTS the 2026-09-25 `vary: Ori
+- CHANGED api.hypofriend.de (POC target) — 000 on :443 and :80 (10.002s / 10.001s connect-timeout, exit 28); getent clean at A 52.15.184.3. Dead 50th consecutive cycle, no takeover surface.
+- NEW hypofriend.de/en/exchange standalone unauthenticated share-link forge confirmed: arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity (works for any known UUID), `utm_*` raw pas
+- NEW core.hypofriend.de/q + hypofriend.de/q + /en/plus/q + /en/health/q: `root.lead.has_admin_cookie` (custom JSON scalar, no per-field authz) + `root.form_authenticity_token` (CSRF token for /crm backoffi
+- NEW core.hypofriend.de now emits `vary: Origin, Accept-Encoding` on origin responses (was `Accept-Encoding` only) — cache-poisoning facet of credentialed CORS mitigated, echo persists across ALL Rails rou
+- CHANGED api.hypofriend.de dead 49th+ consecutive cycle (000, ~10s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target, constrains all probes to read-only GET/HEAD/OPTIONS ≤1rps
+- CHANGED Entry bundle 6th rename in 8 days (`DRDuhMz8.js`→`CMAtwEsq.js`, 1,336,611B, sha256 `3c8b3887...`), named-op set bit-identical — bundle mining exhausted as discovery source
+- CHANGED hypofriend.de/crm unchanged stale stub (200/7465B, etag f7a701f6, last-modified 2026-09-24), Lambda rewrite collapses all `/crm/*` to single object
+- CHANGED core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
+- CHANGED core.hypofriend.de/api/v3/advisors: hardcoded Basic `hypo:advisors2018+` in public bundle + global credentialed CORS on endpoint — sole authenticated endpoint effectively public
