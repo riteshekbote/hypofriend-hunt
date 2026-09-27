@@ -1181,3 +1181,17 @@ www.hypofriend.de
 - CHANGED hypofriend.de/crm unchanged stale stub (200/7465B, etag f7a701f6, last-modified 2026-09-24), Lambda rewrite collapses all `/crm/*` to single object
 - CHANGED core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
 - CHANGED core.hypofriend.de/api/v3/advisors: hardcoded Basic `hypo:advisors2018+` in public bundle + global credentialed CORS on endpoint — sole authenticated endpoint effectively public
+
+## 2026-09-27 17:52:13 UTC
+- NEW core.hypofriend.de/q + hypofriend.de/q: **GraphQL introspection is bypassable despite being disabled** — an unauthenticated `undefinedField` error channel returns the parent `typeName` (`HypofriendTyp
+- NEW Recursive depth proven, not just level 1: probing a sub-field on `lead` returns `Field '…' doesn't exist on type 'Lead'`, i.e. the oracle walks the type graph and names sub-types. Suggester distance-b
+- NEW `root.document_analysis_status(job_id:)` is live and unauthenticated on `/q` (200, camelCase-mapped, resolves). **Returns `null` for a well-formed but non-existent UUID** — the resolver binds to the i
+- CHANGED core.hypofriend.de/q POST now carries `vary: Accept,Origin,Accept-Encoding` while the OPTIONS preflight on the same host and path carries `vary: Accept-Encoding` only. This **corrects** my own 2026-09
+- CHANGED Main bundle 7th rename in 9 days: `CMAtwEsq.js` (now 403) → `Bitus3YJ.js` (200, 1,336,611B, etag `ad2cd4c125ac74e9b0d6c9b7a81b7360`, last-modified 2026-09-27T12:56:41Z, sha256 `a28e9773a9fd290f2945b81
+- CHANGED Hardcoded Basic credential **still shipped and still scoped identically**: `g8(e){…Ls(e,{headers:{"Content-Type":"application/json",Authorization:"Basic aHlwbzphZHZpc29yczIwMTgr"}}).get()}` in the new
+- NEW hypofriend.de/en/account/assets/index-SIiSbA_4.js — new entry bundle (200, 2,468,740B, sha256 320855127c79acf9...d90f8) with 37 named mutations; THREE take caller-supplied object IDs in input argument
+- NEW core.hypofriend.de/q — Vary:Origin mitigation REVERTED: OPTIONS now returns `vary: Accept-Encoding` only (no Vary:Origin) while still echoing arbitrary Origin + ACAC:true + 7 methods
+- CHANGED hypofriend.de/en/exchange — `account` target now proven mintable from SECOND share_id (`tools` key dddb5cba-…), not only partner key; share_id pool cross-usable
+- CHANGED api.hypofriend.de — dead 50th+ consecutive cycle (000, ~10s connect-timeout, A 52.15.184.3 clean); POC phase still pinned to dead target
+- CHANGED core.hypofriend.de/property-search-api — full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
+- CHANGED core.hypofriend.de/api/v3/advisors — hardcoded Basic `hypo:advisors2018+` in public bundle + global credentialed CORS on endpoint; sole authenticated endpoint effectively public
