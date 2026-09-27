@@ -1122,3 +1122,15 @@ https://hypofriend.de/en/exchange?share_id=not-a-uuid&link_id=867ef48e-d7ef-5a88
 https://hypofriend.de/q -> 200 len=228601
 https://core.hypofriend.de/en/plus/q -> 200 len=228601
 https://core.hypofriend.de/property-search-api` -> HTTP 400
+
+## 2026-09-27 01:34:11 UTC
+https://hypofriend.de/en/exchange?share_id=108ee8c6-4330-4a59-867c-c0a6a638046f&link_id=attacker-uuid-1234&redirect=expose&utm_source=evil&utm_medium=cpa&utm_campaign=steal-lead -> 200 len=3766
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/api/v3/advisors -> HTTP 401
+https://hypofriend.de/ -> 200 len=228601
+https://hypofriend.de/en/account/assets/index-SIiSbA_4.js` -> 200 len=3766
+https://hypofriend.de/en/account -> 200 len=3766
+https://hypofriend.de/q -> 200 len=228601
+https://hypofriend.de/en/exchange?share_id=11111111-2222-3333-4444-555555555555&link_id=00000000-0000-0000-0000-000000000000&redirect=expose'` -> HTTP 404
+https://core.hypofriend.de/en/exchange?share_id=108ee8c6-4330-4a59-867c-c0a6a638046f&link_id=00000000-0000-0000-0000-000000000000&redirect=expose&utm_source=aff&utm_medium=cpa&utm_campaign=steal-lead' -> 200 len=3766
+https://core.hypofriend.de/en/plus/q -> 200 len=228601

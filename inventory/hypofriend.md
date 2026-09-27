@@ -1153,3 +1153,13 @@ www.hypofriend.de
 - CHANGED Entry bundle 6th rename in 8 days: DRDuhMz8.js → CMAtwEsq.js (200, 1,336,611B, sha256 3c8b3887..., buildId ee1c1be5); named-op set bit-identical (10 ops), mutation-template counts frozen — bundle mini
 - CHANGED core.hypofriend.de now emits vary: Origin, Accept-Encoding on origin responses (was Accept-Encoding only) — cache-poisoning facet of credentialed CORS mitigated, echo persists
 - CHANGED api.hypofriend.de (POC target) 000 on :443/:80 (10s connect-timeouts), A 52.15.184.3 clean — dead 48th consecutive cycle; phase mismatch constrains all probes to read-only on dead host
+
+## 2026-09-27 01:33:49 UTC
+- NEW hypofriend.de/en/exchange: standalone unauthenticated share-link forge — arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity (works for any known UUID), `utm_*` raw pass-throug
+- NEW core.hypofriend.de/en/plus/q + /en/health/q: `root.lead.has_admin_cookie` (JSON scalar, no per-field authz) + `root.form_authenticity_token` (CSRF token for /crm backoffice) both exposed via global cr
+- CHANGED core.hypofriend.de: now emits `vary: Origin, Accept-Encoding` on origin responses (was `Accept-Encoding` only) — cache-poisoning facet of credentialed CORS mitigated, echo persists across ALL Rails ro
+- CHANGED api.hypofriend.de: dead 49th consecutive cycle (000, ~10s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target, constrains all probes to read-only GET/HEAD/OPTIONS ≤1rps
+- CHANGED Entry bundle: 6th rename in 8 days (`DRDuhMz8.js`→`CMAtwEsq.js`, 1,336,611B, sha256 `3c8b3887...`), named-op set bit-identical — bundle mining exhausted as discovery source
+- CHANGED hypofriend.de/crm: unchanged stale stub (200/7465B, etag f7a701f6, last-modified 2026-09-24), Lambda rewrite collapses all `/crm/*` to single object
+- CHANGED core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
+- CHANGED core.hypofriend.de/api/v3/advisors: hardcoded Basic `hypo:advisors2018+` in public bundle + global credentialed CORS on endpoint — sole authenticated endpoint effectively public
