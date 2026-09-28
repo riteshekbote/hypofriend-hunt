@@ -6453,3 +6453,4 @@ evidence_needed: One authorized execution of either mutation against an object i
 verify_steps: `curl -sS -m 12 -X POST https://core.hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"query { root { lead { documents(lead_id: \"00000000-0000-0000-0000-000000000000\") { id } } } }"}'` (expect `argumentNotAccepted` — the control that closed the cross-tenant read path); `curl -sS -m 12 -X POST https://core.hypofriend.de/q -H 'Content-Type: application/json' -d '{"query":"query { root { lead { documents { zzz_nope } } } }"}'` (expect `typeName:"Document"`). No mutation is issued by the program.
 impact: If unowned ids are writable, arbitrary customers' mortgage document attachments can be deleted and offers marked viewed. The write surface is proven and server-mapped; the ownership gap is unproven and, on the read side, now actively bounded. MEDIUM, downgraded.
 testability: HUMAN_ONLY
+## 2026-09-28 08:20:07 UTC [target] (model bigpickle)

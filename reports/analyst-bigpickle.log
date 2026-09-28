@@ -36252,3 +36252,130 @@ testability: HUMAN_ONLY
 ## STEP 7 — RISK
 
 - **[RISK]** hypofriend: **92 — held.** Nothing new exposed customer data: the one probe that could have touched a customer record returned `null` because the id matched nothing, and the `/en/account` bundle was not re-read at all. The number does not rise, and I want to be explicit that this is the fourth cycle running where the composition is moving but the magnitude is not. What changed is that a standing read primitive acquired a payload. Until this morning, "credentialed CORS echo" was a header finding with a plausible chain; the chain needed a session-scoped secret sitting in a cross-origin-readable body, and the server turns out to hand that out unauthenticated on request. That converts a configuration defect into an exploitable primitive against a platform holding applicant income, affordability and mortgage-document state, and it converts on a config line the vendor can fix without touching code. The three gates that remain — bulk PII quantification, ownership of a document id, attribution persistence on a lead — are all HUMAN_ONLY because each one requires writing to or reading from a live customer's record. I am not going to open one to make a number move, and I would rather report a 92 that a human can convert in an afternoon than a 95 I obtained by touching someone's mortgage application.
+===== ANALYST bigpickle 2026-09-28 08:20:40 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll start with the designated POC target and a small set of read-only probes.
+[0m$ [0mecho "=== T0 $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+echo "--- DNS: api.hypofriend.de (designated POC target) ---"
+getent hosts api.hypofriend.de || echo "getent: NO RESULT"
+echo "--- HEAD :443 ---"
+curl -sS -I -m 10 https://api.hypofriend.de/ -o /dev/null -w 'code=%{http_code} time=%{time_total}\n' 2>&1; echo "exit=$?"
+sleep 2
+echo "--- HEAD :80 ---"
+curl -sS -I -m 10 http://api.hypofriend.de/ -o /dev/null -w 'code=%{http_code} time=%{time_total}\n' 2>&1; echo "exit=$?"
+=== T0 2026-09-28T08:19:00Z ===
+--- DNS: api.hypofriend.de (designated POC target) ---
+52.15.184.3     api.hypofriend.de
+--- HEAD :443 ---
+curl: (28) Connection timed out after 10000 milliseconds
+code=000 time=10.000908
+exit=28
+--- HEAD :80 ---
+curl: (28) Connection timed out after 10002 milliseconds
+code=000 time=10.002223
+exit=28
+[0m
+Target still dead. Now the source-map / bundle-tail probes.
+[0m$ [0mecho "=== T1 $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+echo "--- tail of /en/account entry bundle (looking for sourceMappingURL) ---"
+curl -sS -m 25 -r 2467740-2468740 'https://hypofriend.de/en/account/assets/index-SIiSbA_4.js' -w '\n[http=%{http_code} bytes=%{size_download} total=%{size_download}]\n' | tail -c 400
+sleep 2
+echo
+echo "--- .map sidecar probes ---"
+for u in \
+  'https://hypofriend.de/en/account/assets/index-SIiSbA_4.js.map' \
+  'https://hypofriend.de/m/_nuxt/Bitus3YJ.js.map' ; do
+  sleep 2
+  printf '%s -> ' "$u"
+  curl -sS -m 20 -o /dev/null -w 'code=%{http_code} len=%{size_download} ctype=%{content_type}\n' "$u" 2>&1 || echo "ERR"
+done
+=== T1 2026-09-28T08:19:26Z ===
+--- tail of /en/account entry bundle (looking for sourceMappingURL) ---
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>en/account/assets/index-SIiSbA_4.js</Key><RequestId>1CEGZD6J3H3HVPVK</RequestId><HostId>48wz5VAqh9hI5CqYeeCFAmx70z1436t4n2np4rNwFLWiKhf7p/Iwog3zLGALrTig3ci6hf+322NDijuzKJpM5UCBDYHuKFyu</HostId></Error>
+[http=301 bytes=326 total=326]
+
+--- .map sidecar probes ---
+https://hypofriend.de/en/account/assets/index-SIiSbA_4.js.map -> code=301 len=310 ctype=application/xml
+https://hypofriend.de/m/_nuxt/Bitus3YJ.js.map -> code=403 len=111 ctype=application/xml
+[0m
+New signal — the `/en/account` entry bundle from last cycle no longer exists (S3 NoSuchKey). Let me resolve the current deploy.
+[0m$ [0mecho "=== T2 $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+curl -sS -m 20 -D /tmp/acct.hdr 'https://hypofriend.de/en/account' -o /tmp/acct.html -w 'code=%{http_code} len=%{size_download}\n'
+echo "--- response headers (subset) ---"
+tr -d '\r' < /tmp/acct.hdr | grep -iE '^(HTTP/|last-modified|etag|content-type|x-amz|x-cache|server)' | head -20
+echo "--- asset refs in /en/account HTML ---"
+grep -oE '(src|href)="[^"]*\.(js|css)[^"]*"' /tmp/acct.html | sort -u | head -30
+echo "--- inline script src / modulepreload ---"
+grep -oE '/en/account/assets/[A-Za-z0-9._-]+' /tmp/acct.html | sort -u | head -30
+=== T2 2026-09-28T08:19:42Z ===
+code=200 len=3766
+--- response headers (subset) ---
+HTTP/2 200 
+content-type: text/html; charset=utf-8
+last-modified: Mon, 28 Sep 2026 08:04:57 GMT
+etag: "9d5b07d5f6ae06fa630110d0e29b1342"
+x-amz-server-side-encryption: AES256
+server: AmazonS3
+x-cache: Miss from cloudfront
+x-amz-cf-pop: PHX52-P3
+x-amz-cf-id: yp-_8XQjQqEvo8HUw3eg3zd6cid2iFLNDwQsFEiA9pFC_z8d5YP5aQ==
+--- asset refs in /en/account HTML ---
+href="/en/account/assets/index-B1jKe9QC.css"
+href="https://a.hypofriend.de/fonts/hypofriend-fonts.css"
+href="https://a.hypofriend.de/fonts/icons.css"
+href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css"
+src="/en/account/assets/index-DwBItw8U.js"
+src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
+--- inline script src / modulepreload ---
+/en/account/assets/index-B1jKe9QC.css
+/en/account/assets/index-DwBItw8U.js
+[0m
+Fresh `/en/account` deploy 15 minutes old. Let me characterize the new bundle and its sidecar.
+[0m$ [0mecho "=== T3 $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+echo "--- HEAD new entry bundle ---"
+curl -sS -I -m 20 'https://hypofriend.de/en/account/assets/index-DwBItw8U.js' | tr -d '\r' | grep -iE '^(HTTP/|content-length|content-type|etag|last-modified|x-amz|x-cache|accept-ranges)'
+sleep 2
+echo "--- .map sidecar for the NEW bundle (control = 301/NoSuchKey shape) ---"
+curl -sS -m 20 -o /tmp/new.map -D /tmp/new.maphdr -w 'code=%{http_code} len=%{size_download} ctype=%{content_type}\n' 'https://hypofriend.de/en/account/assets/index-DwBItw8U.js.map'
+tr -d '\r' < /tmp/new.maphdr | grep -iE '^(HTTP/|location|content-type|etag)' | head -5
+echo "--- first bytes of sidecar response ---"
+head -c 200 /tmp/new.map; echo
+sleep 2
+echo "--- CSS sidecar exists? (asset-namespace sanity control) ---"
+curl -sS -m 20 -o /dev/null -w 'css code=%{http_code} len=%{size_download}\n' 'https://hypofriend.de/en/account/assets/index-B1jKe9QC.css'
+=== T3 2026-09-28T08:19:53Z ===
+--- HEAD new entry bundle ---
+HTTP/2 200 
+content-type: text/javascript
+content-length: 2468656
+last-modified: Mon, 28 Sep 2026 08:04:38 GMT
+etag: "30817f5eb199cfc64306be84eaa5a679"
+x-amz-server-side-encryption: AES256
+accept-ranges: bytes
+x-cache: Miss from cloudfront
+x-amz-cf-pop: PHX52-P3
+x-amz-cf-id: R6kkm47q3dSQnRyCCGQH5KeLpSpwClxxs6X9KxymgctsqZhjcUWyag==
+--- .map sidecar for the NEW bundle (control = 301/NoSuchKey shape) ---
+code=301 len=330 ctype=application/xml
+HTTP/2 301 
+content-type: application/xml
+location: /en/account
+--- first bytes of sidecar response ---
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>en/account/assets/index-DwBItw8U.js.map</Key><RequestId>4W33F2M0S7CKKNSY</R
+--- CSS sidecar exists? (asset-namespace sanity control) ---
+css code=200 len=547560
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcd /tmp && echo "=== T4 $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+curl -sS -m 60 -o acct.js 'https://hypofriend.de/en/account/assets/index-DwBItw8U.js' -w 'code=%{http_code} len=%{size_download}\n'
+sha256sum acct.js
+echo "--- named GraphQL operations (mutation/query + name + input block) ---"
+grep -oE '(mutation|query) +[A-Za-z_][A-Za-z0-9_]* *(\([^)]*\))?' acct.js | sort -u | tee ops.txt | wc -l
+echo "--- distinct operation names ---"
+grep -oE '(mutation|query) +[A-Za-z_][A-Za-z0-9_]*' acct.js | awk '{print $2}' | sort -u | tr '\n' ' '; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+No source map (SPA-fallback 301). Bundle is 2,468,656B (−84B vs last cycle). Let me diff the fresh deploy's operation surface.
