@@ -3490,3 +3490,15 @@
 - LEARN: ACCEPTED OTHER @ hypofriend.de/en/account SPA: the "bundle mining is exhausted" conclusion was correct but scoped to the wrong bundle. Three consecutive cycles 
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: introspection is off but the error channel defeats it — `undefinedField` returns the parent `typeNa
 - LEARN: REJECTED IDOR @ core.hypofriend.de/q (document_analysis_status): my own [NEXT] discriminator returned `{"documentAnalysisStatus":null}` for a well-formed non-ex
+
+## RANKED HYPOTHESES 2026-09-28 16:55:26 UTC
+- [99] core.hypofriend.de/property-search-api: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/property-search-api -H "Content-Type: application/json" -d '{"query":"query{expose(id:\"39c66d3e-dd98-548a-84b6-e7cffdf00
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — propertySearch→exposes→expose returns PII (prop
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF t
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-28T16:49Z returned 000 after 10s connect-timeouts on both :443 and :80; DNS remains 52.15.184.3; no live
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus/q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-DwBItw8U.js: new bundle deploy (hash DwBItw8U), 37 mutations, 4 object-addressing mutations with call
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus/q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu

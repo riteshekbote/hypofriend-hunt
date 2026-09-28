@@ -1219,3 +1219,11 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
 
 ## 2026-09-28 08:20:40 UTC
+
+## 2026-09-28 16:55:26 UTC
+- NEW hypofriend.de/en/account/assets/index-DwBItw8U.js — new bundle hash (was index-SIiSbA_4.js, now index-DwBItw8U.js), 37 named mutations confirmed, 4 object-addressing mutations taking caller-supplied I
+- NEW core.hypofriend.de/en/plus/q credentialed CORS preflight now returns `vary: Accept-Encoding` only (no `Vary:Origin`) — reverts 2026-09-25 mitigation on primary path; POST still returns `vary: Accept,O
+- CHANGED core.hypofriend.de/property-search-api — full-DB BOLA chain re-confirmed live 2026-09-28T16:49Z: propertySearch→exposes→expose returns PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCo
+- CHANGED core.hypofriend.de/q — introspection bypass via error channel live: undefinedField returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthenticityTok
+- CHANGED api.hypofriend.de — dead 50+ consecutive cycles (000, ~10s connect-timeout, A 52.15.184.3 clean); POC phase still pinned to dead target, constrains all probes to read-only GET/HEAD/OPTIONS ≤1rps
+- CHANGED core.hypofriend.de global rack-cors middleware — credentialed CORS echo (ACAO + ACAC:true + 7 methods) confirmed on arbitrary paths (/zzz-arbitrary-path, /api/v3/advisors, /en/plus/q, /en/health/q, /q

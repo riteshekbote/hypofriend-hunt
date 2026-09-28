@@ -6454,3 +6454,4 @@ verify_steps: `curl -sS -m 12 -X POST https://core.hypofriend.de/q -H 'Content-T
 impact: If unowned ids are writable, arbitrary customers' mortgage document attachments can be deleted and offers marked viewed. The write surface is proven and server-mapped; the ownership gap is unproven and, on the read side, now actively bounded. MEDIUM, downgraded.
 testability: HUMAN_ONLY
 ## 2026-09-28 08:20:07 UTC [target] (model bigpickle)
+## 2026-09-28 16:54:03 UTC [target] (model bigpickle)
