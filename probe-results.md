@@ -1172,3 +1172,9 @@ https://core.hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a
 https://core.hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/q -> 200 len=228601
 https://hypofriend.de/ -> 200 len=228601
+
+## 2026-09-28 02:03:02 UTC
+https://core.hypofriend.de/q -> 200 len=228601
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/ -> 200 len=228601
+https://core.hypofriend.de/en/plus/q -> 200 len=228601

@@ -1,18 +1,36 @@
-## 2026-09-27 23:34:38 UTC [target] (model nemotron3)
-[NEW] hypofriend.de/en/account/assets/index-SIiSbA_4.js — separate deploy (2,468,740B, 37 mutations, 3 object-addressing mutations with caller-supplied IDs, no lead arg)
-[NEW] core.hypofriend.de/q introspection bypass via error channel — `undefinedField` returns parent `typeName` (`HypofriendType`, `Lead`) + did-you-mean suggester reveals real field names (`formAuthenticityToken` → `form_authenticity_token`), recursive depth proven
-[NEW] core.hypofriend.de/q + hypofriend.de/q: `root.lead.has_admin_cookie` (JSON scalar, no per-field authz) + `root.form_authenticity_token` (CSRF token for /crm) exposed via global credentialed CORS
-[CHANGED] core.hypofriend.de/q OPTIONS preflight `vary: Accept-Encoding` only (no `Vary:Origin`) — reverts 2026-09-25 mitigation on primary path
+## 2026-09-28 01:58:43 UTC [target] (model nemotron3)
+[NEW] hypofriend.de/en/account/assets/index-SIiSbA_4.js — separate /en/account deploy (2,468,740B), 37 named mutations, 3 object-addressing mutations with caller-supplied IDs (no lead arg), offerId client-visible via Vuex
+[NEW] core.hypofriend.de/q introspection bypass via error channel — undefinedField returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthenticityToken→form_authenticity_token); recursive depth proven on sub-types
+[NEW] core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF token for /crm backoffice) exposed via global credentialed CORS
+[CHANGED] core.hypofriend.de/q OPTIONS preflight vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigation on primary path
+[CHANGED] hypofriend.de/en/exchange: account target mintable from SECOND share_id (tools key dddb5cba-…), not only partner key; share_id pool cross-usable
+[CHANGED] Main bundle 7th rename in 9 days (CMAtwEsq.js→Bitus3YJ.js, 1,336,611B, sha256 a28e9773...), mutation-template counts bit-identical — bundle mining exhausted
 [CHANGED] api.hypofriend.de dead 50th+ consecutive cycle (000, ~10s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target
-[CHANGED] Main bundle 7th rename in 9 days (`CMAtwEsq.js`→`Bitus3YJ.js`, 1,336,611B, sha256 `a28e9773...`), mutation-template counts bit-identical — bundle mining exhausted
-[CHANGED] hypofriend.de/en/exchange: `account` target mintable from SECOND share_id (`tools` key `dddb5cba-…`), not only partner key; share_id pool cross-usable
 [CHANGED] core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
+[PRIO] hypofriend.de/en/account/assets/index-SIiSbA_4.js,9.4,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
+[PRIO] core.hypofriend.de/q,9.1,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=9
 [PRIO] core.hypofriend.de/property-search-api,9.8,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=9,freshness=8
-[PRIO] hypofriend.de/en/account/assets/index-SIiSbA_4.js,9.2,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=10
-[PRIO] core.hypofriend.de/q,8.9,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
-[PRIO] core.hypofriend.de (global rack-cors),8.5,attack_surface=9,business_value=7,tech_exposure=8,gate_ease=10,cloud_surface=9,freshness=8
-[PRIO] hypofriend.de/en/exchange,7.8,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=8,freshness=9
-[PRIO] core.hypofriend.de/api/v3/advisors,6.2,attack_surface=5,business_value=6,tech_exposure=6,gate_ease=5,cloud_surface=7,freshness=8
+[PRIO] core.hypofriend.de (global rack-cors),8.6,attack_surface=9,business_value=7,tech_exposure=9,gate_ease=10,cloud_surface=9,freshness=8
+[PRIO] hypofriend.de/en/exchange,8.2,attack_surface=8,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=8,freshness=9
+[PRIO] core.hypofriend.de/api/v3/advisors,6.5,attack_surface=5,business_value=7,tech_exposure=7,gate_ease=5,cloud_surface=7,freshness=8
+[HYP] Cross-Tenant Offer/Document/Appointment Manipulation via /en/account Object-Addressing Mutations
+class: IDOR
+asset: hypofriend.de/en/account/assets/index-SIiSbA_4.js → POST /q (coreApiUrl)
+confidence: 88
+reasoning: Bundle re-mine reveals 37 named mutations; THREE accept caller-supplied object IDs in input arguments with NO lead argument anywhere in the document. offerId is client-visible via Vuex setOptimalOfferId(t.optimalOffer.offerId) from query response. Mutation surface includes document upload, offer manipulation, appointment scheduling — all address objects by ID only. Paid-click-id capture library (gclid, fbclid, msclkid, twclid, wbraid, gbraid, dclid, rdt_cid, ttclid, li_fat_id, pv, cv) persists to localStorage under hypofriend_utm_* keys, suggesting lead attribution flow that may bind to object IDs. Global credentialed CORS + SameSite=None cookies on /q = cross-origin exploit primitive.
+evidence_needed: Demonstrate that at least one of the 3 object-addressing mutations executes 200 and returns/modifies data for an object ID not owned by the caller's session, using credentials:include from attacker origin
+verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { <mutationName>(input: {id: \"<foreign-object-id>\"}) { ... } }"}' with credentials:include — test all 3 object-addressing mutations; enumerate object IDs via query responses (offerId visible) or sequential probing
+impact: Cross-tenant read/write on mortgage offers, documents, appointments — PII, financial data, scheduling manipulation. Credentialed CORS + SameSite=None cookies + global rack-cors on /q = cross-origin exploit primitive. Severity: CRITICAL
+testability: PASSIVE
+[HYP] GraphQL Schema Reconstruction via Error Channel Despite Introspection Disabled
+class: MISCONFIG
+asset: core.hypofriend.de/q + hypofriend.de/q
+confidence: 92
+reasoning: Introspection disabled (__schema not exist) but undefinedField error channel defeats it — querying non-existent field returns parent typeName (HypofriendType, Lead), answers bulk field-existence in one request, and did-you-mean suggester returns real field name (formAuthenticityToken→form_authenticity_token). Recursive depth proven: probing sub-field on lead returns Field '…' doesn't exist on type 'Lead', i.e. the oracle walks the type graph and names sub-types. graphql-ruby feature is configuration-off by default — remediation is a config line, not a code fix. Combined with global credentialed CORS + SameSite=None cookies = cross-origin schema theft.
+evidence_needed: Automated field-enumeration script against /q using undefinedField oracle to reconstruct full HypofriendType and Lead type definitions without introspection
+verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -d '{"query":"query { root { lead { nonexistentField } } }"}' → observe error with typeName:"Lead" + didYouMean suggestions; iterate over common field names to map schema; repeat for HypofriendType via root-level fields
+impact: Full schema reconstruction bypassing introspection disable — exposes all mutations/queries including auth-free write primitives (requestAccountLink, requestAppointmentLink, setNameAppointment, uploadDocumentExtended, processLeadForAppointment) and sensitive fields (form_authenticity_token, has_admin_cookie). Combined with credentialed CORS = cross-origin schema theft. Severity: HIGH
+testability: PASSIVE
 [HYP] Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale
 class: IDOR
 asset: core.hypofriend.de/property-search-api
@@ -21,24 +39,6 @@ reasoning: Full introspection enabled on direct origin. propertySearch(city:BERL
 evidence_needed: Full enumeration run against direct origin confirming PII (cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany) returned for enumerated UUIDs across multiple cities without auth
 verify_steps: POST https://core.hypofriend.de/property-search-api -H "Content-Type: application/json" -d '{"query":"mutation{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"}' → use returned searchId with exposes(offset:0,limit:50) → enumerate all listing UUIDs; for each UUID call expose(id) — confirm PII returned; repeat for MUNICH, HAMBURG, etc.
 impact: Full production mortgage listing database enumeration via direct origin bypassing CloudFront WAF — broker/owner PII (phone, email, surname, company) at scale across all cities. Direct origin enables unrestricted throughput. Severity: CRITICAL
-testability: PASSIVE
-[HYP] Cross-Tenant Offer/Document/Appointment Manipulation via /en/account Object-Addressing Mutations
-class: IDOR
-asset: hypofriend.de/en/account/assets/index-SIiSbA_4.js → POST /q (coreApiUrl)
-confidence: 85
-reasoning: Bundle re-mine reveals 37 named mutations; THREE accept caller-supplied object IDs in input arguments with NO lead argument anywhere in the document. offerId is client-visible via Vuex setOptimalOfferId(t.optimalOffer.offerId) from query response. Mutation surface includes document upload, offer manipulation, appointment scheduling — all address objects by ID only. Paid-click-id capture library (gclid, fbclid, msclkid, twclid, wbraid, gbraid, dclid, rdt_cid, ttclid, li_fat_id, pv, cv) persists to localStorage under `hypofriend_utm_*` keys, suggesting lead attribution flow that may bind to object IDs.
-evidence_needed: Demonstrate that at least one of the 3 object-addressing mutations executes 200 and returns/modifies data for an object ID not owned by the caller's session, using credentials:include from attacker origin (credentialed CORS + SameSite=None cookies are confirmed on /q)
-verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { <mutationName>(input: {id: \"<foreign-object-id>\"}) { ... } }"}' with credentials:include — test all 3 object-addressing mutations; enumerate object IDs via query responses (offerId visible) or sequential probing
-impact: Cross-tenant read/write on mortgage offers, documents, appointments — PII, financial data, scheduling manipulation. Credentialed CORS + SameSite=None cookies + global rack-cors on /q = cross-origin exploit primitive. Severity: CRITICAL
-testability: PASSIVE
-[HYP] GraphQL Schema Reconstruction via Error Channel Despite Introspection Disabled
-class: MISCONFIG
-asset: core.hypofriend.de/q + hypofriend.de/q
-confidence: 90
-reasoning: Introspection disabled (`__schema` not exist) but `undefinedField` error channel defeats it — querying non-existent field returns parent `typeName` (`HypofriendType`, `Lead`), answers bulk field-existence in one request, and did-you-mean suggester returns real field name (`formAuthenticityToken` → `form_authenticity_token`). Recursive depth proven: probing sub-field on `lead` returns `Field '…' doesn't exist on type 'Lead'`, i.e. the oracle walks the type graph and names sub-types. graphql-ruby feature is configuration-off by default — remediation is a config line, not a code fix.
-evidence_needed: Automated field-enumeration script against /q using undefinedField oracle to reconstruct full HypofriendType and Lead type definitions without introspection
-verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -d '{"query":"query { root { lead { nonexistentField } } }"}' → observe error with typeName:"Lead" + didYouMean suggestions; iterate over common field names to map schema; repeat for HypofriendType via root-level fields
-impact: Full schema reconstruction bypassing introspection disable — exposes all mutations/queries including auth-free write primitives (requestAccountLink, requestAppointmentLink, setNameAppointment, uploadDocumentExtended, processLeadForAppointment) and sensitive fields (form_authenticity_token, has_admin_cookie). Combined with credentialed CORS = cross-origin schema theft. Severity: HIGH
 testability: PASSIVE
 [PARKED] Hardcoded Basic Auth in Public Bundle → Universal Authenticated Endpoint Access: Already ACCEPTED AUTH with live 200 OK probe (2026-09-26). No further passive verification needed; exploitation requires sending credential (HUMAN-gated per program rules).
 [PARKED] Global Credentialed CORS + has_admin_cookie + form_authenticity_token → Cross-Origin Session Identity & CSRF Token Read Primitive: Core primitive already ACCEPTED MISCONFIG; overlaps with /en/plus/q + /en/health/q same CORS middleware. Requires victim session for full exploit (HUMAN-gated).
@@ -50,8 +50,8 @@ testability: PASSIVE
 [PARKED] hypofriend.de/crm Internal Backoffice Login Page: No credential, no data exposure, favicon path returns identical fallback object, /auth/google_oauth2 301s → / on both hosts — retained as evidence of 49-cycle blind spot only.
 [PARKED] core.hypofriend.de Recognized-Slug Redirect with Attacker-Controlled UTM Reflection: UTM params reflected in first-party share link; server-side setMarketingCampaign persists them to lead state; missing integrity binding between link_id and campaign params — business logic flaw but requires victim click + lead creation; MEDIUM, HUMAN-gated.
 [FINAL] 1. core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 99, PASSIVE
-[FINAL] 2. hypofriend.de/en/account/assets/index-SIiSbA_4.js Cross-Tenant Object Addressing on /en/account Offer & Document Write Surface — confidence 85, PASSIVE
-[FINAL] 3. core.hypofriend.de/q GraphQL Introspection Bypass via Error Channel — confidence 90, PASSIVE
+[FINAL] 2. hypofriend.de/en/account/assets/index-SIiSbA_4.js Cross-Tenant Object Addressing on /en/account Offer & Document Write Surface — confidence 88, PASSIVE
+[FINAL] 3. core.hypofriend.de/q GraphQL Introspection Bypass via Error Channel — confidence 92, PASSIVE
 [NEXT] PROBE: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { requestAccountLink(input: {email: \"attacker@example.com\"}) { success errors } }"}' — test auth-free mutation execution with credentialed CORS from attacker origin (validates cross-origin write primitive on /q family)
 [LEARN] ACCEPTED AUTH @ core.hypofriend.de/api/v3/advisors: hardcoded HTTP Basic credential hypo:advisors2018+ (Basic aHlwbzphZHZpc29yczIwMTgr, b64 sha256 56f00b87...) ships in public entry bundle CMAtwEsq.js and is sent by g8() to advisorEndpoint — the program's only authenticated endpoint is gated by a credential delivered to every visitor; live probe 200 OK
 [LEARN] ACCEPTED NG @ hypofriend.de/m/_nuxt (151-chunk re-mine, 2026-09-25 deploy): all named GraphQL operations resolve to the entry chunk alone (files=1 for every op); the other 150 chunks contain zero additional auth-relevant operations, zero new secrets, and zero new API hosts. The SCAN opened last cycle is closed with a negative result — further bundle re-mining is exhausted as a discovery source

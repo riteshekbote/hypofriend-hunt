@@ -1207,3 +1207,13 @@ www.hypofriend.de
 - CHANGED Main bundle 7th rename in 9 days (`CMAtwEsq.js`→`Bitus3YJ.js`, 1,336,611B, sha256 `a28e9773...`), mutation-template counts bit-identical — bundle mining exhausted
 - CHANGED hypofriend.de/en/exchange: `account` target mintable from SECOND share_id (`tools` key `dddb5cba-…`), not only partner key; share_id pool cross-usable
 - CHANGED core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
+
+## 2026-09-28 02:02:55 UTC
+- NEW hypofriend.de/en/account/assets/index-SIiSbA_4.js — separate /en/account deploy (2,468,740B), 37 named mutations, 3 object-addressing mutations with caller-supplied IDs (no lead arg), offerId client-v
+- NEW core.hypofriend.de/q introspection bypass via error channel — undefinedField returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthenticityToken→for
+- NEW core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF token for /crm backoffice) exposed via global credentialed COR
+- CHANGED core.hypofriend.de/q OPTIONS preflight vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigation on primary path
+- CHANGED hypofriend.de/en/exchange: account target mintable from SECOND share_id (tools key dddb5cba-…), not only partner key; share_id pool cross-usable
+- CHANGED Main bundle 7th rename in 9 days (CMAtwEsq.js→Bitus3YJ.js, 1,336,611B, sha256 a28e9773...), mutation-template counts bit-identical — bundle mining exhausted
+- CHANGED api.hypofriend.de dead 50th+ consecutive cycle (000, ~10s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target
+- CHANGED core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin)
