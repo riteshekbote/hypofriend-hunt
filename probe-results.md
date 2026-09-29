@@ -1210,3 +1210,10 @@ https://core.hypofriend.de/q -> 200 len=229934
 ## 2026-09-29 20:05:14 UTC
 https://core.hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/q -> 200 len=229934
+
+## 2026-09-29 23:49:13 UTC
+https://core.hypofriend.de/q -> 200 len=229934
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/` -> 200 len=229934
+https://core.hypofriend.de/q` -> 200 len=229934
+https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&link_id=00000000-0000-0000-0000-000000000000&redirect=account&utm_source=aff&utm_medium=cpa&utm_campaign=probe` -> 200 len=3766

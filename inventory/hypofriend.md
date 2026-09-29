@@ -1273,3 +1273,5 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/en/plus/q credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigation on primary preflight path; POST returns vary: Accept,Origin
 - CHANGED hypofriend.de/crm Last-Modified moved to 2026-09-28 11:40:52 GMT while ETag stayed f7a701f6; static redeploy, byte-identical
 - CHANGED api.hypofriend.de dead 50+ cycles; DNS A 52.15.184.3, HTTPS HEAD connect-timeout 10.001s, no HTTP response
+
+## 2026-09-29 23:49:02 UTC
