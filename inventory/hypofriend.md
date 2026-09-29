@@ -1253,3 +1253,12 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/q — introspection bypass via error channel live: undefinedField returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthenticityTok
 - CHANGED api.hypofriend.de — dead 50+ consecutive cycles (000, ~10s connect-timeout, A 52.15.184.3 clean); POC phase still pinned to dead target, constrains all probes to read-only GET/HEAD/OPTIONS ≤1rps
 - CHANGED core.hypofriend.de global rack-cors middleware — credentialed CORS echo (ACAO + ACAC:true + 7 methods) confirmed on arbitrary paths (/zzz-arbitrary-path, /api/v3/advisors, /en/plus/q, /en/health/q, /q
+
+## 2026-09-29 08:52:53 UTC
+- NEW core.hypofriend.de/q: schema surface grew to 40 named mutations in current account bundle; new object-addressing inputs confirmed with no lead/tenant arg: `SelectOfferInput` (offerProductId), `UpdateP
+- NEW core.hypofriend.de/q: `S3FileInput` inner object fully mapped via error channel — required `s3_key: String!`, `file_name: String!`, unknown key rejected (`argumentNotAccepted` InputObject S3FileInput)
+- NEW hypofriend.de/en/account/assets/index-DwBItw8U.js: bundle re-fetched 2,468,656B, sha256 `57134f702350477924aad61f082ca73df036564ba73c3a6f4b1e5823ce799fb8`; minified `postGraphQL` uses `mode:"cors"`
+- CHANGED core.hypofriend.de/q: `root.form_authenticity_token` confirmed per-request — 86 chars, distinct sha256 prefixes `1ac3eb7407bcee3e` / `18fb7dd44a08a5f2` / `aac1e2afb3a3` across three calls; readable by
+- CHANGED core.hypofriend.de/en/plus/q: credentialed CORS preflight returns `vary: Accept-Encoding` only (no `Vary:Origin`) — reverts 2026-09-25 mitigation on primary preflight path; POST returns `vary: Accept,
+- CHANGED hypofriend.de/crm: Last-Modified moved to Mon, 28 Sep 2026 11:40:52 GMT while ETag stayed `f7a701f6185c22afd61a0cfac5726dc2`; static redeploy, byte-identical content
+- CHANGED api.hypofriend.de: dead 50+ cycles; DNS A 52.15.184.3, HTTPS HEAD connect-timeout 10.001s, no HTTP response
