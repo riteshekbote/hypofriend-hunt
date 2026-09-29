@@ -1191,3 +1191,10 @@ https://core.hypofriend.de/q -> 200 len=229934
 ## 2026-09-28 22:24:33 UTC
 https://core.hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/q -> 200 len=229934
+
+## 2026-09-29 02:27:44 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=229934
+https://hypofriend.de/en/account?ts=1790648532&…` -> ERR 'ascii' codec can't encode character '\u2026' in p
+https://hypofriend.de/` -> 200 len=229934
+https://core.hypofriend.de/property-search-api` -> HTTP 400
