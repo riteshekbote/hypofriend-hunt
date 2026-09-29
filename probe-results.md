@@ -1202,3 +1202,7 @@ https://core.hypofriend.de/property-search-api` -> HTTP 400
 ## 2026-09-29 08:52:56 UTC
 https://core.hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/q -> 200 len=229934
+
+## 2026-09-29 15:13:49 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=229934

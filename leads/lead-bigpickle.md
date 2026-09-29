@@ -6516,3 +6516,4 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ core.hypofriend.de/q: `createUploadUrl` is a genuine new schema surface but returns 301 to the marketing root, so the presigned-URL vector is currently closed.
 [RISK] Hypofriend: 28 — all unauthenticated GraphQL work was constrained to schema recovery and one non-destructive outbound mutation against `.invalid` addresses; no customer, employee, financial, or authentication data was read, and no money, document, or account mutation was performed.
 ## 2026-09-29 08:52:43 UTC [target] (model bigpickle)
+## 2026-09-29 15:13:34 UTC [target] (model bigpickle)

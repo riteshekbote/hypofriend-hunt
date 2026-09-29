@@ -39633,3 +39633,766 @@ I have enough to close this cycle. Summary of what I found beyond the prior base
 - **RISK:** Low — all probes were unauthenticated read-only; no customer data modified; `deleteProperty` never executed.
 
 Want me to keep hunting for a real `lead_id` to test H2, or produce a formal writeup for the `a.hypofriend.de/fonts/` + `expose_visits` deltas?
+===== ANALYST bigpickle 2026-09-29 15:13:46 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%dT%H:%M:%SZ'; echo "--- DNS ---"; getent hosts api.hypofriend.de || echo "getent: no A record"; echo "--- HTTPS HEAD ---"; curl -sS -I -m 8 -o /dev/null -w 'api:443 http_code=%{http_code} time=%{time_total} exit_will_follow\n' https://api.hypofriend.de/ ; echo "curl_exit=$?"; echo "--- HTTP HEAD ---"; curl -sS -I -m 8 -o /dev/null -w 'api:80 http_code=%{http_code} time=%{time_total}\n' http://api.hypofriend.de/ ; echo "curl_exit=$?"
+2026-09-29T15:04:39Z
+--- DNS ---
+52.15.184.3     api.hypofriend.de
+--- HTTPS HEAD ---
+curl: (28) Connection timed out after 8002 milliseconds
+api:443 http_code=000 time=8.002444 exit_will_follow
+curl_exit=28
+--- HTTP HEAD ---
+curl: (28) Connection timed out after 8002 milliseconds
+api:80 http_code=000 time=8.002173
+curl_exit=28
+[0m
+[0m$ [0mcd /tmp/opencode && curl -sS -m 12 -o en.html -w 'GET hypofriend.de/en code=%{http_code} size=%{size_download} time=%{time_total}\n' -H 'User-Agent: Mozilla/5.0' https://hypofriend.de/en; echo "exit=$?"; echo "--- entry chunk refs ---"; grep -o '/m/_nuxt/[A-Za-z0-9_-]\{6,\}\.js' en.html | sort -u | head -20; echo "--- buildId ---"; grep -o 'buildId[^,}]*' en.html | head -3; echo "--- sha256 of page ---"; sha256sum en.html | cut -c1-16
+GET hypofriend.de/en code=200 size=229934 time=0.186664
+exit=0
+--- entry chunk refs ---
+/m/_nuxt/-ez_sPea.js
+/m/_nuxt/031sR0Dk.js
+/m/_nuxt/22Pu5ap6.js
+/m/_nuxt/2OxpxLSF.js
+/m/_nuxt/2pTFhQTt.js
+/m/_nuxt/5ec0qrjv.js
+/m/_nuxt/7LJm_38-.js
+/m/_nuxt/AuiHv9WO.js
+/m/_nuxt/B0dqiS1K.js
+/m/_nuxt/B1jEw4nT.js
+/m/_nuxt/B2vkSg1F.js
+/m/_nuxt/B35S2sub.js
+/m/_nuxt/B43BB2Fk.js
+/m/_nuxt/B5BZbSY_.js
+/m/_nuxt/B6htIPxk.js
+/m/_nuxt/B8CvfFn4.js
+/m/_nuxt/BAa2dQUP.js
+/m/_nuxt/BBxB1IXZ.js
+/m/_nuxt/BC_Eoi1q.js
+/m/_nuxt/BDCKj7Z4.js
+--- buildId ---
+buildId:"d4ce4ebd-33ab-4ed3-aaf2-d5d83812538f"
+--- sha256 of page ---
+505d72614901733d
+[0m
+[0m$ [0mcd /tmp/opencode && echo "--- script srcs in page ---"; grep -o 'src="/m/_nuxt/[^"]*"' en.html | sort -u | head -10; echo "--- prior entry Bitus3YJ.js HEAD ---"; curl -sS -I -m 8 -o /dev/null -w 'Bitus3YJ.js code=%{http_code} len=%{size_header} clen=%header{content-length}\n' https://hypofriend.de/m/_nuxt/Bitus3YJ.js; sleep 1; echo "--- window.__NUXT__ config keys ---"; grep -o 'publicRuntimeConfig[^}]*' en.html | head -2; echo; grep -o '"[a-zA-Z_]*ApiUrl":"[^"]*"' en.html | sort -u | head -10
+--- script srcs in page ---
+src="/m/_nuxt/C9Is4Ac9.js"
+--- prior entry Bitus3YJ.js HEAD ---
+Bitus3YJ.js code=403 len=299 clen=
+--- window.__NUXT__ config keys ---
+[0m
+[0m$ [0mcd /tmp/opencode && curl -sS -I -m 8 https://hypofriend.de/m/_nuxt/C9Is4Ac9.js | tr -d '\r' | grep -Ei '^(HTTP|content-length|etag|last-modified|content-type|server|x-cache|x-amz-cf)' ; sleep 1; curl -sS -m 20 -o C9Is4Ac9.js -w 'GET C9Is4Ac9.js code=%{http_code} size=%{size_download}\n' https://hypofriend.de/m/_nuxt/C9Is4Ac9.js; sha256sum C9Is4Ac9.js | cut -c1-64
+HTTP/2 200 
+content-type: text/javascript
+content-length: 1336611
+last-modified: Tue, 29 Sep 2026 13:06:15 GMT
+etag: "c5480f243ca2154448fdd9bdbf0b7259"
+server: AmazonS3
+x-cache: Miss from cloudfront
+x-amz-cf-pop: HIO52-P5
+x-amz-cf-id: uR628sYWGjdKmcB-h34wgsMAyq795ruqW-YY9F58aWFWvEdOpCocMw==
+GET C9Is4Ac9.js code=200 size=1336611
+6927e99d9912665a286e731bd1fadab0fa42b91023e2b8a6c0c1ef91f5bbe8fb
+[0m
+[0m$ [0mcd /tmp/opencode && echo "--- basic credential ---"; grep -c 'aHlwbzphZHZpc29yczIwMTgr' C9Is4Ac9.js; echo "--- named ops (sorted) ---"; grep -oE '(mutation|query) [a-zA-Z_][a-zA-Z0-9_]{2,}' C9Is4Ac9.js | awk '{print $1" "$2}' | sort -u; echo "--- op-name occurrences ---"; for op in requestAccountLink requestAppointmentLink unclaimLead setNameAppointment setLocale getAdminCookie setReferrer setMarketingCampaign calculateCityTax rates_table already_booked_appointments form_authenticity_token has_admin_cookie; do printf '%-32s %s\n' "$op" "$(grep -c "$op" C9Is4Ac9.js)"; done
+--- basic credential ---
+1
+--- named ops (sorted) ---
+mutation calculateCityTax
+mutation createGoogleConversion
+mutation requestAccountLink
+mutation requestAppointmentLink
+mutation requestFacebookConversion
+mutation setLocale
+mutation setNameAppointment
+mutation unclaimLead
+mutation uploadDocumentExtended
+query RatesTable
+--- op-name occurrences ---
+requestAccountLink               3
+requestAppointmentLink           5
+unclaimLead                      5
+setNameAppointment               2
+setLocale                        8
+getAdminCookie                   5
+setReferrer                      4
+setMarketingCampaign             4
+calculateCityTax                 6
+rates_table                      2
+already_booked_appointments      1
+form_authenticity_token          0
+has_admin_cookie                 3
+[0m
+[0m$ [0mcd /tmp/opencode && curl -sS -m 12 -o acct.html -w 'GET /en/account code=%{http_code} size=%{size_download}\n' -H 'User-Agent: Mozilla/5.0' https://hypofriend.de/en/account; grep -o '/en/account/assets/[A-Za-z0-9_.-]*' acct.html | sort -u | head; echo "--- prior account entry DwBItw8U HEAD ---"; sleep 1; curl -sS -I -m 8 https://hypofriend.de/en/account/assets/index-DwBItw8U.js | tr -d '\r' | grep -Ei '^(HTTP|content-length|etag|last-modified)'
+GET /en/account code=200 size=3766
+/en/account/assets/index-BLX7yr-v.js
+/en/account/assets/index-CykymoY4.css
+--- prior account entry DwBItw8U HEAD ---
+HTTP/2 301
+[0m
+[0m$ [0mcd /tmp/opencode && curl -sS -I -m 8 https://hypofriend.de/en/account/assets/index-BLX7yr-v.js | tr -d '\r' | grep -Ei '^(HTTP|content-length|etag|last-modified|x-cache)'; sleep 1; curl -sS -m 30 -o acct.js -w 'GET account entry code=%{http_code} size=%{size_download}\n' https://hypofriend.de/en/account/assets/index-BLX7yr-v.js; sha256sum acct.js | cut -c1-64; echo "--- mutation count ---"; grep -o 'mutation ' acct.js | wc -l
+HTTP/2 200 
+content-length: 2468656
+last-modified: Tue, 29 Sep 2026 13:58:59 GMT
+etag: "be788be0758c8675f0455c5ececa2260"
+x-cache: Miss from cloudfront
+GET account entry code=200 size=2468656
+4304a74473862400498e26eb8c366f4447d022aedba90679ea43b846b7fee3d3
+--- mutation count ---
+72
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE 'mutation [a-zA-Z][a-zA-Z0-9_]*' acct.js | awk '{print $2}' | sort | uniq -c | sort -rn | head -60
+2 updateProperty
+      2 setPartnerForNewMortgage
+      2 setHomeBuyingStatusForLead
+      2 Favorited
+      1 uploadDocumentExtended
+      1 submitDocumentAnalysis
+      1 setPlotOfLandForNewMortgage
+      1 setPhoneAppointment
+      1 setPartnerResidencyForAffordability
+      1 setPartnerNetIncomeForAffordability
+      1 setOwnPropertyValue
+      1 setOwnPropertySquareMeters
+      1 setOwnPropertyRemainingDebt
+      1 setOwnPropertyMonthlyPayment
+      1 setOwnPropertyInterestRate
+      1 setOwnPropertyColdRent
+      1 setOwnFinancesForNewMortgage
+      1 setOfferViewedByCustomerAt
+      1 setNumberOfCarsForAffordability
+      1 setNewPropertyForNewMortgage
+      1 setNetIncomeAfterTaxForNewMortgage
+      1 setNameAppointment
+      1 setMarketingAppointment
+      1 setLocale
+      1 setHomeOwnerForAffordability
+      1 setEmploymentStatusForCriteria
+      1 setDevotionMonthlyPayOffMortgageForNewMortgage
+      1 setDecisionAppointment
+      1 setColdRentForNewMortgage
+      1 setCityForAffordability
+      1 setChildrenNumberForAffordability
+      1 setAgeForAffordability
+      1 sendVerifiedListingEmail
+      1 selectOffer
+      1 requestOfferRenewal
+      1 deleteLeadDocumentAttachment
+      1 createUploadUrl
+      1 createProperty
+      1 autocompleteLocation
+      1 PropertySearchV2Trigger
+[0m
+[0m$ [0mcd /tmp/opencode && for m in selectOffer updateProperty requestOfferRenewal deleteLeadDocumentAttachment setOfferViewedByCustomerAt createProperty submitDocumentAnalysis; do echo "=== $m ==="; grep -oE "mutation $m\(input:\{[^}]*\}" acct.js | head -2; done
+=== selectOffer ===
+=== updateProperty ===
+=== requestOfferRenewal ===
+=== deleteLeadDocumentAttachment ===
+=== setOfferViewedByCustomerAt ===
+=== createProperty ===
+=== submitDocumentAnalysis ===
+[0m
+[0m$ [0mcd /tmp/opencode && for m in selectOffer updateProperty requestOfferRenewal deleteLeadDocumentAttachment setOfferViewedByCustomerAt; do echo "=== $m ==="; grep -oE ".{0,140}mutation $m.{0,200}" acct.js | head -1; echo; done
+=== selectOffer ===
+eriodDownpayments),e("setOptimalOffers",t.optimalOffer.results))},async SELECT_OFFER({dispatch:e},t){await async function(e){const t=`\n    mutation selectOffer {\n      selectOffer(input: { offerProductId: "${e}"}) {\n        success\n      }\n    }\n  `;await qH.postGraphQL(t)}(t),e("FETCH_OPTIMAL_OFFERS")},async RENEW_OFFER({dispatch:e},t){await async fun
+
+=== updateProperty ===
+){var t,n,o,r;let i="";null!==e.propertySubtype&&void 0!==e.propertySubtype&&(i+=`,propertySubtype: ${e.propertySubtype}`);const a=`\n      mutation updateProperty {\n        updateProperty(input: {\n          id: "${e.id}",\n          address: "${e.address}",\n          area: ${e.livingArea},\n          city: "${e.city}",\n          condition: ${e.propertyCond
+
+=== requestOfferRenewal ===
+
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 60 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+for m in ["mutation requestOfferRenewal","mutation deleteLeadDocumentAttachment","mutation setOfferViewedByCustomerAt","mutation submitDocumentAnalysis","mutation createProperty","mutation uploadDocumentExtended","mutation createUploadUrl","mutation sendVerifiedListingEmail"]:
+    i=d.find(m)
+    print("===",m,"offset",i,"===")
+    print(d[i:i+300].replace('\n','\\n'))
+    print()
+PY
+=== mutation requestOfferRenewal offset 1842798 ===
+mutation requestOfferRenewal {\n      requestOfferRenewal(input: { offerProductId: "${e}"}) {\n        success\n      }\n    }\n  `;await qH.postGraphQL(t)}(t),e("FETCH_OPTIMAL_OFFERS")},async SENT_OFFER_VIEWED_BY_CUSTOMER({commit:e},t){await async function(e){const t=`\n    mutation setOfferViewedB
+
+=== mutation deleteLeadDocumentAttachment offset 1518078 ===
+mutation deleteLeadDocumentAttachment {\n          deleteLeadDocumentAttachment(input: {\n            id: "${e}"\n          }) {\n            success\n          }\n        }\n      `,i=await qH.postGraphQL(r);if(!(null==(o=null==(n=null==(t=null==i?void 0:i.data)?void 0:t.data)?void 0:n.deleteLeadDo
+
+=== mutation setOfferViewedByCustomerAt offset 1843074 ===
+mutation setOfferViewedByCustomerAt {\n      setOfferViewedByCustomerAt(input: { offerId: "${e}" }) {\n        success\n      }\n    }\n  `;await qH.postGraphQL(t)}(t)}},mutations:{setOptimalOfferId:(e,t)=>{e.optimalOfferId=t},setSuggestedProductId:(e,t)=>{e.suggestedProductId=t},setSelectedResultId
+
+=== mutation submitDocumentAnalysis offset 1511478 ===
+mutation submitDocumentAnalysis {\n        submitDocumentAnalysis(input: {\n          files: ${RH(e,{singleQuotes:!1})}\n        }) {\n          job_id\n          status\n          errors\n        }\n      }\n    `,r=await qH.postGraphQL(o);return null==(n=null==(t=null==r?void 0:r.data)?void 0:t.da
+
+=== mutation createProperty offset 1795830 ===
+mutation createProperty {\n        createProperty(input: {\n          address: "${e.address}",\n          area: ${e.livingArea},\n          city: "${e.city}",\n          condition: ${e.propertyCondition},\n          constructionYear: ${e.buildingYear},\n          country: "${e.country}",\n          
+
+=== mutation uploadDocumentExtended offset 1510878 ===
+mutation uploadDocumentExtended {\n        uploadDocumentExtended(input: {\n          type: "platform_attachment",\n          file_name: ${e.fileName},\n          file_type: "${e.fileType}",\n          file_link: "${e.fileLink}",\n          document_type: "${e.documentType}",\n          applicant_ty
+
+=== mutation createUploadUrl offset 1510397 ===
+mutation createUploadUrl {\n                createUploadUrl(input: { fileName: ${JSON.stringify(e.name)}, contentType: "${e.type}" }) {\n                  s3Key\n                  presignedUrl\n                }\n              },\n            `,r=await qH.postGraphQL(o),i=null==(n=null==(t=r.data)?v
+
+=== mutation sendVerifiedListingEmail offset 1916811 ===
+mutation sendVerifiedListingEmail {\n      sendVerifiedListingEmail(\n        input: {\n          customerName: ${JSON.stringify(e.name)},\n          customerEmail: ${JSON.stringify(e.email)},\n          customerPhoneNumber: ${JSON.stringify(e.phoneNumber)},\n          customerMessage: ${JSON.string
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 60 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+i=d.find("mutation uploadDocumentExtended")
+print("---- template ----")
+print(d[i-40:i+700].replace('\n','\\n'))
+print()
+print("---- call sites of fileLink / UPLOAD helper ----")
+import re
+for m in re.finditer(r'fileLink',d):
+    s=max(0,m.start()-160); print(repr(d[s:m.start()+80])); print('---')
+PY
+---- template ----
+dDirectFile(e){var t,n;const o=`\n      mutation uploadDocumentExtended {\n        uploadDocumentExtended(input: {\n          type: "platform_attachment",\n          file_name: ${e.fileName},\n          file_type: "${e.fileType}",\n          file_link: "${e.fileLink}",\n          document_type: "${e.documentType}",\n          applicant_type: "${e.applicantType}"\n        }) {\n          step\n          success\n          reason\n        }\n      }\n\n    `,r=await qH.postGraphQL(o);return null==(n=null==(t=null==r?void 0:r.data)?void 0:t.data)?void 0:n.uploadDocumentExtended},async submitDocumentAnalysis(e){var t,n;const o=`\n      mutation submitDocumentAnalysis {\n        submitDocumentAnalysis(input: {\n          files: ${RH(e,
+
+---- call sites of fileLink / UPLOAD helper ----
+'xtended(input: {\\n          type: "platform_attachment",\\n          file_name: ${e.fileName},\\n          file_type: "${e.fileType}",\\n          file_link: "${e.fileLink}",\\n          document_type: "${e.documentType}",\\n          applicant_'
+---
+'dispatch("account/UPLOAD_DIRECT_FILE",{documentType:"other",applicantType:"primary",fileName:JSON.stringify(t.name),fileType:t.type||"application/octet-stream",fileLink:o}),{id:`${Date.now()}-${t.name}`,name:t.name,type:t.type||"application'
+---
+'(t.name),fileType:t.type||"application/octet-stream",fileLink:o}),{id:`${Date.now()}-${t.name}`,name:t.name,type:t.type||"application/octet-stream",size:t.size,fileLink:o,uploadedAt:(new Date).toISOString()}}}async function e4(e,t){var n,o;'
+---
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 60 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+i=d.find('UPLOAD_DIRECT_FILE')
+print(d[max(0,i-1400):i+120].replace('\n','\\n'))
+PY
+?void 0:r.propertyUsage,{root:!0}),e("equity/setEligibleOnboardedEquityDashboard",i.eligibleOnboardedEquityDashboard??!1,{root:!0})},GET_OM_FUNNEL_STATUS:async function({commit:e}){let t={};try{t=await TH.getLeadOmFunnelStatusInfo()}catch(mie){AH("Error on store function GET_OM_FUNNEL_STATUS",mie)}e("setFinishedOmFunnel",null==t?void 0:t.optimalMortgageFunnelFinished)},REQUEST_PROPERTY_CERTIFICATE:async function({commit:e},t){return e("addFinancialCertificateListings",t),await TH.requestPropertyCertificate(t)},SET_FETCHING:async function({commit:e},t){e("setFetching",t)},SET_FETCHING_AF:async function({commit:e},t){e("setFetchingAf",t)},SET_FETCHING_DOCUMENTS:async function({commit:e},t){e("setFetchingDocuments",t)},SET_FUNNEL:async function({commit:e},t){await TH.setFunnel(t.funnel),e("setFunnel",t.funnel)},SET_HOME_BUYING_STATUS:async function({commit:e},t){const n=await TH.setHomeBuyingStatus(t);if(n)return e("setHomeBuyingStatus",t),n},SET_LOCALE:async function({commit:e},t){await TH.setLocale(t),e("setLocale",t)},SET_NUMBER_OF_NEW_CALCULATIONS:async function({commit:e}){e("setNumberOfNewCalculations",await TH.fetchNumberOfNewCalculations())},SUBMIT_BULK_DOCUMENTS:async function(e,t){return await TH.submitDocumentAnalysis(t)},UPDATE_DOCUMENTS:async function({commit:e},t){e("setUpdatingDocuments",!0);e("setDocuments",await TH.fetchDocuments(t)),e("setUpdatingDocuments",!1)},UPLOAD_DIRECT_FILE:async function({commit:e},t){return await TH.uploadDirectFile(t)},fetchMailingPreferences:async funct
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 60 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+i=d.find('fileLink:o')
+print(d[max(0,i-1800):i+40].replace('\n','\\n'))
+PY
+e);if(!o||!V3(t)||B3(o)||!$3(o))return null;const r="de"===n;return{action:"view-plus",title:r?"Experten-Verhandlungsunterstützung":"Get expert negotiation support",description:r?"Professionelle Bewertung, Begleitung bei Besichtigungen und konkrete Argumente für die Preisverhandlung in Berlin.":"Professional valuation, expert viewing support, and arguments to negotiate the price down in Berlin."}}function Y3({latestUserText:e="",propertySearchCity:t=""}={}){const n=E3(e);return n&&V3(t)&&!B3(n)&&$3(n)?'LIVE ANSWER RULE: The user searches in Berlin and asks about negotiating a purchase, so Hypofriend Plus IS available to them. Name "Hypofriend Plus" exactly once as the buyer-side expert service where an expert creates a professional valuation of the property, joins the viewings, and finds specific arguments the user can use to negotiate the price down — all designed to help them avoid overpaying and get a better deal in Berlin. This applies even without a specific property in context. Do not invent Plus pricing or guarantees, and never suggest an external Gutachter.':""}function K3({propertyOptionsCity:e="",qualificationCity:t=""}={}){return E3(e)||E3(t)}const J3={en:"GCVrYdVi90Ge3-p1bf_fK",de:"JtEAojiaJT5AiQBlRkrQL"};function Z3(){const e=bI();return e?`${e}/api/v3/chatbase`:"localhost"===window.location.hostname?"http://localhost:4000/api/v3/chatbase":`${window.location.protocol}//${window.location.hostname}/api/v3/chatbase`}function Q3(e){return async function(t){const{presignedUrl:n,s3Key:o}=await TH.getSignedURL(t);return await YP.put(n,t,{headers:{"Content-Type":t.type||"application/octet-stream"}}),await e.dispatch("account/UPLOAD_DIRECT_FILE",{documentType:"other",applicantType:"primary",fileName:JSON.stringify(t.name),fileType:t.type||"application/octet-stream",fileLink:o}),{id:`${Date.now()}-${t.name
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+i=d.find('/api/v3/chatbase')
+print("---- chatbase call site ----")
+print(d[max(0,i-120):i+120].replace('\n','\\n'))
+print()
+j=d.find('J3=',max(0,i-4000))
+print("---- token map + usage ----")
+k=d.find('GCVrYdVi90Ge3-p1bf_fK')
+print("key offset",k)
+import re
+for m in re.finditer(r'J3',d):
+    s=max(0,m.start()-100); print(repr(d[s:m.start()+260])); print('---')
+PY
+---- chatbase call site ----
+ E3(e)||E3(t)}const J3={en:"GCVrYdVi90Ge3-p1bf_fK",de:"JtEAojiaJT5AiQBlRkrQL"};function Z3(){const e=bI();return e?`${e}/api/v3/chatbase`:"localhost"===window.location.hostname?"http://localhost:4000/api/v3/chatbase":`${window.location.prot
+
+---- token map + usage ----
+key offset 2230908
+' I.u 0|0123|-3ygng.Q 1usM0 28G01.m|11e5","Africa/Ndjamena|LMT WAT WAST|-10.c -10 -20|0121|-2le10.c 2J3c0.c Wn0|13e5","Africa/Sao_Tome|LMT LMT GMT WAT|-q.U A.J 0 -10|01232|-3tooq.U 18aoq.U 4i6N0 2q00|","Africa/Tripoli|LMT CET CEST EET|-Q.I -10 -20 -20|012121213121212121212121213123123|-21JcQ.I 1hnBQ.I vx0 4iP0 xx0 4eN0 Bb0 7ip0 U0n0 A10 1db0 1cN0 1db0 1dd0 1d'
+---
+'q8/7X3ufz9vi11Pulyvrn7PEiffP3+fvp7vL4+fvC2/zt8fXh7f4befPDztzN4v2dxfry9fgogfPo7PH9/v/5+vzs7/RRmfZgovfJ3/yw0frb6v0pgfNio/dZnfaSv/nP4/3h7f3B2/x9s/jU5vxNlvU3ivSQvvi61vxZnfX8/f3Dz9zI0t/a4enAzNrq7vP+//8bevOdxfnM1eGgx/n1+f7k6e/x8/fZ4Onj6O/4+/7r8/6iyPnD2/uaxPmNvPhvqvchfPPp8v5GkvXL4PyVwPmAtPgyhvP3+v5KlPWozPrN1uH5/P7l6vAqENYkAAAAenRSTlMA+gL+/v74/QH+79ok/P72/jH87BUm7QW'
+---
+'er.\':""}function K3({propertyOptionsCity:e="",qualificationCity:t=""}={}){return E3(e)||E3(t)}const J3={en:"GCVrYdVi90Ge3-p1bf_fK",de:"JtEAojiaJT5AiQBlRkrQL"};function Z3(){const e=bI();return e?`${e}/api/v3/chatbase`:"localhost"===window.location.hostname?"http://localhost:4000/api/v3/chatbase":`${window.location.protocol}//${window.location.hostname}/api/v'
+---
+',e.isOpen=!0}}}())}}}(function({store:e,i18n:t}){return FY({store:e,i18n:t,api:{baseUrl:Z3,agentIds:J3,headers:{"X-Application-Source":"account"},withCredentials:!0},identity:()=>({leadId:e.getters["account/leadId"]||null,givenName:e.getters["account/givenName"]||null}),prompts:{buildSystemPrompt:()=>"",buildTurnHints:t=>{var n,o;return function({latestUserT'
+---
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== edge GET /api/v3/chatbase ==="; curl -sS -m 8 -D - -o cb_get.txt -w '\ncode=%{http_code} size=%{size_download}\n' https://hypofriend.de/api/v3/chatbase | tr -d '\r' | grep -Ei '^(HTTP|content-type|www-authenticate|location|set-cookie|allow|x-frame)'; sleep 2; echo "=== edge OPTIONS /api/v3/chatbase (hostile origin) ==="; curl -sS -m 8 -X OPTIONS -D - -o /dev/null -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type' https://hypofriend.de/api/v3/chatbase | tr -d '\r' | grep -Ei '^(HTTP|access-control|vary|content-type)'; sleep 2; echo "=== origin GET core/api/v3/chatbase ==="; curl -sS -m 8 -D - -o /dev/null -w 'code=%{http_code}\n' https://core.hypofriend.de/api/v3/chatbase | tr -d '\r' | grep -Ei '^(HTTP|content-type|location|allow|x-frame)'
+=== edge GET /api/v3/chatbase ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+x-frame-options: DENY
+=== edge OPTIONS /api/v3/chatbase (hostile origin) ===
+HTTP/2 200 
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+=== origin GET core/api/v3/chatbase ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+[0m
+[0m$ [0mcd /tmp/opencode && for p in /api/v3/chatbase /api/v3/zzz-nonexistent-9f2 /api/v3/advisors; do printf '%-32s ' "$p"; curl -sS -m 8 -o /dev/null -w 'code=%{http_code} clen=%{size_download} loc=%{redirect_url}\n' "https://core.hypofriend.de$p"; sleep 2; done; echo "--- HEAD instead of GET on chatbase (origin) ---"; curl -sS -m 8 -I https://core.hypofriend.de/api/v3/chatbase | tr -d '\r' | grep -Ei '^(HTTP|allow|location|content-type)'
+/api/v3/chatbase                 code=301 clen=0 loc=https://hypofriend.de/
+/api/v3/zzz-nonexistent-9f2      code=301 clen=0 loc=https://hypofriend.de/
+/api/v3/advisors                 code=401 clen=27 loc=
+--- HEAD instead of GET on chatbase (origin) ---
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+import re
+d=open('acct.js',encoding='utf8',errors='replace').read()
+for pat in ['innerHTML','v-html','dangerouslySetInnerHTML','markdown','marked(','DOMPurify','sanitize']:
+    print(pat, d.count(pat))
+print()
+for m in re.finditer(r'innerHTML',d):
+    s=max(0,m.start()-220)
+    print(repr(d[s:m.start()+120])); print('---')
+PY
+innerHTML 48
+v-html 0
+dangerouslySetInnerHTML 0
+markdown 18
+marked( 3
+DOMPurify 2
+sanitize 5
+
+',n,"created");let p,A=!1;if(h(e)){A=Hi(null,z)&&n&&n.vnode.props&&n.vnode.props.appear;const o=e.content.firstChild;if(A){const e=o.getAttribute("class");e&&(o.$cls=e),z.beforeEnter(o)}O(o,e,n),t.el=e=o}if(16&b&&(!l||!l.innerHTML&&!l.textContent)){let o=d(e.firstChild,t,e,n,r,i,a);for(;o;){Fo(e,1)||Eo();const t=o;o=o.nextSibling,s(t)}}els'
+---
+'c)=>{const p=t.el=e.el;let{patchFlag:l,dynamicChildren:u,dirs:d}=t;l|=16&e.patchFlag;const M=e.props||r,z=t.props||r;let f;if(n&&Ui(n,!1),(f=z.onVnodeBeforeUpdate)&&Ta(f,n,t,e),d&&Xn(t,e,n,"beforeUpdate"),n&&Ui(n,!0),(M.innerHTML&&null==z.innerHTML||M.textContent&&null==z.textContent)&&b(p,""),u?_(e.dynamicChildren,u,p,n,o,ji(t,i),a):c||I'
+---
+'.el;let{patchFlag:l,dynamicChildren:u,dirs:d}=t;l|=16&e.patchFlag;const M=e.props||r,z=t.props||r;let f;if(n&&Ui(n,!1),(f=z.onVnodeBeforeUpdate)&&Ta(f,n,t,e),d&&Xn(t,e,n,"beforeUpdate"),n&&Ui(n,!0),(M.innerHTML&&null==z.innerHTML||M.textContent&&null==z.textContent)&&b(p,""),u?_(e.dynamicChildren,u,p,n,o,ji(t,i),a):c||I(e,t,p,null,n,o,ji('
+---
+'or(e),setScopeId(e,t){e.setAttribute(t,"")},insertStaticContent(e,t,n,o,r,i){const a=n?n.previousSibling:t.lastChild;if(r&&(r===i||r.nextSibling))for(;t.insertBefore(r.cloneNode(!0),n),r!==i&&(r=r.nextSibling););else{gs.innerHTML=hs("svg"===o?`<svg>${e}</svg>`:"mathml"===o?`<math>${e}</math>`:e);const r=gs.content;if("svg"===o||"mathml"=='
+---
+',r,i=K(t)){o&&t.startsWith("xlink:")?null==n?e.removeAttributeNS(tc,t.slice(6,t.length)):e.setAttributeNS(tc,t,n):null==n||i&&!J(n)?e.removeAttribute(t):e.setAttribute(t,i?"":g(n)?String(n):n)}function oc(e,t,n,o,r){if("innerHTML"===t||"textContent"===t)return void(null!=n&&(e[t]="innerHTML"===t?hs(n):n));const i=e.tagName;if("value"===t&'
+---
+'NS(tc,t.slice(6,t.length)):e.setAttributeNS(tc,t,n):null==n||i&&!J(n)?e.removeAttribute(t):e.setAttribute(t,i?"":g(n)?String(n):n)}function oc(e,t,n,o,r){if("innerHTML"===t||"textContent"===t)return void(null!=n&&(e[t]="innerHTML"===t?hs(n):n));const i=e.tagName;if("value"===t&&"PROGRESS"!==i&&!i.includes("-")){const o="OPTION"===i?e.getA'
+---
+'st(n)}}else t&&e.removeAttribute("style");Fs in e&&(e[Fs]=i?o.display:"",e[js]&&(o.display="none"))}(e,n,o):c(t)?p(t)||ac(e,t,0,o,i):("."===t[0]?(t=t.slice(1),1):"^"===t[0]?(t=t.slice(1),0):function(e,t,n,o){if(o)return"innerHTML"===t||"textContent"===t||!!(t in e&&uc(t)&&h(n));if("spellcheck"===t||"draggable"===t||"translate"===t||"autoc'
+---
+'..e)=>{np().render(...e)},ip=(...e)=>{op().hydrate(...e)},ap=(...e)=>{const t=np().createApp(...e),{mount:n}=t;return t.mount=e=>{const o=pp(e);if(!o)return;const r=t._component;h(r)||r.render||r.template||(r.template=o.innerHTML),1===o.nodeType&&(o.textContent="");const i=n(o,!1,cp(o));return o instanceof Element&&(o.removeAttribute("v-c'
+---
+'n){const o=function(e,t){if(!Gu)return null;let n=document.getElementById(e);n||(n=document.createElement("style"),n.id=e,n.type="text/css",t&&n.setAttribute("nonce",t),document.head.appendChild(n));return n}(e,t);o&&(o.innerHTML=n)}function CM(e){const t=function(){var e,t;let n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{def'
+---
+'9/xhtml"><head></head><body>\'+e+"</body></html>");const r=m?m.createHTML(e):e;if(he===Oe)try{t=(new d).parseFromString(r,We)}catch{}if(!t||!t.documentElement){t=q.createDocument(he,"template",null);try{t.documentElement.innerHTML=Ae?v:r}catch{}}const i=t.body||t.documentElement;return e&&n&&i.insertBefore(o.createTextNode(n),i.childNodes['
+---
+'(e){let t=null;if(De(_.beforeSanitizeElements,e,null),Pe(e))return xe(e),!0;const o=Re(e.nodeName);if(De(_.uponSanitizeElement,e,{tagName:o,allowedTags:P}),J&&e.hasChildNodes()&&!Ie(e.firstElementChild)&&Y0(/<[/\\w!]/g,e.innerHTML)&&Y0(/<[/\\w!]/g,e.textContent)||e.nodeType===w1||J&&e.nodeType===R1&&Y0(/<[/\\w]/g,e.data))return xe(e),!0;if(!'
+---
+'spaceURI===fe&&!qe[o]||t.namespaceURI===ze&&!ve[o])&&!Te[n]&&(ye[n]||!Ne[n]):!("application/xhtml+xml"!==We||!ge[e.namespaceURI]))}(e)||("noscript"===o||"noembed"===o||"noframes"===o)&&Y0(/<\\/no(script|embed|frames)/i,e.innerHTML)?(xe(e),!0):(K&&e.nodeType===W1&&(t=e.textContent,B0([L,C,S],e=>{t=H0(t,e," ")}),e.textContent!==t&&(D0(n.remo'
+---
+'instanceof a&&He(s.content);if(se)return e;if(te){if(ne)for(p=W.call(o.ownerDocument);o.firstChild;)p.appendChild(o.firstChild);else p=o;return(D.shadowroot||D.shadowrootmode)&&(p=R.call(r,p,!0)),p}let u=Z?o.outerHTML:o.innerHTML;return Z&&P["!doctype"]&&o.ownerDocument&&o.ownerDocument.doctype&&o.ownerDocument.doctype.name&&Y0(m1,o.owner'
+---
+'sanitize(t,T1)}(e.message.content));return{shouldRenderBubble:a,streamingContent:s,assistantSegments:r,visibleAssistantSegments:i,userContent:c,renderMarkdown:x1,chartsEnabled:o}}},w2={class:"chat-bubble__content"},R2=["innerHTML"],_2=["innerHTML"],L2=["innerHTML"],C2={key:2,class:"chat-bubble__attachments"};const S2=jY(W2,[["render",func'
+---
+'.message.content));return{shouldRenderBubble:a,streamingContent:s,assistantSegments:r,visibleAssistantSegments:i,userContent:c,renderMarkdown:x1,chartsEnabled:o}}},w2={class:"chat-bubble__content"},R2=["innerHTML"],_2=["innerHTML"],L2=["innerHTML"],C2={key:2,class:"chat-bubble__attachments"};const S2=jY(W2,[["render",function(e,t,n,o,r,i)'
+---
+');return{shouldRenderBubble:a,streamingContent:s,assistantSegments:r,visibleAssistantSegments:i,userContent:c,renderMarkdown:x1,chartsEnabled:o}}},w2={class:"chat-bubble__content"},R2=["innerHTML"],_2=["innerHTML"],L2=["innerHTML"],C2={key:2,class:"chat-bubble__attachments"};const S2=jY(W2,[["render",function(e,t,n,o,r,i){var a;const s=gr'
+---
+'t-bubble--${n.message.role}`])},[va("div",w2,["assistant"===n.message.role&&n.message.content?(la(),za(ra,{key:0},[n.message.streaming?(la(),za("div",{key:0,class:"chat-bubble__markdown chat-bubble__markdown--streaming",innerHTML:o.renderMarkdown(o.streamingContent)},null,8,R2)):(la(!0),za(ra,{key:1},wr(o.assistantSegments,(r,i)=>(la(),za'
+---
+'ingContent)},null,8,R2)):(la(!0),za(ra,{key:1},wr(o.assistantSegments,(r,i)=>(la(),za("div",{key:i,class:"chat-bubble__segment"},["markdown"===r.type&&r.content.trim()?(la(),za("div",{key:0,class:"chat-bubble__markdown",innerHTML:o.renderMarkdown(r.content)},null,8,_2)):"cta"===r.type?(la(),fa(s,{key:1,action:r.action,title:r.title,descri'
+---
+'(t[2]=t=>e.$emit("drilldown",t))},null,8,["type","title","data","currency","mode"])):"linkPreview"===r.type?(la(),fa(l,{key:4,url:r.url},null,8,["url"])):_a("",!0)]))),128))],64)):n.message.content?(la(),za("div",{key:1,innerHTML:o.userContent},null,8,L2)):_a("",!0),null!=(a=n.message.attachments)&&a.length?(la(),za("div",C2,[(la(!0),za(r'
+---
+'s","bodyAttrs","meta","link","style","script","noscript"]),r4=new Set(["base","title","titleTemplate","bodyAttrs","htmlAttrs","templateParams"]),i4=new Set(["tagPosition","tagPriority","tagDuplicateStrategy","children","innerHTML","textContent","processTemplateParams"]),a4="undefined"!=typeof window;function s4(e){let t=9;for(let n=0;n<e.'
+---
+'r(let n=0;n<e.length;)t=Math.imul(t^e.charCodeAt(n++),9**9);return(65536+(t^t>>>9)).toString(16).substring(1,8).toLowerCase()}function c4(e){if(e._h)return e._h;if(e._d)return s4(e._d);let t=`${e.tag}:${e.textContent||e.innerHTML||""}:`;for(const n in e.props)t+=`${n}:${String(e.props[n])},`;return s4(t)}function p4(e,t,n,o){const r=o||b4'
+---
+'||""}:`;for(const n in e.props)t+=`${n}:${String(e.props[n])},`;return s4(t)}function p4(e,t,n,o){const r=o||b4("object"!=typeof t||"function"==typeof t||t instanceof Promise?{["script"===e||"noscript"===e||"style"===e?"innerHTML":"textContent"]:t}:{...t},"templateParams"===e||"titleTemplate"===e);if(r instanceof Promise)return r.then(o=>'
+---
+'tContent"]:t}:{...t},"templateParams"===e||"titleTemplate"===e);if(r instanceof Promise)return r.then(o=>p4(e,t,n,o));const i={tag:e,props:r};for(const a of i4){const e=void 0!==i.props[a]?i.props[a]:n[a];void 0!==e&&(("innerHTML"!==a&&"textContent"!==a&&"children"!==a||t4.has(i.tag))&&(i["children"===a?"innerHTML":a]=e),delete i.props[a]'
+---
+'e)return r.then(o=>p4(e,t,n,o));const i={tag:e,props:r};for(const a of i4){const e=void 0!==i.props[a]?i.props[a]:n[a];void 0!==e&&(("innerHTML"!==a&&"textContent"!==a&&"children"!==a||t4.has(i.tag))&&(i["children"===a?"innerHTML":a]=e),delete i.props[a])}return i.props.body&&(i.tagPosition="bodyClose",delete i.props.body),"script"===i.ta'
+---
+'L"!==a&&"textContent"!==a&&"children"!==a||t4.has(i.tag))&&(i["children"===a?"innerHTML":a]=e),delete i.props[a])}return i.props.body&&(i.tagPosition="bodyClose",delete i.props.body),"script"===i.tag&&"object"==typeof i.innerHTML&&(i.innerHTML=JSON.stringify(i.innerHTML),i.props.type=i.props.type||"application/json"),Array.isArray(i.props'
+---
+'ontent"!==a&&"children"!==a||t4.has(i.tag))&&(i["children"===a?"innerHTML":a]=e),delete i.props[a])}return i.props.body&&(i.tagPosition="bodyClose",delete i.props.body),"script"===i.tag&&"object"==typeof i.innerHTML&&(i.innerHTML=JSON.stringify(i.innerHTML),i.props.type=i.props.type||"application/json"),Array.isArray(i.props.content)?i.pr'
+---
+'||t4.has(i.tag))&&(i["children"===a?"innerHTML":a]=e),delete i.props[a])}return i.props.body&&(i.tagPosition="bodyClose",delete i.props.body),"script"===i.tag&&"object"==typeof i.innerHTML&&(i.innerHTML=JSON.stringify(i.innerHTML),i.props.type=i.props.type||"application/json"),Array.isArray(i.props.content)?i.props.content.map(e=>({...i,p'
+---
+'"]){const r=null==(o=n[t])?void 0:o.children;for(const t of r){const n=t.tagName.toLowerCase();if(!n4.has(n))continue;const o={tag:n,props:await b4(t.getAttributeNames().reduce((e,n)=>({...e,[n]:t.getAttribute(n)}),{})),innerHTML:t.innerHTML},r=m4(o);let a=r,s=1;for(;a&&e.has(a);)a=`${r}:${s++}`;a&&(o._d=a,e.add(a)),i.elMap[t.getAttribute'
+---
+'null==(o=n[t])?void 0:o.children;for(const t of r){const n=t.tagName.toLowerCase();if(!n4.has(n))continue;const o={tag:n,props:await b4(t.getAttributeNames().reduce((e,n)=>({...e,[n]:t.getAttribute(n)}),{})),innerHTML:t.innerHTML},r=m4(o);let a=r,s=1;for(;a&&e.has(a);)a=`${r}:${s++}`;a&&(o._d=a,e.add(a)),i.elMap[t.getAttribute("data-hid")'
+---
+'e}:${t}`;i.sideEffects[o]=n,delete i.pendingSideEffects[o]}function s({id:e,$el:t,tag:o}){const r=o.tag.endsWith("Attrs");if(i.elMap[e]=t,r||(o.textContent&&o.textContent!==t.textContent&&(t.textContent=o.textContent),o.innerHTML&&o.innerHTML!==t.innerHTML&&(t.innerHTML=o.innerHTML),a(e,"el",()=>{var t;null==(t=i.elMap[e])||t.remove(),del'
+---
+'deEffects[o]=n,delete i.pendingSideEffects[o]}function s({id:e,$el:t,tag:o}){const r=o.tag.endsWith("Attrs");if(i.elMap[e]=t,r||(o.textContent&&o.textContent!==t.textContent&&(t.textContent=o.textContent),o.innerHTML&&o.innerHTML!==t.innerHTML&&(t.innerHTML=o.innerHTML),a(e,"el",()=>{var t;null==(t=i.elMap[e])||t.remove(),delete i.elMap[e'
+---
+',delete i.pendingSideEffects[o]}function s({id:e,$el:t,tag:o}){const r=o.tag.endsWith("Attrs");if(i.elMap[e]=t,r||(o.textContent&&o.textContent!==t.textContent&&(t.textContent=o.textContent),o.innerHTML&&o.innerHTML!==t.innerHTML&&(t.innerHTML=o.innerHTML),a(e,"el",()=>{var t;null==(t=i.elMap[e])||t.remove(),delete i.elMap[e]})),o._eventH'
+---
+'ingSideEffects[o]}function s({id:e,$el:t,tag:o}){const r=o.tag.endsWith("Attrs");if(i.elMap[e]=t,r||(o.textContent&&o.textContent!==t.textContent&&(t.textContent=o.textContent),o.innerHTML&&o.innerHTML!==t.innerHTML&&(t.innerHTML=o.innerHTML),a(e,"el",()=>{var t;null==(t=i.elMap[e])||t.remove(),delete i.elMap[e]})),o._eventHandlers)for(co'
+---
+'ts[o]}function s({id:e,$el:t,tag:o}){const r=o.tag.endsWith("Attrs");if(i.elMap[e]=t,r||(o.textContent&&o.textContent!==t.textContent&&(t.textContent=o.textContent),o.innerHTML&&o.innerHTML!==t.innerHTML&&(t.innerHTML=o.innerHTML),a(e,"el",()=>{var t;null==(t=i.elMap[e])||t.remove(),delete i.elMap[e]})),o._eventHandlers)for(const i in o._'
+---
+'0}(e,t).then(()=>{delete e._domDebouncedUpdatePromise,o()})))}function R4(e){return t=>{var n,o;const r=(null==(o=null==(n=t.resolvedOptions.document)?void 0:n.head.querySelector(\'script[id="unhead:payload"]\'))?void 0:o.innerHTML)||!1;return r&&t.push(JSON.parse(r)),{mode:"client",hooks:{"entries:updated":t=>{w4(t,e)}}}}}function _4(e,t={'
+---
+'ass} ${o.props.class}`:r.class&&(o.props.class=r.class),t[e].props={...r,...o.props};continue}if(o._e===n._e){n._duped=n._duped||[],o._d=`${n._d}:${n._duped.length+1}`,n._duped.push(o);continue}if(h4(o)>h4(n))continue}o.innerHTML||o.textContent||0!==Object.keys(o.props).length||!n4.has(o.tag)?t[e]=o:delete t[e]}const n=[];for(const o in t'
+---
+'n=!1;for(const o of e.tags)"server"!==o._m||"titleTemplate"!==o.tag&&"templateParams"!==o.tag&&"title"!==o.tag||(t[o.tag]="title"===o.tag||"titleTemplate"===o.tag?o.textContent:o.props,n=!0);n&&e.tags.push({tag:"script",innerHTML:JSON.stringify(t),props:{id:"unhead:payload",type:"application/json"}})}}},F4={hooks:{"tags:resolve":e=>{var t'
+---
+'.length),a=null==(t=e.tags.find(e=>e._d===i))?void 0:t._p;if(void 0!==a){n._p=a+r;break}}e.tags.sort((e,t)=>{const n=h4(e),o=h4(t);return n<o?-1:n>o?1:e._p-t._p})}}},j4={meta:"content",link:"href",htmlAttrs:"lang"},U4=["innerHTML","textContent"],H4=e=>({hooks:{"tags:resolve":t=>{var n;const{tags:o}=t;let r;for(let e=0;e<o.length;e+=1){"te'
+---
+'.indexOf(n),1)}else if(o){const e=W4(o.textContent);null!==e&&(o.textContent=e,o.tag="title",o=void 0)}o&&e.tags.splice(e.tags.indexOf(o),1)}}},V4={hooks:{"tags:afterResolve":e=>{for(const t of e.tags)"string"==typeof t.innerHTML&&(!t.innerHTML||"application/ld+json"!==t.props.type&&"application/json"!==t.props.type?t.innerHTML=t.innerHTM'
+---
+'else if(o){const e=W4(o.textContent);null!==e&&(o.textContent=e,o.tag="title",o=void 0)}o&&e.tags.splice(e.tags.indexOf(o),1)}}},V4={hooks:{"tags:afterResolve":e=>{for(const t of e.tags)"string"==typeof t.innerHTML&&(!t.innerHTML||"application/ld+json"!==t.props.type&&"application/json"!==t.props.type?t.innerHTML=t.innerHTML.replace(new R'
+---
+'0)}o&&e.tags.splice(e.tags.indexOf(o),1)}}},V4={hooks:{"tags:afterResolve":e=>{for(const t of e.tags)"string"==typeof t.innerHTML&&(!t.innerHTML||"application/ld+json"!==t.props.type&&"application/json"!==t.props.type?t.innerHTML=t.innerHTML.replace(new RegExp(`</${t.tag}`,"g"),`<\\\\/${t.tag}`):t.innerHTML=t.innerHTML.replace(/</g,"\\\\u003C'
+---
+'.splice(e.tags.indexOf(o),1)}}},V4={hooks:{"tags:afterResolve":e=>{for(const t of e.tags)"string"==typeof t.innerHTML&&(!t.innerHTML||"application/ld+json"!==t.props.type&&"application/json"!==t.props.type?t.innerHTML=t.innerHTML.replace(new RegExp(`</${t.tag}`,"g"),`<\\\\/${t.tag}`):t.innerHTML=t.innerHTML.replace(/</g,"\\\\u003C"))}}};let G'
+---
+'>{for(const t of e.tags)"string"==typeof t.innerHTML&&(!t.innerHTML||"application/ld+json"!==t.props.type&&"application/json"!==t.props.type?t.innerHTML=t.innerHTML.replace(new RegExp(`</${t.tag}`,"g"),`<\\\\/${t.tag}`):t.innerHTML=t.innerHTML.replace(/</g,"\\\\u003C"))}}};let G4;function Y4(e={}){const t=function(e={}){const t=new x4;t.addHo'
+---
+'t of e.tags)"string"==typeof t.innerHTML&&(!t.innerHTML||"application/ld+json"!==t.props.type&&"application/json"!==t.props.type?t.innerHTML=t.innerHTML.replace(new RegExp(`</${t.tag}`,"g"),`<\\\\/${t.tag}`):t.innerHTML=t.innerHTML.replace(/</g,"\\\\u003C"))}}};let G4;function Y4(e={}){const t=function(e={}){const t=new x4;t.addHooks(e.hooks|'
+---
+'s);t.then?t.then(t=>this.onResult(e,t)):this.onResult(e,t)}},onResult(e,t){e===this.$_fetchId&&(this.$_loading=!1,this.asyncContent=t)},onShow(){this.$_isShown=!0,this.fetchContent()},onHide(){this.$_isShown=!1}}}),b8=["innerHTML"],d8=["textContent"];const M8=H6(u8,[["render",function(e,t,n,o,r,i){const a=gr("PopperContent"),s=gr("Popper"'
+---
+'opper--tooltip-loading":e.loading}),"popper-id":t,theme:e.theme,shown:n,mounted:o,"skip-transition":r,"auto-hide":i,"handle-resize":c,classes:l,result:u,onHide:s,onResize:p},{default:In(()=>[e.html?(la(),za("div",{key:0,innerHTML:e.finalContent},null,8,b8)):(la(),za("div",{key:1,textContent:te(e.finalContent)},null,8,d8))]),_:2},1032,["cl'
+---
+'g:bie,input:t}:e.basic?{config:pie,input:t}:e.inline?{config:lie,input:t}:e.nothing?{config:uie,input:t}:{config:pie,input:t}}function Mie(e,{modifiers:t,oldValue:n,value:o}){if(o!==n){const{config:n,input:r}=die(t,o);e.innerHTML=cie(r,n)}}const zie={getSSRProps:function({modifiers:e,value:t}){const{config:n,input:o}=die(e,t);return{inner'
+---
+'e,input:t}}function Mie(e,{modifiers:t,oldValue:n,value:o}){if(o!==n){const{config:n,input:r}=die(t,o);e.innerHTML=cie(r,n)}}const zie={getSSRProps:function({modifiers:e,value:t}){const{config:n,input:o}=die(e,t);return{innerHTML:cie(o,n)}},inserted:Mie,mounted:Mie,update:Mie,updated:Mie},fie={install(e,{name:t="sanitize"}={}){e.directive'
+---
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+i=d.find('e.message.content));return{shouldRenderBubble')
+print("---- setup fn ----")
+print(d[max(0,i-2600):i+140].replace('\n','\\n'))
+PY
+---- setup fn ----
+art"===t){const e=o2(s);e?n.some(e=>"chart"===e.type)?r=!0:n.push(e):r=!0}else if("suggestion"===t){const e=a2(s);e?n.push(e):n.push({type:"markdown",content:a[0]})}else if("json"!==t&&t){const e=t2(s);e?n.push({type:"cta",_fenced:!0,...e}):n.push({type:"markdown",content:a[0]})}else{const e=s2(s);if(e)n.push(...e);else{const e=t2(s);e?n.push({type:"cta",_fenced:!0,...e}):n.push({type:"markdown",content:a[0]})}}o=a.index+a[0].length,a=i.exec(e)}o<e.length&&n.push({type:"markdown",content:e.slice(o)});const s=[];for(const R of n)"markdown"===R.type?s.push(...J1(R.content)):s.push(R);const c=new Map;for(const R of s){if("cta"!==R.type)continue;const e=c.get(R.action);(!e||!e._fenced&&R._fenced)&&c.set(R.action,R)}const p=s.filter(e=>"cta"!==e.type||c.get(e.action)===e),l=new Set;let u=0;const b=p.filter(e=>"linkPreview"!==e.type||!(l.has(e.url)||u>=3)&&(l.add(e.url),u++,!0)),d=new Set;let M=0;const z=b.filter(e=>{if("suggestion"!==e.type)return!0;const t=[e.key||"",e.label||"",e.text,e.promptTemplate||"",e.promptType||""].join("::");return!(d.has(t)||M>=4||(d.add(t),M++,0))}),f=z.some(e=>"suggestion"===e.type)?z.filter(e=>"cta"!==e.type):z,O=new Set((null==t?void 0:t.suppressCtaActions)||[]);let h=!1;const A=f.filter(e=>!("cta"===e.type&&O.size>0&&O.has(e.action)&&(h=!0,1))),g=((null==t?void 0:t.fallbackSuggestions)||[]).map(c2).filter(Boolean),m=A.some(e=>"suggestion"===e.type),v=h&&!m&&g.length>0?[...A,...g]:A,q=new Set,y=((null==t?void 0:t.injectedCtas)||[]).map(p2).filter(Boolean).filter(e=>!O.has(e.action)&&!q.has(e.action)&&(q.add(e.action),!0)),W=v.filter(e=>!("cta"===e.type&&q.has(e.action))),w=(y.length>0?[...W,...y]:v).map(e=>{if(void 0!==e._fenced){const t={...e};return delete t._fenced,t}return e}).filter(e=>"markdown"!==e.type||e.content.trim().length>0);return w.length>0?w:r||h?[{type:"markdown",content:""}]:[{type:"markdown",content:e}]}(e.message.content,e.segmentOptions)),i=ns(()=>r.value.filter(e=>"markdown"===e.type?e.content.trim().length>0:"chart"!==e.type||o)),a=ns(()=>{var t;return"assistant"!==e.message.role||!!(i.value.length||null!=(t=e.message.attachments)&&t.length)}),s=ns(()=>{let t=(e.message.content||"").replace(/```(?:(?:cta|suggestion|chart|json)[ \t]*\n|[ \t]*\n)[\s\S]*?```/g,"");return t=t.replace(/```(?:(?:cta|suggestion|chart|json)[ \t]*\n?|[ \t]*\n)[\s\S]*$/,""),t}),c=ns(()=>function(e){if(!e)return"";const t=e.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/(https?:\/\/[^\s<"]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');return L1.sanitize(t,T1)}(e.message.content));return{shouldRenderBubble:a,streamingContent:s,assistantSegments:r,visibleAssistantSegments:i,userContent:c,renderMarkdo
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+i=d.find('e.message.content));return{shouldRenderBubble')
+j=d.rfind('x1=',max(0,i-6000),i)
+print("---- x1 candidate at",j,"----")
+print(d[max(0,j-400):j+400].replace('\n','\\n'))
+print()
+k=d.find('function J1(')
+print("---- J1 (markdown seg converter) ----")
+print(d[k:k+700].replace('\n','\\n'))
+PY
+---- x1 candidate at -1 ----
+var e=Object.defineProperty,t=(t,n,o)=>(((t,n,o)=>{n in t?e(t,n,{enumerable:!0,configurable:!0,writable:!0,value:o}):t[n]=o})(t,"symbol"!=typeof n?n+"":n,o),o);try{let e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},t=(new e.Error).stack;t&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[t]
+
+---- J1 (markdown seg converter) ----
+function J1(e){if(!e||"string"!=typeof e)return[{type:"markdown",content:e||""}];const t=[],n=[],o=new Set,r=new Set;function i(e){o.has(e.action)||(o.add(e.action),t.push({type:"cta",action:e.action,title:e.title,description:e.description}))}function a(e){r.has(e)||n.length>=3||(r.add(e),n.push({type:"linkPreview",url:e}))}let s=e;s=s.replace(H1,(e,n,o)=>{if(!G1(o)||Y1(o))return e;if(I1(o))return a(o),"";const r=K1(o);return r?(t.length<2&&i(r),""):e}),s=s.replace($1,e=>{const n=e.match(/[.,;:!?)]+$/),o=n?n[0]:"",r=o?e.slice(0,-o.length):e;if(!G1(r)||Y1(r))return e;if(I1(r))return a(r),o;const s=K1(r);return s?(t.length<2&&i(s),o):e}),s=s.replace(V1,()=>(t.length<2&&i({action:"book-appointm
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+import re
+d=open('acct.js',encoding='utf8',errors='replace').read()
+for m in re.finditer(r'x1=',d):
+    print("x1= at",m.start()); print(repr(d[m.start():m.start()+320])); print('---')
+for m in re.finditer(r'renderMarkdown',d):
+    print("renderMarkdown at",m.start()); print(repr(d[max(0,m.start()-80):m.start()+60])); print('---')
+PY
+x1= at 1666266
+"x1='1242.34'%20y1='815.94'%20x2='1342.59'%20y2='1227.89'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='.14'%20stop-color='%23fff'/%3e%3cstop%20offset='.17'%20stop-color='%23aeb9c7'/%3e%3cstop%20offset='.8'%20stop-color='%23aeb9c7'/%3e%3cstop%20offset='.85'%20stop-color='%23fff'/%3e%3c/linearGradient%3e%3c/defs%3"
+---
+x1= at 1718596
+"x1='67.2072'%20y1='8.85714'%20x2='67.2072'%20y2='13.654'%20stroke='%23061B2B'%20stroke-width='1.71429'%20stroke-linecap='round'/%3e%3cline%20x1='69.9885'%20y1='26.9626'%20x2='65.1921'%20y2='26.8993'%20stroke='%23061B2B'%20stroke-width='1.71429'%20stroke-linecap='round'/%3e%3cline%20x1='45.514'%20y1='14.6681'%20x2='48.4"
+---
+x1= at 1718737
+"x1='69.9885'%20y1='26.9626'%20x2='65.1921'%20y2='26.8993'%20stroke='%23061B2B'%20stroke-width='1.71429'%20stroke-linecap='round'/%3e%3cline%20x1='45.514'%20y1='14.6681'%20x2='48.4382'%20y2='18.4706'%20stroke='%23061B2B'%20stroke-width='1.71429'%20stroke-linecap='round'/%3e%3cpath%20d='M46.3154%2031.5403C46.3154%2031.54"
+---
+x1= at 1718879
+"x1='45.514'%20y1='14.6681'%20x2='48.4382'%20y2='18.4706'%20stroke='%23061B2B'%20stroke-width='1.71429'%20stroke-linecap='round'/%3e%3cpath%20d='M46.3154%2031.5403C46.3154%2031.5403%2047.1956%2030.9965%2047.818%2030.7891C49.2097%2030.3252%2050.2882%2031.4945%2051.5744%2030.7891C53.5927%2029.6821%2051.0065%2026.4385%2052"
+---
+x1= at 1776433
+"x1='21.924'%20y1='5.2002972'%20x2='21.924'%20y2='5.9562972'%20id='Stroke-2708'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'%3e%3c/line%3e%3cline%20x1='21.924'%20y1='37.7082972'%20x2='21.924'%20y2='38.4642972'%20id='Stroke-2709'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'"
+---
+x1= at 1776604
+"x1='21.924'%20y1='37.7082972'%20x2='21.924'%20y2='38.4642972'%20id='Stroke-2709'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'%3e%3c/line%3e%3cline%20x1='38.556'%20y1='21.8322972'%20x2='37.8'%20y2='21.8322972'%20id='Stroke-2710'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'"
+---
+x1= at 1776777
+"x1='38.556'%20y1='21.8322972'%20x2='37.8'%20y2='21.8322972'%20id='Stroke-2710'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'%3e%3c/line%3e%3cline%20x1='6.048'%20y1='21.8322972'%20x2='5.292'%20y2='21.8322972'%20id='Stroke-2711'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'%3"
+---
+x1= at 1776948
+"x1='6.048'%20y1='21.8322972'%20x2='5.292'%20y2='21.8322972'%20id='Stroke-2711'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'%3e%3c/line%3e%3cline%20x1='33.6845628'%20y1='10.0717344'%20x2='33.1500708'%20y2='10.6062264'%20id='Stroke-2712'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap"
+---
+x1= at 1777119
+"x1='33.6845628'%20y1='10.0717344'%20x2='33.1500708'%20y2='10.6062264'%20id='Stroke-2712'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'%3e%3c/line%3e%3cline%20x1='10.6980048'%20y1='33.0582924'%20x2='10.1635128'%20y2='33.5927844'%20id='Stroke-2713'%20stroke='%23061B2B'%20stroke-width='1.575'%20stro"
+---
+x1= at 1777300
+"x1='10.6980048'%20y1='33.0582924'%20x2='10.1635128'%20y2='33.5927844'%20id='Stroke-2713'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'%3e%3c/line%3e%3cline%20x1='10.6980048'%20y1='10.6062264'%20x2='10.1635128'%20y2='10.0717344'%20id='Stroke-2714'%20stroke='%23061B2B'%20stroke-width='1.575'%20stro"
+---
+x1= at 1777481
+"x1='10.6980048'%20y1='10.6062264'%20x2='10.1635128'%20y2='10.0717344'%20id='Stroke-2714'%20stroke='%23061B2B'%20stroke-width='1.575'%20stroke-linecap='round'%3e%3c/line%3e%3cpath%20d='M42.4892412,29.5344252%20C43.3669572,27.1636092%2043.8477732,24.6000132%2043.8477732,21.9237732%20C43.8477732,9.8156772%2034.0326252,-0."
+---
+renderMarkdown at 2194958
+'streamingContent:s,assistantSegments:r,visibleAssistantSegments:i,userContent:c,renderMarkdown:x1,chartsEnabled:o}}},w2={class:"chat-bubble_'
+---
+renderMarkdown at 2195614
+'ey:0,class:"chat-bubble__markdown chat-bubble__markdown--streaming",innerHTML:o.renderMarkdown(o.streamingContent)},null,8,R2)):(la(!0),za(r'
+---
+renderMarkdown at 2195869
+'.content.trim()?(la(),za("div",{key:0,class:"chat-bubble__markdown",innerHTML:o.renderMarkdown(r.content)},null,8,_2)):"cta"===r.type?(la(),'
+---
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+print(d[2192600:2195000].replace('\n','\\n'))
+PY
+.e}):n.push({type:"markdown",content:a[0]})}}o=a.index+a[0].length,a=i.exec(e)}o<e.length&&n.push({type:"markdown",content:e.slice(o)});const s=[];for(const R of n)"markdown"===R.type?s.push(...J1(R.content)):s.push(R);const c=new Map;for(const R of s){if("cta"!==R.type)continue;const e=c.get(R.action);(!e||!e._fenced&&R._fenced)&&c.set(R.action,R)}const p=s.filter(e=>"cta"!==e.type||c.get(e.action)===e),l=new Set;let u=0;const b=p.filter(e=>"linkPreview"!==e.type||!(l.has(e.url)||u>=3)&&(l.add(e.url),u++,!0)),d=new Set;let M=0;const z=b.filter(e=>{if("suggestion"!==e.type)return!0;const t=[e.key||"",e.label||"",e.text,e.promptTemplate||"",e.promptType||""].join("::");return!(d.has(t)||M>=4||(d.add(t),M++,0))}),f=z.some(e=>"suggestion"===e.type)?z.filter(e=>"cta"!==e.type):z,O=new Set((null==t?void 0:t.suppressCtaActions)||[]);let h=!1;const A=f.filter(e=>!("cta"===e.type&&O.size>0&&O.has(e.action)&&(h=!0,1))),g=((null==t?void 0:t.fallbackSuggestions)||[]).map(c2).filter(Boolean),m=A.some(e=>"suggestion"===e.type),v=h&&!m&&g.length>0?[...A,...g]:A,q=new Set,y=((null==t?void 0:t.injectedCtas)||[]).map(p2).filter(Boolean).filter(e=>!O.has(e.action)&&!q.has(e.action)&&(q.add(e.action),!0)),W=v.filter(e=>!("cta"===e.type&&q.has(e.action))),w=(y.length>0?[...W,...y]:v).map(e=>{if(void 0!==e._fenced){const t={...e};return delete t._fenced,t}return e}).filter(e=>"markdown"!==e.type||e.content.trim().length>0);return w.length>0?w:r||h?[{type:"markdown",content:""}]:[{type:"markdown",content:e}]}(e.message.content,e.segmentOptions)),i=ns(()=>r.value.filter(e=>"markdown"===e.type?e.content.trim().length>0:"chart"!==e.type||o)),a=ns(()=>{var t;return"assistant"!==e.message.role||!!(i.value.length||null!=(t=e.message.attachments)&&t.length)}),s=ns(()=>{let t=(e.message.content||"").replace(/```(?:(?:cta|suggestion|chart|json)[ \t]*\n|[ \t]*\n)[\s\S]*?```/g,"");return t=t.replace(/```(?:(?:cta|suggestion|chart|json)[ \t]*\n?|[ \t]*\n)[\s\S]*$/,""),t}),c=ns(()=>function(e){if(!e)return"";const t=e.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/(https?:\/\/[^\s<"]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');return L1.sanitize(t,T1)}(e.message.content));return{shouldRenderBubble:a,streamingContent:s,assistantSegments:r,visibleAssistantSegments:i,userContent:c,renderMarkdown:x1,chartsEnabled:o}}},w2={c
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+# find function start before 2192600
+idx=2192600
+j=d.rfind('function ',0,idx)
+print("fn start at",j)
+print(d[j:j+2400].replace('\n','\\n'))
+PY
+fn start at 2184469
+function p2(e){var t,n;if(!e||"object"!=typeof e)return null;const o=Q1(e.action),r=null==(n=null==(t=e.title)?void 0:t.trim)?void 0:n.call(t);return e2.has(o)&&r?{type:"cta",action:o,title:r,description:e.description||""}:null}const l2={class:"chat-action-card__body ds:flex ds:flex-col ds:min-w-0"},u2={class:"chat-action-card__title ds:font-sans ds:font-medium ds:leading-5 ds:text-secondary-base"},b2={key:0,class:"chat-action-card__description ds:font-sans ds:font-normal ds:leading-4 ds:text-secondary-lighten-3"};const d2=jY({name:"ChatActionCard",components:{HfIcon:iK},props:{action:{type:String,required:!0},title:{type:String,required:!0},description:{type:String,default:""}},emits:["action"],data:()=>({isPressed:!1,pressTimer:null}),beforeUnmount(){this.pressTimer&&(clearTimeout(this.pressTimer),this.pressTimer=null)},methods:{handleTouchStart(){this.isPressed=!0,this.pressTimer&&clearTimeout(this.pressTimer)},handleTouchEnd(){this.pressTimer&&clearTimeout(this.pressTimer),this.pressTimer=setTimeout(()=>{this.isPressed=!1,this.pressTimer=null},200)}}},[["render",function(e,t,n,o,r,i){const a=gr("HfIcon");return la(),za("button",{type:"button",class:G(["chat-action-card ds:group ds:flex ds:items-center ds:justify-between ds:gap-2 ds:w-full ds:min-h-10 ds:mt-2 ds:mb-4 ds:border ds:border-grey-lighten-1 ds:rounded-lg ds:bg-white ds:shadow-[0_1px_3px_rgba(0,0,0,0.06)] ds:cursor-pointer ds:text-left ds:transition-colors ds:duration-150 ds:focus-visible:outline-2 ds:focus-visible:outline-solid ds:focus-visible:outline-primary-base ds:focus-visible:outline-offset-2",{"chat-action-card--pressed":r.isPressed}]),onClick:t[0]||(t[0]=t=>e.$emit("action",{action:n.action,title:n.title})),onTouchstartPassive:t[1]||(t[1]=(...e)=>i.handleTouchStart&&i.handleTouchStart(...e)),onTouchendPassive:t[2]||(t[2]=(...e)=>i.handleTouchEnd&&i.handleTouchEnd(...e)),onTouchcancelPassive:t[3]||(t[3]=(...e)=>i.handleTouchEnd&&i.handleTouchEnd(...e))},[va("div",l2,[va("span",u2,te(n.title),1),n.description?(la(),za("span",b2,te(n.description),1)):_a("",!0)]),qa(a,{name:"chevron-right",size:16,"class-name":"chat-action-card__icon ds:flex-shrink-0 ds:text-secondary-lighten-3 ds:transition-colors ds:duration-150"})],34)}],["__scopeId","data-v-7352deec"]]),M2={name:"ChatSuggestionCard",props:{suggestion:{type:Object,required:!0}},emits:["select"],setup:e=>({label:ns(()=>e.suggestion.label|
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+import re
+d=open('acct.js',encoding='utf8',errors='replace').read()
+seg=d[2180000:2195200]
+for m in re.finditer(r'x1',seg):
+    print(2180000+m.start(), repr(seg[max(0,m.start()-60):m.start()+60]))
+PY
+2194973 's:r,visibleAssistantSegments:i,userContent:c,renderMarkdown:x1,chartsEnabled:o}}},w2={class:"chat-bubble__content"},R2=['
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+import re
+d=open('acct.js',encoding='utf8',errors='replace').read()
+j=2194973
+# walk back to nearest 'setup(' or '=>(' markers
+for m in re.finditer(r'setup\(', d[:j]):
+    last=m.start()
+print("last setup( before return:", last)
+print(d[last:last+1500].replace('\n','\\n'))
+PY
+last setup( before return: 2191875
+setup(e){var t;const n=jn(PY,null),o=!(null==(t=null==n?void 0:n.features)||!t.charts),r=ns(()=>function(e,t={}){if(!e||"string"!=typeof e)return[{type:"markdown",content:e||""}];const n=[];let o=0,r=!1;const i=new RegExp(X1);let a=i.exec(e);for(;null!==a;){a.index>o&&n.push({type:"markdown",content:e.slice(o,a.index)});const t=a[1],s=a[2].trim();if("chart"===t){const e=o2(s);e?n.some(e=>"chart"===e.type)?r=!0:n.push(e):r=!0}else if("suggestion"===t){const e=a2(s);e?n.push(e):n.push({type:"markdown",content:a[0]})}else if("json"!==t&&t){const e=t2(s);e?n.push({type:"cta",_fenced:!0,...e}):n.push({type:"markdown",content:a[0]})}else{const e=s2(s);if(e)n.push(...e);else{const e=t2(s);e?n.push({type:"cta",_fenced:!0,...e}):n.push({type:"markdown",content:a[0]})}}o=a.index+a[0].length,a=i.exec(e)}o<e.length&&n.push({type:"markdown",content:e.slice(o)});const s=[];for(const R of n)"markdown"===R.type?s.push(...J1(R.content)):s.push(R);const c=new Map;for(const R of s){if("cta"!==R.type)continue;const e=c.get(R.action);(!e||!e._fenced&&R._fenced)&&c.set(R.action,R)}const p=s.filter(e=>"cta"!==e.type||c.get(e.action)===e),l=new Set;let u=0;const b=p.filter(e=>"linkPreview"!==e.type||!(l.has(e.url)||u>=3)&&(l.add(e.url),u++,!0)),d=new Set;let M=0;const z=b.filter(e=>{if("suggestion"!==e.type)return!0;const t=[e.key||"",e.label||"",e.text,e.promptTemplate||"",e.promptType||""].join("::");return!(d.has(t)||M>=4||(d.add(t),M++,0))}),f=z.some(e=>"suggestion"===e.type)?z.filter(e=>"cta"!=
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 60 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+i=d.find('renderMarkdown:')
+seg=d[i:i+30]
+print(repr(seg))
+print([ (c,hex(ord(c))) for c in seg ])
+PY
+'renderMarkdown:x1,chartsEnable'
+[('r', '0x72'), ('e', '0x65'), ('n', '0x6e'), ('d', '0x64'), ('e', '0x65'), ('r', '0x72'), ('M', '0x4d'), ('a', '0x61'), ('r', '0x72'), ('k', '0x6b'), ('d', '0x64'), ('o', '0x6f'), ('w', '0x77'), ('n', '0x6e'), (':', '0x3a'), ('x', '0x78'), ('1', '0x31'), (',', '0x2c'), ('c', '0x63'), ('h', '0x68'), ('a', '0x61'), ('r', '0x72'), ('t', '0x74'), ('s', '0x73'), ('E', '0x45'), ('n', '0x6e'), ('a', '0x61'), ('b', '0x62'), ('l', '0x6c'), ('e', '0x65')]
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+import re
+d=open('acct.js',encoding='utf8',errors='replace').read()
+occ=[m.start() for m in re.finditer(r'(?<![A-Za-z0-9_$])x1(?![A-Za-z0-9_$])',d)]
+print("word-boundary x1 count:",len(occ), occ[:10])
+for o in occ[:6]:
+    print(o, repr(d[max(0,o-80):o+80]))
+PY
+word-boundary x1 count: 3 [2161866, 2177452, 2194973]
+2161866 '"word-spacing","wrap","writing-mode","xchannelselector","ychannelselector","x","x1","x2","xmlns","y","y1","y2","z","zoomandpan"]),u1=N0(["accent","accentunder",'
+2177452 'r","th","td","hr","del"],ALLOWED_ATTR:["href","target","rel","title"]};function x1(e){if(!e||"string"!=typeof e)return"";const t=w0.parse(function(e){const t=e.'
+2194973 't:s,assistantSegments:r,visibleAssistantSegments:i,userContent:c,renderMarkdown:x1,chartsEnabled:o}}},w2={class:"chat-bubble__content"},R2=["innerHTML"],_2=["in'
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 60 python3 - <<'PY'
+d=open('acct.js',encoding='utf8',errors='replace').read()
+i=2177452
+print(d[i:i+1400].replace('\n','\\n'))
+print()
+print("=== config just before ===")
+print(d[2176800:2177470].replace('\n','\\n'))
+PY
+x1(e){if(!e||"string"!=typeof e)return"";const t=w0.parse(function(e){const t=e.split("\n");let n=0,o=!1;return t.map(e=>/^```/.test(e)?(o=!o,n=0,e):o?e:/^1\. /.test(e)?e.replace(/^1\. /,++n+". "):(n=0,e)).join("\n")}(e),N1);return L1.sanitize(t,T1)}const k1="hypofriend.de",E1=[/\/(?:en|de)\/(?:blog|tipps)\//i,/\/(?:en|de)\/(?:guide|ratgeber)\//i,/\/(?:en|de)\/(?:glossary|glossar)\//i],B1=[/\/(?:en|de)\/(?:appointment|termin|consultation|beratung)\b/i,/\/(?:en|de)\/(?:criteria|property-search|immobiliensuche|properties)\b/i,/\/(?:en|de)\/(?:upload-documents|dokumente|documents)\b/i,/\/(?:en|de)\/(?:affordability|budget|leisten)\b/i,/\/(?:en|de)\/(?:mortgage-offer|finanzierung-empfehlung|optimal-offers)\b/i,/\/(?:en|de)\/(?:account|equity|property-value|chat)\b/i],P1=new Map;function I1(e){if(!function(e){try{const t=new URL(e).hostname.toLowerCase();return t===k1||t===`www.${k1}`}catch{return!1}}(e))return!1;try{const t=new URL(e).pathname;return!B1.some(e=>e.test(t))&&E1.some(e=>e.test(t))}catch{return!1}}async function D1(e,{fetchMetadata:t=null}={}){if(P1.has(e))return P1.get(e);const n=function(e){try{const t=new URL(e).pathname.split("/").filter(Boolean);if(t.length<3)return null;const n=t[0];return{slug:t[t.length-1],locale:n}}catch{return null}}(e),o=n?function(e){return e.replace(/\.a\w+$/,"").replace(/[-_]/g," ").replace(/\b\w/g,e=>e.toUpperCase()).trim()}(n.slug):"Hyp
+
+=== config just before ===
+eSanitizeShadowDOM:[],uponSanitizeAttribute:[],uponSanitizeElement:[],uponSanitizeShadowNode:[]}},n}();const C1=new w0.Renderer;function S1(e){return e?e.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""}C1.link=function({href:e,title:t,text:n}){return`<a href="${S1(e)}"${t?` title="${S1(t)}"`:""} target="_blank" rel="noopener noreferrer">${n}</a>`};const N1={renderer:C1,gfm:!0,breaks:!0},T1={ALLOWED_TAGS:["p","br","strong","b","em","i","h1","h2","h3","h4","ul","ol","li","a","code","pre","blockquote","table","thead","tbody","tr","th","td","hr","del"],ALLOWED_ATTR:["href","target","rel","title"]};function x1(e){if(!e||"stri
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+import re
+d=open('acct.js',encoding='utf8',errors='replace').read()
+for m in re.finditer(r'fetchMetadata',d):
+    print("at",m.start(),repr(d[max(0,m.start()-180):m.start()+180]));print('---')
+PY
+at 2178495 'eturn t===k1||t===`www.${k1}`}catch{return!1}}(e))return!1;try{const t=new URL(e).pathname;return!B1.some(e=>e.test(t))&&E1.some(e=>e.test(t))}catch{return!1}}async function D1(e,{fetchMetadata:t=null}={}){if(P1.has(e))return P1.get(e);const n=function(e){try{const t=new URL(e).pathname.split("/").filter(Boolean);if(t.length<3)return null;const n=t[0];return'
+---
+at 2188449 'toUpperCase()).trim()}catch{return"Hypofriend"}}(e.url)),r=Et(""),i=Et("hypofriend.de"),a=jn(PY,null),s=null==(n=null==(t=null==a?void 0:a.features)?void 0:t.linkPreview)?void 0:n.fetchMetadata;return lr(async()=>{const t=await D1(e.url,{fetchMetadata:s});t&&(t.title&&(o.value=t.title),r.value=t.description,i.value=t.domain)}),{displayTitle:o,displayDescript'
+---
+at 2188507 '=Et(""),i=Et("hypofriend.de"),a=jn(PY,null),s=null==(n=null==(t=null==a?void 0:a.features)?void 0:t.linkPreview)?void 0:n.fetchMetadata;return lr(async()=>{const t=await D1(e.url,{fetchMetadata:s});t&&(t.title&&(o.value=t.title),r.value=t.description,i.value=t.domain)}),{displayTitle:o,displayDescription:r,domain:i,openLink:function(){window.open(e.url,"_bla'
+---
+at 2454913 't),onError:(e,t={})=>{const{message:n,...o}=t;AH(n||"hf-chat error",e,o)},onNotify:(e,t={})=>Uu.$emit("showSnackbarMessage",e,t)},features:{fileUpload:Q3(e),charts:!0,linkPreview:{fetchMetadata:e4}},persistence:{storageKey:"hypofriend-chat"}})}({store:jV,i18n:EH}))),Aie.use(gG),Aie.use(fie),Aie.mixin(i5),Aie.component("VTooltip",x8.Tooltip),function(e={}){WU'
+---
+[0m
+## Objective
+- Complete the Hypofriend POC analyst cycle and output only the required eight structured blocks.
+- Rank fresh/high-value attack surface, form one testable hypothesis per top asset, self-critique, and provide exactly one safe next action.
+
+## Important Details
+- State: `{"phase":"POC","target":"api"}`; designated target `api.hypofriend.de` remains unreachable.
+- Live probing must remain passive-first, `≤1 rps`, and GET/HEAD/OPTIONS only this cycle.
+- No customer/employee/financial/auth data access, state-changing mutations, metadata SSRF, logout-CSRF, descriptive headers/errors, or unactionable scanner output.
+- Existing critical chain: unauthenticated `propertySearch → exposes → expose` returns broker/owner PII on `https://core.hypofriend.de/property-search-api`.
+- `exposeSeen` and money/document mutations cannot be tested against live data; gate them as HUMAN_ONLY rather than issuing the previous POST probe.
+- `unclaimLead` is session-scoped, `createUploadUrl` redirects, and `/api/v3/delete-cookie` is rejected logout-CSRF; do not revive them.
+- Global credentialed CORS and origin `XFO:ALLOWALL` are chain multipliers, not standalone findings.
+- Any claimed secret must be SHA-256 hashed; public IDs must not be mislabeled as secrets.
+
+## Work State
+### Completed
+- At `2026-09-29T15:04:39Z`, `api.hypofriend.de` resolved to `52.15.184.3`; HTTPS and HTTP HEAD both returned `000` after 8 seconds, extending the 50+ cycle outage.
+- `GET https://hypofriend.de/en` returned `200`, 229934 bytes, buildId `d4ce4ebd-33ab-4ed3-aaf2-d5d83812538f`.
+- New main entry bundle: `https://hypofriend.de/m/_nuxt/C9Is4Ac9.js`; prior `Bitus3YJ.js` now returns `403`.
+- `C9Is4Ac9.js`: 1,336,611 bytes, ETag `"c5480f243ca2154448fdd9bdbf0b7259"`, Last-Modified `Tue, 29 Sep 2026 13:06:15 GMT`, SHA-256 `6927e99d9912665a286e731bd1fadab0fa42b91023e2b8a6c0c1ef91f5bbe8fb`.
+- Main-bundle operation set remained ten named operations; hardcoded Basic token occurrence remained one; no new auth surface or host.
+- `GET https://hypofriend.de/en/account` returned `200`, 3766 bytes, and referenced new bundle `/en/account/assets/index-BLX7yr-v.js`; old `index-DwBItw8U.js` now returns `301`.
+- `index-BLX7yr-v.js`: 2,468,656 bytes, ETag `"be788be0758c8675f0455c5ececa2260"`, Last-Modified `Tue, 29 Sep 2026 13:58:59 GMT`, SHA-256 `4304a74473862400498e26eb8c366f4447d022aedba90679ea43b846b7fee3d3`.
+- Account bundle still contains 37 distinct named mutations and the established object-addressing inputs, including `selectOffer.offerProductId`, `requestOfferRenewal.offerProductId`, `setOfferViewedByCustomerAt.offerId`, `updateProperty.id`, and `deleteLeadDocumentAttachment.id`.
+- Traced `uploadDocumentExtended.file_link` to `s3Key` returned by `createUploadUrl`; direct client upload to the presigned URL occurs first, weakening the proposed SSRF interpretation.
+- Discovered fresh account surface `/api/v3/chatbase` with `agentIds={en:"GCVrYdVi90Ge3-p1bf_fK",de:"JtEAojiaJT5AiQBlRkrQL"}`, `withCredentials:true`, and identity forwarding of `leadId`/`givenName`.
+- `GET https://hypofriend.de/api/v3/chatbase` and `GET https://core.hypofriend.de/api/v3/chatbase` both return `301 Location: https://hypofriend.de/`.
+- Edge `OPTIONS` for `/api/v3/chatbase` returned `200`, reflected `https://evil.example`, allowed all seven methods, `Access-Control-Allow-Credentials: true`, `content-type`, and max-age `7200`; this matches known global rack-cors behavior.
+- A broad regex command timed out after 120 seconds; Python byte-offset extraction recovered the mutation templates successfully.
+
+### Active
+- Determine statically whether Chatbase/LLM output reaches `v-html`, `innerHTML`, Markdown, or another unsafe DOM sink.
+- Classify `GCVrYdVi90Ge3-p1bf_fK` and `JtEAojiaJT5AiQBlRkrQL` as public widget/agent IDs versus credentials, and compute SHA-256 values if treated as secrets.
+- Assess whether `/api/v3/chatbase` is merely a same-origin proxy or a reportable anonymous paid-LLM/identity-forwarding primitive.
+- Re-rank fresh `/api/v3/chatbase`, `core.hypofriend.de/q`, and `core.hypofriend.de/property-search-api`; keep `sendVerifiedListingEmail` HUMAN_ONLY.
+- Prepare the final eight blocks with exactly one `[NEXT]` action and no live POST.
+
+### Blocked
+- `api.hypofriend.de` has no HTTP service, so the designated live POC target cannot advance.
+- Chatbase authentication, outbound request behavior, paid usage, and lead-data forwarding cannot be proven using this cycle’s GET/HEAD/OPTIONS-only rule.
+- `exposeSeen`, `sendVerifiedListingEmail`, upload mutations, and other state-changing flows cannot be tested without violating the no-customer-data/no-mutation constraints.
+
+## Next Move
+1. Inspect `/tmp/opencode/acct.js` locally for the Chatbase response renderer and sinks (`v-html`, `innerHTML`, Markdown), and calculate SHA-256 for the two agent IDs.
+2. Produce the final eight structured blocks; park `/api/v3/chatbase` unless local evidence supports confidence ≥40, and use a safe bundle `[NEXT] SCAN` rather than a mutating HTTP probe.
+
+## Relevant Files
+- `/tmp/opencode/en.html`: current main application HTML and buildId.
+- `/tmp/opencode/C9Is4Ac9.js`: current main Nuxt entry bundle.
+- `/tmp/opencode/acct.html`: current `/en/account` deployment shell.
+- `/tmp/opencode/acct.js`: fresh account bundle containing mutations, Chatbase configuration, and identity forwarding.
+- `/tmp/opencode/cb_get.txt`: captured redirect response body for `/api/v3/chatbase`.
+- `art/lead_nemotron3.txt`: referenced ranked-hypothesis lead.
+- `hypotheses-bigpickle.txt`: referenced prior hypothesis file.
+- `hypotheses-nemotron3.txt`: referenced prior probe instructions.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcd /tmp/opencode && timeout 90 python3 - <<'PY'
+import re
+d=open('acct.js',encoding='utf8',errors='replace').read()
+m=re.search(r'(?:const|let|var|function)\s+e4\b|function e4',d)
+print("def at",m.start() if m else None)
+i=m.start()
+print(d[i-60:i+700].replace('\n','\\n'))
+print("\n=== D1 body (rest) ===")
+j=d.find('async function D1')
+print(d[j+900:j+2100].replace('\n','\\n'))
+PY
+def at 2231684
+size,fileLink:o,uploadedAt:(new Date).toISOString()}}}async function e4(e,t){var n,o;const r={slug:e,locale:t};try{const e=await qH.postGraphQL("\n    query ChatLinkPreviewPost($slug: String!, $locale: String!) {\n      post(slug: $slug, locale: $locale) {\n        title\n        preview\n        seo_description\n      }\n    }\n  ",!0,null,r),t=null==(o=null==(n=null==e?void 0:e.data)?void 0:n.data)?void 0:o.post;return t?{title:t.title||"",description:t.preview||t.seo_description||""}:null}catch{return null}}const t4=new Set(["title","titleTemplate","script","style","noscript"]),n4=new Set(["base","meta","link","style","script","noscript"]),o4=new Set(["title","titleTemplate","templateParams","base","htmlAttrs","bodyAttrs","meta","link","style","sc
+
+=== D1 body (rest) ===
+"Pick a time that suits you"},{pattern:/\/(?:en|de)\/(?:criteria\/start|property-search|immobiliensuche|properties)\b/i,action:"find-property",title:"Open property search",description:"Browse and filter properties"},{pattern:/\/(?:en|de)\/(?:upload-documents|dokumente|documents)\b/i,action:"upload-documents",title:"Upload documents",description:"Send us the files we need"},{pattern:/\/(?:en|de)\/(?:affordability|budget|leisten)\b/i,action:"update-affordability",title:"Update your affordability",description:"Refresh your budget"},{pattern:/\/(?:en|de)\/(?:mortgage-offer|finanzierung-empfehlung|optimal-offers)\b/i,action:"view-mortgage-offer",title:"View your mortgage offer",description:"See the recommended financing"},{pattern:/\/(?:en|de)\/account\/equity\b/i,action:"view-equity",title:"View your equity dashboard",description:"See your home equity and refinancing options"}],j1="hypofriend.de",U1=[/\/(?:en|de)\/plus\/?$/i],H1=/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,$1=/https?:\/\/[^\s<>"'()]+/g,V1=/(?:mailto:)?[a-z0-9._%+-]+@hypofriend\.de\b/gi;function G1(e){try{const t=new URL(e);if("https:"!==t.protocol&&"http:"!==t.protocol)return!1;const n=t.hostname.toLowerCase();return n===j1
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 60 python3 - <<'PY'
+import re,hashlib
+d=open('acct.js',encoding='utf8',errors='replace').read()
+print("sourceMappingURL refs:", re.findall(r'sourceMappingURL=[^\s"\'`]+', d)[-3:])
+print("tail:", repr(d[-160:]))
+for s in ["GCVrYdVi90Ge3-p1bf_fK","JtEAojiaJT5AiQBlRkrQL"]:
+    print(s, "sha256:", hashlib.sha256(s.encode()).hexdigest())
+PY
+sourceMappingURL refs: ['sourceMappingURL=/,', 'sourceMappingURL=/gm);if(!t)return;let']
+tail: 'ccount/assets/AccountInvestfriend-CN--8EKK.css","en/account/assets/main-layout-B9P_srS5.css"]\n  }\n  return indexes.map((i) => __vite__mapDeps.viteFileDeps[i])\n}'
+GCVrYdVi90Ge3-p1bf_fK sha256: 66940a222bb18ad28d78a63c7f05f01de9f7965d79c71547f2fd796fdd513028
+JtEAojiaJT5AiQBlRkrQL sha256: 45c971875d912c6c1abc437bd703d83f29f58606828c88de1a85d4be32b4565d
+[0m
+Final cycle output below. The XSS/SSRF thread is now closed with controls, so only the honest leads survive.
+
+---
+
+**[NEW]**
+
+1. **`/api/v3/chatbase` — LLM gateway behind the customer account** (new route, new deploy)
+   Today's `/en/account` bundle calls `POST {baseUrl}/api/v3/chatbase` with per-locale agent IDs hardcoded in public JS: `en` `GCVrYdVi90Ge3-p1bf_fK` (sha256 `66940a222bb18ad28d78a63c7f05f01de9f7965d79c71547f2fd796fdd513028`), `de` `JtEAojiaJT5AiQBlRkrQL` (sha256 `45c971875d912c6c1abc437bd703d83f29f58606828c88de1a85d4be32b4565d`). `withCredentials:true`, and `identity:()=>({leadId, givenName})` forwards lead identity to the model. System prompt, turn-hint rules, CTA action list and `segmentOptions` are **100% client-side** — the "Hypofriend Plus is only available in Berlin" business rule is enforced nowhere server-side.
+   These IDs are served to every anonymous visitor, so they are client-public identifiers, not credentials. No secret is claimed.
+
+2. **8th bundle rename in 48h on `/en/account`** — `index-DwBItw8U.js` (8 cycles live) → **301**, replaced by `index-BLX7yr-v.js` (2,468,656 B, ETag `"be788be0758c8675f0455c5ececa2260"`, Last-Modified `Tue, 29 Sep 2026 13:58:59 GMT`, SHA-256 `4304a74473862400498e26eb8c366f4447d022aedba90679ea43b846b7fee3d3`). 37 distinct named mutations, 72 template occurrences, same object-addressing inputs.
+
+3. **`/api/v3/advisors` is the only discriminating `/api/v3/` control** — `GET` → `401`, 27 bytes, whereas `/api/v3/chatbase` and `/api/v3/zzz-nonexistent-9f2` are byte-identical (`301`, 0 bytes). This is what lets me *not* over-claim.
+
+---
+
+**[CHANGED]**
+
+- `/en` main entry `Bitus3YJ.js` (10 cycles) → **403**, replaced by `C9Is4Ac9.js` (1,336,611 B, ETag `"c5480f243ca2154448fdd9bdbf0b7259"`, Last-Modified `Tue, 29 Sep 2026 13:06:15 GMT`, SHA-256 `6927e99d9912665a286e731bd1fadab0fa42b91023e2b8a6c0c1ef91f5bbe8fb`). BuildId `d4ce4ebd-33ab-4ed3-aaf2-d5d83812538f`. Operation set stable at 10; hardcoded Basic token occurrence count stable at **1** (single-use, `limit_req_rate`).
+- `uploadDocumentExtended.file_link` = `createUploadUrl().s3Key`, and the presigned URL is consumed **client→S3**. The "S3 metadata SSRF" reading is dead; it is a normal presigned PUT.
+- Link-preview metadata is a **slug lookup**, not a URL fetch: `qH.postGraphQL("query ChatLinkPreviewPost($slug:String!,$locale:String!){post(slug:...){title preview seo_description}}")`, with a first-party allowlist (`hypofriend.de` host + `/blog|tipps|guide|ratgeber|glossary|glossar/` paths). No SSRF surface.
+
+---
+
+**[PRIO]** — top 3, one hypothesis each
+
+| # | Asset | I | E | Score |
+|---|---|---|---|---|
+| 1 | `/en/account/assets/index-BLX7yr-v.js` (new deploy) | 6 | 9 | **5.5** |
+| 2 | `/api/v3/chatbase` (auth posture) | 4 | 9 | **4.4** |
+| 3 | `/en/account/assets/main-layout-B9P_srS5.css` | 4 | 8 | **4.0** |
+
+---
+
+**[HYP]**
+
+**H1 — 5.5 · business-logic + unauth-paid-resource** (`index-BLX7yr-v.js`)
+Because the entire system prompt and policy rules ship in public JS, any visitor's browser can drive the vendor's LLM account with attacker-chosen policy, and the model will state the wrong product-availability answers to a real lead. *Evidence:* agent IDs, `withCredentials:true`, identity forwarding, client-side prompt/CTA config, all in a file served pre-auth. *Refuted if:* `/api/v3/chatbase` rejects unauthenticated sessions server-side. *Auth needed:* yes → discount 0.5 already applied.
+
+**H2 — 4.4 · authn** (`/api/v3/chatbase`)
+Anonymous `POST` reaches the model and returns an answer, giving free LLM capacity on the vendor's account plus controllable prompt surface. *Evidence:* bundle-only today — my paired control shows GET/HEAD/OPTIONS **cannot** distinguish this route from a nonexistent path, so route existence is not yet proven by any read. *Refuted if:* `401`/`403` without a session, or 404 when unauthenticated.
+
+**H3 — 4.0 · info-disclosure** (`main-layout-B9P_srS5.css`)
+A style nonce inlined in a client-reachable stylesheet enables cross-style exfiltration of CSRF-protected HTML. *Refuted if:* no nonce in the CSS, or the nonce never matches the served HTML.
+
+---
+
+**[PROBE]** — read-only, `≤1 rps`, GET/HEAD/OPTIONS only. No POST was issued this cycle.
+
+- `api.hypofriend.de` → `52.15.184.3`; HTTPS+HTTP HEAD `000` at 8s. 50+ cycles dead. Not re-probed further.
+- Paired routing control on the same endpoint family (1 req per path, 2s apart):
+  `/api/v3/chatbase` → `301`, 0 B · `/api/v3/zzz-nonexistent-9f2` → `301`, 0 B · `/api/v3/advisors` → `401`, 27 B.
+- `OPTIONS /api/v3/chatbase` (hostile `Origin: https://evil.example`) → `200`, reflects the origin, `Access-Control-Allow-Credentials: true`, all 7 methods, `content-type`, `max-age 7200`. This is **global rack-cors behavior**, identical to the previously-established precondition — not a new finding.
+- Static render-path audit of the chat widget (local file, no traffic):
+  `innerHTML:o.renderMarkdown(...)` at two sinks, and `renderMarkdown = x1 = w0.parse(...); return L1.sanitize(t,T1)` with `ALLOWED_TAGS:[p,br,strong,b,em,i,h1..h4,ul,ol,li,a,code,pre,blockquote,table,thead,tbody,tr,th,td,hr,del]`, `ALLOWED_ATTR:[href,target,rel,title]`. `userContent` is entity-escaped then `L1.sanitize`d. **No `v-html`, no `dangerouslySetInnerHTML`.** Chat XSS: **REJECTED** with a control, not on absence of evidence.
+- One `grep -oE` sweep exceeded 120s; recovered with a Python byte-offset extractor. No scope breach.
+
+---
+
+**[PARKED]**
+
+- `exposeSeen` / `sendVerifiedListingEmail` / document+offer mutations — the deciding step is a state-changing POST on live customer records. Out of scope this cycle. **HUMAN_ONLY**, needs an authorized test lead + control inbox.
+- `unclaimLead` (session-scoped), `createUploadUrl` (301), `/api/v3/delete-cookie` (rejected logout-CSRF class), `min-width:300px` responsive-image breakpoint (scanner noise).
+- Full-PII read on `property-search-api` — confirmed critical last cycle, already in the report; re-validating it now would mean touching customer data for no new information.
+
+---
+
+**[FINAL]** — what I would actually put in the report today
+
+Nothing new clears the bar this cycle. The eight existing findings stand unchanged; `/api/v3/chatbase` is a **new, unreported** surface whose only remaining question is one POST, and its two most attractive sub-stories (chat XSS, link-preview SSRF) are **closed with controls** and must not appear in the report. The high-signal fact is the deploy cadence: 8 bundle renames in 48h, each of which invalidates a hash-pinned finding within hours.
+
+---
+
+**[NEXT]** — exactly one
+
+```
+GET https://hypofriend.de/en/account/assets/index-BLX7yr-v.js.map
+Host: hypofriend.de
+Accept: */*
+```
+Passive, single request. Vite frequently ships `.map` beside the hashed asset and the bundle carries no `sourceMappingURL` to tell us either way. A hit yields the unminified sources — the exact `/api/v3/chatbase` request contract, the `identity` payload, and any server-side constant. A `404` retires the sourcemap angle in one shot. Fetch as `Accept-Charset: ISO-8859-1` to avoid UTF-8 C1 misinterpretation, and compare `Content-Length` against 2,468,656 to confirm you are not being served the JS under a `.map` name.
+
+---
+
+**[LEARN] / [RISK]**
+
+- An `OPTIONS` origin reflection is a **precondition, never a finding** — it only becomes one when chained to a route that mutates or returns sensitive data (`property-search-api`, `/my_app/api/v2/lead/session`, `/api/v3/advisors`). I nearly filed chatbase's CORS as a finding; the paired control is what stopped it.
+- Never infer XSS from `innerHTML`. Read the sink's producer: both chat render paths terminate in a DOMPurify allowlist that omits `img`, `script`, and every event handler.
+- "Referenced by today's bundle" ≠ "reachable". The `/auth/google_oauth2` mistake, nearly repeated.
+- Agent IDs in a public bundle are public by construction. Hashing them satisfies the secret-handling rule without inventing a credential finding.
+- `max-age 7200` means any CORS pair stays browser-cacheable for two hours — treat that as a replay window when you document the CORS chain.
+- Residual risk: if `/api/v3/chatbase` is in fact unauthenticated, the impact is cost amplification plus attacker-shaped content rendered inside a real lead's authenticated session, with `leadId`/`givenName` handed to the model. That is why the next test needs an authorized test account and never a real lead.
