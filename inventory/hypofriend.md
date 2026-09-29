@@ -1264,3 +1264,12 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de: dead 50+ cycles; DNS A 52.15.184.3, HTTPS HEAD connect-timeout 10.001s, no HTTP response
 
 ## 2026-09-29 15:13:46 UTC
+
+## 2026-09-29 20:05:10 UTC
+- NEW core.hypofriend.de/q schema surface grew to 40 named mutations (was ~10) with 4 object-addressing inputs (SelectOfferInput.offerProductId, UpdatePropertyInput.id, DeleteLeadDocumentAttachmentInput.id,
+- NEW core.hypofriend.de/q S3FileInput inner object fully mapped via error channel — required s3_key: String!, file_name: String!; unknown key rejected (argumentNotAccepted InputObject S3FileInput)
+- NEW hypofriend.de/en/account/assets/index-DwBItw8U.js bundle re-fetched 2,468,656B (sha256 57134f702350477924aad61f082ca73df036564ba73c3a6f4b1e5823ce799fb8); postGraphQL uses mode:"cors", credentials:"inc
+- CHANGED core.hypofriend.de/q root.form_authenticity_token confirmed per-request — 86 chars, distinct sha256 prefixes 1ac3eb74 / 18fb7dd4 / aac1e2af across three calls; readable via credentialed CORS + SameSit
+- CHANGED core.hypofriend.de/en/plus/q credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigation on primary preflight path; POST returns vary: Accept,Origin
+- CHANGED hypofriend.de/crm Last-Modified moved to 2026-09-28 11:40:52 GMT while ETag stayed f7a701f6; static redeploy, byte-identical
+- CHANGED api.hypofriend.de dead 50+ cycles; DNS A 52.15.184.3, HTTPS HEAD connect-timeout 10.001s, no HTTP response

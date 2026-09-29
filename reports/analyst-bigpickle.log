@@ -40396,3 +40396,22 @@ Passive, single request. Vite frequently ships `.map` beside the hashed asset an
 - Agent IDs in a public bundle are public by construction. Hashing them satisfies the secret-handling rule without inventing a credential finding.
 - `max-age 7200` means any CORS pair stays browser-cacheable for two hours — treat that as a replay window when you document the CORS chain.
 - Residual risk: if `/api/v3/chatbase` is in fact unauthenticated, the impact is cost amplification plus attacker-shaped content rendered inside a real lead's authenticated session, with `leadId`/`givenName` handed to the model. That is why the next test needs an authorized test account and never a real lead.
+===== ANALYST bigpickle 2026-09-29 20:05:10 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll start by re-probing the pinned target and the highest-value surfaces within the read-only constraints.
+[0m$ [0mecho "=== T1 api.hypofriend.de (pinned target) ==="; date -u +%FT%TZ; getent hosts api.hypofriend.de; for p in 443 80; do timeout 12 curl -sS -o /dev/null -w "p=$p http=%{http_code} t=%{time_total}\n" -I "https://api.hypofriend.de/" 2>&1 | sed "s/^/p$p /"; done
+=== T1 api.hypofriend.de (pinned target) ===
+2026-09-29T20:01:19Z
+52.15.184.3     api.hypofriend.de
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencode/*, /tmp/*); auto-rejecting
+[0m✗ [0mcd /tmp/opencode 2>/dev/null || cd /tmp; date -u +%FT%TZ
+for port in 443 80; do
+  out=$(timeout 15 curl -sS -o /dev/null -w "http=%{http_code} t=%{time_total}" -I --max-time 12 "https://api.hypofriend.de/" 2>&1); rc=$?
+  echo "port $port rc=$rc :: $out"
+done
+echo "--- raw tcp ---"
+timeout 12 curl -sS -o /dev/null -w "https_code=%{http_code}\n" --max-time 10 https://api.hypofriend.de/ ; echo "exit=$?" failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
