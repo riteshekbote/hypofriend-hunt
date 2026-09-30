@@ -3602,3 +3602,25 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
 - LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-DwBItw8U.js: new bundle deploy (hash DwBItw8U), 37 mutations, 4 object-addressing mutations with call
 - LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus,q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu
+
+## RANKED HYPOTHESES 2026-09-30 03:42:45 UTC
+- [94] core.hypofriend.de/q: GraphQL Schema Reconstruction via Error Channel Despite Introspection Disabled (from art/lead_nemotron3.txt)
+- [64] core.hypofriend.de/q: Presigned-upload chain lets a caller bind an arbitrary S3 object key to a lead document, with no ownership argument on the write (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: `GET https://core.hypofriend.de/q` to establish a session jar, then `POST https://core.hypofriend.de/q` with body `{"query":"mutation { createUploadUrl(i
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonexistentFi
+- LEARN: ACCEPTED OTHER @ core.hypofriend.de/api/v3/chatbase: the fourth `/api/v3/` route, referenced only from the `/en/account` deploy with two hardcoded Chatbase work
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: the upload chain's full document set is now known, and `file_link` in `uploadDocumentExtended` is a caller-supplied S
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de (origin preflight headers): `OPTIONS /q` no longer returns `x-frame-options: ALLOWALL`. Header presence on a preflight i
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): exit 124 at a 12s connect-timeout on `:443`, `getent` clean at A `52.15.184.3` — dead 51st consecutive cycle, no takeo
+- LEARN: REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: forced-logout-via-CSRF is an explicitly rejected class; kept at 41 only because it also invalidates the
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `X-Frame-Options: ALLOWALL` and the credentialed CORS echo are prerequisite weaknesses, not findings on their own; th
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: the unauthenticated PII chain is already validated and re-confirmed; the open item this cycle is whether
+- LEARN: REJECTED OTHER @ core.hypofriend.de/q: `createUploadUrl` is a genuine new schema surface but returns 301 to the marketing root, so the presigned-URL vector is c
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — propertySearch→exposes→expose returns PII (prop
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF t
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-28T16:49Z returned 000 after 10s connect-timeouts on both :443 and :80; DNS remains 52.15.184.3; no live
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-DwBItw8U.js: new bundle deploy (hash DwBItw8U), 37 mutations, 4 object-addressing mutations with call
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus,q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu

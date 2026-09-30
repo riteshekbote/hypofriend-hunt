@@ -1275,3 +1275,21 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de dead 50+ cycles; DNS A 52.15.184.3, HTTPS HEAD connect-timeout 10.001s, no HTTP response
 
 ## 2026-09-29 23:49:02 UTC
+
+## 2026-09-30 03:42:45 UTC
+- NEW `hypofriend.de/en/account` deploy rotated: entry `index-DwBItw8U.js` now **301 → /en/account** (gone); current asset is `/en/account/assets/index-BLX7yr-v.js` — 200, 2,468,656B, `last-modified: Tue, 2
+- NEW `/api/v3/chatbase` — **fourth** `/api/v3/` route, absent from every prior inventory; base resolved at runtime by `Z3()` as `${bI()||window.location.host}/api/v3/chatbase`, with hardcoded Chatbase work
+- NEW `uploadDocumentExtended` full document mapped (was partial): `input:{type, file_name, file_type, file_link, document_type, applicant_type}` returning `{step, success, reason}`. **`file_link` is a call
+- NEW `createUploadUrl` full document mapped: `input:{fileName: JSON.stringify(name), contentType: "${type}"}` returning `{s3Key, presignedUrl}` — the presigned-PUT leg is now documented end-to-end, not inf
+- CHANGED `/en/account` deploy fetches use `mode:"cors", withCredentials:true, credentials:"same-origin"` (this cycle's bundle) whereas the main `/m/_nuxt` deploy uses `credentials:"include"`. The standing glob
+- CHANGED `OPTIONS core.hypofriend.de/q` 03:34:36Z: `200`, ACAO `https://evil.example` echoed, `access-control-allow-credentials: true`, 7 methods, `max-age: 7200`, `vary: Accept-Encoding` (no `Vary:Origin` on 
+- CHANGED `api.hypofriend.de` (designated POC target): `curl -I` exit 124,12s connect-timeout, `getent` clean at A `52.15.184.3` — dead **51st** consecutive cycle. No takeover surface.
+- NEW hypofriend.de/en/account/assets/index-DwBItw8U.js — new bundle deploy (hash DwBItw8U, 2,468,656B, sha256 57134f702350477924aad61f082ca73df036564ba73c3a6f4b1e5823ce799fb8), 37 named mutations, 4 object
+- NEW core.hypofriend.de/q — GraphQL introspection bypass via error channel live: undefinedField returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthent
+- NEW core.hypofriend.de/q + hypofriend.de/q — root.lead.has_admin_cookie (custom JSON scalar, selectionMismatch, extensions.typeName:"JSON") + root.form_authenticity_token (per-request 86-char CSRF token f
+- NEW core.hypofriend.de — global rack-cors middleware confirmed: arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + 7 methods; GET / carries ACAO + sets _hf SameSite=None + internal
+- CHANGED core.hypofriend.de/en/plus,q — credentialed CORS preflight now returns vary: Accept-Encoding only (no Vary:Origin), reverting 2026-09-25 mitigation on primary preflight path; POST returns vary: Accept
+- CHANGED core.hypofriend.de/property-search-api — full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z: propertySearch→exposes→expose returns PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCo
+- CHANGED api.hypofriend.de — dead 50+ consecutive cycles (000, ~10s connect-timeout, A 52.15.184.3 clean); POC phase still pinned to dead target
+- CHANGED hypofriend.de/en/exchange — share-link forge confirmed: arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (works for any known UUID: partner 108ee8c6-... + tools dddb5cba-...), u
+- CHANGED hypofriend.de/en/account/assets/index-DwBItw8U.js — bundle re-fetched, postGraphQL uses mode:"cors", credentials:"include"; offerId client-visible via Vuex setOptimalOfferId(t.optimalOffer.offerId) fr
