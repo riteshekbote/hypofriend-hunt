@@ -1293,3 +1293,5 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de — dead 50+ consecutive cycles (000, ~10s connect-timeout, A 52.15.184.3 clean); POC phase still pinned to dead target
 - CHANGED hypofriend.de/en/exchange — share-link forge confirmed: arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (works for any known UUID: partner 108ee8c6-... + tools dddb5cba-...), u
 - CHANGED hypofriend.de/en/account/assets/index-DwBItw8U.js — bundle re-fetched, postGraphQL uses mode:"cors", credentials:"include"; offerId client-visible via Vuex setOptimalOfferId(t.optimalOffer.offerId) fr
+
+## 2026-09-30 10:04:14 UTC

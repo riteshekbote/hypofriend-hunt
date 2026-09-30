@@ -1,15 +1,13 @@
-## 2026-09-30 03:42:33 UTC [target] (model nemotron3)
-[NEW] hypofriend.de/en/account/assets/index-DwBItw8U.js — new bundle deploy (hash DwBItw8U, 2,468,656B, sha256 57134f702350477924aad61f082ca73df036564ba73c3a6f4b1e5823ce799fb8), 37 named mutations, 4 object-addressing mutations taking caller-supplied IDs with no lead/tenant argument: selectOffer(offerProductId), updateProperty(id), deleteLeadDocumentAttachment(id), requestOfferRenewal(offerProductId)
-[NEW] core.hypofriend.de/q — GraphQL introspection bypass via error channel live: undefinedField returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthenticityToken→form_authenticity_token); S3FileInput inner object fully mapped via error channel (required s3_key: String!, file_name: String!)
-[NEW] core.hypofriend.de/q + hypofriend.de/q — root.lead.has_admin_cookie (custom JSON scalar, selectionMismatch, extensions.typeName:"JSON") + root.form_authenticity_token (per-request 86-char CSRF token for /crm backoffice) exposed via global credentialed CORS
-[NEW] core.hypofriend.de — global rack-cors middleware confirmed: arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + 7 methods; GET / carries ACAO + sets _hf SameSite=None + internal=FALSE cookies + XFO:ALLOWALL — not /q-specific, applies to ALL Rails routes
-[CHANGED] core.hypofriend.de/en/plus,q — credentialed CORS preflight now returns vary: Accept-Encoding only (no Vary:Origin), reverting 2026-09-25 mitigation on primary preflight path; POST returns vary: Accept,Origin,Accept-Encoding
-[CHANGED] core.hypofriend.de/property-search-api — full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z: propertySearch→exposes→expose returns PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany) auth-free; direct-origin bare headers vs edge CF stack
-[CHANGED] api.hypofriend.de — dead 50+ consecutive cycles (000, ~10s connect-timeout, A 52.15.184.3 clean); POC phase still pinned to dead target
-[CHANGED] hypofriend.de/en/exchange — share-link forge confirmed: arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (works for any known UUID: partner 108ee8c6-... + tools dddb5cba-...), utm_* raw pass-through into 302 Location, fresh SameSite=None session minted per request, edge CloudFront does not filter
-[CHANGED] hypofriend.de/en/account/assets/index-DwBItw8U.js — bundle re-fetched, postGraphQL uses mode:"cors", credentials:"include"; offerId client-visible via Vuex setOptimalOfferId(t.optimalOffer.offerId) from query response
-[PRIO] hypofriend.de/en/ac[0m
-evidence_needed: Demonstrate that at least one of the 4 object-addressing mutations executes 200 and returns/modifies data for an object ID not owned by the caller's session, using credentials:include from attacker origin
+## 2026-09-30 10:04:02 UTC [target] (model nemotron3)
+[PRIO] hypofriend.de/en/account/assets/index-BLX7yr-v.js,9.2,attack_surface=10,business_value=10,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
+[PRIO] core.hypofriend.de/q,8.9,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=7
+[PRIO] core.hypofriend.de/property-search-api,9.5,attack_surface=10,business_value=10,tech_exposure=8,gate_ease=10,cloud_surface=9,freshness=8
+[HYP] Cross-Tenant Object Addressing on /en/account Offer & Document Write Surface
+class: IDOR
+asset: hypofriend.de/en/account/assets/index-BLX7yr-v.js → POST core.hypofriend.de/q
+confidence: 90
+reasoning: New /en/account deploy (separate Nuxt bundle, 2,468,656B) contains 37 mutations including 4 object-addressing mutations taking caller-supplied IDs with no lead/tenant argument: selectOffer(offerProductId), updateProperty(id), deleteLeadDocumentAttachment(id), requestOfferRenewal(offerProductId). offerId is client-visible via Vuex setOptimalOfferId(t.optimalOffer.offerId) from query response. postGraphQL uses mode:"cors", credentials:"include". Combined with global credentialed CORS on core.hypofriend.de (arbitrary path OPTIONS echoes ACAO + ACAC:true + all methods) and SameSite=None;Secure session cookies, this enables cross-origin exploitation of write primitives.
+evidence_needed: Demonstrate at least one of the 4 object-addressing mutations executes 200 and returns/modifies data for an object ID not owned by the caller's session, using credentials:include from attacker origin
 verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { selectOffer(input: {offerProductId: \"<foreign-offer-id>\"}) { ... } }"}' with credentials:include — test all 4 object-addressing mutations; enumerate object IDs via query responses (offerProductId visible) or sequential probing
 impact: Cross-tenant read/write on mortgage offers, documents, properties, appointments — PII, financial data, scheduling manipulation. Credentialed CORS + SameSite=None cookies + global rack-cors on /q = cross-origin exploit primitive. Severity: CRITICAL
 testability: PASSIVE
@@ -40,7 +38,7 @@ testability: PASSIVE
 [PARKED] core.hypofriend.de/api/v3/delete-cookie Unauthenticated 200: Only expires caller's own cookies (logout-CSRF class), not a reportable finding per program rules.
 [PARKED] hypofriend.de/crm Internal Backoffice Login Page: No credential, no data exposure, favicon path returns identical fallback object, /auth/google_oauth2 301s → / on both hosts — retained as evidence of 50-cycle blind spot only.
 [PARKED] core.hypofriend.de Recognized-Slug Redirect with Attacker-Controlled UTM Reflection: UTM params reflected in first-party share link; server-side setMarketingCampaign persists them to lead state; missing integrity binding between link_id and campaign params — business logic flaw but requires victim click + lead creation; MEDIUM, HUMAN-gated.
-[FINAL] 1. hypofriend.de/en/account/assets/index-DwBItw8U.js Cross-Tenant Object Addressing on /en/account Offer & Document Write Surface — confidence 90, PASSIVE
+[FINAL] 1. hypofriend.de/en/account/assets/index-BLX7yr-v.js Cross-Tenant Object Addressing on /en/account Offer & Document Write Surface — confidence 90, PASSIVE
 [FINAL] 2. core.hypofriend.de/q GraphQL Introspection Bypass via Error Channel — confidence 94, PASSIVE
 [FINAL] 3. core.hypofriend.de/property-search-api Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 99, PASSIVE
 [NEXT] PROBE: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonexistentField } } }"}' — verify error channel returns typeName:"Lead" and didYouMean suggestions for schema reconstruction (passive, read-only)
