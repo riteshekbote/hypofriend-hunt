@@ -1,5 +1,5 @@
-## 2026-09-30 16:22:49 UTC [target] (model nemotron3)
-[NEW] hypofriend.de/en/account/assets/index-BLX7yr-v.js — new bundle hash (rotated from index-DwBItw8U.js), 2,468,656B, 37 mutations, 4 object-addressing mutations with caller-supplied IDs (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId), postGraphQL uses mode:"cors", credentials:"include"
+## 2026-09-30 20:54:38 UTC [target] (model nemotron3)
+[NEW] hypofriend.de/en/account/assets/index-BLX7yr-v.js — new bundle hash (rotated from index-DwBItw8U.js), 2,468,656B, 37 mutations, 4 object-addressing mutations with caller-supplied IDs (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId)
 [NEW] core.hypofriend.de/api/v3/chatbase — fourth /api/v3/ route discovered in /en/account bundle, hardcoded Chatbase workspace IDs + vendor system prompt shipped in client, 301 on both origin and edge (canonical shell)
 [NEW] uploadDocumentExtended full input mapped via error channel: file_link is caller-supplied S3 key with no ownership argument — strengthens object-addressing hypothesis
 [NEW] createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
@@ -15,7 +15,7 @@
 class: IDOR
 asset: hypofriend.de/en/account/assets/index-BLX7yr-v.js → POST core.hypofriend.de/q
 confidence: 90
-reasoning: New /en/account deploy (separate Nuxt bundle, 2,468,656B) contains 37 mutations including 4 object-addressing mutations taking caller-supplied IDs with no lead/tenant argument: selectOffer(offerProductId), updateProperty(id), deleteLeadDocumentAttachment(id), requestOfferRenewal(offerProductId). offerId is client-visible via Vuex setOptimalOffe[0m
+reasoning: New /en/account deploy (separate Nuxt bundle, 2,468,656B) contains 37 mutations including 4 object-addressing mutations taking caller-supplied IDs with no lead/tenant argument: selectOffer(offerProductId), updateProperty(id), deleteLeadDocumentAttachment(id), requestOfferRenewal(offerProductId). offerId is client-visible via Vuex setOptimalOfferId from query responses. Global credentialed CORS on core.hypofriend.de + SameSite=None;Secure cookies on /en/health + credentials:"same-origin" on /en/account = cross-origin exploit primitive for authenticated sessions.
 evidence_needed: Demonstrate at least one of the 4 object-addressing mutations executes 200 and returns/modifies data for an object ID not owned by the caller's session, using credentials:include from attacker origin
 verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { selectOffer(input: {offerProductId: \"<foreign-offer-id>\"}) { ... } }"}' with credentials:include — test all 4 object-addressing mutations; enumerate object IDs via query responses (offerProductId visible) or sequential probing
 impact: Cross-tenant read/write on mortgage offers, documents, properties, appointments — PII, financial data, scheduling manipulation. Credentialed CORS + SameSite=None cookies + global rack-cors on /q = cross-origin exploit primitive. Severity: CRITICAL

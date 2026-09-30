@@ -3658,3 +3658,27 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
 - LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-DwBItw8U.js: new bundle deploy (hash DwBItw8U), 37 mutations, 4 object-addressing mutations with call
 - LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus,q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu
+
+## RANKED HYPOTHESES 2026-09-30 20:54:48 UTC
+- [90] hypofriend.de/en/account/assets/index-BLX7yr-v.js: Cross-Tenant Object Addressing on /en/account Offer & Document Write Surface (from art/lead_nemotron3.txt)
+- [80] core.hypofriend.de/q: One cross-origin-readable 200 returns both halves of every mutation contract, and static validation can be held failing forever so no resolver is ever reached (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST https://core.hypofriend.de/q -H 'Content-Type: application/json' -H 'Origin: https://evil.example' --data '{"query":"mutation { createUploadUrl(inpu
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonexistentFi
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/en/account deploy (client mass assignment): `updateProperty`'s second call site builds its input by dynamic key-spread — `Obj
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: the mutation 301 gate is POST-static-validation, not request-level. A document failing static validation returns HTTP
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: the "Vary:Origin mitigation reverted" claim recorded 09-27, 09-28 and 09-29 is WITHDRAWN. Live 20:52:59Z, POST /q wit
+- LEARN: ACCEPTED NG @ hypofriend.de/en/account/assets/index-BLX7yr-v.js: 37-mutation re-mine returns a negative result on a class with zero prior coverage. No SSRF vect
+- LEARN: ACCEPTED OTHER @ hypofriend.de/en/account deploy: two mutations absent from every prior op-map and from the knowledge base. `sendVerifiedListingEmail` carries 1
+- LEARN: ACCEPTED NG @ api.hypofriend.de (target): HTTP 000 on :443 and :80 at 20:52:53Z with `getent` clean at A 52.15.184.3 — dead 52nd consecutive cycle, no takeover 
+- LEARN: REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: forced-logout-via-CSRF is an explicitly rejected class; kept at 41 only because it also invalidates the
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `X-Frame-Options: ALLOWALL` and the credentialed CORS echo are prerequisite weaknesses, not findings on their own; th
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: the unauthenticated PII chain is already validated and re-confirmed; the open item this cycle is whether
+- LEARN: REJECTED OTHER @ core.hypofriend.de/q: `createUploadUrl` is a genuine new schema surface but returns 301 to the marketing root, so the presigned-URL vector is c
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — propertySearch→exposes→expose returns PII (prop
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF t
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-28T16:49Z returned 000 after 10s connect-timeouts on both :443 and :80; DNS remains 52.15.184.3; no live
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-DwBItw8U.js: new bundle deploy (hash DwBItw8U), 37 mutations, 4 object-addressing mutations with call
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus,q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu

@@ -1306,3 +1306,22 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de dead 51st consecutive cycle (000, 12s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target
 - CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany) auth-free on di
 - CHANGED hypofriend.de/en/exchange share-link forge confirmed: arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (works for any known UUID: partner 108ee8c6... + tools dddb5cba...), utm_*
+
+## 2026-09-30 20:54:48 UTC
+- NEW core.hypofriend.de/q: PropertyMutationsUpdateInput has a SERVER-CLOSED attribute set — `updateProperty(input:{id:<uuid>, zzzMassAssignProbeA:1})` → HTTP 200 `argumentNotAccepted` / name:PropertyMutati
+- CHANGED core.hypofriend.de/q: input type corrected — the object is `PropertyMutationsUpdateInput`, NOT `UpdatePropertyInput` as recorded on 09-28/09-29. Two prior entries carried the wrong name; corrected her
+- CHANGED core.hypofriend.de/q: the 301 mutation gate is POST-static-validation, not a request-level filter. A coercion/validation-failing document returns HTTP 200 + JSON error and NEVER 301s (`deleteLeadDocum
+- CHANGED core.hypofriend.de/q: POST /q now returns `vary: Accept,Origin,Accept-Encoding` WITH a hostile `Origin`. Paired measurement closes the standing 09-27/09-28 "Vary:Origin reverted" claim: the POST path 
+- NEW hypofriend.de/en/account/assets/index-BLX7yr-v.js: 37-mutation re-mine is a NEGATIVE result on a never-tested class. Zero URL/uri/endpoint/webhook/proxy-accepting GraphQL argument exists in any mutati
+- NEW hypofriend.de/en/account deploy: `sendVerifiedListingEmail(input:{customerName, customerEmail, customerPhoneNumber, customerMessage, providerEmail, providerId, city, quarter, postCode, street, houseNu
+- NEW hypofriend.de/en/account deploy: `submitDocumentAnalysis(input:{files: ${json-stringify-object}})` — `files` is a caller-supplied JSON blob parsed server-side, a THIRD object-addressing input alongsid
+- CHANGED api.hypofriend.de (target): 000 on :443 and :80 at 20:52Z, getent clean at A 52.15.184.3 — dead 52nd consecutive cycle, no takeover surface, target unchanged.
+- NEW hypofriend.de/en/account/assets/index-BLX7yr-v.js — new bundle hash (rotated from index-DwBItw8U.js), 2,468,656B, 37 mutations, 4 object-addressing mutations with caller-supplied IDs (selectOffer:offe
+- NEW core.hypofriend.de/api/v3/chatbase — fourth /api/v3/ route discovered in /en/account bundle, hardcoded Chatbase workspace IDs + vendor system prompt shipped in client, 301 on both origin and edge (can
+- NEW uploadDocumentExtended full input mapped via error channel: file_link is caller-supplied S3 key with no ownership argument — strengthens object-addressing hypothesis
+- NEW createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
+- CHANGED /en/account deploy now uses credentials:"same-origin" (vs main deploy credentials:"include") — affects CORS credential forwarding
+- CHANGED core.hypofriend.de/q OPTIONS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigation on primary path
+- CHANGED api.hypofriend.de dead 51st consecutive cycle (000, 12s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany) auth-free on di
+- CHANGED hypofriend.de/en/exchange share-link forge confirmed: arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (works for any known UUID: partner 108ee8c6... + tools dddb5cba...), utm_*
