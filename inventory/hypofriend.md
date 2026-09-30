@@ -1295,3 +1295,14 @@ www.hypofriend.de
 - CHANGED hypofriend.de/en/account/assets/index-DwBItw8U.js — bundle re-fetched, postGraphQL uses mode:"cors", credentials:"include"; offerId client-visible via Vuex setOptimalOfferId(t.optimalOffer.offerId) fr
 
 ## 2026-09-30 10:04:14 UTC
+
+## 2026-09-30 16:23:02 UTC
+- NEW hypofriend.de/en/account/assets/index-BLX7yr-v.js — new bundle hash (rotated from index-DwBItw8U.js), 2,468,656B, 37 mutations, 4 object-addressing mutations with caller-supplied IDs (selectOffer:offe
+- NEW core.hypofriend.de/api/v3/chatbase — fourth /api/v3/ route discovered in /en/account bundle, hardcoded Chatbase workspace IDs + vendor system prompt shipped in client, 301 on both origin and edge (can
+- NEW uploadDocumentExtended full input mapped via error channel: file_link is caller-supplied S3 key with no ownership argument — strengthens object-addressing hypothesis
+- NEW createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
+- CHANGED /en/account deploy now uses credentials:"same-origin" (vs main deploy credentials:"include") — affects CORS credential forwarding
+- CHANGED core.hypofriend.de/q OPTIONS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigation on primary path
+- CHANGED api.hypofriend.de dead 51st consecutive cycle (000, 12s connect-timeout, A 52.15.184.3 clean) — POC phase still pinned to dead target
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany) auth-free on di
+- CHANGED hypofriend.de/en/exchange share-link forge confirmed: arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (works for any known UUID: partner 108ee8c6... + tools dddb5cba...), utm_*
