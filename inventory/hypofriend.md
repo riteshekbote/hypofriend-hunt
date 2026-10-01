@@ -1337,3 +1337,20 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de dead 52nd consecutive cycle (000, 12s connect-timeout, A 52.15.184.3 clean) — POC phase pinned to dead target
 - CHANGED core.hypofriend.de/property-search-api full-DB BOLA re-confirmed live 2026-09-28T16:50Z (PII auth-free on direct origin)
 - CHANGED hypofriend.de/en/exchange share-link forge: arbitrary link_id minted, share_id auth-by-obscurity (partner 108ee8c6... + tools dddb5cba...), utm_* raw pass-through
+
+## 2026-10-01 06:11:51 UTC
+- NEW hypofriend.de/en/account/assets/index-BLX7yr-v.js (2,468,656B) — new bundle hash rotated from index-DwBItw8U.js; 37 named mutations, 4 object-addressing (selectOffer:offerProductId, updateProperty:id,
+- CHANGED core.hypofriend.de/q — POST returns vary: Accept,Origin,Accept-Encoding with hostile Origin (POST varies correctly; OPTIONS preflight remains vary: Accept-Encoding only). Mutation 301 gate is POST-sta
+- CHANGED api.hypofriend.de (target) — dead 52nd consecutive cycle (000, 12s connect-timeouts on :443/:80, A 52.15.184.3 clean); POC phase pinned to dead host.
+- CHANGED core.hypofriend.de/property-search-api — full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z (propertySearch→exposes→expose returns broker/owner PII auth-free on direct origin). OPTIONS 200 with NO
+- CHANGED hypofriend.de/en/exchange — share-link forge: arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (pool cross-usable: partner 108ee8c6-… + tools dddb5cba-…), utm_* raw pass-through
+- NEW hypofriend.de/en/account/assets/index-BLX7yr-v.js rotated from index-DwBItw8U.js (2,468,656B, 37 mutations, 4 object-addressing: selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttach
+- NEW core.hypofriend.de/api/v3/chatbase — 4th /api/v3/ route (hardcoded Chatbase workspace IDs in client, 301 on origin+edge)
+- NEW uploadDocumentExtended full input mapped: file_link is caller-supplied S3 key with no ownership arg
+- NEW createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented
+- NEW sendVerifiedListingEmail mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
+- NEW submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input
+- CHANGED core.hypofriend.de/q POST now returns vary: Accept,Origin,Accept-Encoding (Vary:Origin present on POST, absent on OPTIONS preflight)
+- CHANGED api.hypofriend.de dead 52nd consecutive cycle (000, 12s connect-timeout, A 52.15.184.3 clean) — POC phase pinned to dead target
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA re-confirmed live 2026-09-28T16:50Z (PII auth-free on direct origin)
+- CHANGED hypofriend.de/en/exchange share-link forge: arbitrary link_id minted, share_id auth-by-obscurity (partner 108ee8c6... + tools dddb5cba...), utm_* raw pass-through
