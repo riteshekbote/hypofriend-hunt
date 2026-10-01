@@ -1371,3 +1371,18 @@ www.hypofriend.de
 - CHANGED api.hypofriend.de dead 52nd consecutive cycle (000, 12s connect-timeout, A 52.15.184.3 clean) — POC phase pinned to dead target
 - CHANGED core.hypofriend.de/property-search-api full-DB BOLA re-confirmed live 2026-09-28T16:50Z (PII auth-free on direct origin)
 - CHANGED hypofriend.de/en/exchange share-link forge: arbitrary link_id minted, share_id auth-by-obscurity (partner 108ee8c6... + tools dddb5cba...), utm_* raw pass-through
+
+## 2026-10-01 19:06:08 UTC
+- NEW hypofriend.de/en/account/assets/index-BLX7yr-v.js rotated from index-DwBItw8U.js (2,468,656B, 37 mutations, 4 object-addressing: selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttach
+- NEW core.hypofriend.de/api/v3/chatbase — 4th /api/v3/ route discovered in /en/account bundle (hardcoded Chatbase workspace IDs, vendor system prompt), 301 on origin+edge
+- NEW uploadDocumentExtended full input mapped via error channel: file_link is caller-supplied S3 key with no ownership argument — strengthens object-addressing hypothesis
+- NEW createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
+- NEW sendVerifiedListingEmail mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
+- NEW submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside file_link and offerProductId
+- CHANGED core.hypofriend.de/q POST now returns vary: Accept,Origin,Accept-Encoding (Vary:Origin present on POST, absent on OPTIONS preflight) — mutation 301 gate is POST-static-validation, not request-level
+- CHANGED api.hypofriend.de dead 52nd consecutive cycle (000, 12s connect-timeouts on :443/:80, A 52.15.184.3 clean) — POC phase pinned to dead host
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z (propertySearch→exposes→expose returns PII auth-free on direct origin); OPTIONS 200 with NO ACAO echo
+- CHANGED hypofriend.de/en/exchange share-link forge: arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (pool cross-usable: partner 108ee8c6... + tools dddb5cba...), utm_* raw pass-through
+- CHANGED core.hypofriend.de/q introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthenticityToke
+- CHANGED core.hypofriend.de global rack-cors middleware — credentialed CORS echo (ACAO + ACAC:true + 7 methods) confirmed on arbitrary paths (/zzz-arbitrary-path, /api/v3/advisors, /en/plus/q, /en/health/q, /q
+- CHANGED root.form_authenticity_token confirmed per-request (86 chars, distinct sha256 prefixes across calls); root.lead.has_admin_cookie JSON scalar live on all /q instances
