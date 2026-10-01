@@ -1239,3 +1239,7 @@ https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&
 ## 2026-09-30 20:54:54 UTC
 https://core.hypofriend.de/q -> 200 len=229934
 https://core.hypofriend.de/property-search-api -> HTTP 400
+
+## 2026-10-01 00:39:17 UTC
+https://core.hypofriend.de/q -> 200 len=229934
+https://core.hypofriend.de/property-search-api -> HTTP 400
