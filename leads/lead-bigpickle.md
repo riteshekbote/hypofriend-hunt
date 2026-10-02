@@ -6916,3 +6916,4 @@ testability: HUMAN_ONLY
 [LEARN]
 [RISK]
 [NEXT] Run **one** poisoned document against `POST https://hypofriend.de/content/q/` probing whether graphql-ruby's did-you-mean suggester is enabled on this schema, using near-misses of known-good field names (`titel`, `previw`, `slugg`, `seo_descripton`) alongside one poison field — if suggestions appear in `extensions`, the content Query surface becomes enumerable at zero record cost and the 45-name negative can be replaced with a real enumeration.
+## 2026-10-02 23:33:24 UTC [target] (model bigpickle)

@@ -46017,3 +46017,249 @@ POST https://hypofriend.de/content/q/              → 200 + ACAO/ACAC         (
 - **R3** `api.hypofriend.de` remains unreachable (no live surface), so its relationship to `/content/q/` is untested.
 
 [NEXT] Run **one** poisoned document against `POST https://hypofriend.de/content/q/` probing whether graphql-ruby's did-you-mean suggester is enabled on this schema, using near-misses of known-good field names (`titel`, `previw`, `slugg`, `seo_descripton`) alongside one poison field — if suggestions appear in `extensions`, the content Query surface becomes enumerable at zero record cost and the 45-name negative can be replaced with a real enumeration.
+===== ANALYST bigpickle 2026-10-02 23:33:36 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mpwd; ls -la; git log --oneline -5 2>/dev/null | head -20
+/home/runner/work/hypofriend-hunt/hypofriend-hunt
+total 936
+drwxr-xr-x 12 runner runner   4096 Oct  2 23:30 .
+drwxr-xr-x  3 runner runner   4096 Oct  2 23:30 ..
+drwxr-xr-x  7 runner runner   4096 Oct  2 23:30 .git
+drwxr-xr-x  3 runner runner   4096 Oct  2 23:30 .github
+-rw-r--r--  1 runner runner   1885 Oct  2 23:30 README.md
+-rw-r--r--  1 runner runner     32 Oct  2 23:30 analyst-out.txt
+-rw-r--r--  1 runner runner 401557 Oct  2 23:30 analyst-prompt.txt
+-rw-r--r--  1 runner runner 397682 Oct  2 23:30 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct  2 23:30 inventory
+drwxr-xr-x  2 runner runner   4096 Oct  2 23:30 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct  2 23:30 leads
+-rw-r--r--  1 runner runner  56125 Oct  2 23:30 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct  2 23:30 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct  2 23:30 reports
+drwxr-xr-x  2 runner runner   4096 Oct  2 23:30 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Oct  2 23:30 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct  2 23:30 scripts
+-rw-r--r--  1 runner runner     33 Oct  2 23:30 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct  2 23:30 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct  2 23:30 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct  2 23:30 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct  2 23:30 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct  2 23:30 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Oct  2 23:30 triage
+98714b4 reposcan 2026-10-02-22-41
+[0m
+[0m$ [0mwhich curl dig nmap python3 jq 2>/dev/null; echo "---"; curl --version 2>/dev/null | head -2
+/usr/bin/curl
+/usr/bin/dig
+/usr/bin/python3
+/usr/bin/jq
+---
+curl 8.5.0 (x86_64-pc-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.10
+Release-Date: 2023-12-06, security patched: 8.5.0-2ubuntu10.15
+[0m
+[0m$ [0mls -la leads/ knowledge/ scripts/ reports/ triage/ 2>/dev/null | head -60
+knowledge/:
+total 216
+drwxr-xr-x  2 runner runner   4096 Oct  2 23:30 .
+drwxr-xr-x 12 runner runner   4096 Oct  2 23:30 ..
+-rw-r--r--  1 runner runner 210290 Oct  2 23:30 index.md
+
+leads/:
+total 3304
+drwxr-xr-x  2 runner runner    4096 Oct  2 23:30 .
+drwxr-xr-x 12 runner runner    4096 Oct  2 23:30 ..
+-rw-r--r--  1 runner runner 1112713 Oct  2 23:30 lead-bigpickle.md
+-rw-r--r--  1 runner runner    9435 Oct  2 23:30 lead-laguna.md
+-rw-r--r--  1 runner runner    9250 Oct  2 23:30 lead-ling3.md
+-rw-r--r--  1 runner runner    9620 Oct  2 23:30 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Oct  2 23:30 lead-mimo.md
+-rw-r--r--  1 runner runner 2163488 Oct  2 23:30 lead-nemotron3.md
+-rw-r--r--  1 runner runner   51017 Oct  2 23:30 reposcan-hypofriend.md
+
+reports/:
+total 7820
+drwxr-xr-x  2 runner runner    4096 Oct  2 23:30 .
+drwxr-xr-x 12 runner runner    4096 Oct  2 23:30 ..
+-rw-r--r--  1 runner runner 3936627 Oct  2 23:30 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   40145 Oct  2 23:30 analyst-laguna.log
+-rw-r--r--  1 runner runner   39960 Oct  2 23:30 analyst-ling3.log
+-rw-r--r--  1 runner runner   40330 Oct  2 23:30 analyst-longcat.log
+-rw-r--r--  1 runner runner 3374772 Oct  2 23:30 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    5561 Oct  2 23:30 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Oct  2 23:30 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Oct  2 23:30 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Oct  2 23:30 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   16298 Oct  2 23:30 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  590675 Oct  2 23:30 hypotheses.md
+-rw-r--r--  1 runner runner    2703 Oct  2 23:30 reposcan-mimo.md
+-rw-r--r--  1 runner runner    4370 Oct  2 23:30 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Oct  2 23:30 .
+drwxr-xr-x 12 runner runner  4096 Oct  2 23:30 ..
+-rw-r--r--  1 runner runner 16987 Oct  2 23:30 sync-issues.py
+
+triage/:
+total 860
+drwxr-xr-x  2 runner runner 12288 Oct  2 23:30 .
+drwxr-xr-x 12 runner runner  4096 Oct  2 23:30 ..
+-rw-r--r--  1 runner runner     0 Oct  2 23:30 .gitkeep
+-rw-r--r--  1 runner runner   209 Oct  2 23:30 run-2026-09-02-21-44.md
+-rw-r--r--  1 runner runner   156 Oct  2 23:30 run-2026-09-02-23-58.md
+-rw-r--r--  1 runner runner   202 Oct  2 23:30 run-2026-09-03-04-11.md
+-rw-r--r--  1 runner runner   165 Oct  2 23:30 run-2026-09-03-09-00.md
+-rw-r--r--  1 runner runner   767 Oct  2 23:30 run-2026-09-03-13-32.md
+-rw-r--r--  1 runner runner   251 Oct  2 23:30 run-2026-09-03-17-14.md
+-rw-r--r--  1 runner runner   263 Oct  2 23:30 run-2026-09-03-19-57.md
+-rw-r--r--  1 runner runner   188 Oct  2 23:30 run-2026-09-03-22-29.md
+-rw-r--r--  1 runner runner   154 Oct  2 23:30 run-2026-09-04-00-31.md
+-rw-r--r--  1 runner runner   172 Oct  2 23:30 run-2026-09-04-05-06.md
+-rw-r--r--  1 runner runner   231 Oct  2 23:30 run-2026-09-04-09-44.md
+-rw-r--r--  1 runner runner 17101 Oct  2 23:30 run-2026-09-04-12-00.md
+-rw-r--r--  1 runner runner  3019 Oct  2 23:30 run-2026-09-04-14-11.md
+[0m
+[0m$ [0mtimeout 20 curl -s -o /dev/null -w "%{http_code} %{time_total}\n" -m 10 https://hypofriend.de/ 2>&1; echo "exit=$?"
+302 0.446879
+exit=0
+[0m
+[0m$ [0mgetent hosts api.hypofriend.de; echo "--- dig:"; dig +short api.hypofriend.de A 2>/dev/null; echo "--- HEAD https:"; timeout 20 curl -sS -I -m 12 https://api.hypofriend.de/ -o /dev/null -w "code=%{http_code} t=%{time_total}\n" 2>&1; echo "exit=$?"; sleep 1; echo "--- HEAD http:"; timeout 20 curl -sS -I -m 12 http://api.hypofriend.de/ -o /dev/null -w "code=%{http_code} t=%{time_total}\n" 2>&1; echo "exit=$?"
+52.15.184.3     api.hypofriend.de
+--- dig:
+52.15.184.3
+--- HEAD https:
+curl: (28) Connection timed out after 12002 milliseconds
+code=000 t=12.002805
+exit=28
+--- HEAD http:
+curl: (28) Connection timed out after 12002 milliseconds
+code=000 t=12.002728
+exit=28
+[0m
+[0m$ [0mfor u in "https://core.hypofriend.de/q/" "https://core.hypofriend.de/content/q/" "https://core.hypofriend.de/property-search-api"; do echo "=== GET $u?query={__typename}"; timeout 20 curl -sS -m 12 --get --data-urlencode 'query={__typename}' "$u" -D /tmp/h.$$ -o /tmp/b.$$ -w "code=%{http_code} size=%{size_download} t=%{time_total}\n" 2>&1; echo "exit=$?"; grep -iE '^(location|content-type|vary|access-control|server|x-frame)' /tmp/h.$$ 2>/dev/null; echo "--body(300):"; head -c 300 /tmp/b.$$ 2>/dev/null; echo; sleep 2; done
+=== GET https://core.hypofriend.de/q/?query={__typename}
+code=301 size=0 t=0.383408
+exit=0
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+vary: Origin,Accept-Encoding
+--body(300):
+
+=== GET https://core.hypofriend.de/content/q/?query={__typename}
+code=404 size=5201 t=0.328455
+exit=0
+content-type: text/html; charset=UTF-8
+vary: Origin,Accept-Encoding
+--body(300):
+<!doctype html>
+
+<html lang="en">
+
+  <head>
+
+    <title>The page you were looking for doesn't exist (404 Not found)</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+    <meta name="robots" content="noindex, nofollow">
+
+    <style>
+
+      *,
+=== GET https://core.hypofriend.de/property-search-api?query={__typename}
+code=400 size=97 t=0.450098
+exit=0
+content-type: application/json
+vary: Origin
+--body(300):
+{"error":{"details":"this endpoint exclusively POST requests containing valid JSON in the body"}}
+[0m
+[0m$ [0mecho "=== A) GET property-search-api with hostile Origin"; timeout 20 curl -sS -m 12 --get --data-urlencode 'query={__typename}' -H 'Origin: https://evil.example' "https://core.hypofriend.de/property-search-api" -D - -o /tmp/a1 -w "\n>>code=%{http_code} size=%{size_download}\n" 2>&1 | sed -n '1,40p'; echo "--body:"; head -c 200 /tmp/a1; echo; sleep 2; echo; echo "=== B) same on EDGE hypofriend.de"; timeout 20 curl -sS -m 12 --get --data-urlencode 'query={__typename}' -H 'Origin: https://evil.example' "https://hypofriend.de/property-search-api" -D - -o /tmp/a2 -w "\n>>code=%{http_code} size=%{size_download}\n" 2>&1 | sed -n '1,40p'; echo "--body:"; head -c 200 /tmp/a2; echo
+=== A) GET property-search-api with hostile Origin
+HTTP/2 400 
+date: Fri, 02 Oct 2026 23:32:07 GMT
+content-type: application/json
+content-length: 97
+vary: Origin
+
+
+>>code=400 size=97
+--body:
+{"error":{"details":"this endpoint exclusively POST requests containing valid JSON in the body"}}
+
+=== B) same on EDGE hypofriend.de
+HTTP/2 400 
+content-type: application/json
+content-length: 97
+date: Fri, 02 Oct 2026 23:32:09 GMT
+vary: Origin
+x-cache: Error from cloudfront
+via: 1.1 2a7a4ecb5582eb9a6f330e471a8a9e92.cloudfront.net (CloudFront)
+x-amz-cf-pop: IAD55-P10
+alt-svc: h3=":443"; ma=86400
+x-amz-cf-id: zn7uq4X9jSlND86X42JVzCaiNMwO4N2Z2QLu-lwq3cEb6A8MAhM2YA==
+
+
+>>code=400 size=97
+--body:
+{"error":{"details":"this endpoint exclusively POST requests containing valid JSON in the body"}}
+[0m
+[0m$ [0mfor p in "/property-search-api/zzz-probe" "/property-search-api/admin/deep/path" "/property-search-api/" ; do echo "=== GET $p"; timeout 20 curl -sS -m 12 "https://core.hypofriend.de$p" -D /tmp/hh -o /tmp/bb -w "code=%{http_code} size=%{size_download}\n" 2>&1; grep -iE '^(content-type|location|vary|access-control)' /tmp/hh; echo "--body:"; head -c 160 /tmp/bb; echo; sleep 2; done; echo "=== CONTROL GET /zzz-arbitrary-path"; timeout 20 curl -sS -m 12 "https://core.hypofriend.de/zzz-arbitrary-path" -D /tmp/hc -o /tmp/bc -w "code=%{http_code} size=%{size_download}\n" 2>&1; grep -iE '^(content-type|location|vary)' /tmp/hc
+=== GET /property-search-api/zzz-probe
+code=400 size=97
+content-type: application/json
+vary: Origin
+--body:
+{"error":{"details":"this endpoint exclusively POST requests containing valid JSON in the body"}}
+=== GET /property-search-api/admin/deep/path
+code=400 size=97
+content-type: application/json
+vary: Origin
+--body:
+{"error":{"details":"this endpoint exclusively POST requests containing valid JSON in the body"}}
+=== GET /property-search-api/
+code=400 size=97
+content-type: application/json
+vary: Origin
+--body:
+{"error":{"details":"this endpoint exclusively POST requests containing valid JSON in the body"}}
+=== CONTROL GET /zzz-arbitrary-path
+code=301 size=0
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+vary: Origin,Accept-Encoding
+[0m
+[0m$ [0mfor p in "/content/zzz-probe" "/api/v3/zzz-probe" "/q/zzz-probe"; do echo "=== GET $p"; timeout 20 curl -sS -m 12 "https://core.hypofriend.de$p" -D /tmp/h1 -o /tmp/b1 -w "code=%{http_code} size=%{size_download}\n" 2>&1; grep -iE '^(content-type|location|vary|www-authenticate)' /tmp/h1; echo "--body:"; head -c 130 /tmp/b1; echo; sleep 2; done
+=== GET /content/zzz-probe
+code=404 size=5201
+content-type: text/html; charset=UTF-8
+vary: Origin,Accept-Encoding
+--body:
+<!doctype html>
+
+<html lang="en">
+
+  <head>
+
+    <title>The page you were looking for doesn't exist (404 Not found)</title>
+
+    <
+=== GET /api/v3/zzz-probe
+code=301 size=0
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+vary: Origin,Accept-Encoding
+--body:
+
+=== GET /q/zzz-probe
+code=301 size=0
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+vary: Origin,Accept-Encoding
+--body:
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcd /tmp && rm -f c1 c2 p1 p2 && timeout 20 curl -sS -m 12 "https://core.hypofriend.de/content/q" -o c1 -w "content/q=%{http_code}/%{size_download}\n"; sleep 2; timeout 20 curl -sS -m 12 "https://core.hypofriend.de/content/zzz-probe" -o c2 -w "content/zzz-probe=%{http_code}/%{size_download}\n"; sleep 2; timeout 20 curl -sS -m 12 "https://core.hypofriend.de/property-search-api" -o p1 -w "psa=%{http_code}/%{size_download}\n"; sleep 2; timeout 20 curl -sS -m 12 "https://core.hypofriend.de/property-search-api/admin/deep/path" -o p2 -w "psa/deep=%{http_code}/%{size_download}\n"; sha256sum c1 c2 p1 p2 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
