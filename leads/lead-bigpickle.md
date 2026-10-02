@@ -6891,3 +6891,11 @@ testability: HUMAN_ONLY
 [FINAL] 2. MISCONFIG core.hypofriend.de/property-search-api — native unauthenticated full-schema dump, cross-referenceable against the /q map — 71 — PASSIVE
 [FINAL] 3. AUTH core.hypofriend.de/api/v3/advisors — sole authenticated endpoint's credential in the public bundle on a credentialed-CORS route — 76 — HUMAN_ONLY
 ## 2026-10-02 08:39:20 UTC [target] (model bigpickle)
+## 2026-10-02 15:17:09 UTC [target] (model bigpickle)
+class: AUTH | asset: hypofriend.de/m/_nuxt/BfDp-i_W.js → core.hypofriend.de/api/v3/advisors
+confidence: 74
+reasoning: Token verified present in today's entry bundle (sha256 03ab0df1…); decodes to hypo:advisors2018+;
+evidence_needed: Server-side validity of the credential. Deliberately NOT tested — it is the program's only
+verify_steps: (done, passive) GET the current entry bundle, grep the literal, sha256 the token.
+impact: High if valid — the sole authenticated endpoint is readable by anyone who opens devtools; nil if rotated.
+testability: HUMAN_ONLY

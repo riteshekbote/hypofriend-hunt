@@ -1268,3 +1268,7 @@ https://hypofriend.de/m/_nuxt/<current-entry>.js -> HTTP 403
 ## 2026-10-02 08:42:16 UTC
 https://core.hypofriend.de/q -> 200 len=231799
 https://core.hypofriend.de/property-search-api -> HTTP 400
+
+## 2026-10-02 15:17:26 UTC
+https://core.hypofriend.de/q -> 200 len=231799
+https://core.hypofriend.de/property-search-api -> HTTP 400
