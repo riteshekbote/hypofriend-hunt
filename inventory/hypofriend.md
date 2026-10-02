@@ -1416,3 +1416,5 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/q introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthenticityToke
 - CHANGED core.hypofriend.de global rack-cors middleware — credentialed CORS echo (ACAO + ACAC:true + 7 methods) confirmed on arbitrary paths (/zzz-arbitrary-path, /api/v3/advisors, /en/plus/q, /en/health/q, /q
 - CHANGED root.form_authenticity_token confirmed per-request (86 chars, distinct sha256 prefixes across calls); root.lead.has_admin_cookie JSON scalar live on all /q instances
+
+## 2026-10-02 08:42:12 UTC
