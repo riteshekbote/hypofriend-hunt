@@ -3831,3 +3831,21 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
 - LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-DwBItw8U.js: new bundle deploy (hash DwBItw8U), 37 mutations, 4 object-addressing mutations with call
 - LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus,q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu
+
+## RANKED HYPOTHESES 2026-10-02 19:56:13 UTC
+- [90] hypofriend.de/en/account/assets/index-BLX7yr-v.js: Cross-Tenant Object Addressing on /en/account Offer & Document Write Surface (from art/lead_nemotron3.txt)
+- [0] ?: **Stale client feature points at a slug-addressed, ungated read primitive.** — The bundle ships `query ChatLinkPreviewPost($slug: String!, $locale: String!) { post(slug:, locale:) { title preview seo_description } }`, invoked with the content flag `!0`, so it targets `/content/q/`. It addresses a CMS post by a **caller-supplied slug with no tenant or owner argument**, and unlike the mutations it is a *query*, so it is not gated by the 301 write-gate. **But the deployed content schema rejects it:** `post` → `undefinedField` on `Query`, on both edge and origin, byte-identically. The bundle wraps the call in `catch{return null}`, so the chat link-preview is **silently dead in the current deploy**. *Impact:* none demonstrable today. *Confidence:* medium-high that the primitive is real and currently unreachable; low that it is exploitable as shipped. Chosen over "empty CMS schema" because a live endpoint whose only client is dead code more likely indicates an undeployed/route-mismatched content backend than an intentionally empty one. (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): Run **one** poisoned document against `POST https://hypofriend.de/content/q/` probing whether graphql-ruby's did-you-mean suggester is enabled on this schema, u
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonexistentFi
+- LEARN: REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: forced-logout-via-CSRF is an explicitly rejected class; kept at 41 only because it also invalidates the
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `X-Frame-Options: ALLOWALL` and the credentialed CORS echo are prerequisite weaknesses, not findings on their own; th
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: the unauthenticated PII chain is already validated and re-confirmed; the open item this cycle is whether
+- LEARN: REJECTED OTHER @ core.hypofriend.de/q: `createUploadUrl` is a genuine new schema surface but returns 301 to the marketing root, so the presigned-URL vector is c
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — propertySearch→exposes→expose returns PII (prop
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF t
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-28T16:49Z returned 000 after 10s connect-timeouts on both :443 and :80; DNS remains 52.15.184.3; no live
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-DwBItw8U.js: new bundle deploy (hash DwBItw8U), 37 mutations, 4 object-addressing mutations with call
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus,q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu
