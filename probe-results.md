@@ -1281,3 +1281,9 @@ https://hypofriend.de/content/q/` -> HTTP 404
 ## 2026-10-02 23:33:42 UTC
 https://core.hypofriend.de/q -> 200 len=231799
 https://core.hypofriend.de/property-search-api -> HTTP 400
+
+## 2026-10-03 02:20:14 UTC
+https://core.hypofriend.de/q -> 200 len=231799
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/content -> 200 len=231799
+https://core.hypofriend.de/content/q/ -> HTTP 404
