@@ -4012,3 +4012,30 @@
 - LEARN: REJECTED MISCONFIG @ hypofriend.de/en/account deploy (client mass assignment): updateProperty builds input by dynamic key-spread over caller-supplied object; se
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: mutation 301 gate is POST-static-validation, not request-level. Coercion/validation-failing documents return HTTP 200
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization) — POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:O
+
+## RANKED HYPOTHESES 2026-10-03 23:09:06 UTC
+- [99] core.hypofriend.de/property-search-api: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [84] core.hypofriend.de/property-search-api: property-search-api full-DB BOLA (read PII) + untested write primitive (informationRequest) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: `hypofriend.de/en/exchange` share-link forge (passive).
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/content/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonex
+- LEARN: ACCEPTED IDOR @ `core.hypofriend.de/property-search-api`: full-DB BOLA chain `propertySearch→exposes→expose` returns PII auth-free on direct origin (CRITICAL). 
+- LEARN: ACCEPTED BUSLOGIC @ `hypofriend.de/en/exchange`: 6-key plaintext pool harvestable by unauthenticated GET; arbitrary `link_id` minted, `share_id` auth-by-obscuri
+- LEARN: ACCEPTED MISCONFIG @ `core.hypofriend.de/q` (+ family): introspection bypass via error channel (undefinedField returns parent typeName, did-you-mean suggester) 
+- LEARN: REJECTED MISCONFIG (falsified) @ `core.hypofriend.de`: prior claim “mint class CLOSED at 9 stems” is wrong — `/immobilien` and `/beratung` return 301→/ (canonic
+- LEARN: REJECTED (closed) @ multiple: `unclaimLead` session-scoped (zero-arg); `document_analysis_status` not existence oracle; `exposeSeen` not existence oracle; `upda
+- LEARN: ACCEPTED NG @ `api.hypofriend.de`: dead 53rd consecutive cycle (000), A 52.15.184.3 clean — phase mismatch (POC pinned to dead host), no takeover surface.
+- LEARN: REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: forced-logout-via-CSRF is an explicitly rejected class; kept at 41 only because it also invalidates the
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `X-Frame-Options: ALLOWALL` and the credentialed CORS echo are prerequisite weaknesses, not findings on their own; th
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: the unauthenticated PII chain is already validated and re-confirmed; the open item this cycle is whether
+- LEARN: REJECTED OTHER @ core.hypofriend.de/q: `createUploadUrl` is a genuine new schema surface but returns 301 to the marketing root, so the presigned-URL vector is c
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — propertySearch→exposes→expose returns PII (prop
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF t
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-28T16:49Z returned 000 after 10s connect-timeouts on both :443 and :80; DNS remains 52.15.184.3; no live
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-BLX7yr-v.js: new bundle deploy (hash BLX7yr-v), 37 mutations, 4 object-addressing mutations with call
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus,q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/en/account deploy (client mass assignment): updateProperty builds input by dynamic key-spread over caller-supplied object; se
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: mutation 301 gate is POST-static-validation, not request-level. Coercion/validation-failing documents return HTTP 200
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization) — POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:O

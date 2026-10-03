@@ -1557,3 +1557,23 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/q introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester
 - CHANGED core.hypofriend.de global rack-cors middleware — credentialed CORS echo on arbitrary paths
 - CHANGED root.form_authenticity_token confirmed per-request (86 chars, distinct sha256); root.lead.has_admin_cookie JSON scalar live on all /q instances
+
+## 2026-10-03 23:09:06 UTC
+- NEW `/content/q/` (hypofriend.de/content/q and core.hypofriend.de/content/q): LIVE fourth GraphQL instance (POST 200), credentialed CORS active, mutations disabled via config `missingMutationConfiguration
+- CHANGED `/q` (hypofriend.de/q, core.hypofriend.de/q, /en/plus/q, /en/health/q): POST /q returns `vary: Accept,Origin,Accept-Encoding`; OPTIONS /q preflight returns `vary: Accept-Encoding` only (Vary:Origin ab
+- CHANGED `hypofriend.de/en/exchange`: share-link forge — 6-key pool harvestable by unauthenticated GET (partner 108ee8c6… + tools dddb5cba… + 4 others). `share_id` is auth-by-obscurity; `link_id` is arbitrary 
+- CHANGED `core.hypofriend.de/property-search-api`: full-DB BOLA chain `propertySearch→exposes→expose` returns PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany) auth-free 
+- CHANGED `core.hypofriend.de`: global rack-cors middleware echoes any Origin + `access-control-allow-credentials: true` + 7 methods on arbitrary paths; GET shells carry ACAO; origin `XFO:ALLOWALL` vs edge `XFO
+- CHANGED `api.hypofriend.de` (designated POC target): 000 on :443/:80 (connect-timeout/SSL_ERROR_SYSCALL) — dead **53rd consecutive cycle**, A 52.15.184.3 clean. Phase mismatch (POC pinned to dead host) — all 
+- CHANGED `hypofriend.de/en/account/assets/index-BLX7yr-v.js`: 37 mutations; 4 object-addressing with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `
+- NEW `core.hypofriend.de/api/v3/*`: `delete-cookie` and `delete-admin-cookie` return 200 unauth on origin+edge (sibling `/api/v3/advisors` is 401 Basic). `chatbase` route referenced in /en/account bundle (
+- CHANGED `/api/v3/advisors`: hardcoded HTTP Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`) shipped in public entry bundle — sole authenticated endpoint effectively public in client (live probe 2
+- NEW `core.hypofriend.de/api/v3/chatbase`, `hypofriend.de/crm`, soft-error class (`/404`, `/500` return HTTP 200 with static Nuxt error documents) — noted, no logic flaw.
+- NEW /content/q/ on hypofriend.de AND core.hypofriend.de confirmed as LIVE fourth GraphQL instance (POST 200, credentialed CORS active, mutations disabled via config 'missingMutationConfiguration')
+- NEW hypofriend.de/en/account/assets/index-BLX7yr-v.js bundle hash rotated (2,468,656B, 37 mutations, 4 object-addressing with caller-supplied IDs: selectOffer:offerProductId, updateProperty:id, deleteLead
+- NEW uploadDocumentExtended full input mapped: file_link is caller-supplied S3 key with no ownership argument
+- NEW createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
+- NEW sendVerifiedListingEmail mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
+- NEW submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside file_link and offerProductId
+- CHANGED core.hypofriend.de/q POST now returns vary: Accept,Origin,Accept-Encoding (Vary:Origin present on POST, absent on OPTIONS preflight); mutation 301 gate is POST-static-validation
+- CHANGED api.hypofriend.de dead 52nd+ consecutive cycle (000, 12s connect-timeouts); POC phase pinned to dead host
