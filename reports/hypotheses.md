@@ -3937,3 +3937,32 @@
 - LEARN: REJECTED MISCONFIG @ hypofriend.de/en/account deploy (client mass assignment): updateProperty builds input by dynamic key-spread over caller-supplied object; se
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: mutation 301 gate is POST-static-validation, not request-level. Coercion/validation-failing documents return HTTP 200
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization) — POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:O
+
+## RANKED HYPOTHESES 2026-10-03 13:31:09 UTC
+- [99] core.hypofriend.de/property-search-api: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [86] core.hypofriend.de/q: /q coercion-error channel reconstructs write contracts cross-origin with zero resolvers executed (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Determine policy on read-only GraphQL schema discovery via invalid POST (error-channel) for core.hypofriend.de/q and core.hypofriend.de/content/q/. Curre
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonexistentFi
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: Introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/q/: Fourth GraphQL instance confirmed LIVE (POST 200) on both hosts; mutations disabled ("missingMutationConfigu
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: Global rack-cors middleware echoes any Origin + ACAC:true + 7 methods on arbitrary paths (/zzz-arbitrary-path, /api/v3/
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: Full-DB BOLA chain propertySearch→exposes→expose returns PII auth-free on direct origin; direct-origin b
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF t
+- LEARN: REJECTED OATH @ hypofriend.de/auth/google_oauth2: Referenced by /crm but GET returns 301→/ on both hosts; not live OAuth flow (referenced ≠ reachable). Closed.
+- LEARN: ACCEPTED OTHER @ hypofriend.de/en/exchange: Share-link forge — arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (pool cross-usable), utm_
+- LEARN: ACCEPTED AUTH @ core.hypofriend.de/api/v3/advisors: Hardcoded HTTP Basic credential hypo:advisors2018+ present in public entry bundle (Basic aHlwbzphZHZpc29yczI
+- LEARN: REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: forced-logout-via-CSRF is an explicitly rejected class; kept at 41 only because it also invalidates the
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: `X-Frame-Options: ALLOWALL` and the credentialed CORS echo are prerequisite weaknesses, not findings on their own; th
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: the unauthenticated PII chain is already validated and re-confirmed; the open item this cycle is whether
+- LEARN: REJECTED OTHER @ core.hypofriend.de/q: `createUploadUrl` is a genuine new schema surface but returns 301 to the marketing root, so the presigned-URL vector is c
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live 2026-09-28T16:50Z — propertySearch→exposes→expose returns PII (prop
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: introspection bypass via error channel live — undefinedField returns parent typeName (HypofriendType, Lead) + did-you
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q + hypofriend.de/q: root.lead.has_admin_cookie (JSON scalar, no per-field authz) + root.form_authenticity_token (CSRF t
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors middleware — arbitrary path /zzz-arbitrary-path OPTIONS echoes any Origin + ACAC:true + all methods; G
+- LEARN: ACCEPTED NG @ api.hypofriend.de: HEAD probes at 2026-09-28T16:49Z returned 000 after 10s connect-timeouts on both :443 and :80; DNS remains 52.15.184.3; no live
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/en/plus,q: credentialed CORS preflight returns vary: Accept-Encoding only (no Vary:Origin) — reverts 2026-09-25 mitigati
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/en/account/assets/index-BLX7yr-v.js: new bundle deploy (hash BLX7yr-v), 37 mutations, 4 object-addressing mutations with call
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus,q: unclaimLead is definitively not a cross-tenant write — the document is mutation unclaimLead { unclaimLead(inpu
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/en/account deploy (client mass assignment): updateProperty builds input by dynamic key-spread over caller-supplied object; se
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: mutation 301 gate is POST-static-validation, not request-level. Coercion/validation-failing documents return HTTP 200
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization) — POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:O
