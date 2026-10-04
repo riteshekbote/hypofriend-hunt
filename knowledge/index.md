@@ -980,3 +980,8 @@
 - 2026-10-04 ACCEPTED MISCONFIG @ mobile.hypofriend.de: Distinct unrecorded ELB tier with zero healthy targets behind the mobile-app backend hostname.
 - 2026-10-04 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: Forge re-confirmed live on cycle 54; server issues `__hfp__` and `_hf` to attacker-chosen `link_id`/campaign values, priming caller-controlled attribution into first-party lead state.
 - 2026-10-04 ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Credentialed CORS re-confirmed on the fourth instance (ACAO echo + ACAC true + 7 methods, `vary: Accept-Encoding` on OPTIONS only), consistent with the /q family.
+- 2026-10-04 REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization): POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple); POST-path varies correctly, facet near-inert.
+- 2026-10-04 ACCEPTED MISCONFIG @ core.hypofriend.de/content/q/: fourth GraphQL instance live (POST 200), credentialed CORS active on both hosts (ACAO echoes arbitrary Origin + ACAC true).
+- 2026-10-04 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302 Location (confirmed live this cycle).
+- 2026-10-04 REJECTED MISCONFIG @ *.app.hypofriend.de: A records point to TCP-filtered dead origin; no dangling CNAMEs, so classic subdomain takeover does not apply today — EIP-recycle is the only plausible remote window.
+- 2026-10-04 REJECTED MISCONFIG @ mobile.hypofriend.de/images/assets/static/maps.hypofriend.de: ELB zero-target 503 is service availability state, not a vulnerability.

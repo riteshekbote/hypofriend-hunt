@@ -1348,3 +1348,12 @@ https://core.hypofriend.de/content/q -> HTTP 404
 https://hypofriend.de/en/account?ts=1791138679&utm_campaign=cycle54&utm_medium=x&utm_source=probe` -> 200 len=3766
 https://core.hypofriend.de/property-search-api` -> HTTP 400
 https://core.hypofriend.de/content/q/` -> HTTP 404
+
+## 2026-10-04 22:02:01 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/q -> 200 len=231799
+https://core.hypofriend.de/q -> 200 len=231799
+https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&link_id=00000000-0000-0000-0000-000000000000&redirect=account&utm_source=attacker&utm_medium=cpa&utm_campaign=steal-lead -> 200 len=3766
+https://core.hypofriend.de/content/q -> HTTP 404
+https://hypofriend.de/content/q/ -> HTTP 404
+https://core.hypofriend.de/content/q/ -> HTTP 404
