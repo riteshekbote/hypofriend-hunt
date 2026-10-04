@@ -967,3 +967,16 @@
 - 2026-10-04 REJECTED MISCONFIG @ hypofriend.de/en/account: updateProperty client-side spread bounded by server (PropertyMutationsUpdateInput closed)
 - 2026-10-04 REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin): POST varies correctly, OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple), facet near-inert
 - 2026-10-04 ACCEPTED MISCONFIG @ hypofriend.de/q family: Introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester
+- 2026-10-04 REJECTED MISCONFIG @ sparplan.hypofriend.de / heyflow.hypofriend.de: Cloudflare edge-certificate gap on delegated funnel names = TLS/misconfiguration class, descriptive, no logic flaw, not attacker-controllable.
+- 2026-10-04 REJECTED MISCONFIG @ images/assets/static/maps.hypofriend.de: ELB zero-target 503 is a service-availability state, not a vulnerability.
+- 2026-10-04 ACCEPTED OTHER @ *.app.hypofriend.de: Stale app-tier A record pinning 5 high-value hostnames (uploader/admin/profile/appointments/frontend) to a single TCP-filtered origin — EIP-recycling takeover class, decisive check is cloud-side.
+- 2026-10-04 ACCEPTED MISCONFIG @ mobile.hypofriend.de: Distinct unrecorded ELB tier with zero healthy targets behind the mobile-app backend hostname.
+- 2026-10-04 REJECTED MISCONFIG @ images/assets/static/maps.hypofriend.de: ELB zero-target 503 is a service-availability state, not a vulnerability.
+- 2026-10-04 ACCEPTED OTHER @ *.app.hypofriend.de: Stale app-tier A record pinning 5 high-value hostnames (uploader/admin/profile/appointments/frontend) to a single TCP-filtered origin — EIP-recycling ta
+- 2026-10-04 ACCEPTED MISCONFIG @ mobile.hypofriend.de: Distinct unrecorded ELB tier with zero healthy targets behind the mobile-app backend hostname.
+- 2026-10-04 REJECTED MISCONFIG @ sparplan.hypofriend.de, heyflow.hypofriend.de: Cloudflare edge-certificate gap on the delegated funnel names is a TLS/misconfiguration class, descriptive, and not attacker-controllable — records are delegated into Cloudflare's own heyflow zone, so no takeover.
+- 2026-10-04 REJECTED MISCONFIG @ images.hypofriend.de, assets.hypofriend.de, static.hypofriend.de, maps.hypofriend.de, mobile.hypofriend.de: ELB zero-target 503 is a service-availability state with no security impact.
+- 2026-10-04 ACCEPTED OTHER @ *.app.hypofriend.de: Stale A record pins five high-value names to one TCP-filtered origin; EIP-recycling takeover class, decisive check is cloud-side.
+- 2026-10-04 ACCEPTED MISCONFIG @ mobile.hypofriend.de: Distinct unrecorded ELB tier with zero healthy targets behind the mobile-app backend hostname.
+- 2026-10-04 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: Forge re-confirmed live on cycle 54; server issues `__hfp__` and `_hf` to attacker-chosen `link_id`/campaign values, priming caller-controlled attribution into first-party lead state.
+- 2026-10-04 ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Credentialed CORS re-confirmed on the fourth instance (ACAO echo + ACAC true + 7 methods, `vary: Accept-Encoding` on OPTIONS only), consistent with the /q family.

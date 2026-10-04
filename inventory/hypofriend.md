@@ -1583,3 +1583,32 @@ www.hypofriend.de
 ## 2026-10-04 09:21:41 UTC
 
 ## 2026-10-04 14:52:49 UTC
+
+## 2026-10-04 18:39:23 UTC
+- NEW `*.app.hypofriend.de` tier fingerprinted for the first time: uploader/frontend/appointments/profile/admin all resolve to a SINGLE distinct A record `52.14.251.223` (not the 18.192.153.149/3.77.143.151
+- NEW `mobile.hypofriend.de` = own ELB fingerprint `awselb/2.0` on `63.176.45.32 / 63.182.230.5 / 63.189.130.21` (distinct from every previously recorded fleet IP). Uniform 162-byte `503 Service Temporarily
+- NEW CDN/asset tier also dead: images/assets/static/maps all `503 awselb/2.0` on the 18.192.153.149/3.77.143.151/63.188.224.50 pool — consolidates the ELB-with-no-targets fingerprint to >=5 names, of which
+- NEW `sparplan.hypofriend.de` + `heyflow.hypofriend.de` CNAME → `flow.heyflow.domains` (Cloudflare-proxied) and BOTH fail the TLS handshake with `sslv3 alert handshake failure` (alert 40) and return `409 C
+- CHANGED `/en/exchange` share-link forge re-confirmed live, cycle 54: `GET /en/exchange?share_id=<pool key>&link_id=11111111-2222-3333-4444-555555555555&redirect=account&utm_source=probe&utm_medium=x&utm_campa
+- CHANGED `api.hypofriend.de` (designated POC target) dead **54th consecutive cycle** — 000, 12.0s connect timeout on :443. Phase still pinned to a dead host.
+- CHANGED `/content/q` fourth instance re-confirmed live on `core.hypofriend.de`: OPTIONS preflight with `Origin: https://evil.example` → `200`, `access-control-allow-origin: https://evil.example`, `access-cont
+- NEW `*.app.hypofriend.de` tier fingerprinted for the first time: `uploader/frontend/appointments/profile/admin` all resolve to a SINGLE distinct A record `52.14.251.223` — not the 18.192.153.149/3.77.143.
+- NEW `mobile.hypofriend.de` = own ELB fingerprint `awselb/2.0` on `63.176.45.32/63.182.230.5/63.189.130.21` (distinct from every previously recorded fleet IP). Uniform 162-byte `503 Service Temporarily Una
+- NEW CDN/asset tier also dead: `images/assets/static/maps` all `503 awselb/2.0` on the 18.192.153.149/3.77.143.151/63.188.224.50 pool — consolidates the ELB-zero-target fingerprint to >=5 names, of which o
+- NEW `sparplan.hypofriend.de` + `heyflow.hypofriend.de` CNAME → `flow.heyflow.domains` (Cloudflare-proxied) and BOTH fail TLS with `sslv3 alert handshake failure` (alert 40) and return `409 Conflict` on pl
+- CHANGED `/en/exchange` share-link forge re-confirmed live, cycle 54: `GET /en/exchange?share_id=<pool key>&link_id=11111111-2222-3333-4444-555555555555&redirect=account&utm_source=probe&utm_medium=x&utm_campa
+- CHANGED `api.hypofriend.de` (designated POC target) dead **54th consecutive cycle** — 000, 12.0s connect timeout on :443. Phase still pinned to a dead host.
+- CHANGED `/content/q` fourth instance re-confirmed live on `core.hypofriend.de`: OPTIONS with `Origin: https://evil.example` → `200`, `access-control-allow-origin: https://evil.example`, `access-control-allow-
+- NEW /content/q/ confirmed LIVE fourth GraphQL instance on both hypofriend.de and core.hypofriend.de (POST 200, credentialed CORS active, mutations disabled via config "missingMutationConfiguration") — was
+- NEW hypofriend.de/en/account/assets/index-BLX7yr-v.js bundle rotated (2,468,656B, 37 mutations, 4 object-addressing with caller-supplied IDs: selectOffer:offerProductId, updateProperty:id, deleteLeadDocum
+- NEW uploadDocumentExtended full input mapped: file_link is caller-supplied S3 key with no ownership argument — strengthens object-addressing hypothesis
+- NEW createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
+- NEW sendVerifiedListingEmail mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
+- NEW submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside file_link and offerProductId
+- CHANGED core.hypofriend.de/q POST now returns vary: Accept,Origin,Accept-Encoding (Vary:Origin present on POST, absent on OPTIONS preflight); mutation 301 gate is POST-static-validation
+- CHANGED api.hypofriend.de dead 53rd consecutive cycle (000, 12s connect-timeouts); POC phase pinned to dead host
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live (PII auth-free on direct origin); OPTIONS 200 with NO ACAO echo
+- CHANGED hypofriend.de/en/exchange share-link forge: arbitrary link_id minted, share_id auth-by-obscurity (pool cross-usable), utm_* raw pass-through
+- CHANGED core.hypofriend.de/q introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester
+- CHANGED core.hypofriend.de global rack-cors middleware — credentialed CORS echo on arbitrary paths
+- CHANGED root.form_authenticity_token confirmed per-request (86 chars, distinct sha256); root.lead.has_admin_cookie JSON scalar live on all /q instances
