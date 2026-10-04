@@ -1323,3 +1323,8 @@ https://core.hypofriend.de/content/q -> HTTP 404
 https://core.hypofriend.de/tools?utm_source=probe&utm_medium=x&utm_campaign=test&redirect=account -> 200 len=3766
 https://core.hypofriend.de/en/exchange?share_id=not-a-uuid -> HTTP 404
 https://core.hypofriend.de/content/q/ -> HTTP 404
+
+## 2026-10-04 02:48:30 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=231799
+https://core.hypofriend.de/content/q -> HTTP 404

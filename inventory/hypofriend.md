@@ -1577,3 +1577,5 @@ www.hypofriend.de
 - NEW submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside file_link and offerProductId
 - CHANGED core.hypofriend.de/q POST now returns vary: Accept,Origin,Accept-Encoding (Vary:Origin present on POST, absent on OPTIONS preflight); mutation 301 gate is POST-static-validation
 - CHANGED api.hypofriend.de dead 52nd+ consecutive cycle (000, 12s connect-timeouts); POC phase pinned to dead host
+
+## 2026-10-04 02:48:26 UTC
