@@ -955,3 +955,14 @@
 - 2026-10-04 REJECTED MISCONFIG @ hypofriend.de/en/account deploy (client mass assignment): updateProperty builds input by dynamic key-spread over caller-supplied object; server rejects unknown keys with argumentNotAccepted on PropertyMutationsUpdateInput and no resolver reached — client-side spread bounded by server. Closed with positive control.
 - 2026-10-04 ACCEPTED MISCONFIG @ core.hypofriend.de/q: mutation 301 gate is POST-static-validation, not request-level. Coercion/validation-failing documents return HTTP 200 + JSON error, never 301 (deleteLeadDocumentAttachment + zzzNoSuchField → 200, undefinedField on DeleteLeadDocumentAttachmentPayload, no Location). Static validation can be held failing indefinitely; no resolver reached on error path.
 - 2026-10-04 REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization) — POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple); POST-path varies correctly, facet near-inert.
+- 2026-10-04 ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Fourth GraphQL instance live (POST 200), credentialed CORS active, mutations disabled via config "missingMutationConfiguration"
+- 2026-10-04 ACCEPTED MISCONFIG @ core.hypofriend.de/q family: Introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester
+- 2026-10-04 ACCEPTED MISCONFIG @ core.hypofriend.de: Global rack-cors middleware — arbitrary path echoes any Origin + ACAC:true + 7 methods
+- 2026-10-04 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: Full-DB BOLA chain re-confirmed live (PII auth-free on direct origin)
+- 2026-10-04 ACCEPTED IDOR @ hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (no lead arg)
+- 2026-10-04 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302 Location
+- 2026-10-04 REJECTED MISCONFIG @ core.hypofriend.de/q: X-Frame-Options: ALLOWALL and credentialed CORS echo are prerequisite weaknesses, not findings on their own
+- 2026-10-04 REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: Forced-logout-via-CSRF explicitly rejected class
+- 2026-10-04 REJECTED OTHER @ core.hypofriend.de/q: createUploadUrl returns 301 to marketing root, presigned-URL vector closed
+- 2026-10-04 REJECTED MISCONFIG @ hypofriend.de/en/account: updateProperty client-side spread bounded by server (PropertyMutationsUpdateInput closed)
+- 2026-10-04 REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin): POST varies correctly, OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple), facet near-inert
