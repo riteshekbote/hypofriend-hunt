@@ -51556,3 +51556,268 @@ location: /en/mortgage-tips/mortgage-fundamentals
 /en/mortgage-tips/first-time-buyers/mortgage-in-germany => HTTP 301
 /en/mortgage-tips/customer-stories/mortgage-in-germany => HTTP 301
 [0m
+===== ANALYST bigpickle 2026-10-05 21:49:39 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mtimeout 14 curl -sS -o /dev/null -w "api443 http=%{http_code} t=%{time_total}\n" https://api.hypofriend.de/ --connect-timeout 10 2>&1; timeout 14 curl -sS -o /dev/null -w "api80 http=%{http_code} t=%{time_total}\n" http://api.hypofriend.de/ --connect-timeout 10 2>&1; getent ahosts api.hypofriend.de | head -3
+curl: (28) Failed to connect to api.hypofriend.de port 443 after 10002 ms: Timeout was reached
+api443 http=000 t=10.002721
+curl: (28) Failed to connect to api.hypofriend.de port 80 after 10002 ms: Timeout was reached
+api80 http=000 t=10.002861
+52.15.184.3     STREAM api.hypofriend.de
+52.15.184.3     DGRAM  
+52.15.184.3     RAW
+[0m
+## Objective
+- Continue the Hypofriend GmbH bounty POC analysis and emit only the required structured Step 1–7 blocks, grounded in verified facts and safe read-only checks.
+
+## Important Details
+- State: `phase=POC`, `target=api`; report channel `bugs.olivermaicher.eu`.
+- Scope: only Hypofriend-owned infrastructure, APIs, customer portals, financial engines, and web/mobile applications.
+- Live checks must be passive-first, ≤1 rps, and limited to GET/HEAD/OPTIONS; no customer-data access, mutation testing, auth bypass, or bulk enumeration.
+- Reject descriptive headers/errors, clickjacking without impact, logout CSRF, scanner-only output, TLS issues, and other listed out-of-scope classes.
+- Rank with `priority=0.25a+0.25b+0.15t+0.15g+0.10c+0.10f`; drop hypotheses below confidence 40 or without concrete verification.
+- Use paired controls and explicitly withdraw prior overgeneralizations. POST `/q` correctly varies on Origin; OPTIONS omits `Vary:Origin`, but that facet is considered near-inert.
+- Hash any secret in output; the public Basic token for `/api/v3/advisors` has known SHA-256 prefix `56f00b87f9a28c8...`.
+- Current prioritized assets: `core.hypofriend.de/property-search-api`, `core.hypofriend.de/q`, `uploader.app.hypofriend.de`.
+
+## Work State
+### Completed
+- Confirmed critical unauthenticated BOLA on `core.hypofriend.de/property-search-api`: `propertySearch→exposes→expose` returns broker/owner PII including `propertyOwnerLastName`, `cellPhoneNumber`, `phoneNumber`, `ownerCompany`, and `providerCompany`; direct origin bypasses CloudFront controls.
+- Confirmed global credentialed rack-cors behavior on Rails origin: arbitrary origins reflected with `access-control-allow-credentials:true`; `/property-search-api` remains a CORS-closed contrast.
+- Mapped `/q` error-channel schema recovery, including `undefinedField`, did-you-mean suggestions, and input-object attribute recovery without invoking resolvers.
+- Confirmed `/q` exposes `root.form_authenticity_token` and session-bound `root.lead.has_admin_cookie`; state-changing cross-origin impact remains unproven.
+- Confirmed `/content/q/` as a live fourth GraphQL instance on both hosts with credentialed CORS and mutations disabled by `missingMutationConfiguration`.
+- Confirmed `/api/v3/advisors` uses a hardcoded HTTP Basic credential shipped publicly in the client; live response was 200.
+- Confirmed `hypofriend.de/en/exchange` share-link forge: six-key plaintext pool, arbitrary `link_id`, raw `utm_*` pass-through, and `redirect` allowlist `{expose,account}`; true mint set corrected to seven stems.
+- Fingerprinted `*.app.hypofriend.de` to stale A `52.14.251.223`, creating a cloud-verification-only EIP-recycling hypothesis.
+- Closed prior false leads: `unclaimLead` is session-scoped, `document_analysis_status` and `exposeSeen` are not existence oracles, `updateProperty` has a server-closed input, `createUploadUrl` redirects, and `/en/exchange` is not an open redirect.
+- No customer data was newly retrieved; property-search bulk quantification and write testing remain human-gated.
+
+### Active
+- IDOR/BOLA on `core.hypofriend.de/property-search-api`, confidence 92; existence is frozen, with only HUMAN bulk quantification open.
+- Credentialed-CORS chain on `core.hypofriend.de/q`, confidence 55; token/session reads exist, but a credentialed state-changing leg requires authorization.
+- EIP-recycling takeover window for `uploader.app.hypofriend.de`, confidence 45; requires AWS/cloud-side ownership verification.
+- `api.hypofriend.de` remains dead for the 54th consecutive cycle: DNS A `52.15.184.3`, HTTP/HTTPS `000`, creating a phase/target mismatch.
+
+### Blocked
+- POC target `api.hypofriend.de` has no live HTTP surface.
+- Program rules exclude further customer-record enumeration and mutation testing.
+- Cross-origin mutation impact needs AUTH_HELPED testing.
+- EIP recycling cannot be proven remotely while `52.14.251.223` remains TCP-filtered.
+- Prescribed `/content/q/` POST conflicts with the GET/HEAD/OPTIONS-only live-probe rule; use its OPTIONS control instead.
+
+## Next Move
+1. Run the allowed freshness control: `curl -sS -D - -o /dev/null -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" https://core.hypofriend.de/content/q/ --connect-timeout 8`.
+2. Produce the requested Step 1–7 blocks, using `NO_DELTA` unless a genuinely new read-only observation exists.
+
+## Relevant Files
+- `scope.yml`: authoritative in-scope asset definitions.
+- `inventory/hypofriend.md`: Hypofriend host inventory and passive recon.
+- `art/lead_nemotron3.txt`: source for the ranked property-search BOLA hypothesis.
+- `hypotheses-bigpickle.txt`: prior ranked hypotheses and proposed `/content/q/` probe.
+- `hypotheses-nemotron3.txt`: alternate hypothesis set and `/content/q` probe.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0msleep 1; timeout 14 curl -sS -D - -o /dev/null -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" https://core.hypofriend.de/content/q/ --connect-timeout 10 2>&1
+HTTP/2 200 
+date: Mon, 05 Oct 2026 21:47:35 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+[0m
+[0m$ [0msleep 1; timeout 14 curl -sS -D - -o /dev/null -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: authorization, x-custom-probe-header" https://core.hypofriend.de/content/q/ --connect-timeout 10 2>&1; sleep 1; timeout 14 curl -sS -D - -o /dev/null -X OPTIONS -H "Origin: null" -H "Access-Control-Request-Method: POST" https://core.hypofriend.de/content/q/ --connect-timeout 10 2>&1
+HTTP/2 200 
+date: Mon, 05 Oct 2026 21:47:42 GMT
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: authorization, x-custom-probe-header
+vary: Accept-Encoding
+
+HTTP/2 200 
+date: Mon, 05 Oct 2026 21:47:44 GMT
+content-length: 0
+access-control-allow-origin: null
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+[0m$ [0msleep 1; timeout 14 curl -sS -D - -X GET -H "Origin: https://evil.example" -H "Accept: application/json" --data-urlencode 'query=query{__typename}' https://core.hypofriend.de/content/q/ --connect-timeout 10 2>&1
+HTTP/2 404 
+date: Mon, 05 Oct 2026 21:47:55 GMT
+content-type: application/json; charset=UTF-8
+content-length: 34
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-request-id: 4a2727c2-fe6e-4b17-bd01-5cb105ef39bb
+x-runtime: 0.011493
+vary: Origin,Accept-Encoding
+
+{"status":404,"error":"Not Found"}
+[0m
+[0m$ [0msleep 1; timeout 14 curl -sS -D - -X GET -H "Origin: https://evil.example" -H "Accept: application/json" --data-urlencode 'query=query{__typename}' https://core.hypofriend.de/q --connect-timeout 10 2>&1
+HTTP/2 301 
+date: Mon, 05 Oct 2026 21:48:04 GMT
+content-type: text/html; charset=utf-8
+content-length: 0
+location: https://hypofriend.de/
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-robots-tag: none
+cache-control: no-cache
+x-request-id: c9f5081b-478b-49d7-8984-e6b6357297c8
+x-runtime: 0.004811
+strict-transport-security: max-age=63072000; includeSubDomains
+vary: Origin,Accept-Encoding
+[0m
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt && ls -la && echo "--- git ---" && git log --oneline -5 2>&1 | head
+total 1076
+drwxr-xr-x 12 runner runner   4096 Oct  5 21:46 .
+drwxr-xr-x  3 runner runner   4096 Oct  5 21:46 ..
+drwxr-xr-x  7 runner runner   4096 Oct  5 21:46 .git
+drwxr-xr-x  3 runner runner   4096 Oct  5 21:46 .github
+-rw-r--r--  1 runner runner   1885 Oct  5 21:46 README.md
+-rw-r--r--  1 runner runner   8918 Oct  5 21:48 analyst-out.txt
+-rw-r--r--  1 runner runner 467319 Oct  5 21:46 analyst-prompt.txt
+-rw-r--r--  1 runner runner 463444 Oct  5 21:46 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct  5 21:46 inventory
+drwxr-xr-x  2 runner runner   4096 Oct  5 21:46 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct  5 21:46 leads
+-rw-r--r--  1 runner runner  60518 Oct  5 21:46 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct  5 21:46 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct  5 21:46 reports
+drwxr-xr-x  2 runner runner   4096 Oct  5 21:46 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Oct  5 21:46 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct  5 21:46 scripts
+-rw-r--r--  1 runner runner     33 Oct  5 21:46 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct  5 21:46 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct  5 21:46 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct  5 21:46 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct  5 21:46 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct  5 21:46 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Oct  5 21:46 triage
+--- git ---
+e6e99b8 triage 2026-10-05-18-50
+[0m
+Read-only envelope is exhausted (both GraphQL routes are POST-only; `Vary: Origin` absent on preflight). Let me locate the required output template before reporting.
+[0m→ [0mRead analyst-out.txt
+[0m✱ [0mGrep "^#+.*(STEP|Step) *[1-7]|OUTPUT FORMAT|output format"[90m in analyst-prompt.txt · 100 matches[0m
+[0m→ [0mRead reports/analyst-bigpickle.log[90m [offset=150, limit=85][0m
+[0m
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt && grep -n "===== ANALYST bigpickle" reports/analyst-bigpickle.log | tail -3
+grep: reports/analyst-bigpickle.log: binary file matches
+[0m
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt && grep -an "===== ANALYST bigpickle" reports/analyst-bigpickle.log | tail -3 && echo "--- total lines ---" && wc -l reports/analyst-bigpickle.log
+49616:===== ANALYST bigpickle 2026-10-05 00:28:48 UTC =====
+50046:===== ANALYST bigpickle 2026-10-05 06:16:30 UTC =====
+50459:===== ANALYST bigpickle 2026-10-05 15:08:32 UTC =====
+--- total lines ---
+51558 reports/analyst-bigpickle.log
+[0m
+[0m→ [0mRead reports/analyst-bigpickle.log[90m [offset=50459][0m
+[0m→ [0mRead reports/analyst-bigpickle.log[90m [offset=50943][0m
+Read-only envelope is exhausted. Emitting the cycle output.
+
+## STEP 1 — DELTA
+[DELTA] [NEW] `core.hypofriend.de/content/q/` preflight reflects `Access-Control-Request-Headers` verbatim — `authorization, x-custom-probe-header` echoed back exactly. Prior cycle only ever observed `access-control-allow-headers: content-type`, so this is a genuine widening of the credentialed-CORS facet on the Rails origin (header allowlist is not enforced).
+[DELTA] [NEW] `Origin: null` is reflected with `access-control-allow-credentials: true` on the same preflight — sandboxed-iframe / `data:` origins are accepted alongside arbitrary attacker origins.
+[DELTA] [NEW] `/content/q/` is POST-only. `GET` + `query{__typename}` returns `HTTP 404 {"status":404,"error":"Not Found"}` (Rails route miss), not GraphQL. Therefore no preflight-free GET read exists on this instance.
+[DELTA] [NEW] `/q` is POST-only. `GET` returns `301 → https://hypofriend.de/` (Rails catch-all) and still carries `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` on the redirect.
+[DELTA] [CHANGED] `Vary: Origin` asymmetry reconfirmed with a matched pair: present on real responses (`vary: Origin,Accept-Encoding` on the 404 and on the 301), absent on all 200 preflight responses (`vary: Accept-Encoding`). Confirms the prior "near-inert" call with a positive control instead of inference.
+[DELTA] [CHANGED] `/content/q/` credentialed-CORS **impact path closed**. POST-only routing plus `missingMutationConfiguration` means the instance has no GET read and no write surface, so reflected credentials yield no reachable operation. Downgraded from "live chain" to "config-only facet".
+[DELTA] [RESOLVED] `/content/q` `root.posts(locale:)` CMS read fully characterized (from the interrupted prior cycle): 100 posts max — exactly the Contentful default page size — 11 categories, `locale:"*"` returns the union truncated at 100 (`en`=81, `de`=63, overlap0, union 144). The 44 "gql-only" slugs absent from public category listings are therefore an artifact of the 100-item cap, **not** an unpublished-content oracle. All 100 carry past `publishedAt` values and only 3 company staff authors.
+[DELTA] [REJECTED] `locale` injection probes were non-events: `en'`, `en--`, `en;--`, `en%` all return the identical `en` result set (81 posts); the `en" OR "1` 400 was my own shell-escaping artifact producing malformed JSON, not a server error. Locale accepts SQL LIKE globs (`en*`→81, `de*`→63, `*`→100) — parameterized, no injection.
+[DELTA] [CHANGED] `api.hypofriend.de` (POC target): dead 55th consecutive cycle, DNS A `52.15.184.3`, both :80 and :443 `000` on 10s connect timeout.
+
+## STEP 2 — PRIORITIZE
+[PRIO]
+asset: core.hypofriend.de/property-search-api
+score: 9.30
+axis: attack_surface=9, business_value=10, tech_exposure=9, gate_ease=10, cloud_surface=9, freshness=8
+
+[PRIO]
+asset: core.hypofriend.de/q
+score: 7.95
+axis: attack_surface=8, business_value=8, tech_exposure=8, gate_ease=9, cloud_surface=6, freshness=8
+
+[PRIO]
+asset: uploader.app.hypofriend.de
+score: 7.20
+axis: attack_surface=6, business_value=7, tech_exposure=7, gate_ease=8, cloud_surface=9, freshness=8
+
+## STEP 3 — HYPOTHESES
+[HYP]
+<title>Unauthenticated full-DB PII read via property-search-api BOLA chain</title>
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 92
+reasoning: Auth-free `propertySearch→exposes→expose` chain returns broker/owner PII (`propertyOwnerLastName`, `cellPhoneNumber`, `phoneNumber`, `ownerCompany`, `providerCompany`) with no session or cookie. Direct origin bypasses the CloudFront WAF and rate limiting. CORS stays closed on this path, so it is not itself cross-origin reachable, but the auth boundary is simply absent.
+evidence_needed: A 200 response containing broker/owner PII for an arbitrary lead/expose identifier, unauthenticated, from the direct origin.
+verify_steps: Already satisfied by the recorded unauthenticated PII response. Remaining work is magnitude only and is HUMAN-gated: quantify total record count and field coverage under explicit authorization, e.g. POST https://core.hypofriend.de/property-search-api -H "Content-Type: application/json" -d '{"query":"{ propertySearch { exposes { expose { id } } } }"}' --connect-timeout 5
+impact: Unauthenticated enumeration of the full exposure/lead database with broker and owner contact PII. CRITICAL.
+testability: HUMAN_ONLY
+
+[HYP]
+<title>Cross-origin session/CSRF-token read and mutation reachability via credentialed CORS on the Rails origin</title>
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Global rack-cors middleware on the Rails origin reflects any `Origin` (including `null`) with `access-control-allow-credentials: true`, reflects `Access-Control-Request-Headers` verbatim including `authorization`, and advertises seven methods. `/q` exposes `root.formAuthenticityToken` and the session-bound `root.lead.has_admin_cookie`. This cycle bounds the chain from both ends: `/q` and `/content/q/` are POST-only (GET → 301/404), so exploitation requires a preflighted cross-origin POST, and `/content/q/` additionally has mutations disabled at the schema level. The unproven residue is whether `/q` itself exposes a mutation that accepts the self-issued CSRF token.
+evidence_needed: A cross-origin credentialed POST from an attacker origin that, using the harvested `formAuthenticityToken` and the victim session, executes a state-changing operation on `/q` — not a read.
+verify_steps: Read-only prerequisites already satisfied. Decisive test requires an authorized victim session plus a write: curl -sS -X POST https://core.hypofriend.de/q -H "Origin: https://evil.example" -H "Content-Type: application/json" -H "Cookie: <victim session>" -H "X-CSRF-Token: <token from root.formAuthenticityToken>" -d '{"query":"mutation { <write> }"}' --connect-timeout 8. Do not run without explicit authorization; POST mutation testing is outside the passive-first envelope.
+impact: If a mutation exists and accepts the self-issued token, any website can drive authenticated state changes as a logged-in user. MEDIUM until proven; currently a prerequisite chain only.
+testability: AUTH_HELPED
+
+[HYP]
+<title>EIP-recycling takeover window for *.app.hypofriend.de (stale A to 52.14.251.223)</title>
+class: OTHER
+asset: uploader.app.hypofriend.de
+confidence: 45
+reasoning: `uploader`, `frontend`, `appointments`, `profile`, and `admin` under `app.hypofriend.de` all resolve to a single A record `52.14.251.223`, distinct from the main fleet. These are A records rather than dangling CNAMEs, so classic subdomain takeover does not apply today; the residual risk is AWS releasing and reallocating the address to a third party.
+evidence_needed: `52.14.251.223` serves HTTP/TLS from a non-Hypofriend party when requested with `Host:` set to one of those names, or AWS confirms the address is allocated outside the Hypofriend account.
+verify_steps: Passive re-resolution and CT sweep: `getent ahosts uploader.app.hypofriend.de`; `curl -sS 'https://crt.sh/?q=%25.hypofriend.de&output=json'`; then, if reachable, `curl -sS --resolve uploader.app.hypofriend.de:443:52.14.251.223 https://uploader.app.hypofriend.de --connect-timeout 8`. Current state is TCP-filtered on :80/:443.
+impact: On successful recycle, full control of five high-value hostnames including the document uploader and an `admin` label. HIGH if realized, informational today.
+testability: HUMAN_ONLY
+
+## STEP 4 — SELF-CRITIQUE
+[PARKED] `/content/q` credentialed CORS chain — downgraded, not dropped. Confidence was carried at 55 for the `/q` family as a whole; this cycle's POST-only routing result plus the pre-existing `missingMutationConfiguration` removes `/content/q` as an impact path entirely. Kept only as a config-level note under the `/q` hypothesis.
+[PARKED] `/content/q` unpublished-content disclosure — REJECTED and closed. The 44 "gql-only" slugs are an artifact of the hard 100-item Contentful cap (union `en`+`de`=144 truncated to 100), every record has a past `publishedAt`, and authors are limited to three company staff. No hidden-draft oracle exists.
+[PARKED] `locale` parameter injection (BUSLOGIC/SQLi) — REJECTED. All metacharacter variants returned byte-identical results to the plain `en` query, which is the signature of a parameterized LIKE, not concatenation. The single 400 was a malformed-request artifact on my side.
+[PARKED] Standalone report for `Access-Control-Allow-Headers` reflection and `Origin: null` reflection — REJECTED as MISCONFIG-only. Header reflection is descriptive configuration with no reachable operation behind it once mutations are disabled and both routes are POST-only; the program excludes descriptive header findings. Folded into the `/q` chain as a facilitation instead.
+[PARKED] `Vary: Origin` absence on preflight — REJECTED again, now with a positive control rather than inference. Real responses carry `vary: Origin,Accept-Encoding`; only the 200 preflights omit it. Browser preflight caching is keyed on the origin tuple, so the facet is near-inert.
+[FINAL]
+1. `core.hypofriend.de/property-search-api` — unauthenticated full-DB broker/owner PII read (IDOR), confidence 92, HUMAN_ONLY for quantification, priority 9.30
+2. `core.hypofriend.de/q` — credentialed CORS + self-issued CSRF token, mutation leg unproven and now bounded (POST-only), confidence 55, AUTH_HELPED, priority 7.95
+3. `*.app.hypofriend.de` — stale-A EIP-recycling window, confidence 45, HUMAN_ONLY, priority 7.20
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: passive-only app-tier refresh — `getent ahosts uploader.app.hypofriend.de frontend.app.hypofriend.de appointments.app.hypofriend.de profile.app.hypofriend.de admin.app.hypofriend.de` and `curl -sS 'https://crt.sh/?q=%25.hypofriend.de&output=json'` (DNS + certificate-transparency only, no origin traffic, ≤1 rps). This is the only surviving hypothesis with a remote verification path; the CORS chain is now bounded to AUTH_HELPED and property-search quantification is program-excluded.
+
+## STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de (origin-wide): credentialed rack-cors reflects any `Origin` including the literal `null` origin, echoes `Access-Control-Request-Headers` verbatim (`authorization` and arbitrary custom names are accepted), and advertises 7 methods across all Rails routes. The allowlist is effectively unrestricted, which means every present and future authenticated endpoint on this origin inherits cross-origin reachability.
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/q, /content/q: both GraphQL routes are POST-only — `/content/q/` GET → `404 {"status":404,"error":"Not Found"}`, `/q` GET → `301` to the apex. Combined with `missingMutationConfiguration` on `/content/q`, the credentialed-CORS reflection yields no reachable operation on either instance. Recorded as a closing bound, not an open chain.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q family (CORS faceting, for the record): `vary: Origin,Accept-Encoding` is present on real responses (200 POST, 404, 301) and absent only on 200 preflight responses. Prior "near-inert" verdict upheld with a matched positive control.
+[LEARN] REJECTED BUSLOGIC @ core.hypofriend.de/content/q: `root.posts(locale:)` is a public CMS read hard-capped at exactly 100 — the Contentful default page size. `locale:"*"` yields the union truncated at 100 (`en`=81, `de`=63, zero slug overlap, union 144), which fully explains the 44 slugs missing from public category listings. Not a hidden-draft disclosure.
+[LEARN] REJECTED BUSLOGIC @ core.hypofriend.de/content/q: `locale` accepts SQL LIKE globs (`en*`→81, `de*`→63, `*e*`→0) and tolerates trailing punctuation (`en'`, `en--`, `en;--`, `en%` all return the identical `en` set), indicating a parameterized LIKE rather than string concatenation. No injection.
+[LEARN] REJECTED MISCONFIG @ hypofriend.de content tiers: `m_payload.json` prerender payloads403 from S3 (`AccessDenied`) on7 of 17 category paths while 10 return 200 — an inconsistent bucket policy on a public Nuxt asset, not attacker-controllable.
+[LEARN] REJECTED OTHER @ api.hypofriend.de: dead 55th consecutive cycle (DNS A `52.15.184.3` resolves, :80 and :443 both `000` on 10s connect timeout). The pinned POC target continues to provide no live surface; phase/target mismatch is disclosed rather than silently substituted.
+
+## STEP 8 — RISK
+[RISK] hypofriend: 95 — property-search-api remains an unauthenticated full-DB read of broker and owner PII reachable directly on the Rails origin, and that origin's rack-cors layer is now fully characterized as unrestricted: any origin including `null`, credentials allowed, and request headers echoed verbatim. The severity does not rise this cycle because the CORS reachability found no operation to attach to — both GraphQL routes are POST-only and `/content/q` has no mutation surface. That is a narrowing, and I am recording it as one rather than letting the header-reflection discovery inflate the score. The residual risk is that any future authenticated Rails endpoint on this origin is silently cross-origin reachable by default with no code change required, which is a standing architectural exposure rather than a current exploit. The app tier remains a stale-A recycle window against a TCP-filtered origin and cannot be advanced remotely; mobile, CDN and Heyflow tiers are zero-target or certificate-gap states with no security impact. No customer data was retrieved this cycle and none should be: property-search quantification and any `/q` write test remain program-excluded and human-gated. Severity: CRITICAL.
