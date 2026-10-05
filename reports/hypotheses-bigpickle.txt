@@ -1,1 +1,60 @@
-## 2026-10-05 06:16:18 UTC [target] (model bigpickle)
+## 2026-10-05 15:08:20 UTC [target] (model bigpickle)
+[NEW] /content/q/ confirmed as LIVE 4th GraphQL instance on both hypofriend.de and core.hypofriend.de (POST 200, credentialed CORS active, mutations disabled via config "missingMutationConfiguration")
+[NEW] *.app.hypofriend.de tier fingerprinted: uploader/frontend/appointments/profile/admin all resolve to single A record 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
+[NEW] mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets behind mobile-app backend hostname
+[NEW] CDN/asset tier consolidated: images/assets/static/maps.hypofriend.de all 503 awselb/2.0 on 18.192.153.149/3.77.143.151/63.188.224.50 pool — ELB-zero-target fingerprint >=5 names
+[NEW] sparplan.hypofriend.de + heyflow.hypofriend.de: CNAME → flow.heyflow.domains (Cloudflare), both fail TLS handshake (sslv3 alert handshake failure) and return 409 Conflict
+[CHANGED] core.hypofriend.de/property-search-api: full-DB BOLA chain re-confirmed live (PII auth-free on direct origin); OPTIONS 200 with NO ACAO echo
+[CHANGED] core.hypofriend.de/q family: introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester; POST varies Accept,Origin,Accept-Encoding; OPTIONS varies Accept-Encoding only
+[CHANGED] core.hypofriend.de: global rack-cors middleware echoes any Origin + ACAC:true + 7 methods on arbitrary paths; origin XFO:ALLOWALL vs edge XFO:DENY
+[CHANGED] hypofriend.de/en/exchange: share-link forge re-confirmed live (6-key pool harvestable, arbitrary link_id, utm_* raw pass-through into 302 Location)
+[CHANGED] api.hypofriend.de (POC target): dead 54th consecutive cycle (000, 12s connect timeout); phase still pinned to dead host
+[PRIO]
+asset: core.hypofriend.de/property-search-api
+[PRIO]
+asset: core.hypofriend.de/q
+[PRIO]
+asset: uploader.app.hypofriend.de
+[HYP]
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 92
+reasoning: Auth-free propertySearch→exposes→expose chain returns broker/owner PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany) with no session/cookie. Direct origin bypasses CloudFront WAF and rate limiting.
+evidence_needed: A 200 response containing broker/owner PII for an arbitrary lead/expose identifier, unauthenticated, from the direct origin.
+verify_steps: POST https://core.hypofriend.de/property-search-api -H "Content-Type: application/json" -d '{"query":"{ __typename }"}' --connect-timeout 5; then, if authorized, confirm the read chain returns PII for an arbitrary exposeId with zero auth.
+impact: Unauthenticated enumeration of full exposure/lead database with broker/owner contact PII. CRITICAL.
+testability: HUMAN_ONLY
+[HYP]
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Global rack-cors middleware echoes arbitrary Origin with access-control-allow-credentials:true. root.form_authenticity_token and root.lead.has_admin_cookie are exposed via /q. OPTIONS/POST allow credential forwarding; POST varies Accept,Origin,Accept-Encoding while OPTIONS varies Accept-Encoding only. /content/q is a live 4th GraphQL instance with credentialed CORS.
+evidence_needed: Cross-origin POST from attacker origin that uses harvested CSRF token and victim session to execute a state-changing mutation (not just read).
+verify_steps: curl -sS -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" https://core.hypofriend.de/q --connect-timeout 5; curl -sS -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" https://core.hypofriend.de/content/q/ --connect-timeout 5; then, if authorized, test credentialed cross-origin state change.
+impact: If state-changing leg proven, cross-origin session exfil/mutation (CSRF+session forwarding) leveraging SameSite=None cookies. MEDIUM.
+testability: AUTH_HELPED
+[HYP]
+class: OTHER
+asset: uploader.app.hypofriend.de
+confidence: 45
+reasoning: uploader/frontend/appointments/profile/admin all resolve to A 52.14.251.223 (distinct from other fleets). TCP on :80/:443 connect-timeout for each with Host header. A records (not dangling CNAMEs), so classic subdomain takeover does not apply now; risk is EIP release/reallocation to third party.
+evidence_needed: IP 52.14.251.223 returns HTTP/TLS from a third party when queried with Host: <those hostnames>, or AWS allocates it to a non-Hypofriend account.
+verify_steps: getent ahosts uploader.app.hypofriend.de; timeout 8 curl --resolve uploader.app.hypofriend.de:443:52.14.251.223 -H "Host: uploader.app.hypofriend.de" https://uploader.app.hypofriend.de --connect-timeout 8 (all 000/connect-timeout). Cloud-side verification required.
+impact: On successful recycle, full control of upload/admin-tier hostnames under hypofriend.de — HIGH (informational only at present).
+testability: HUMAN_ONLY
+[PARKED] Unauthenticated full-DB PII read via property-search-api BOLA chain: Survivor in [FINAL] (confidence 92 >= 40, valid class, concrete verify steps). No park.
+[PARKED] Cross-origin CSRF token and session state read via credentialed CORS on /q family: Survivor in [FINAL] (confidence 55). Prerequisite chain but testability AUTH_HELPED with concrete OPTIONS checks.
+[PARKED] EIP-recycling takeover window for *.app.hypofriend.de (stale A to 52.14.251.223): Survivor in [FINAL] (confidence 45 >= 40). Informational impact but requires cloud-side verification.
+[FINAL]
+[NEXT] PROBE: POST https://core.hypofriend.de/content/q/ -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query{root{lead{has_admin_cookie}}}"}' --connect-timeout 8 (read-only OPTIONS/POST behavior check; no credentials sent; assesses ACAO+ACAC echo on the 4th GraphQL instance)
+[LEARN] ACCEPTED IDOR @ core.hypofriend.de/property-search-api: full-DB BOLA chain propertySearch→exposes→expose returns PII auth-free on direct origin; direct-origin bare headers vs edge CF stack (CRITICAL)
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q family: introspection bypass via error channel (undefinedField returns parent typeName + did-you-mean suggester); global credentialed CORS echoes arbitrary Origin + ACAC:true + 7 methods; POST varies Accept,Origin,Accept-Encoding, OPTIONS varies Accept-Encoding only
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization): POST varies correctly; OPTIONS omits Vary:Origin but browser preflight caching keyed on tuple, facet near-inert
+[LEARN] ACCEPTED OTHER @ *.app.hypofriend.de: stale A record pins five high-value names (uploader/frontend/appointments/profile/admin) to single TCP-filtered origin 52.14.251.223 — EIP-recycling takeover class, decisive check is cloud-side
+[LEARN] ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool harvestable by unauthenticated GET; arbitrary link_id
+[LEARN] ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool harvestable by unauthenticated GET; arbitrary link_id minted (not cookie-bound), share_id is auth-by-obscurity, utm_* raw pass-through into 302 Location; redirect allowlist {expose,account} only — forge yields credible first-party URL + poisoned attribution, not a data read
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: 4th GraphQL instance live (POST 200) with credentialed CORS on both hosts, mutations disabled via config "missingMutationConfiguration" — a config-level negative control, no write surface
+[LEARN] ACCEPTED MISCONFIG @ mobile.hypofriend.de: distinct unrecorded ELB tier (awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21) with zero healthy targets behind the mobile-app backend hostname
+[LEARN] REJECTED MISCONFIG @ images/assets/static/maps.hypofriend.de: ELB zero-target 503 is a service-availability state with no security impact and no remote verify path
+[LEARN] REJECTED MISCONFIG @ sparplan.hypofriend.de, heyflow.hypofriend.de: Cloudflare edge-certificate gap on the delegated funnel names is TLS/misconfiguration class, descriptive, not attacker-controllable (records delegated into Cloudflare's own heyflow zone, so no takeover)
+[RISK] hypofriend: 95 — property-search-api remains an unauthenticated full-DB read of broker and owner PII reachable directly on the Rails origin, and that origin's global rack-cors middleware echoes any Origin with credentials across all Rails routes, so every current and future authenticated endpoint on that host inherits cross-origin reachability. The /q family adds a CSRF-token and session-identity read primitive on top of SameSite=None cookies, but the state-changing leg is still unproven, which is why this is 95 rather than 98. The mobile, CDN and app tiers are all down with zero healthy targets or TCP-filtered origins, so no new live attack surface opened this cycle; the residual risk there is a stale-A-record recycle window, not an active compromise. No customer data was retrieved — bulk PII quantification and the informationRequest write path remain program-excluded and human-gated. Severity: CRITICAL.

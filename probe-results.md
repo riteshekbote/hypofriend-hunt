@@ -1369,3 +1369,11 @@ https://core.hypofriend.de/property-search-api -> HTTP 400
 https://hypofriend.de/q -> 200 len=231799
 https://core.hypofriend.de/q -> 200 len=231799
 https://core.hypofriend.de/content/q -> HTTP 404
+
+## 2026-10-05 15:08:53 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/q -> 200 len=231913
+https://core.hypofriend.de/q -> 200 len=231913
+https://core.hypofriend.de/content/q -> HTTP 404
+https://core.hypofriend.de/content/q/ -> HTTP 404
+https://uploader.app.hypofriend.de -> ERR <urlopen error timed out>
