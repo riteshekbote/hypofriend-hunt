@@ -7290,3 +7290,4 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED MISCONFIG @ mobile.hypofriend.de/images/assets/static/maps.hypofriend.de: ELB zero-target 503 is service availability state, not a vulnerability.
 [RISK] hypofriend: 95 — unauthenticated full-DB PII read on property-search-api (direct origin WAF bypass) dominates; global credentialed CORS on /q family + SameSite=None cookies creates cross-origin prerequisite chain; app tier dead-origin with EIP-recycle window is informational. All activity read-only at <=1rps; no customer data retrieved.
 ## 2026-10-05 00:28:38 UTC [target] (model bigpickle)
+## 2026-10-05 06:16:18 UTC [target] (model bigpickle)
