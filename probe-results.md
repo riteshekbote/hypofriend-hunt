@@ -1357,3 +1357,9 @@ https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&
 https://core.hypofriend.de/content/q -> HTTP 404
 https://hypofriend.de/content/q/ -> HTTP 404
 https://core.hypofriend.de/content/q/ -> HTTP 404
+
+## 2026-10-05 00:28:56 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/q -> 200 len=231799
+https://core.hypofriend.de/q -> 200 len=231799
+https://core.hypofriend.de/content/q -> HTTP 404

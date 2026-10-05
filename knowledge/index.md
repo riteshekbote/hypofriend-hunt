@@ -985,3 +985,20 @@
 - 2026-10-04 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302 Location (confirmed live this cycle).
 - 2026-10-04 REJECTED MISCONFIG @ *.app.hypofriend.de: A records point to TCP-filtered dead origin; no dangling CNAMEs, so classic subdomain takeover does not apply today — EIP-recycle is the only plausible remote window.
 - 2026-10-04 REJECTED MISCONFIG @ mobile.hypofriend.de/images/assets/static/maps.hypofriend.de: ELB zero-target 503 is service availability state, not a vulnerability.
+- 2026-10-05 ACCEPTED OTHER @ *.app.hypofriend.de: Stale A record pins five high-value names to one TCP-filtered origin; EIP-recycling takeover class, decisive check is cloud-side
+- 2026-10-05 ACCEPTED MISCONFIG @ mobile.hypofriend.de: Distinct unrecorded ELB tier with zero healthy targets behind the mobile-app backend hostname
+- 2026-10-05 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: Forge re-confirmed live on cycle 54; server issues `__hfp__` and `_hf` to attacker-chosen `link_id`/campaign values
+- 2026-10-05 ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Credentialed CORS re-confirmed on the fourth instance (ACAO echo + ACAC true + 7 methods, `vary: Accept-Encoding` on OPTIONS only)
+- 2026-10-05 ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Fourth GraphQL instance live (POST 200), credentialed CORS active, mutations disabled via config "missingMutationConfiguration"
+- 2026-10-05 ACCEPTED MISCONFIG @ hypofriend.de/q family: Introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester
+- 2026-10-05 ACCEPTED MISCONFIG @ core.hypofriend.de: Global rack-cors middleware — arbitrary path echoes any Origin + ACAC:true + 7 methods
+- 2026-10-05 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: Full-DB BOLA chain re-confirmed live (PII auth-free on direct origin)
+- 2026-10-05 ACCEPTED IDOR @ hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (no lead arg)
+- 2026-10-05 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302 Location
+- 2026-10-05 REJECTED MISCONFIG @ core.hypofriend.de/q: X-Frame-Options: ALLOWALL and credentialed CORS echo are prerequisite weaknesses, not findings on their own
+- 2026-10-05 REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: Forced-logout-via-CSRF explicitly rejected class
+- 2026-10-05 REJECTED OTHER @ core.hypofriend.de/q: createUploadUrl returns 301 to marketing root, presigned-URL vector closed
+- 2026-10-05 REJECTED MISCONFIG @ hypofriend.de/en/account: updateProperty client-side spread bounded by server (PropertyMutationsUpdateInput closed)
+- 2026-10-05 REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin): POST varies correctly, OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple), facet near-inert
+- 2026-10-05 REJECTED MISCONFIG @ sparplan.hypofriend.de / heyflow.hypofriend.de: Cloudflare edge-certificate gap on delegated funnel names = TLS/misconfiguration class, descriptive, no logic flaw, not attacker-controllable
+- 2026-10-05 REJECTED MISCONFIG @ images/assets/static/maps.hypofriend.de: ELB zero-target 503 is a service-availability state, not a vulnerability
