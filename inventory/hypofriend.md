@@ -1740,3 +1740,24 @@ www.hypofriend.de
 - CHANGED `createUploadUrl` full input/output mapped: returns `{s3Key, presignedUrl}` — presigned-PUT chain documented end-to-end
 - CHANGED `sendVerifiedListingEmail` mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
 - CHANGED `submitDocumentAnalysis` mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside `file_link` and `offerProductId`
+
+## 2026-10-06 16:09:10 UTC
+- CHANGED `/content/q/` on **hypofriend.de** and **core.hypofriend.de** is a **live fourth GraphQL instance**. The knowledge base records `POST /content/q → 404`; that 404 was a **GET artifact**. A POST returns
+- CHANGED Resolved the `/en/account` transport mystery. `acct.js` `postGraphQL` (sha256 `4304a74473862400498e26eb8c366f4447d022aedba90679ea43b846b7fee3d3`, bit-stable since 2026-09-30) resolves its base as `win
+- CHANGED `/content/q/` has **no write surface**: `POST` of any mutation returns `{"code":"missingMutationConfiguration"}` — *"Schema is not configured for mutations"*. This is a config-level negative control, 
+- CHANGED Credentialed CORS is live on `/content/q/` at both hosts: `Access-Control-Allow-Origin` reflects `https://evil.example`, `Access-Control-Allow-Credentials: true`, `Allow-Methods: GET, POST, PUT, PATCH
+- NEW /content/q confirmed as LIVE 4th GraphQL instance on both hypofriend.de and core.hypofriend.de (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`)
+- NEW *.app.hypofriend.de tier fingerprinted: uploader/frontend/appointments/profile/admin all resolve to single A record 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
+- NEW mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets behind mobile-app backend hostname
+- NEW sparplan.hypofriend.de + heyflow.hypofriend.de: CNAME → flow.heyflow.domains (Cloudflare), both fail TLS handshake (sslv3 alert handshake failure) and return 409 Conflict
+- NEW CDN/asset tier consolidated: images/assets/static/maps.hypofriend.de all 503 awselb/2.0 on 18.192.153.149/3.77.143.151/63.188.224.50 pool — ELB-zero-target fingerprint ≥5 names
+- CHANGED api.hypofriend.de dead 55th consecutive cycle (000, 12s connect timeout) — POC phase still pinned to dead host
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live (PII auth-free on direct origin); OPTIONS 200 with NO ACAO echo
+- CHANGED core.hypofriend.de/q family: introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester; POST varies Accept,Origin,Accept-Encoding; OPTIONS varies Ac
+- CHANGED core.hypofriend.de: global rack-cors middleware echoes any Origin + ACAC:true + 7 methods on arbitrary paths; origin XFO:ALLOWALL vs edge XFO:DENY
+- CHANGED hypofriend.de/en/exchange: share-link forge re-confirmed live (6-key pool harvestable, arbitrary link_id, utm_* raw pass-through into 302 Location)
+- CHANGED hypofriend.de/en/account/assets/index-BLX7yr-v.js bundle rotated (2,468,656B, 37 mutations, 4 object-addressing with caller-supplied IDs)
+- CHANGED uploadDocumentExtended full input mapped: file_link is caller-supplied S3 key with no ownership argument
+- CHANGED createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
+- CHANGED sendVerifiedListingEmail mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
+- CHANGED submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside file_link and offerProductId
