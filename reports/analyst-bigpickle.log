@@ -51821,3 +51821,317 @@ testability: HUMAN_ONLY
 
 ## STEP 8 — RISK
 [RISK] hypofriend: 95 — property-search-api remains an unauthenticated full-DB read of broker and owner PII reachable directly on the Rails origin, and that origin's rack-cors layer is now fully characterized as unrestricted: any origin including `null`, credentials allowed, and request headers echoed verbatim. The severity does not rise this cycle because the CORS reachability found no operation to attach to — both GraphQL routes are POST-only and `/content/q` has no mutation surface. That is a narrowing, and I am recording it as one rather than letting the header-reflection discovery inflate the score. The residual risk is that any future authenticated Rails endpoint on this origin is silently cross-origin reachable by default with no code change required, which is a standing architectural exposure rather than a current exploit. The app tier remains a stale-A recycle window against a TCP-filtered origin and cannot be advanced remotely; mobile, CDN and Heyflow tiers are zero-target or certificate-gap states with no security impact. No customer data was retrieved this cycle and none should be: property-search quantification and any `/q` write test remain program-excluded and human-gated. Severity: CRITICAL.
+===== ANALYST bigpickle 2026-10-06 02:05:14 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll run the cycle: DELTA probes first (passive-only, ≤1 rps), then structure the output.
+[0m$ [0mdate -u '+%Y-%m-%dT%H:%M:%SZ'; echo "--- api target (designated POC) ---"; getent ahosts api.hypofriend.de 2>&1 | head -3; timeout 14 curl -sS -o /dev/null -w 'api:443 code=%{http_code} time=%{time_total}\n' -I https://api.hypofriend.de --connect-timeout 10 --max-time 12 2>&1 | tail -2
+2026-10-06T02:01:32Z
+--- api target (designated POC) ---
+52.15.184.3     STREAM api.hypofriend.de
+52.15.184.3     DGRAM  
+52.15.184.3     RAW    
+curl: (28) Failed to connect to api.hypofriend.de port 443 after 10002 ms: Timeout was reached
+api:443 code=000 time=10.002528
+[0m
+## Objective
+- Continue the Hypofriend GmbH POC as a senior bug-bounty analyst, identify evidence-backed high-value logic flaws, and emit the required eight structured analysis blocks.
+- Keep the current phase pinned to `api.hypofriend.de` while separating confirmed facts, hypotheses, parked items, and risk.
+
+## Important Details
+- Scope: only Hypofriend-owned infrastructure, platforms, financial engines, portals, APIs, mobile/web apps, websites, and domains; report channel `bugs.olivermaicher.eu`.
+- Exclude descriptive headers/errors, TLS best practices, scanner-only findings, logout/anonymous-form CSRF, clickjacking without exploit, DoS/rate-limit testing, and customer-data exposure.
+- Live probing must remain passive-first, ≤1 rps, and limited to `GET`/`HEAD`/`OPTIONS`; no mutation, auth-bypass, bulk-PII, or customer-record testing.
+- Current state: `{"phase":"POC","target":"api"}`.
+- `api.hypofriend.de` resolves to `52.15.184.3` but both `:80` and `:443` repeatedly return HTTP `000`; latest count is 55 consecutive dead cycles.
+- Latest risk is `95`/CRITICAL because of the direct-origin unauthenticated PII BOLA. No further customer data should be retrieved.
+- Current `/q` CORS chain is only `AUTH_HELPED`: session/CSRF reads are established, but a state-changing leg is unproven and must not be tested against live data.
+- Any exposed secret must be SHA-256 identified in reports.
+
+## Work State
+### Completed
+- Confirmed `core.hypofriend.de/property-search-api` unauthenticated BOLA chain: `propertySearch→exposes→expose`; exposed fields include `propertyOwnerLastName`, `cellPhoneNumber`, `phoneNumber`, `ownerCompany`, and `providerCompany`.
+- Confirmed direct-origin property-search access bypasses CloudFront/WAF protections; CORS remains closed because `OPTIONS` returns no `Access-Control-Allow-Origin`.
+- Confirmed origin-wide rack-cors reflects arbitrary `Origin`, including `null`, sets `Access-Control-Allow-Credentials: true`, reflects requested headers including `authorization`, and advertises seven methods.
+- Confirmed `/q` exposes per-request `root.form_authenticity_token` and session-bound `root.lead.has_admin_cookie`; global credentialed CORS makes these cross-origin-readable prerequisites, but no mutation impact is proven.
+- Confirmed `/content/q/` is a fourth live GraphQL instance on `hypofriend.de` and `core.hypofriend.de`; POST works, credentialed CORS is active, and mutations fail with `missingMutationConfiguration`.
+- Confirmed public bundle credential for `/api/v3/advisors`: `hypo:advisors2018+`, `Basic aHlwbzphZHZpc29yczIwMTgr`, base64-token SHA-256 prefix `56f00b87f9a28c8...`; live authenticated request returned `200`.
+- Confirmed `/en/exchange` share-link forge: six publicly harvestable `share_id` values, arbitrary `link_id`, raw `utm_*` pass-through, but only `{expose, account}` redirects; bounded to forged attribution/credible URL, not data read or open redirect.
+- Closed `unclaimLead` as session-scoped, `document_analysis_status` and `exposeSeen` as non-oracles, `updateProperty` mass assignment as server-closed by `PropertyMutationsUpdateInput`, and `/en/account` SSRF mining as negative.
+- Corrected the share-link mint class from nine stems to seven stems after controls showed `/immobilien` and `/beratung` are canonical-shell routes.
+- Corrected `/q` `Vary:Origin` interpretation: real POST responses vary on `Origin`; only preflight responses omit it, leaving the residual facet near-inert.
+- Fingerprinted `uploader`, `frontend`, `appointments`, `profile`, and `admin` under `app.hypofriend.de` to stale A record `52.14.251.223`; classic CNAME takeover does not apply.
+- Fingerprinted `mobile.hypofriend.de` to ELB IPs `63.176.45.32`, `63.182.230.5`, `63.189.130.21`, all returning zero-target `503`.
+
+### Active
+- Highest-priority hypothesis: direct-origin full-database PII BOLA at `core.hypofriend.de/property-search-api`, confidence `92`; only magnitude remains open.
+- CORS state-change hypothesis at `core.hypofriend.de/q`, confidence `55`; requires an authorized victim session and controlled write, so it is `AUTH_HELPED`.
+- Stale app-tier EIP-recycling hypothesis at `uploader.app.hypofriend.de`, confidence `45`; only passive DNS/CT refresh remains remotely available.
+- Next analytical output should run STEP 1–8 with strict facts/hypotheses separation and exactly one `[NEXT]` action.
+
+### Blocked
+- `api.hypofriend.de` has no live HTTP surface; phase/target mismatch prevents meaningful automated POC completion.
+- Property-search quantification and `informationRequest` write validation are human-gated and prohibited against customer data.
+- `/q` state-change impact cannot be established without an authorized controlled victim session.
+- `52.14.251.223` is TCP-filtered; EIP recycling requires cloud-side ownership verification.
+- `mobile.hypofriend.de` and CDN ELBs have zero healthy targets, leaving no remote logic surface.
+
+## Next Move
+1. Run the passive-only app-tier refresh: `getent ahosts uploader.app.hypofriend.de frontend.app.hypofriend.de appointments.app.hypofriend.de profile.app.hypofriend.de admin.app.hypofriend.de` and `curl -sS 'https://crt.sh/?q=%25.hypofriend.de&output=json'`, using DNS/CT only at ≤1 rps.
+2. If unchanged, emit `NO_DELTA`, retain the property-search BOLA as the top survivor, and leave the `/q` write and app-origin checks explicitly `AUTH_HELPED`/`HUMAN_ONLY`.
+
+## Relevant Files
+- `scope.yml`: authoritative in-scope asset definition.
+- `inventory/hypofriend.md`: Hypofriend asset inventory.
+- `art/lead_nemotron3.txt`: source for the ranked full-DB BOLA hypothesis.
+- `hypotheses-bigpickle.txt`: prior ranked hypotheses and next actions.
+- `hypotheses-nemotron3.txt`: prior `/content/q` hypothesis set.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mfor h in uploader frontend appointments profile admin; do printf '%s.app -> ' "$h"; getent ahosts "${h}.app.hypofriend.de" 2>/dev/null | awk 'NR==1{print $1}' || echo "NXDOMAIN/none"; sleep 1; done; printf 'app apex -> '; getent ahosts app.hypofriend.de 2>/dev/null | awk 'NR==1{print $1}'
+uploader.app -> 52.14.251.223
+frontend.app -> 52.14.251.223
+appointments.app -> 52.14.251.223
+profile.app -> 52.14.251.223
+admin.app -> 52.14.251.223
+app apex -> 63.186.163.151
+[0m
+[0m$ [0mcommand -v dig >/dev/null && for h in app.hypofriend.de uploader.app.hypofriend.de frontend.app.hypofriend.de admin.app.hypofriend.de; do printf '== %s\n' "$h"; dig +noall +answer "$h" A "$h" CNAME 2>/dev/null | sed 's/^/   /'; sleep 1; done || echo "no dig; using host"
+== app.hypofriend.de
+   app.hypofriend.de.	55	IN	A	63.186.163.151
+   app.hypofriend.de.	55	IN	A	63.185.233.151
+== uploader.app.hypofriend.de
+   uploader.app.hypofriend.de. 289	IN	A	52.14.251.223
+== frontend.app.hypofriend.de
+   frontend.app.hypofriend.de. 289	IN	A	52.14.251.223
+== admin.app.hypofriend.de
+   admin.app.hypofriend.de. 291	IN	A	52.14.251.223
+[0m
+New delta: `app.hypofriend.de` apex resolves to two OVH-range IPs, unlike the stale AWS EIP used by the subdomains. Checking ownership passively.
+[0m$ [0mfor ip in 63.186.163.151 63.185.233.151 52.14.251.223; do printf '== %s\n' "$ip"; timeout 20 curl -sS "https://rdap.db.ripe.net/ip/${ip}" -H 'Accept: application/rdap+json' 2>/dev/null | python3 -c "
+import sys,json
+try:
+  d=json.load(sys.stdin)
+except Exception as e:
+  print('   rdap parse fail',e); raise SystemExit
+print('   handle :',d.get('handle'))
+print('   name   :',d.get('name'))
+print('   type   :',d.get('type'))
+for e in d.get('entities',[]) or []:
+  roles=','.join(e.get('roles',[]) or [])
+  nm=(e.get('vcardArray') or [None,[]])[1]
+  vals=[x[3] for x in nm if x and x[0] in ('fn','org')]
+  if vals: print('   entity :',roles,'->',vals[0][:70])
+print('   country:',d.get('country'))
+"; sleep 1; done
+== 63.186.163.151
+   rdap parse fail Expecting value: line 1 column 1 (char 0)
+== 63.185.233.151
+   rdap parse fail Expecting value: line 1 column 1 (char 0)
+== 52.14.251.223
+   rdap parse fail Expecting value: line 1 column 1 (char 0)
+[0m
+[0m$ [0mtimeout 45 curl -sS -w '\n[http=%{http_code} size=%{size_download}]\n' 'https://crt.sh/?q=%25.hypofriend.de&output=json' -o /tmp/opencode/crt.json 2>&1 | tail -3
+(no output)
+[0m
+[0m$ [0mls -l /tmp/opencode/crt.json 2>&1; echo "--- egress test ---"; timeout 20 curl -sS -o /dev/null -w 'example.com=%{http_code}\n' https://example.com --max-time 15 2>&1; timeout 20 curl -sS -o /dev/null -w 'crt.sh=%{http_code}\n' 'https://crt.sh/' --max-time 15 2>&1
+ls: cannot access '/tmp/opencode/crt.json': No such file or directory
+--- egress test ---
+example.com=200
+curl: (28) Operation timed out after 15000 milliseconds with 0 bytes received
+crt.sh=000
+[0m
+crt.sh is unreachable from here; general egress works. Using Cert Spotter as an equivalent passive CT source.
+[0m$ [0mtimeout 40 curl -sS -w '\n[http=%{http_code}]\n' 'https://api.certspotter.com/v1/issuances?domain=hypofriend.de&include_subdomains=true&expand=dns_names&match_wildcards=true' --max-time 35 -o /tmp/opencode/cs.json 2>&1 | tail -2; python3 - <<'PY'
+import json,collections
+try:
+    d=json.load(open('/tmp/opencode/cs.json'))
+except Exception as e:
+    print("no data:",e); raise SystemExit
+print("issuance records:",len(d))
+names=set()
+for r in d:
+    for n in r.get('dns_names',[]): names.add(n.lower())
+hosts={n for n in names if n.endswith('hypofriend.de')}
+print("unique hypofriend names:",len(hosts))
+app=sorted(h for h in hosts if '.app.' in h or h.startswith('app.') or h=='app.hypofriend.de')
+print("app-tier names:",len(app))
+for h in app: print("  ",h)
+PY
+[http=200]
+issuance records: 26
+unique hypofriend names: 9
+app-tier names: 0
+[0m
+[0m$ [0mpython3 - <<'PY'
+import json
+d=json.load(open('/tmp/opencode/cs.json'))
+names=set()
+for r in d:
+    for n in r.get('dns_names',[]): names.add(n.lower().lstrip('*.'))
+for n in sorted(x for x in names if x.endswith('hypofriend.de')): print(n)
+PY
+echo "--- page 2 ---"
+LAST=$(python3 -c "
+import json;d=json.load(open('/tmp/opencode/cs.json'));print(d[-1]['id'] if d else '')")
+echo "after=$LAST"
+a.hypofriend.de
+bonava.hypofriend.de
+email.m.hypofriend.de
+email.m2.hypofriend.de
+evernest.hypofriend.de
+hypofriend.de
+myne.hypofriend.de
+www.hypofriend.de
+--- page 2 ---
+after=17592207513
+[0m
+[0m$ [0mcd /tmp/opencode && after=""; : > cs_all.json; for i in $(seq 1 10); do if [ -z "$after" ]; then url='https://api.certspotter.com/v1/issuances?domain=hypofriend.de&include_subdomains=true&expand=dns_names&match_wildcards=true'; else url="https://api.certspotter.com/v1/issuances?domain=hypofriend.de&include_subdomains=true&expand=dns_names&match_wildcards=true&after=$after"; fi; timeout 35 curl -sS --max-time 30 "$url" -o page.json; n=$(python3 -c "
+import json
+try: d=json.load(open('page.json'))
+except Exception: print(-1); raise SystemExit
+print(len(d))
+if not isinstance(d,list): raise SystemExit
+if d: print(d[-1]['id'],file=open('lastid','w'))
+" 2>/dev/null | head -1); echo "page $i records=$n"; if [ "$n" = "0" ] || [ "$n" = "-1" ]; then break; fi; cat page.json >> cs_all.json; echo "]" >> /dev/null; after=$(cat lastid); [ -z "$after" ] && break; sleep 1; done; python3 -c "
+import json,re
+raw=open('cs_all.json').read()
+recs=[]
+dec=json.JSONDecoder();i=0
+while i<len(raw):
+    while i<len(raw) and raw[i] in ' \n\r\t': i+=1
+    if i>=len(raw): break
+    o,j=dec.raw_decode(raw,i); recs+=o; i=j
+names=set()
+for r in recs:
+    for x in r.get('dns_names',[]): names.add(x.lower().lstrip('*.'))
+h={x for x in names if x.endswith('hypofriend.de')}
+print('total records',len(recs),'unique names',len(h))
+for x in sorted(h): print(' ',x)
+print('--- app tier ---')
+for x in sorted(y for y in h if 'app' in y.split('.')[:3] or y.startswith('app.')): print(' *',x)
+"
+page 1 records=26
+page 2 records=0
+total records 26 unique names 8
+  a.hypofriend.de
+  bonava.hypofriend.de
+  email.m.hypofriend.de
+  email.m2.hypofriend.de
+  evernest.hypofriend.de
+  hypofriend.de
+  myne.hypofriend.de
+  www.hypofriend.de
+--- app tier ---
+[0m
+[0m$ [0mtimeout 25 curl -sS -o /dev/null -I -w 'app.hypofriend.de https code=%{http_code} ip=%{remote_ip} srv=%{time_total}s\n' https://app.hypofriend.de --connect-timeout 10 --max-time 20 2>&1 | tail -2
+app.hypofriend.de https code=301 ip=63.185.233.151 srv=0.403818s
+[0m
+Genuine delta — the `app` apex is live on OVH (301). Capturing the redirect target.
+[0m$ [0msleep 3; timeout 25 curl -sSI https://app.hypofriend.de --connect-timeout 10 --max-time 20 2>&1 | sed -n '1,20p'
+HTTP/2 301 
+server: awselb/2.0
+date: Tue, 06 Oct 2026 02:04:22 GMT
+content-type: text/html
+content-length: 134
+location: https://apps.apple.com:443/app/id6766953909
+[0m
+[0m$ [0mtimeout 30 curl -sS 'https://itunes.apple.com/lookup?id=6766953909' --max-time 25 -o /tmp/opencode/ios.json 2>&1; python3 - <<'PY'
+import json
+d=json.load(open('/tmp/opencode/ios.json'))
+print("resultCount:",d.get("resultCount"))
+for r in d.get("results",[]):
+    for k in ("trackName","bundleId","sellerName","artistName","version","currentVersionReleaseDate","releaseDate","minimumOsVersion","primaryGenreName","trackViewUrl"):
+        v=r.get(k)
+        if v: print(f"  {k}: {v}")
+    print("  ipadScreenshots:",len(r.get("ipadScreenshotUrls") or []))
+PY
+resultCount: 1
+  trackName: Hypofriend Radar
+  bundleId: de.hypofriend.search
+  sellerName: Hypofriend GmbH
+  artistName: Hypofriend GmbH
+  version: 1.0.45
+  currentVersionReleaseDate: 2026-09-17T11:06:14Z
+  releaseDate: 2026-07-17T07:00:00Z
+  minimumOsVersion: 15.0
+  primaryGenreName: Lifestyle
+  trackViewUrl: https://apps.apple.com/us/app/hypofriend-radar/id6766953909?uo=4
+  ipadScreenshots: 0
+[0m
+## STEP 1 — Target & Scope Reconciliation**[CONFIRMED]** Phase `POC`, target `api`. `api.hypofriend.de` → `52.15.184.3`; `:443` timed out again this cycle (HTTP `000`, 10.0s). Dead-cycle count **55 → 56**.
+
+**[CONFIRMED]** Scope is company-owned; the new delta below is provably first-party (Apple-verified seller = Hypofriend GmbH), so it stays in scope.
+
+**Consequence:** the designated target has no live surface, but the passive sweep surfaced a **live, in-scope surface adjacent to the dead mobile tier**. Phase should migrate `api` → `app`, not stay pinned to a dead host.
+
+## STEP 2 — Delta: Live App Tier Discovered
+
+**[CONFIRMED]** `app.hypofriend.de` apex is **live**, contradicting the prior assumption that the whole app tier was parked:
+
+```
+app.hypofriend.de  A 63.186.163.151 / 63.185.233.151   (server: awselb/2.0)
+HEAD / -> HTTP/2 301
+location: https://apps.apple.com/app/id6766953909
+```
+
+**[CORRECTION]** I initially read the `63.185/63.186` ranges as OVH; the `awselb/2.0` header confirms **AWS ELB**. Corrected in place.
+
+**[CONFIRMED]** The five `*.app.hypofriend.de` names are unchanged at the dead AWS EIP `52.14.251.223`, while the **apex points to a healthy ELB**. So the tier is split: working apex, misconfigured subdomains.
+
+**[CONFIRMED]** Cert Spotter (paginated, exhausted) returns 26 records / 8 names for `hypofriend.de` and **zero** app-tier names. Control check: `core`, `api`, and `mobile` are *also* absent from that set, so **coverage is partial — absence is not evidence**. Recording this as a negative control, not as "no certs exist".
+
+## STEP 3 — Mobile Attack Surface Identified
+
+**[CONFIRMED]** App Store ID `6766953909` resolves via the iTunes lookup API:
+
+| Field | Value |
+|---|---|
+| trackName | **Hypofriend Radar** |
+| bundleId | `de.hypofriend.search` |
+| sellerName / artistName | **Hypofriend GmbH** |
+| version | `1.0.45` |
+| releaseDate | 2026-07-17 |
+| currentVersionReleaseDate | 2026-09-17 |
+| minimumOsVersion | 15.0 |
+
+**[INFERRED]** `de.hypofriend.search` is the same product family as `mobile.hypofriend.de` and the `*.app` tier. A **10-week-old app, three weeks past its last update, actively shipped by a GmbH that simultaneously has `api` (dead), `mobile` (zero-target 503), and five `*.app` subdomains (dead EIP)** is a contradiction worth resolving: the shipping build must be calling *some* live endpoint that is not yet in my inventory.
+
+**[SPECULATION]** That unknown endpoint is the highest-value unexamined surface — a first-release mobile client is the classic location for a hardcoded API key/token, and for radar/contact IDOR with weaker auth than the web tier.
+
+## STEP 4 — Auth Surface Delta
+
+No credential or auth finding this cycle. The App Store redirect target is Apple-controlled, so `app.hypofriend.de` is **not** an open redirect, and I am recording it as closed rather than promoting it.
+
+## STEP 5 — New Hypothesis (Ranked)
+
+**H-NEW — Live un-inventoried mobile API behind Hypofriend Radar** — confidence **60**
+
+- **Claim:** a reachable first-party API endpoint backing `de.hypofriend.search` exists outside the dead `api`/`mobile` hosts.
+- **Supporting:** app live and updated 2026-09-17; apex ELB healthy; every known mobile hostname is dead.
+- **Falsifier:** the shipped build resolves to `api.` or `mobile.` only, i.e. the app is simply non-functional against current DNS.
+- **Risk if true:** high (hardcoded client secret and/or unauthenticated radar data). **This is a hypothesis, not a finding.**
+
+Retained unchanged from prior state: property-search BOLA (92, `HUMAN_ONLY`), `/q` CORS chain (55, `AUTH_HELPED`), stale `*.app` EIP (45).
+
+## STEP 6 — Evidence Chain
+
+All new evidence is `GET`/`HEAD`/DNS plus two third-party public APIs (Cert Spotter, Apple lookup). Zero requests to any Hypofriend host carrying customer data; zero mutations. Live target requests this cycle: **one HEAD to `api` (timeout), two HEADs to `app.hypofriend.de` apex.** Well inside the ≤1 rps passive budget.
+
+## STEP 7 — Blockers & Self-Critique
+
+- **crt.sh unreachable** from this environment (repeated `000` timeouts while `example.com` returned 200). Substituted Cert Spotter; noted its partial coverage above.
+- **I nearly logged a false negative** by reading Cert Spotter's app-tier silence as "no such certs". The control against known-existing hosts caught it. Flagging this explicitly because it is exactly the survivor-bias error that manufactures fake negatives.
+- RDAP ownership lookups returned non-JSON; ownership was instead established from the `awselb/2.0` header plus Apple's seller field — a stronger proof of first-party control than RDAP netname would have given.
+- Unresolved: the 301 carries no `Location` chain past Apple, so I have **no** evidence yet of the app's real API host.
+
+## STEP 8 — Prioritized Actions
+
+1. **P0** — Migrate phase `api` → `app`; `api` is dead at cycle 56 and pinning to it yields no further signal.
+2. **P0** — Resolve the actual API base URL of `de.hypofriend.search` v1.0.45 to confirm or kill H-NEW.
+3. **P1** — Keep property-search BOLA as top survivor for the report; **do not** re-probe it (PII + magnitude is human-gated).
+4. **P2** — Leave `/q` write validation `AUTH_HELPED` and `52.14.251.223` recycling `HUMAN_ONLY`.
+
+[RISK] 95/100 — unchanged. Driver remains the direct-origin full-database PII BOLA; H-NEW could raise it further if a hardcoded client secret exists.
+
+[NEXT] Run exactly one passive step: fetch the public Google Play listing for `de.hypofriend.search` via the Play store web page at `https://play.google.com/store/apps/details?id=de.hypofriend.search` (single GET, ≤1 rps, no APK download) to compare its stated developer, data-safety declarations, and version against the iOS build — this either corroborates a live mobile backend or closes H-NEW.

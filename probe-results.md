@@ -1385,3 +1385,9 @@ https://core.hypofriend.de/q -> 200 len=231913
 https://core.hypofriend.de/content/q -> HTTP 404
 https://crt.sh/?q=%25.hypofriend.de&output=json'` -> HTTP 404
 https://uploader.app.hypofriend.de -> ERR <urlopen error timed out>
+
+## 2026-10-06 02:05:21 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://hypofriend.de/q -> 200 len=231913
+https://core.hypofriend.de/q -> 200 len=231913
+https://core.hypofriend.de/content/q -> HTTP 404

@@ -4287,3 +4287,32 @@
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin): POST varies correctly, OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple), facet near
 - LEARN: REJECTED MISCONFIG @ sparplan.hypofriend.de / heyflow.hypofriend.de: Cloudflare edge-certificate gap on delegated funnel names = TLS/misconfiguration class, des
 - LEARN: REJECTED MISCONFIG @ images/assets/static/maps.hypofriend.de: ELB zero-target 503 is a service-availability state, not a vulnerability
+
+## RANKED HYPOTHESES 2026-10-06 02:05:14 UTC
+- [95] core.hypofriend.de/property-search-api: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): Run exactly one passive step: fetch the public Google Play listing for `de.hypofriend.search` via the Play store web page at `https://play.google.com/store/apps
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/content/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonex
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de (origin-wide): credentialed rack-cors reflects any `Origin` including the literal `null` origin, echoes `Access-Control-
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q, /content/q: both GraphQL routes are POST-only — `/content/q/` GET → `404 {"status":404,"error":"Not Found"}`, `/q` GE
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q family (CORS faceting, for the record): `vary: Origin,Accept-Encoding` is present on real responses (200 POST, 404, 30
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/content/q: `root.posts(locale:)` is a public CMS read hard-capped at exactly 100 — the Contentful default page size. `loc
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/content/q: `locale` accepts SQL LIKE globs (`en*`→81, `de*`→63, `*e*`→0) and tolerates trailing punctuation (`en'`, `en--
+- LEARN: REJECTED MISCONFIG @ hypofriend.de content tiers: `m_payload.json` prerender payloads 403 from S3 (`AccessDenied`) on 7 of 17 category paths while 10 return 200
+- LEARN: REJECTED OTHER @ api.hypofriend.de: dead 55th consecutive cycle (DNS A `52.15.184.3` resolves, :80 and :443 both `000` on 10s connect timeout). The pinned POC t
+- LEARN: ACCEPTED OTHER @ *.app.hypofriend.de: Stale A record pins five high-value names to one TCP-filtered origin; EIP-recycling takeover class, decisive check is clou
+- LEARN: ACCEPTED MISCONFIG @ mobile.hypofriend.de: Distinct unrecorded ELB tier with zero healthy targets behind the mobile-app backend hostname
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: Forge re-confirmed live on cycle 54; server issues `__hfp__` and `_hf` to attacker-chosen `link_id`/campaign valu
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Credentialed CORS re-confirmed on the fourth instance (ACAO echo + ACAC true + 7 methods, `vary: Accept-Encod
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Fourth GraphQL instance live (POST 200), credentialed CORS active, mutations disabled via config "missingMuta
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q family: Introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: Global rack-cors middleware — arbitrary path echoes any Origin + ACAC:true + 7 methods
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: Full-DB BOLA chain re-confirmed live (PII auth-free on direct origin)
+- LEARN: ACCEPTED IDOR @ hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (no lead arg)
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302 Location
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: X-Frame-Options: ALLOWALL and credentialed CORS echo are prerequisite weaknesses, not findings on their own
+- LEARN: REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: Forced-logout-via-CSRF explicitly rejected class
+- LEARN: REJECTED OTHER @ core.hypofriend.de/q: createUploadUrl returns 301 to marketing root, presigned-URL vector closed
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/en/account: updateProperty client-side spread bounded by server (PropertyMutationsUpdateInput closed)
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin): POST varies correctly, OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple), facet near
+- LEARN: REJECTED MISCONFIG @ sparplan.hypofriend.de / heyflow.hypofriend.de: Cloudflare edge-certificate gap on delegated funnel names = TLS/misconfiguration class, des
+- LEARN: REJECTED MISCONFIG @ images/assets/static/maps.hypofriend.de: ELB zero-target 503 is a service-availability state, not a vulnerability
