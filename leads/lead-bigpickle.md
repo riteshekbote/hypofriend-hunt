@@ -7403,3 +7403,4 @@ testability: HUMAN_ONLY
 ## 2026-10-06 02:05:04 UTC [target] (model bigpickle)
 [RISK] 95/100 — unchanged. Driver remains the direct-origin full-database PII BOLA; H-NEW could raise it further if a hardcoded client secret exists.
 [NEXT] Run exactly one passive step: fetch the public Google Play listing for `de.hypofriend.search` via the Play store web page at `https://play.google.com/store/apps/details?id=de.hypofriend.search` (single GET, ≤1 rps, no APK download) to compare its stated developer, data-safety declarations, and version against the iOS build — this either corroborates a live mobile backend or closes H-NEW.
+## 2026-10-06 09:10:00 UTC [target] (model bigpickle)

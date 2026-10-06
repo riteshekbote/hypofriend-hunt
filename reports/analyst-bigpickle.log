@@ -52135,3 +52135,375 @@ All new evidence is `GET`/`HEAD`/DNS plus two third-party public APIs (Cert Spot
 [RISK] 95/100 — unchanged. Driver remains the direct-origin full-database PII BOLA; H-NEW could raise it further if a hardcoded client secret exists.
 
 [NEXT] Run exactly one passive step: fetch the public Google Play listing for `de.hypofriend.search` via the Play store web page at `https://play.google.com/store/apps/details?id=de.hypofriend.search` (single GET, ≤1 rps, no APK download) to compare its stated developer, data-safety declarations, and version against the iOS build — this either corroborates a live mobile backend or closes H-NEW.
+===== ANALYST bigpickle 2026-10-06 09:10:11 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS --max-time 20 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" "https://play.google.com/store/apps/details?id=de.hypofriend.search" -o /tmp/opencode/play_hypofriend.html -w "%{http_code} %{size_download}\n"
+200 1106669
+[0m
+## Objective
+- Act as a bug-bounty analyst for the Hypofriend GmbH program (report channel: bugs.olivermaicher.eu), running a 7-step delta/prioritize/hypothesize/self-critique/next-action/learning/risk cycle each turn over the hypofriend.de attack surface.
+- Deep-hunt high-value classes (IDOR/BOLA, auth/session, GraphQL, subdomain takeover, business logic on money/auth flows) with passive-first probes only (GET/HEAD/OPTIONS, ≤1 rps), emitting structured [PRIO]/[HYP]/[PARKED]/[FINAL]/[NEXT]/[LEARN]/[RISK] blocks.
+
+## Important Details
+- Phase/target state: `{"phase": "POC", "target": "api"}` — POC phase pinned to `api.hypofriend.de`, which is dead 54+ consecutive cycles (000, A 52.15.184.3 resolves clean). Phase mismatch is disclosed each cycle, never silently substituted.
+- Probe rules: read-only GET/HEAD/OPTIONS only, ≤1 rps; no mutating/customer-data tests (property-search bulk quantification and `/q` write tests are program-excluded/HUMAN-gated); no use of the leaked Basic credential in active tests; sha256 any secret.
+- Out-of-scope/rejected classes list is long and enforced: descriptive headers/errors, logout-CSRF, Vary:Origin preflight facet, clickjacking without exploit, TLS/cert gaps, ELB zero-target 503, open-redirect variants, etc.
+- Risk score currently 95/100 (CRITICAL), driver = `core.hypofriend.de/property-search-api` unauthenticated full-DB PII BOLA + global rack-cors.
+- Current cycle (2026-10-06 02:05:14 UTC) `[NEXT]` from peer agent (bigpickle): fetch `https://play.google.com/store/apps/details?id=de.hypofriend.search` (single GET, ≤1 rps, no APK) to compare developer/data-safety/version vs iOS build — corroborate live mobile backend or close H-NEW.
+- Ranked top hypothesis: [95] `core.hypofriend.de/property-search-api`: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale.
+- Peers alternate [NEXT] probes: a passive app-tier DNS+CT refresh (`getent ahosts uploader|frontend|appointments|profile|admin.app.hypofriend.de` + `https://crt.sh/?q=%25.hypofriend.de&output=json`) and a POST error-channel probe on `/content/q` (latter is POST — conflicts with GET/HEAD/OPTIONS-only rule; treat cautiously).
+
+## Work State
+### Completed
+- Long-running accepted/confirmed findings carried in KB (with repeated ACCEPTED/REJECTED entries per cycle), notably:
+  - `core.hypofriend.de/property-search-api`: auth-free `propertySearch→exposes→expose` PII BOLA (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany); direct-origin bare headers vs edge CloudFront WAF bypass; CORS closed there (no ACAO echo — contrast class).
+  - `core.hypofriend.de`: global rack-cors reflects any Origin (incl. `null`) + ACAC:true + 7 methods + verbatim ACRH echo on all Rails routes; origin `XFO:ALLOWALL` vs edge `XFO:DENY`; POST varies `Accept,Origin,Accept-Encoding`, OPTIONS varies `Accept-Encoding` only (Vary facet near-inert).
+  - `/q` family (4 GraphQL instances incl. `/content/q/`): introspection disabled but bypassable via error channel (undefinedField typeName + did-you-mean suggester); `root.form_authenticity_token` (per-request 86-char CSRF) and `root.lead.has_admin_cookie` (JSON scalar) readable; mutation 301 gate is POST-static-validation; `/content/q` mutations disabled (`missingMutationConfiguration`); both `/q` routes POST-only (GET → 301/404).
+  - Hardcoded HTTP Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87…`) in public entry bundle → `/api/v3/advisors` live 200.
+  - `/en/exchange` share-link forge: 6-key plaintext `share_id` pool (7 mint stems; `/immobilien`,`/beratung` corrected to canonical shell), arbitrary `link_id`, `utm_*` raw pass-through into 302 Location, `redirect` allowlist `{expose,account}`, locale binding (`/rails` → `/de/konto`); bounded to attribution forgery, not data read.
+  - `/en/account` deploy: 37 mutations, 4 object-addressing (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); `sendVerifiedListingEmail` (vendor-mail send), `submitDocumentAnalysis(files: blob)`, `uploadDocumentExtended(file_link caller-supplied S3 key)`; SSRF class closed (negative); client mass-assignment closed (`PropertyMutationsUpdateInput` server-closed).
+  - `*.app.hypofriend.de` (uploader/frontend/appointments/profile/admin) → single A `52.14.251.223`, TCP-filtered — EIP-recycling takeover class, HUMAN-gated.
+  - Dead/rejected: `api.hypofriend.de` (dead 54+ cycles), `sparplan`/`heyflow` Cloudflare cert gap, `images/assets/static/maps` ELB 503, `mobile.hypofriend.de` zero-target ELB (recorded as surface note), ngrok `*.local` takeover HUMAN-only, `document_analysis_status`/`exposeSeen` not oracles, `unclaimLead` session-scoped, no SSRF args, no SQLi in `locale`.
+
+### Active
+- Cycle output for 2026-10-06: run the 7 steps over current inventory/KB; last recorded [RISK] 95/100 with H-NEW (hardcoded client secret in mobile app) as potential raiser.
+
+### Blocked
+- POC phase pinned to dead host `api.hypofriend.de` (54 cycles 000) — no live surface for phase completion.
+- Property-search bulk PII quantification and `/q` mutation write tests are program-excluded / HUMAN-gated.
+- `*.app.hypofriend.de` takeover decisive check is cloud-side (HUMAN_ONLY).
+
+## Next Move
+1. Execute one passive step: GET `https://play.google.com/store/apps/details?id=de.hypofriend.search` (single request, ≤1 rps, no APK) — compare stated developer, data-safety declarations, and version vs iOS build to corroborate a live mobile backend or close H-NEW (hardcoded client secret hypothesis).
+2. Alternate/backup passive step if mobile lead is closed: `getent ahosts uploader.app.hypofriend.de frontend.app.hypofriend.de appointments.app.hypofriend.de profile.app.hypofriend.de admin.app.hypofriend.de` + `curl -sS 'https://crt.sh/?q=%25.hypofriend.de&output=json'` (DNS/CT only, no origin traffic).
+
+## Relevant Files
+- (none — remote web assets only; key endpoints: `core.hypofriend.de/property-search-api`, `core.hypofriend.de/q`, `core.hypofriend.de/content/q`, `hypofriend.de/en/exchange`, `hypofriend.de/en/account/assets/index-BLX7yr-v.js`, `hypofriend.de/m/_nuxt/<entry>.js`, `hypofriend.de/crm`, `play.google.com/store/apps/details?id=de.hypofriend.search`)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,html,json
+raw=open('play_hypofriend.html',encoding='utf-8',errors='replace').read()
+# developer name
+for pat in [r'itemprop="name" content="([^"]+)"', r'<title>([^<]+)</title>', r'content="([^"]*)"[^>]*itemprop="author"|itemprop="author"[^>]*content="([^"]+)"']:
+    m=re.findall(pat,raw)
+    if m: print("PAT",pat[:40],"=>",m[:3])
+# find visible developer link
+m=re.findall(r'/store/apps/developer\?id=([^"&]+)',raw)
+print("dev ids:",list(dict.fromkeys(m))[:5])
+m=re.findall(r'developerId=([^"&]+)',raw)
+print("developerId:",list(dict.fromkeys(m))[:5])
+# version
+m=re.findall(r'Current Version</div>\s*<span[^>]*>([^<]+)<',raw)
+m2=re.findall(r'"([0-9]+\.[0-9]+(?:\.[0-9]+)*)"[^>]*>?</',raw)
+print("version patterns:",m[:3], m2[:5])
+# Updated / size
+for label in ['Updated on','Size','Offered by','Released on','Contains ads','In-app purchases']:
+    i=raw.find(label)
+    if i!=-1:
+        seg=re.sub(r'<[^>]+>',' ',raw[i:i+300])
+        seg=html.unescape(re.sub(r'\s+',' ',seg))
+        print(label,"::",seg[:160])
+EOF
+dev ids: ['Hypofriend']
+developerId: []
+version patterns: [] ['1.0.45', '5.0']
+Updated on :: Updated on Sep 15, 2026 <div class="VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-INsAgc VfPpkd-LgbsSe-OWXEXe-dgl2Hf Rj2Mlf OLiIxf PDpWxe P62QJc LQeN7 LMoCf" jscontroller=
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,html
+raw=open('play_hypofriend.html',encoding='utf-8',errors='replace').read()
+def txt(seg):
+    s=re.sub(r'<script.*?</script>','',seg,flags=re.S)
+    s=re.sub(r'<[^>]+>',' ',s)
+    return html.unescape(re.sub(r'\s+',' ',s)).strip()
+# title
+m=re.search(r'<title>([^<]+)</title>',raw); print("TITLE:",m.group(1) if m else None)
+# meta description
+m=re.search(r'<meta name="description" content="([^"]+)"',raw); print("DESC:",(m.group(1)[:300] if m else None))
+# schema.org JSON-LD
+for m in re.finditer(r'<script type="application/ld\+json">(.*?)</script>',raw,re.S):
+    print("JSONLD:",m.group(1)[:800])
+# version near "Current Version"
+i=raw.find('Current Version')
+print("CURVER SEG:",txt(raw[i:i+400])[:200] if i!=-1 else "n/a")
+# data safety link
+print("dataSafety:",re.findall(r'/store/apps/data-safety\?id=[^"&]+',raw)[:2])
+# permissions
+print("permissions page:",re.findall(r'/store/apps/permissions\?id=[^"&]+',raw)[:2])
+# stats text like "10K+Downloads"
+m=re.findall(r'([0-9.,]+[KMB]?\+)\s*(Downloads|downloads)',raw)
+print("downloads:",m[:3])
+# rating
+m=re.findall(r'([0-9.]+)\s*star',raw)[:3]; print("stars:",m)
+# email / website / privacy policy
+print("privacy:",re.findall(r'https?://[^"\']*privacy[^"\']*',raw)[:4])
+print("hypofriend urls:",list(dict.fromkeys(re.findall(r'https?://[a-z0-9.-]*hypofriend\.[a-z.]+[^"\'\\ ]*',raw)))[:15])
+EOF
+TITLE: None
+DESC: None
+CURVER SEG: n/a
+dataSafety: []
+permissions page: []
+downloads: []
+stars: ['.', '.', '5.0']
+privacy: ['https://myactivity.google.com/product/google_play/personalization?utm_source=play&amp;utm_medium=play_store_web&amp;utm_campaign=play_privacy_center&amp;authuser', 'https://policies.google.com/privacy', 'https://hypofriend.de/en/privacy', 'https://hypofriend.de/en/privacy will open in a new window or tab.']
+hypofriend urls: ['https://hypofriend.de/en/privacy']
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,html,json
+raw=open('play_hypofriend.html',encoding='utf-8',errors='replace').read()
+# AF_initDataCallback blobs
+blobs=re.findall(r"AF_initDataCallback\(\{key:\s*'([^']+)'[^}]*data:(\[.*?\])\}\);",raw,re.S)
+print("keys:",[b[0] for b in blobs][:20])
+def find_strings(obj,want,out,path=""):
+    if isinstance(obj,str):
+        for w in want:
+            if w.lower() in obj.lower() and len(obj)<400:
+                out.append((path,obj))
+    elif isinstance(obj,list):
+        for i,v in enumerate(obj[:200]): find_strings(v,want,out,path+f"[{i}]")
+    elif isinstance(obj,dict):
+        for k,v in obj.items(): find_strings(v,want,out,path+"."+str(k))
+want=["version","1.0.45","updated","size","developer","email","software","permission","data safety","downloads","interactive"]
+allhits=[]
+for k,d in blobs:
+    try: data=json.loads(d)
+    except Exception as e: continue
+    hits=[]
+    find_strings(data,want,hits)
+    if hits:
+        print("=== key",k,"hits",len(hits))
+        seen=set()
+        for p,s in hits[:40]:
+            if s in seen: continue
+            seen.add(s); print("  ",p,"->",s[:160])
+EOF
+keys: []
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,html
+raw=open('play_hypofriend.html',encoding='utf-8',errors='replace').read()
+# Search raw JSON-ish snippets
+for kw in ['de.hypofriend','1.0.45','Data safety','data-safety','Updated on','Offered by','Software requirements','In-app items','Developer contact','Permissions','Version']:
+    idxs=[m.start() for m in re.finditer(re.escape(kw),raw)][:3]
+    for i in idxs:
+        seg=raw[max(0,i-120):i+260]
+        seg=re.sub(r'<[^>]+>',' ',seg)
+        seg=html.unescape(re.sub(r'\s+',' ',seg))
+        print(f"[{kw}] {seg[:300]}")
+    print('---')
+EOF
+[de.hypofriend]  <link rel="alternate" href="https://play.google.com/store/apps/details?id=de.hypofriend.search&hl=en_US"
+[de.hypofriend] details?id=de.hypofriend.search&hl=en_US"> <link rel="alternate" href="https://play.google.com/store/apps/details?id=de.hypofriend.sea
+[de.hypofriend] id=de.hypofriend.search" hreflang="x-default"> <link rel="alternate" href="https://play.google.com/store/apps/details?id=de.hypofriend.
+---
+[1.0.45] gAQ9iNJY7R_4wd4PG71_lQX97JVU4tq5wKBG2MmjNmbeGLQLFkSMsJkYNufrx6"]],"You can request that data be deleted"]],1],"141":[[["1.0.45"]],[[[36]],[[[26,"8.0"]]]]],"145":[null,[null,"We fixed some bugs to make your property search even smoother."]],"146":[["Sep 15, 2026",[1789482019,303000000]]],"155":[null,
+---
+[Data safety] yOxe" jscontroller="NkbkFd" jsshadow> Data safety <div class="VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ QDwDD mN1ivc VxpoF" jscontroller="nKuFpb" jsaction="click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue; touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc; to
+[Data safety] a class="WpHeLc VfPpkd-mRLv6" href="/store/apps/datasafety?id=de.hypofriend.search" aria-label="See more information on Data safety" jsname="hSRGPd"> Safety starts with understanding how developers collect and share your data. Data privacy and security practices may vary based on y
+---
+---
+[Updated on] l estate: ImmoScout, Immowelt & Co. with valuation & financing Updated on Sep 15, 2026 <div class="VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-INsAgc VfPpkd-LgbsSe-OWXEXe-dgl2Hf Rj2Mlf OLiIxf PDpWxe P
+---
+---
+---
+---
+---
+---
+---
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,html
+raw=open('play_hypofriend.html',encoding='utf-8',errors='replace').read()
+def clean(s):
+    s=re.sub(r'<script.*?</script>','',s,flags=re.S)
+    s=re.sub(r'<[^>]+>',' ',s)
+    return html.unescape(re.sub(r'\s+',' ',s)).strip()
+# short description meta og
+for attr in ['og:title','og:description','twitter:description']:
+    m=re.search(r'<meta property="%s" content="([^"]+)"'%attr,raw) or re.search(r'<meta name="%s" content="([^"]+)"'%attr,raw)
+    print(attr,":",(m.group(1)[:400] if m else None))
+# "Offered by"
+for kw in ['Offered by','Hypofriend','1M+','100K+','10K+','Downloads','reviews','Review']:
+    for i in [m.start() for m in re.finditer(re.escape(kw),raw)][:2]:
+        print(f"[{kw}]",clean(raw[max(0,i-150):i+250])[:280])
+    print('--')
+EOF
+og:title : Hypofriend Radar - Apps on Google Play
+og:description : None
+twitter:description : Buy real estate: ImmoScout, Immowelt &amp; Co. with valuation &amp; financing
+--
+[Hypofriend] Hypofriend Radar - Apps on Google Play <m
+[Hypofriend] /apps/details?id=de.hypofriend.search&hl=en_US"> Hypofriend Radar - Apps on Google Play <meta property="og:image" content="https://play-lh.googleusercont
+--
+--
+--
+--
+[Downloads] e-material-icons notranslate oUaal" aria-hidden='true'>info 100+ Downloads <c-wiz jsrenderer="qk5AGd" class="FuSudc" jsshadow jsdata="deferred-i8" data-p="%.@.["
+--
+[reviews] jDc"> reviews My Play activity <li class=" VfPpkd-StrnGf-rymPhb-ibnC6b" jsaction=" keydown:RDtNu; keyup:JdS61c; click:o6ZaF; mousedown:teoBgf; mouseup:NZPHBc; mouseleave:xq3APb;
+[reviews] [null,null,"/store/paymentmethods"],null,null,"payment",null,null,null,[163]],["My Play activity",null,[null,null,"/store/myplayactivity"],null,null,"reviews",null,null,null,[164]],["Offers",null,[null,null,"/store/account/rewards"],null,null,"redeem",null,null,null,[165]],["Gift
+--
+[Review] ing debt relief plan.\u003cbr\u003e\u003cbr\u003eInstant Notifications: Receive push notifications the moment a settlement offer is available to you. Review and authorize it with a single tap right from the app.\u003cbr\u003e\u003cbr\u003eComprehensive Overview: Access detailed i
+--
+[0m
+[0m$ [0msleep 1; curl -sS --max-time 20 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" "https://play.google.com/store/apps/datasafety?id=de.hypofriend.search" -o /tmp/opencode/play_datasafety.html -w "%{http_code} %{size_download}\n"
+200 635726
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,html
+raw=open('play_datasafety.html',encoding='utf-8',errors='replace').read()
+def clean(s):
+    s=re.sub(r'<script.*?</script>','',s,flags=re.S)
+    s=re.sub(r'<style.*?</style>','',s,flags=re.S)
+    s=re.sub(r'<[^>]+>',' ',s)
+    return html.unescape(re.sub(r'\s+',' ',s)).strip()
+# grab main content region
+i=raw.find('Data safety')
+print(clean(raw[i:i+6000])[:3000])
+EOF
+Data safety Here's more information the developer has provided about the kinds of data this app may collect and share, and security practices the app may follow. Data practices may vary based on your app version, use, region, and age. Learn more Data shared Data that may be shared with other companies or organizations Personal info Email address and User IDs expand_more Data shared and for what purpose info Email address App functionality User IDs App functionality, Analytics, Fraud prevention, security, and compliance Data collected Data this app may collect App info and performance Crash logs expand_more Data collected and for what purpose info Crash logs App functionality, Analytics Personal info <div c
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,html
+raw=open('play_datasafety.html',encoding='utf-8',errors='replace').read()
+def clean(s):
+    s=re.sub(r'<script.*?</script>','',s,flags=re.S)
+    s=re.sub(r'<style.*?</style>','',s,flags=re.S)
+    s=re.sub(r'<[^>]+>',' ',s)
+    return html.unescape(re.sub(r'\s+',' ',s)).strip()
+i=raw.find('Data safety')
+txt=clean(raw[i:i+20000])
+print(txt[:6000])
+EOF
+Data safety Here's more information the developer has provided about the kinds of data this app may collect and share, and security practices the app may follow. Data practices may vary based on your app version, use, region, and age. Learn more Data shared Data that may be shared with other companies or organizations Personal info Email address and User IDs expand_more Data shared and for what purpose info Email address App functionality User IDs App functionality, Analytics, Fraud prevention, security, and compliance Data collected Data this app may collect App info and performance Crash logs expand_more Data collected and for what purpose info Crash logs App functionality, Analytics Personal info Email address and User IDs expand_more Data collected and for what purpose info Email address App functionality, Account management User IDs App functionality, Analytics, Fraud prevention, security, and compliance App activity App interactions expand_more Data collected and for what purpose info App interactions Analytics Security practices Data is encrypted in transit Your data is transferred over a secure connection You can request that data be deleted The developer provides a way for you to request that your data be deleted info For more information about collected and shared data, see the developer's privacy policy Google Play Play Pass Play Points Gift cards Redeem Refund policy Kids & family Parent Guide Family sharing Terms of Service Privacy About Google Play Developers Google Store United States (English (United States)) window.IJ_values = [[null,null,"",false,null,null,true,false],'0','https:\/\/play.google.com\/',[["com.brandonamiosci.m1test7","com.mythicowl.truckful","com.playdigious.absolum"]],[[["Benchmark Result - Failed",[null,null,"/googleplaygames?appCheck\u003dH4sIAAAAAAAA_9P48eRu80QTCzYLZgt2Cy4vTktLSz0wBADmaaG9GgAAAA"]],["Benchmark Result - V12N Disabled",[null,null,"/googleplaygames?appCheck\u003dH4sIAAAAAAAA_9P48eRu80QTCy4vTktLSz0wBACdaWZDFAAAAA"]],["Benchmark Result - Check Passed",[null,null,"/googleplaygames?appCheck\u003dH4sIAAAAAAAA_9P48eRu80QTL05LS0s9MAQAd8mk-hIAAAA"]]]], null ,'boq_playuiserver_20261004.18_p0','play.google.com','0.0.0',[], 0.0 ,'0.0.0.0',[], 0.0 ,'','b9Ok2dBbQiVkTjiacJXCEQ','veJva6ZaiHqNIkFcCUqSFw','DEFAULT', 1.791277625E9 ,'', 2026.0 ,'','','','','','https:\/\/debug-settings.corp.google.com\/play','https:\/\/play.google.com\/store\/apps\/datasafety', null ,'ltr', false , false ,'https:\/\/accounts.google.com\/AccountChooser?continue\x3dhttps:\/\/play.google.com\/store\/apps\/datasafety?id%3Dde.hypofriend.search\x26hl\x3den-US','https:\/\/accounts.google.com\/ServiceLogin?service\x3dgoogleplay\x26passive\x3d86400','https:\/\/accounts.google.com\/ServiceLogin?hl\x3den-US\x26continue\x3dhttps:\/\/play.google.com\/store\/apps\/datasafety?id%3Dde.hypofriend.search','https:\/\/accounts.google.com\/SignOutOptions?continue\x3dhttps:\/\/play.google.com\/store\/apps\/datasafety?id%3Dde.hypofriend.search','https:\/\/accounts.google.com\/SignOutOptions?continue\x3dhttps:\/\/play.google.com\/web\/store\/apps\/datasafety?id%3Dde.hypofriend.search', false ,'\/\/www.gstatic.com\/android\/market_images\/web\/','\/store', 0.0 , false , false , false , false , false , true , false , false , true , false ,'en','en-US','https:\/\/play.google.com', true ,'en_US', 1.0 , null ,[], null ,'https:\/\/www.gstatic.com\/android\/market_images\/web\/play_pass_signup_page_header_20_image_desktop_version2.png',new Set(['com.brandonamiosci.m1test7','com.farbridge.astroduel2','com.farbridge.rwbysp','com.xishanju.mechabreak',]),'https:\/\/play.google.com','US', false , false ,'https:\/\/myaccount.google.com\/privacypolicy?hl\x3den-US', false , null ,'\/store\/search', true ,'en-US_us','https:\/\/www.gstatic.com\/_\/boq-play\/_\/r\/', null ,'https:\/\/myaccount.google.com\/termsofservice?hl\x3den-US','gdu',[["jp.co.ncjapan.janryumon","jp.co.ncjapan.lineagem"]], false ,["Google Play",[true,"/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003den_US",null,[["x-default","/store/apps/datasafety?id\u003dde.hypofriend.search"],["en-US","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003den_US"],["af","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003daf"],["am","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dam"],["ar","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dar"],["as","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003das"],["az","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003daz"],["be","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dbe"],["bg","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dbg"],["bn","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dbn"],["bs","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dbs"],["ca","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dca"],["cs","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dcs"],["da","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dda"],["de","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dde"],["de-AT","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dde_AT"],["de-CH","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003dde_CH"],["el","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003del"],["en","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003den"],["en-AU","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003den_AU"],["en-CA","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003den_CA"],["en-GB","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003den_GB"],["en-IE","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003den_IE"],["en-IN","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026hl\u003den_IN"],["en-NZ","/store/apps/datasafety?id\u003dde.hypofriend.search\u0026
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,html
+raw=open('play_hypofriend.html',encoding='utf-8',errors='replace').read()
+def clean(s):
+    s=re.sub(r'<[^>]+>',' ',s); return html.unescape(re.sub(r'\s+',' ',s)).strip()
+for kw in ['Developer contact','Website','Email','Address','Offered by','Hypofriend GmbH','privacy policy','Version','Content rating','Interactive Elements','In-app products']:
+    hits=[m.start() for m in re.finditer(re.escape(kw),raw)][:2]
+    for i in hits:
+        print(f"[{kw}]",clean(raw[max(0,i-100):i+300])[:300])
+    print('--')
+# app name + short body
+m=re.search(r'itemprop="name"[^>]*>([^<]+)<',raw); print("name itemprop:",m.group(1) if m else None)
+EOF
+--
+--
+--
+--
+--
+--
+--
+--
+[Content rating] 5oE9ecC6kG4kURTCb1K41gpqVsN0WjmJwJh-wX8vILzpcc1kYHt56aLN2g=w96-h32-rw 2x" class="T75of xGa6dd" alt="Content rating" itemprop="image" /> Everyone <i class="google-material-icons notran
+[Content rating] zitu5oE9ecC6kG4kURTCb1K41gpqVsN0WjmJwJh-wX8vILzpcc1kYHt56aLN2g=s76-rw 2x" class="T75of jCoNsd" alt="Content rating" itemprop="image" /> Everyone Learn more <div ssk='8:ZnF4ie-0
+--
+--
+--
+name itemprop: Hypofriend Radar
+[0m
+[0m$ [0msleep 1; curl -sS --max-time 20 "https://itunes.apple.com/search?term=hypofriend&entity=software&country=de&limit=10" -o /tmp/opencode/itunes.json -w "%{http_code} %{size_download}\n"
+200 8192
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json
+d=json.load(open('itunes.json'))
+print("count",d.get("resultCount"))
+for r in d.get("results",[]):
+    print({k:r.get(k) for k in ["trackName","bundleId","version","currentVersionReleaseDate","sellerName","artistName","formattedPrice","minimumOsVersion","trackViewUrl"]})
+EOF
+count 1
+{'trackName': 'Hypofriend Radar', 'bundleId': 'de.hypofriend.search', 'version': '1.0.45', 'currentVersionReleaseDate': '2026-09-17T11:06:14Z', 'sellerName': 'Hypofriend GmbH', 'artistName': 'Hypofriend GmbH', 'formattedPrice': 'Gratis', 'minimumOsVersion': '15.0', 'trackViewUrl': 'https://apps.apple.com/de/app/hypofriend-radar/id6766953909?uo=4'}
+[0m
+[0m$ [0msleep 1; curl -sS --max-time 15 -A "Mozilla/5.0" "https://api.hypofriend.de/" -o /dev/null -w "api:%{http_code} err:%{errormsg}\n"; getent ahosts api.hypofriend.de | head -3
+curl: (28) Connection timed out after 15001 milliseconds
+api:000 err:Connection timed out after 15001 milliseconds
+52.15.184.3     STREAM api.hypofriend.de
+52.15.184.3     DGRAM  
+52.15.184.3     RAW
+[0m
+[0m$ [0mfor h in uploader.app frontend.app appointments.app profile.app admin.app; do printf "%-22s " "$h.hypofriend.de"; getent ahosts "$h.hypofriend.de" | head -1 || echo "NX"; done; printf "%-22s " "api.hypofriend.de"; getent ahosts api.hypofriend.de | head -1
+uploader.app.hypofriend.de 52.14.251.223   STREAM uploader.app.hypofriend.de
+frontend.app.hypofriend.de 52.14.251.223   STREAM frontend.app.hypofriend.de
+appointments.app.hypofriend.de 52.14.251.223   STREAM appointments.app.hypofriend.de
+profile.app.hypofriend.de 52.14.251.223   STREAM profile.app.hypofriend.de
+admin.app.hypofriend.de 52.14.251.223   STREAM admin.app.hypofriend.de
+api.hypofriend.de      52.15.184.3     STREAM api.hypofriend.de
+[0m
+[0m$ [0msleep 1; curl -sS --max-time 25 "https://crt.sh/?q=%25.hypofriend.de&output=json" -o /tmp/opencode/crt.json -w "%{http_code} %{size_download}\n"
+502 150
+[0m
+[0m$ [0msleep 3; curl -sS --max-time 30 "https://crt.sh/?q=%25.hypofriend.de&output=json" -o /tmp/opencode/crt.json -w "%{http_code} %{size_download}\n"; head -c 200 /tmp/opencode/crt.json
+502 150
+<html>
+<head><title>502 Bad Gateway</title></head>
+<body>
+<center><h1>502 Bad Gateway</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+[0m
+[0m$ [0msleep 1; curl -sS --max-time 25 "https://api.certspotter.com/v1/issuances?domain=hypofriend.de&include_subdomains=true&expand=dns_names" -o /tmp/opencode/certs.json -w "%{http_code} %{size_download}\n"
+200 11370
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json,datetime
+d=json.load(open('certs.json'))
+names=set(); latest=0
+for it in d:
+    names.update(it.get('dns_names',[]))
+    latest=max(latest,it.get('not_before',0))
+print("issuances:",len(d),"distinct names:",len(names))
+print("latest not_before:",datetime.datetime.utcfromtimestamp(latest).isoformat()+"Z")
+for n in sorted(names): print(" ",n)
+EOF
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+TypeError: '>' not supported between instances of 'str' and 'int'
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json
+d=json.load(open('certs.json'))
+names=set(); latest=""
+for it in d:
+    names.update(it.get('dns_names',[]))
+    nb=it.get('not_before') or ""
+    if nb>latest: latest=nb
+print("issuances:",len(d),"distinct names:",len(names))
+print("latest not_before:",latest)
+for n in sorted(names): print(" ",n)
+EOF
+issuances: 26 distinct names: 9
+latest not_before: 2026-10-05T03:26:57Z
+  *.hypofriend.de
+  a.hypofriend.de
+  bonava.hypofriend.de
+  email.m.hypofriend.de
+  email.m2.hypofriend.de
+  evernest.hypofriend.de
+  hypofriend.de
+  myne.hypofriend.de
+  www.hypofriend.de
+[0m
+**Cycle 2026-10-06 (delta → risk).** All probes passive GET/DNS, ≤1 rps. Phase mismatch disclosed: POC target `api.hypofriend.de` **dead 55 consecutive cycles** (000 timeout, `52.15.184.3` clean resolve).
+
+### Delta (7 requests)
+1. `GET play.google.com/store/apps/details?id=de.hypofriend.search` → **200**: "Hypofriend Radar", v**1.0.45**, updated **Sep 15 2026**, 100+ downloads, dev `Hypofriend`, privacy → `hypofriend.de/en/privacy`, content rating Everyone.
+2. `GET .../datasafety?id=...` → **200**: shared = email address + User IDs (functionality/analytics/fraud-prevention); collected = crash logs, email, user IDs, app interactions; encrypted in transit; delete-request path declared. **No location/contacts/phone declared.**
+3. `GET itunes.apple.com/search?term=hypofriend&country=de` → **200**: 1 hit — same bundleId `de.hypofriend.search`, **v1.0.45**, released 2026-09-17, seller Hypofriend GmbH, id6766953909.
+4. `getent ahosts` ×6 → all five `*.app.hypofriend.de` still `52.14.251.223` (single EIP, unchanged); `api` still `52.15.184.3`.
+5. `crt.sh/?q=%25.hypofriend.de` → **502 ×2** (crt.sh outage — parked, retry later).
+6. Fallback `api.certspotter.com` → **200**: 26 issuances, 9 distinct names, latest `2026-10-05` (wildcard auto-renew). Names: `*.hypofriend.de`, `hypofriend.de`, `www`, `a`, `email.m`, `email.m2`, **`bonava`, `evernest`, `myne`** (partner-specific hosts — new passive surface, previously untracked). **No `*.app` certs issued** → corroborates app tier has no TLS/ACM binding.
+
+No accepted/confirmed finding changed. No new finding promoted.
+
+### [PRIO]
+1. [95] `core.hypofriend.de/property-search-api` — full-DB BOLA + direct-origin WAF bypass (quantification HUMAN-gated). Unchanged.
+2. [88] `core.hypofriend.de` global rack-cors (`ACAO` reflect any Origin incl. `null`, `ACAC:true`, `ACRH` echo, `XFO:ALLOWALL` origin vs edge `DENY`). Unchanged.
+3. [NEW, low] Untouched hostnames from CT: `bonava/e
