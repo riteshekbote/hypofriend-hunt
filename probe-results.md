@@ -1422,3 +1422,16 @@ https://hypofriend.de/q` -> 200 len=244420
 https://core.hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/q -> 200 len=244420
 https://core.hypofriend.de/content/q -> HTTP 404
+
+## 2026-10-07 13:47:23 UTC
+https://core.hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=244420
+https://core.hypofriend.de/content/q -> HTTP 404
+https://hypofriend.de/en/exchange?format=json&link_id=00383791-c379-5cf0-870e-0aedff3372aa&share_id=985da3c5-60f6-46cf-b467-8edcf0a61063&utm_source=email&utm_medium=free&utm_campaign=real_estate_v35` -> 200 len=244420
+https://hypofriend.de/en/account?ts=1791380516&utm_campaign=probe&utm_medium=probe&utm_source=probe` -> 200 len=3766
+https://hypofriend.de/` -> 200 len=244420
+https://hypofriend.de/en/account?ts=1791380154&utm_campaign=probe&utm_medium=probe&utm_source=probe` -> 200 len=3766
+https://hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/graphiql -> 200 len=0
+https://hypofriend.de -> 200 len=244420
+https://core.hypofriend.de -> 200 len=244420

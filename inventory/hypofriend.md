@@ -1865,3 +1865,25 @@ www.hypofriend.de
 - CHANGED hypofriend.de/en/exchange share-link forge re-confirmed cycle 54: 6-key `share_id` pool harvestable, arbitrary `link_id`, `utm_*` raw pass-through into 302 Location
 - CHANGED *.app.hypofriend.de tier: uploader/frontend/appointments/profile/admin all resolve to single A 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
 - CHANGED mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets
+
+## 2026-10-07 13:47:05 UTC
+- CHANGED api.hypofriend.de dead 55th consecutive cycle (000, 12s connect timeout on :443/:80, A 52.15.184.3 clean) — POC phase still pinned to dead target
+- CHANGED core.hypofriend.de/q coercion/validation error channel reconstructs WRITE surface (6 contracts + 3 payload types + 1 nested input) in single cross-origin batched request with `data` absent, ACAO+ACAC 
+- CHANGED core.hypofriend.de/content/q confirmed as LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`), no suggester, no `root.lead`, no `root.
+- CHANGED hypofriend.de/en/exchange share-link forge re-confirmed cycle 54: 6-key `share_id` pool harvestable, arbitrary `link_id`, `utm_*` raw pass-through into 302 Location
+- CHANGED *.app.hypofriend.de tier: uploader/frontend/appointments/profile/admin all resolve to single A 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
+- CHANGED mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets
+- NEW Production GraphiQL IDE live at core.hypofriend.de/graphiql and hypofriend.de/graphiql (GET 200/697B, no auth, fresh `_hf` session minted) — `data-graphql-endpoint-path="/q"` plus a per-request X-CSRF
+- NEW core.hypofriend.de/content/graphiql → GET 200/705B with `data-graphql-endpoint-path="/content/q"` — second IDE on the 4th GraphQL app; controls `/en/plus/graphiql` and `/en/health/graphiql` → 301 (no 
+- NEW `/swagger.json` is a recognized-slug mint stem (8th) on both origins: GET hypofriend.de/swagger.json and core.hypofriend.de/swagger.json → 301 `https://hypofriend.de/en/exchange?format=json&link_id=00
+- NEW Full 6-key share_id pool now enumerated by value — this cycle harvested `/staff`→`f46e3e93-1b07-423d-837f-b5f56d4f9f90`, `/uploads`→`40595fb5-660f-477a-80ce-abcfbae2d7d2`, `/karriere`→`c0c7f5c2-b82a-4
+- CHANGED api.hypofriend.de dead 56th consecutive cycle — `000` on :443 and :80 at 8s connect-timeout (curl exit 28), A `52.15.184.3` resolves clean; POC phase still pinned to a dead host, phase/target mismatch
+- CHANGED GET core.hypofriend.de/q and GET hypofriend.de/q (with and without `?query={__typename}`) → 301 `https://hypofriend.de/` with rack-cors headers — the GraphQL route is POST-only on both origins, so und
+- CHANGED hypofriend.de/en/exchange forge re-confirmed live by GET: `share_id=dddb5cba-…` + arbitrary nil `link_id` + attacker `utm_*` → 302 `https://hypofriend.de/en/account?ts=1791380154&utm_campaign=probe&ut
+- CHANGED core.hypofriend.de global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (Origin `https://evil.example`, ACRH `content-type`): HTTP/2 200, ACAO echo, `access-control-allow-credentials: true`
+- CHANGED api.hypofriend.de: dead 55th consecutive cycle (000 on :443/:80, A 52.15.184.3 clean) — POC phase still pinned to dead host
+- CHANGED core.hypofriend.de/q: coercion/validation error channel reconstructs WRITE surface (6 contracts + 3 payload types + 1 nested input) in single cross-origin batched request with `data` absent, ACAO+ACAC
+- CHANGED core.hypofriend.de/content/q: confirmed as LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`), no suggester, no `root.lead`, no `root
+- CHANGED hypofriend.de/en/exchange: share-link forge re-confirmed cycle 54 — 6-key `share_id` pool harvestable, arbitrary `link_id`, `utm_*` raw pass-through into 302 Location
+- CHANGED *.app.hypofriend.de tier: uploader/frontend/appointments/profile/admin all resolve to single A 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
+- CHANGED mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets
