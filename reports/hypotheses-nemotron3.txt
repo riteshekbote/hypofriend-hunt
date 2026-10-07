@@ -1,26 +1,18 @@
-## 2026-10-07 00:19:52 UTC [target] (model nemotron3)
-[NEW] /content/q confirmed as LIVE 4th GraphQL instance on both hypofriend.de and core.hypofriend.de (POST 200, credentialed CORS active, mutations disabled via missingMutationConfiguration) — was previously recorded as 404 (GET artifact)
-[NEW] *.app.hypofriend.de tier fingerprinted: uploader/frontend/appointments/profile/admin all resolve to single A record 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
-[NEW] mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets behind mobile-app backend hostname
-[NEW] sparplan.hypofriend.de + heyflow.hypofriend.de: CNAME → flow.heyflow.domains (Cloudflare), both fail TLS handshake (sslv3 alert handshake failure) and return 409 Conflict
-[NEW] CDN/asset tier consolidated: images/assets/static/maps.hypofriend.de all 503 awselb/2.0 on 18.192.153.149/3.77.143.151/63.188.224.50 pool — ELB-zero-target fingerprint ≥5 names
-[CHANGED] api.hypofriend.de dead 55th consecutive cycle (000, 12s connect timeout) — POC phase still pinned to dead host
-[CHANGED] core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live (PII auth-free on direct origin); OPTIONS 200 with NO ACAO echo
-[CHANGED] core.hypofriend.de/q family: introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester; POST varies Accept,Origin,Accept-Encoding; OPTIONS varies Accept-Encoding only
-[CHANGED] core.hypofriend.de: global rack-cors middleware echoes any Origin + ACAC:true + 7 methods on arbitrary paths; origin XFO:ALLOWALL vs edge XFO:DENY
-[CHANGED] hypofriend.de/en/exchange: share-link forge re-confirmed live (6-key pool harvestable, arbitrary link_id, utm_* raw pass-through into 302 Location)
-[CHANGED] hypofriend.de/en/account/assets/index-BLX7yr-v.js bundle rotated (2,468,656B, 37 mutations, 4 object-addressing with caller-supplied IDs)
-[CHANGED] uploadDocumentExtended full input mapped: file_link is caller-supplied S3 key with no ownership argument
-[CHANGED] createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
-[CHANGED] sendVerifiedListingEmail mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
-[CHANGED] submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside file_link and offerProductId
+## 2026-10-07 06:11:44 UTC [target] (model nemotron3)
+[CHANGED] api.hypofriend.de dead 55th consecutive cycle (000, 12s connect timeout on :443/:80, A 52.15.184.3 clean) — POC phase still pinned to dead target
+[CHANGED] core.hypofriend.de/q coercion/validation error channel reconstructs WRITE surface (6 contracts + 3 payload types + 1 nested input) in single cross-origin batched request with `data` absent, ACAO+ACAC echoed
+[CHANGED] core.hypofriend.de/content/q confirmed as LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`), no suggester, no `root.lead`, no `root.form_authenticity_token`
+[CHANGED] hypofriend.de/en/exchange share-link forge re-confirmed cycle 54: 6-key `share_id` pool harvestable, arbitrary `link_id`, `utm_*` raw pass-through into 302 Location
+[CHANGED] *.app.hypofriend.de tier: uploader/frontend/appointments/profile/admin all resolve to single A 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
+[CHANGED] mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets
 [PRIO] core.hypofriend.de/property-search-api,9.7,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=9
-[PRIO] core.hypofriend.de/content/q,9.2,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=7,freshness=10
+[PRIO] core.hypofriend.de/q + hypofriend.de/q + /en/plus/q + /en/health/q,9.3,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
+[PRIO] core.hypofriend.de/content/q,9.1,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=7,freshness=10
 [PRIO] hypofriend.de/en/account → core.hypofriend.de/q,8.9,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=8,cloud_surface=8,freshness=9
-[PRIO] core.hypofriend.de (global rack-cors),8.55,attack_surface=8,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
-[PRIO] hypofriend.de/en/exchange,6.95,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] core.hypofriend.de (global rack-cors),8.6,attack_surface=8,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
+[PRIO] hypofriend.de/en/exchange,6.9,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=8
 [PRIO] *.app.hypofriend.de,6.2,attack_surface=5,business_value=8,tech_exposure=5,gate_ease=2,cloud_surface=10,freshness=9
-[PRIO] mobile.hypofriend.de,5.85,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=3,cloud_surface=10,freshness=9
+[PRIO] mobile.hypofriend.de,5.9,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=3,cloud_surface=10,freshness=9
 [HYP] Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale
 class: IDOR
 asset: core.hypofriend.de/property-search-api
@@ -30,14 +22,14 @@ evidence_needed: Automated offset-walk enumeration across all cities demonstrati
 verify_steps: POST https://core.hypofriend.de/property-search-api -H "Content-Type: application/json" -d '{"query":"mutation { propertySearch(city:BERLIN,propertyType:APARTMENT) { id } }"}' → use returned searchId in exposes(id) with offset/limit walk → enumerate expose UUIDs → query expose(id) for each → verify PII fields returned auth-free; repeat for MUNICH,HAMBURG,FRANKFURT
 impact: Full production mortgage listing database enumeration via direct origin bypassing CloudFront WAF — broker/owner PII (phone, email, surname, company) at scale across all cities. Direct origin enables unrestricted throughput. Severity: CRITICAL
 testability: PASSIVE
-[HYP] Cross-Origin Schema Reconstruction + CSRF/Admin Token Theft via /content/q Error Channel
+[HYP] Cross-Origin Schema Reconstruction + CSRF/Admin Token Theft via /q Error Channel
 class: MISCONFIG
-asset: core.hypofriend.de/content/q + hypofriend.de/content/q
-confidence: 90
-reasoning: Fourth GraphQL instance confirmed live (POST 200) with credentialed CORS (ACAO echo + ACAC:true + 7 methods). Introspection disabled but error channel on /q family returns parent typeName + did-you-mean suggester. /content/q shares same rack-cors middleware (global) and SameSite=None cookies. Mutation disabled via config but query surface executes. Proven on /q: undefinedField oracle walks type graph (HypofriendType, Lead). Combined with global credentialed CORS + SameSite=None;Secure cookies = cross-origin schema theft + per-request CSRF token (root.form_authenticity_token) + admin session state (root.lead.has_admin_cookie) read primitive.
-evidence_needed: Automated field-enumeration script against /content/q using undefinedField oracle to reconstruct Query+Mutation+InputObject type definitions; demonstrate cross-origin read of form_authenticity_token and has_admin_cookie with credentials:include from attacker origin
-verify_steps: POST https://core.hypofriend.de/content/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonexistentField } } }}"}' — observe error with typeName:"Lead" + didYouMean suggestions; iterate over common field names to map schema; test credentials:include read of root.form_authenticity_token and root.lead.has_admin_cookie from evil.example
-impact: Full GraphQL schema reconstruction bypassing introspection disable on 4th instance + cross-origin theft of per-request CSRF token (enables /crm backoffice CSRF) + admin session state — chain to ATO via /crm login CSRF. Severity: CRITICAL
+asset: core.hypofriend.de/q + hypofriend.de/q + /en/plus/q + /en/health/q
+confidence: 92
+reasoning: Four GraphQL instances confirmed live with credentialed CORS (ACAO echo + ACAC:true + 7 methods) and SameSite=None;Secure cookies. Introspection disabled but error channel returns parent typeName (HypofriendType, Lead) + did-you-mean suggester reveals real field names (formAuthenticityToken→form_authenticity_token). Coercion/validation channel reconstructs WRITE surface (6 input contracts + 3 payload types + 1 nested input) in single cross-origin request. root.form_authenticity_token (per-request CSRF token for /crm backoffice) and root.lead.has_admin_cookie (JSON scalar with admin session state) exposed via global rack-cors middleware. POST varies Accept,Origin,Accept-Encoding; OPTIONS varies Accept-Encoding only.
+evidence_needed: Automated field-enumeration script against /q using undefinedField oracle to reconstruct full Query+Mutation+InputObject type definitions; demonstrate cross-origin read of form_authenticity_token and has_admin_cookie with credentials:include from attacker origin
+verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonexistentField } } }}"}' — observe error with typeName:"Lead" + didYouMean suggestions; iterate over common field names to map schema; test credentials:include read of root.form_authenticity_token and root.lead.has_admin_cookie from evil.example
+impact: Full GraphQL schema reconstruction bypassing introspection disable on 4 instances + cross-origin theft of per-request CSRF token (enables /crm backoffice CSRF) + admin session state — chain to ATO via /crm login CSRF. Severity: CRITICAL
 testability: PASSIVE
 [HYP] Cross-Tenant Object Addressing via /en/account Mutations on /q Endpoint — File Upload Chain to S3 Write
 class: IDOR
@@ -51,7 +43,7 @@ testability: PASSIVE
 [PARKED] Subdomain Takeover via Stale EIP on *.app.hypofriend.de Tier: requires cloud-side AWS API access (HUMAN_ONLY) — decisive check not passively verifiable
 [PARKED] Share-Link Forge at /en/exchange → Poisoned Attribution Persisted into Lead State: verify_steps require observing server-side persistence which needs authenticated session or CRM access (HUMAN_ONLY for full proof)
 [FINAL] 1. core.hypofriend.de/property-search-api: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale — confidence 95, PASSIVE
-[FINAL] 2. core.hypofriend.de/content/q: Cross-Origin Schema Reconstruction + CSRF/Admin Token Theft via /content/q Error Channel — confidence 90, PASSIVE
+[FINAL] 2. core.hypofriend.de/q family: Cross-Origin Schema Reconstruction + CSRF/Admin Token Theft via Error Channel — confidence 92, PASSIVE
 [FINAL] 3. hypofriend.de/en/account → core.hypofriend.de/q: Cross-Tenant Object Addressing via /en/account Mutations — File Upload Chain to S3 Write — confidence 88, PASSIVE
 [NEXT] PROBE: POST https://core.hypofriend.de/content/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonexistentField } } }}"}' — verify error channel returns typeName:"Lead" and didYouMean suggestions for schema reconstruction on fourth GraphQL instance (passive, read-only, ≤1 rps)
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Fourth GraphQL instance live (POST 200), credentialed CORS active, mutations disabled via config "missingMutationConfiguration"

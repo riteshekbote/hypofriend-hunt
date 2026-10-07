@@ -53972,3 +53972,206 @@ No new hypotheses. Standing 3 re-scored unchanged (BOLA 96, /q write-surface 93,
 
 ## [RISK]
 hypofriend: **95/100 — CRITICAL**, unchanged. New-build sweep confirms the two CRITICAL levers (unauth full-DB PII BOLA via property-search-api; /q credentialed CORS massaging CSRF token + `has_admin_cookie` + write-contract oracle) are deploy-invariant, and the published Basic credential long-lived. Risk flux: **decreased slightly (destination)** — the rebuild changed shell size but showed zero countermeasures to prior findings; **coverage unchanged** (GET/HEAD/OPTIONS only). No writes, no customer data retrieved this cycle.
+===== ANALYST bigpickle 2026-10-07 06:12:47 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u +%Y-%m-%dT%H:%M:%SZ; getent hosts api.hypofriend.de || echo "no dns"
+2026-10-07T06:10:46Z
+52.15.184.3     api.hypofriend.de
+[0m
+[0m$ [0mcurl -sS -o /tmp/opencode/q_origin.txt -D /tmp/opencode/q_origin.hdr -X POST "https://core.hypofriend.de/q" -H "Content-Type: application/json" -H "Origin: https://evil.example" --data '{"query":"mutation { a: selectOffer(input: {}) { __typename } b: updateProperty(input: {}) { __typename } c: deleteLeadDocumentAttachment(input: {}) { __typename } d: requestOfferRenewal(input: {}) { __typename } e: sendVerifiedListingEmail(input: {}) { __typename } f: submitDocumentAnalysis(input: {}) { __typename } zzz: zzzNoSuchField { __typename } }"}' --max-time 15 -w "\nHTTP:%{http_code}\n"; echo "---HEADERS---"; cat /tmp/opencode/q_origin.hdr; echo "---BODY---"; cat /tmp/opencode/q_origin.txt
+HTTP:200
+---HEADERS---
+HTTP/2 200 
+date: Wed, 07 Oct 2026 06:10:49 GMT
+content-type: application/json; charset=utf-8
+content-length: 4908
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: ALLOWALL
+vary: Accept,Origin,Accept-Encoding
+x-robots-tag: none
+etag: W/"1d64bfb6664a1b719968c1fc4b381d59"
+cache-control: max-age=0, private, must-revalidate
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Sun, 07 Oct 2029 06:10:49 GMT; secure; samesite=none
+set-cookie: __hfp__=OC82aC9TT3JSVWFCTUVyYU1WcDNudUNTVmdJV0VFUUdRM1ZNd0FMTnRqdS9ZYXhVTEg5ZjloUmxWSEMrMnVkbVE0RmRObzdiZ0g2NmdkREQrdzYvdlJ5MnBxM09KRmYzcXN1TG9EeDU5am9XUW5YcXQ5QnNEQXYzbG5EQWZ3ckhHa2tCQWpBOEx1UWtkaFg4VGN5NHRBPT0tLTlnZnBIZmZJblc3eW9LeFNjb0d1dFE9PQ%3D%3D--c8a5f0a5571108577233e666e0b21b48830f18b3; domain=hypofriend.de; path=/; expires=Sun, 07 Oct 2029 06:10:49 GMT; secure; httponly; samesite=none
+set-cookie: _hf=cf21a3946321ae0b09183414893fd4ca; domain=hypofriend.de; path=/; expires=Tue, 07 Oct 2036 06:10:49 GMT; secure; httponly
+x-request-id: 82435eee-a99c-4eb6-bdc5-7a9ddd5f1a95
+x-runtime: 0.153373
+strict-transport-security: max-age=63072000; includeSubDomains
+
+---BODY---
+{"meta":{"serverTime":"2026-10-07T06:10:49+00:00","status":0,"key":"OK"},"errors":[{"message":"Argument 'offerProductId' on InputObject 'SelectOfferInput' is required. Expected type ID!","locations":[{"line":1,"column":34}],"path":["mutation","a","input","offerProductId"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"offerProductId","argumentType":"ID!","inputObjectType":"SelectOfferInput"}},{"message":"Argument 'id' on InputObject 'PropertyMutationsUpdateInput' is required. Expected type String!","locations":[{"line":1,"column":78}],"path":["mutation","b","input","id"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"id","argumentType":"String!","inputObjectType":"PropertyMutationsUpdateInput"}},{"message":"Argument 'id' on InputObject 'DeleteLeadDocumentAttachmentInput' is required. Expected type ID!","locations":[{"line":1,"column":136}],"path":["mutation","c","input","id"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"id","argumentType":"ID!","inputObjectType":"DeleteLeadDocumentAttachmentInput"}},{"message":"Argument 'offerProductId' on InputObject 'RequestOfferRenewalInput' is required. Expected type ID!","locations":[{"line":1,"column":185}],"path":["mutation","d","input","offerProductId"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"offerProductId","argumentType":"ID!","inputObjectType":"RequestOfferRenewalInput"}},{"message":"Argument 'customerName' on InputObject 'VerifiedListingEmailInput' is required. Expected type String!","locations":[{"line":1,"column":239}],"path":["mutation","e","input","customerName"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"customerName","argumentType":"String!","inputObjectType":"VerifiedListingEmailInput"}},{"message":"Argument 'customerEmail' on InputObject 'VerifiedListingEmailInput' is required. Expected type String!","locations":[{"line":1,"column":239}],"path":["mutation","e","input","customerEmail"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"customerEmail","argumentType":"String!","inputObjectType":"VerifiedListingEmailInput"}},{"message":"Argument 'customerPhoneNumber' on InputObject 'VerifiedListingEmailInput' is required. Expected type String!","locations":[{"line":1,"column":239}],"path":["mutation","e","input","customerPhoneNumber"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"customerPhoneNumber","argumentType":"String!","inputObjectType":"VerifiedListingEmailInput"}},{"message":"Argument 'providerEmail' on InputObject 'VerifiedListingEmailInput' is required. Expected type String!","locations":[{"line":1,"column":239}],"path":["mutation","e","input","providerEmail"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"providerEmail","argumentType":"String!","inputObjectType":"VerifiedListingEmailInput"}},{"message":"Argument 'city' on InputObject 'VerifiedListingEmailInput' is required. Expected type String!","locations":[{"line":1,"column":239}],"path":["mutation","e","input","city"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"city","argumentType":"String!","inputObjectType":"VerifiedListingEmailInput"}},{"message":"Argument 'quarter' on InputObject 'VerifiedListingEmailInput' is required. Expected type String!","locations":[{"line":1,"column":239}],"path":["mutation","e","input","quarter"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"quarter","argumentType":"String!","inputObjectType":"VerifiedListingEmailInput"}},{"message":"Argument 'street' on InputObject 'VerifiedListingEmailInput' is required. Expected type String!","locations":[{"line":1,"column":239}],"path":["mutation","e","input","street"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"street","argumentType":"String!","inputObjectType":"VerifiedListingEmailInput"}},{"message":"Argument 'houseNumber' on InputObject 'VerifiedListingEmailInput' is required. Expected type String!","locations":[{"line":1,"column":239}],"path":["mutation","e","input","houseNumber"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"houseNumber","argumentType":"String!","inputObjectType":"VerifiedListingEmailInput"}},{"message":"Argument 'files' on InputObject 'SubmitDocumentAnalysisInput' is required. Expected type [S3FileInput!]!","locations":[{"line":1,"column":291}],"path":["mutation","f","input","files"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"files","argumentType":"[S3FileInput!]!","inputObjectType":"SubmitDocumentAnalysisInput"}},{"message":"Field 'zzzNoSuchField' doesn't exist on type 'Mutation'","locations":[{"line":1,"column":310}],"path":["mutation","zzz"],"extensions":{"code":"undefinedField","typeName":"Mutation","fieldName":"zzzNoSuchField"}}]}
+[0m
+## Objective
+- Act as senior bug bounty analyst for Hypofriend GmbH (report channel: bugs.olivermaicher.eu), running an 8-step hypothesis cycle (DELTA → PRIORITIZE → HYPOTHESES → SELF-CRITIQUE → NEXT → LEARN → RISK) producing only structured blocks.
+- Continue the standing hunt across the Hypofriend inventory with read-only, ≤1 rps, passive-first probing.
+
+## Important Details
+- State: `{"phase": "POC", "target": "api"}` — api.hypofriend.de has been dead ~55 consecutive cycles (000, A 52.15.184.3 resolves); phase/target mismatch is disclosed each cycle, all activity stays read-only GET/HEAD/OPTIONS ≤1 rps.
+- In-scope: only company-owned Hypofriend infrastructure per scope.yml + inventory/hypofriend.md.
+- Out-of-scope (REJECTED) classes are extensive: descriptive errors/headers, OPTIONS/TRACE, logout CSRF (`/api/v3/delete-cookie`, `delete-admin-cookie`), clickjacking without exploit, TLS, robots, username enumeration, brute force, etc.
+- Rules: no mutating tests against live customer data; no DB enumeration; secrets sha256'd; facts vs hypotheses separated; 3 hypotheses max, 1 per asset, strict field schema.
+- Risk score: 95/100 CRITICAL, primary driver = unauthenticated full-DB PII BOLA on `core.hypofriend.de/property-search-api`.
+- Hardcoded HTTP Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87…`) in public entry bundle — do not use credential in active tests (200 proof HUMAN-gated).
+- Vary:Origin status resolved: POST `/q` returns `vary: Accept,Origin,Accept-Encoding`; OPTIONS returns `vary: Accept-Encoding` only — prior "mitigation reverted" claims WITHDRAWN (paired control), facet near-inert.
+- Mutation 301 gate on `/q` is POST-static-validation (validation-failing docs return 200 JSON, never 301); no 401/403 exists on mutations — gate semantics still open question.
+
+## Work State
+### Completed
+- Confirmed/accepted findings (standing): 
+  - IDOR: `propertySearch→exposes→expose` full-DB BOLA, auth-free PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany), direct-origin WAF bypass, CORS closed on that route (contrast class).
+  - MISCONFIG: introspection bypass via error channel on `/q` (undefinedField returns parent typeName, did-you-mean suggester); coercion channel reconstructs WRITE surface (6 contracts: `SelectOfferInput`, `PropertyMutationsUpdateInput`, `DeleteLeadDocumentAttachmentInput`, `RequestOfferRenewalInput`, `VerifiedListingEmailInput`, `SubmitDocumentAnalysisInput`/`S3FileInput{s3_key,file_name}` + 3 payload types, `data` absent, ACAO+ACAC echoed).
+  - MISCONFIG: global rack-cors on `core.hypofriend.de` echoes any Origin (incl. `null`) + ACAC:true + 7 methods + echoes ACRH verbatim, all Rails routes.
+  - MISCONFIG: `root.form_authenticity_token` (per-request, 86 chars) + `root.lead.has_admin_cookie` (JSON scalar) exposed via credentialed CORS.
+  - BUSLOGIC: `hypofriend.de/en/exchange` share-link forge — 6-key share_id pool, arbitrary link_id, utm_* pass-through, redirect allowlist `{expose,account}`, mint set 7 stems/6 keys (corrected from 9), `/rails` key has locale binding (`/de/konto`).
+  - AUTH: hardcoded Basic `hypo:advisors2018+` in bundle, live 200 when sent.
+  - `/content/q/` = 4th GraphQL instance, live POST, mutations disabled (`missingMutationConfiguration`), no schema oracle — closed as negative control.
+- Rejected/closed with controls: `unclaimLead` (zero-arg session-scoped), `document_analysis_status` (not existence oracle), `exposeSeen` (not existence oracle), `updateProperty` mass assignment (`PropertyMutationsUpdateInput` server-closed), SSRF absent in `/en/account` deploy (37-mutation re-mine negative), `root.posts` locale SQL injection (parameterized LIKE), `createUploadUrl` (301), `redirect` param not open redirect, `/auth/google_oauth2` not reachable, XFO/CORS standalone not findings.
+
+### Active
+- Last cycle (2026-10-07) emitted standing [LEARN] accept/reject set; [NEXT] pending probe: coercion write-surface batch on `core.hypofriend.de/q` + repeat on edge `hypofriend.de/q` with hostile Origin (read-only, error-only, no writes).
+- Ranked hypotheses: [95] property-search-api BOLA; [20] Google Cloud Project Number in advisor-couching/main.js.
+
+### Blocked
+- POC phase pinned to dead `api.hypofriend.de` (~55 cycles) — no live surface for phase completion; mismatch disclosed, not silently substituted.
+- `/en/account` 4 object-addressing mutation write probes are program-excluded (HUMAN-gated).
+- APK/mobile secret check (de.hypofriend.search) HUMAN/tooling-gated.
+- `*.app.hypofriend.de` EIP-recycling takeover check is cloud-side (HUMAN_ONLY).
+
+## Next Move
+1. Execute `[NEXT] PROBE`: `POST https://core.hypofriend.de/q` with `Origin: https://evil.example`, `Content-Type: application/json`, batched 6-mutation document with empty inputs + poison field — expect 200 coercion errors naming all 6 contracts + `S3FileInput` fields, `data` absent, ACAO+ACAC echoed, `vary: Accept,Origin,Accept-Encoding`; then repeat minimal batch on `https://hypofriend.de/q` (edge). No writes, no DB enumeration, ≤1 rps.
+2. Fallback: run the alternate `[NEXT]` from hypotheses-nemotron3.txt — `POST https://core.hypofriend.de/content/q` with hostile Origin probing `root { lead { nonex... } }` (expected negative, schema disjoint — closure probe).
+
+## Relevant Files
+- (none) — no local files; all work is remote read-only HTTP probing against `hypofriend.de`, `core.hypofriend.de` paths: `/q`, `/content/q`, `/property-search-api`, `/en/exchange`, `/en/plus/q`, `/en/health/q`, `/api/v3/*`, `/crm`, `/m/_nuxt/*` bundles, `/en/account/assets/index-BLX7yr-v.js`.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0msleep 1; curl -sS -o /tmp/opencode/edge_q.txt -D /tmp/opencode/edge_q.hdr -X POST "https://hypofriend.de/q" -H "Content-Type: application/json" -H "Origin: https://evil.example" --data '{"query":"mutation { a: selectOffer(input: {}) { __typename } f: submitDocumentAnalysis(input: {}) { __typename } zzz: zzzNoSuchField { __typename } }"}' --max-time 15 -w "\nHTTP:%{http_code}\n"; echo "---HEADERS---"; cat /tmp/opencode/edge_q.hdr; echo "---BODY---"; cat /tmp/opencode/edge_q.txt
+HTTP:200
+---HEADERS---
+HTTP/2 200 
+server: CloudFront
+content-type: application/json; charset=utf-8
+content-length: 1009
+date: Wed, 07 Oct 2026 06:11:50 GMT
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: DENY
+vary: Accept,Origin,Accept-Encoding
+x-robots-tag: none
+etag: W/"897e48dd0d013687f5bdaef516b32094"
+cache-control: max-age=0, private, must-revalidate
+set-cookie: internal=FALSE; domain=hypofriend.de; path=/; expires=Sun, 07 Oct 2029 06:11:50 GMT; secure; samesite=none
+set-cookie: __hfp__=WWJkalBGbTZHM3RWRlBWY1ZDWFFpZmUzRjR6SE1UZStxb2lPSWEyTnBJM0k5eDA3ZnNLcHE4Y1dVWGswYWhQWFAwT3pZL2wzL1FRcTN3cFFDdi9nTFZuV2RiaGpvejRzdmo5U2lHaFhmc1hLVllhVEk2S1FYbHZVTnpqYVY2b2lOUUpvSXphVERXNDAwaU1ZVmpteHVRPT0tLXRGem15QkhiOGFmV2R3dFQxRndkVlE9PQ%3D%3D--b332c58ad8f859b799c04c7dd30de5a1d6b10a71; domain=hypofriend.de; path=/; expires=Sun, 07 Oct 2029 06:11:50 GMT; secure; httponly; samesite=none
+set-cookie: _hf=1a1a791e2ee59984f3820ea60a983595; domain=hypofriend.de; path=/; expires=Tue, 07 Oct 2036 06:11:50 GMT; secure; httponly
+x-request-id: 270ece9d-0161-4eea-a995-0ea0e0ef0de2
+x-runtime: 0.119598
+via: 1.1 1fe1dd7758d801f67950c659006be104.cloudfront.net (CloudFront)
+alt-svc: h3=":443"; ma=86400
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: ORD58-P16
+x-amz-cf-id: I34lxoDXF3RgfUf-5Hj_8YxWk8SBubBz7_9lAMN5R_INy0W9ROmxLg==
+
+---BODY---
+{"meta":{"serverTime":"2026-10-07T06:11:50+00:00","status":0,"key":"OK"},"errors":[{"message":"Argument 'offerProductId' on InputObject 'SelectOfferInput' is required. Expected type ID!","locations":[{"line":1,"column":34}],"path":["mutation","a","input","offerProductId"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"offerProductId","argumentType":"ID!","inputObjectType":"SelectOfferInput"}},{"message":"Argument 'files' on InputObject 'SubmitDocumentAnalysisInput' is required. Expected type [S3FileInput!]!","locations":[{"line":1,"column":86}],"path":["mutation","f","input","files"],"extensions":{"code":"missingRequiredInputObjectAttribute","argumentName":"files","argumentType":"[S3FileInput!]!","inputObjectType":"SubmitDocumentAnalysisInput"}},{"message":"Field 'zzzNoSuchField' doesn't exist on type 'Mutation'","locations":[{"line":1,"column":105}],"path":["mutation","zzz"],"extensions":{"code":"undefinedField","typeName":"Mutation","fieldName":"zzzNoSuchField"}}]}
+[0m
+[DELTA]
+```
+time: 2026-10-07T06:10:46Z–06:11:50Z
+target: core.hypofriend.de/q + edge hypofriend.de/q (api.hypofriend.de still 52.15.184.3, 000)
+probe: NEXT from prior cycle executed (2 POSTs, coercion-failing, no writes, ~1 rps)
+observed:
+  - core: HTTP 200, 14 errors; ACAO=https://evil.example, ACAC=true, ACRM=7 methods,
+    vary=Accept,Origin,Accept-Encoding, XFO=ALLOWALL, data absent, x-runtime=0.153373
+  - edge: HTTP 200, 3 errors (same codes); ACAO=https://evil.example, ACAC=true,
+    vary=Accept,Origin,Accept-Encoding, XFO=DENY, server=CloudFront, XCTO+referrer=same-origin,
+    data absent, x-runtime=0.119598, x-cache=Miss
+  - 6/6 contracts re-confirmed on core; edge confirmed SelectOfferInput + SubmitDocumentAnalysisInput
+  - NEW: VerifiedListingEmailInput full required set recovered: customerName, customerEmail,
+    customerPhoneNumber, providerEmail, city, quarter, street, houseNumber (8x String!)
+  - NEW: error channel is stack-independent — Rails-origin (core) and CloudFront-fronted (edge)
+    both return schema oracle + credentialed CORS for hostile Origin
+prior-state delta: write-surface reconstruction REPLICATED at edge; contract enumeration
+  completed for VerifiedListingEmailInput; core/edge header divergence documented
+```
+
+[PRIORITIZE]
+```
+1. edge-vs-core parity of coercion oracle + CORS (CONFIRMED, new detail, strengthens MISCONFIG)
+2. VerifiedListingEmailInput 8-field contract completion (CONFIRMED, closes unknowns)
+3. optional-field enumeration of remaining inputs via unknown-input-field error (untested)
+4. api.hypofriend.de POC phase (dead, blocked)
+```
+
+[HYPOTHESES]
+```
+H1 [15/MISCONFIG]: GraphQL validation-error channel on hypofriend.de exposes complete input
+   contracts (required + optional fields) to any unauthenticated origin via
+   unknown-field-on-input-object error, on BOTH core and edge stacks.
+   test: POST core/hypofriend.de/q with input:{offerProductId:"x", zzzUnknown:1} on
+   selectOffer → expect 200, error path input.zzzUnknown, extensions.name/type for parent,
+   + sibling-field suggestions enumerating optional SelectOfferInput fields.
+   falsified-if: error suppresses field name/suggestions or gate returns 301.
+H2 [95/BOLA]: property-search-api unauthenticated full-DB PII BOLA (standing, not retested).
+H3 [20/MISCONFIG]: Google Cloud Project Number exposed in advisor-couching/main.js (standing, not retested).
+```
+
+[SELF-CRITIQUE]
+```
+- H1 risk: "did-you-mean" suggester was already ACCEPTED for parent typeName; optional-field
+  enumeration may be an incremental facet, not a new finding. Report as strengthening evidence
+  under existing MISCONFIG, do NOT double-count. (confidence: high)
+- Edge probe used 2 mutations, not 6 — edge-parity claim is supported for 2/6 contracts;
+  full parity assumed-but-unproven. State as partial. (confidence: medium)
+- ACAO echo at edge could theoretically be CloudFront behavior independent of Rails CORS;
+  XFO divergence proves two stacks, and identical ACRM/ACAE/max-age=7200 shows shared policy
+  module. (confidence: high)
+- No resolver executed (data key absent) — read-only claim holds; no PII touched. (confidence: high)
+- Rejected this cycle: none (no new negatives).
+```
+
+[NEXT]
+```
+PROBE (read-only, 1 rps): POST https://core.hypofriend.de/q, Origin: https://evil.example,
+document: mutation { selectOffer(input:{offerProductId:"00000000-0000-0000-0000-000000000000",
+zzzUnknownField:1}) { __typename } } → capture extensions (parent type, sibling suggestions),
+whether validation fails before coercion completes (expect 200 + data absent, never 301).
+Then repeat identical doc against https://hypofriend.de/q.
+Expected: sibling-field name list completes SelectOfferInput optional surface on both stacks.
+Fallback: HUMAN-gated items unchanged (POC api dead / APK secret / 4 excluded object-addressing
+mutations / cloud EIP takeover).
+```
+
+[LEARN]
+```
+ACCEPT (this cycle):
+  - coercion-error schema oracle exists on edge hypofriend.de/q as well as core (2/6 contracts)
+  - VerifiedListingEmailInput = 8 required String! fields (complete required set)
+  - core (Rails direct, XFO ALLOWALL, no XCTO) and edge (CloudFront, XFO DENY, XCTO+referrer)
+    are distinct stacks behind one identical CORS policy (ACAO-echo + ACAC + 7 methods + max-age 7200)
+  - vary=Accept,Origin,Accept-Encoding stable on both (prior facet restated, no retraction)
+REJECTED: (none this cycle)
+STANDING REJECTED (unchanged): descriptive-headers, OPTIONS/TRACE, logout-CSRF,
+  clickjacking-w/o-exploit, TLS, robots, username-enum, brute-force, root.posts SQLi,
+  exposeSeen/document_analysis_status oracles, unclaimLead, redirect open-redirect
+```
+
+[RISK]
+```
+score: 95/100 (no change; driver unchanged)
+driver: unauthenticated full-DB PII BOLA on core.hypofriend.de/property-search-api
+delta: +small confidence on adjacent MISCONFIG (edge replication of write-surface oracle);
+  no severity change, no new class
+open: H1 probe (next cycle); HUMAN-gated items pending
+```

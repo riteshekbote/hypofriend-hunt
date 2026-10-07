@@ -1857,3 +1857,11 @@ www.hypofriend.de
 - CHANGED createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
 - CHANGED sendVerifiedListingEmail mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
 - CHANGED submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside file_link and offerProductId
+
+## 2026-10-07 06:12:47 UTC
+- CHANGED api.hypofriend.de dead 55th consecutive cycle (000, 12s connect timeout on :443/:80, A 52.15.184.3 clean) — POC phase still pinned to dead target
+- CHANGED core.hypofriend.de/q coercion/validation error channel reconstructs WRITE surface (6 contracts + 3 payload types + 1 nested input) in single cross-origin batched request with `data` absent, ACAO+ACAC 
+- CHANGED core.hypofriend.de/content/q confirmed as LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`), no suggester, no `root.lead`, no `root.
+- CHANGED hypofriend.de/en/exchange share-link forge re-confirmed cycle 54: 6-key `share_id` pool harvestable, arbitrary `link_id`, `utm_*` raw pass-through into 302 Location
+- CHANGED *.app.hypofriend.de tier: uploader/frontend/appointments/profile/admin all resolve to single A 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
+- CHANGED mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets
