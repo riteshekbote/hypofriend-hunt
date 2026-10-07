@@ -1435,3 +1435,11 @@ https://hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/graphiql -> 200 len=0
 https://hypofriend.de -> 200 len=244420
 https://core.hypofriend.de -> 200 len=244420
+
+## 2026-10-07 19:39:23 UTC
+https://hypofriend.de/` -> 200 len=244420
+https://hypofriend.de/en/account?ts=1791380154&utm_campaign=probe&utm_medium=x&utm_source=probe` -> 200 len=3766
+https://core.hypofriend.de/graphiql -> 200 len=0
+https://core.hypofriend.de/content/q -> HTTP 404
+https://core.hypofriend.de/q -> 200 len=244420
+https://core.hypofriend.de/content/graphiql -> 200 len=0

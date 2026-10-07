@@ -1887,3 +1887,10 @@ www.hypofriend.de
 - CHANGED hypofriend.de/en/exchange: share-link forge re-confirmed cycle 54 — 6-key `share_id` pool harvestable, arbitrary `link_id`, `utm_*` raw pass-through into 302 Location
 - CHANGED *.app.hypofriend.de tier: uploader/frontend/appointments/profile/admin all resolve to single A 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
 - CHANGED mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets
+
+## 2026-10-07 19:39:10 UTC
+- NEW Production GraphiQL IDE live at core.hypofriend.de/graphiql and hypofriend.de/graphiql (GET 200/697B, no auth, fresh `_hf` session minted) — `data-graphql-endpoint-path="/q"` plus per-request X-CSRF-T
+- CHANGED api.hypofriend.de dead 56th consecutive cycle — `000` on :443 and :80 at 8s connect-timeout (curl exit 28), A `52.15.184.3` resolves clean; POC phase still pinned to a dead host, phase/target mismatch
+- CHANGED GET core.hypofriend.de/q and GET hypofriend.de/q (with and without `?query={__typename}`) → 301 `https://hypofriend.de/` with rack-cors headers — GraphQL route is POST-only on both origins
+- CHANGED hypofriend.de/en/exchange forge re-confirmed live by GET: `share_id=dddb5cba-…` + arbitrary nil `link_id` + attacker `utm_*` → 302 `https://hypofriend.de/en/account?ts=1791380154&utm_campaign=probe&ut
+- CHANGED core.hypofriend.de global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (Origin `https://evil.example`, ACRH `content-type`): HTTP/2 200, ACAO echo, `access-control-allow-credentials: true`

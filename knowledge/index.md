@@ -1093,3 +1093,7 @@
 - 2026-10-07 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge re-confirmed by GET — `dddb5cba-…` + nil link_id + attacker utm_* → 302 `/en/account?ts=1791380154&utm_campaign=probe…`; `/tools` still mints the same pair.
 - 2026-10-07 ACCEPTED NG @ api.hypofriend.de: dead 56th consecutive cycle (000 on :443 and :80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase pinned to a dead host; phase/target mismatch disclosed, no silent substitution; activity stayed GET/HEAD/OPTIONS at ≤1 rps.
 - 2026-10-07 REJECTED MISCONFIG @ core.hypofriend.de/en/plus/graphiql + /en/health/graphiql: IDE is not mounted per-instance — both 301 to `/` (controls), so GraphiQL exposure is bounded to `/graphiql` and `/content/graphiql`, not the full /q family.
+- 2026-10-07 ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + hypofriend.de/graphiql: production GraphiQL IDE reachable unauthenticated (GET 200/697B, fresh `_hf` session) exposing `data-graphql-endpoint-path="/q"` + per-request X-CSRF-Token
+- 2026-10-07 ACCEPTED MISCONFIG @ core.hypofriend.de/content/graphiql: second GraphiQL IDE on 4th GraphQL app (GET 200/705B, `data-graphql-endpoint-path="/content/q"`)
+- 2026-10-07 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: mint set grows 7→8 stems and usable share_id pool 6→7 keys — `/swagger.json` mints deterministic pair
+- 2026-10-07 REJECTED MISCONFIG @ core.hypofriend.de/en/plus/graphiql + /en/health/graphiql: IDE is not mounted per-instance — both 301 to `/` (controls), so GraphiQL exposure bounded to `/graphiql` and `/content/graphiql`
