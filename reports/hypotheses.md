@@ -4442,3 +4442,34 @@
 - LEARN: REJECTED MISCONFIG @ sparplan.hypofriend.de / heyflow.hypofriend.de: Cloudflare edge-certificate gap on delegated funnel names = TLS/misconfiguration class, des
 - LEARN: REJECTED MISCONFIG @ images/assets/static/maps.hypofriend.de: ELB zero-target 503 is a service-availability state, not a vulnerability
 - LEARN: REJECTED OTHER @ api.hypofriend.de: dead 55th consecutive cycle (DNS A `52.15.184.3` resolves, :80 and :443 both `000` on 10s connect timeout). The pinned POC t
+
+## RANKED HYPOTHESES 2026-10-07 00:22:58 UTC
+- [95] core.hypofriend.de/property-search-api: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_nemotron3.txt)
+- [20] HypoFriend/advisor-couching/main.js:17: Google Cloud Project Number Exposed in advisor-couching (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: `POST https://core.hypofriend.de/q` with `Origin: https://evil.example` and `Content-Type: application/json` sending the 6-mutation batched document (sel
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://core.hypofriend.de/content/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"query { root { lead { nonex
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q (+ hypofriend.de/q family): Coercion/validation error channel reconstructs the WRITE surface cross-origin at zero reco
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: Unauthenticated full-DB BOLA chain `propertySearch→exposes→expose` returns PII on direct origin; auth-fr
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key `share_id` pool, arbitrary `link_id` (not cookie-bound), `utm_*` raw pass-through into 302 Location, `redir
+- LEARN: REJECTED OTHER @ core.hypofriend.de/content/q: Fourth GraphQL instance live (POST 200), credentialed CORS active, mutations disabled (`missingMutationConfigurat
+- LEARN: REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie / delete-admin-cookie: 200 unauth — logout-CSRF class is explicitly out of scope; namespace observation 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization): POST varies `Accept,Origin,Accept-Encoding` with hostile Origin; OPTIONS omits `Vary
+- LEARN: REJECTED BUSLOGIC @ core.hypofriend.de/en/plus/q: `unclaimLead` is argument-less mutation (reads only `.success`), session-scoped — not a cross-tenant write pri
+- LEARN: REJECTED OTHER @ api.hypofriend.de: Dead **55th consecutive cycle** (000 on :80/:443, A `52.15.184.3` resolves clean) — POC phase pinned to dead host; phase/tar
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Fourth GraphQL instance live (POST 200), credentialed CORS active, mutations disabled via config "missingMuta
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/q: Credentialed CORS re-confirmed on the fourth instance (ACAO echo + ACAC true + 7 methods, `vary: Accept-Encod
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de/q family: Introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: Global rack-cors middleware — arbitrary path echoes any Origin + ACAC:true + 7 methods
+- LEARN: ACCEPTED IDOR @ core.hypofriend.de/property-search-api: Full-DB BOLA chain re-confirmed live (PII auth-free on direct origin)
+- LEARN: ACCEPTED IDOR @ hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (no lead arg)
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302 Location
+- LEARN: ACCEPTED OTHER @ *.app.hypofriend.de: Stale A record pins five high-value names to one TCP-filtered origin; EIP-recycling takeover class, decisive check is clou
+- LEARN: ACCEPTED MISCONFIG @ mobile.hypofriend.de: Distinct unrecorded ELB tier with zero healthy targets behind the mobile-app backend hostname
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q: X-Frame-Options: ALLOWALL and credentialed CORS echo are prerequisite weaknesses, not findings on their own
+- LEARN: REJECTED AUTH @ core.hypofriend.de/api/v3/delete-cookie: Forced-logout-via-CSRF explicitly rejected class
+- LEARN: REJECTED OTHER @ core.hypofriend.de/q: createUploadUrl returns 301 to marketing root, presigned-URL vector closed
+- LEARN: REJECTED MISCONFIG @ hypofriend.de/en/account: updateProperty client-side spread bounded by server (PropertyMutationsUpdateInput closed)
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin): POST varies correctly, OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple), facet near
+- LEARN: REJECTED MISCONFIG @ sparplan.hypofriend.de / heyflow.hypofriend.de: Cloudflare edge-certificate gap on delegated funnel names = TLS/misconfiguration class, des
+- LEARN: REJECTED MISCONFIG @ images/assets/static/maps.hypofriend.de: ELB zero-target 503 is a service-availability state, not a vulnerability
+- LEARN: REJECTED OTHER @ api.hypofriend.de: dead 55th consecutive cycle (DNS A `52.15.184.3` resolves, :80 and :443 both `000` on 10s connect timeout). The pinned POC t

@@ -1830,3 +1830,30 @@ www.hypofriend.de
 - CHANGED /content/q/ has no write surface: POST of any mutation returns {"code":"missingMutationConfiguration"}
 - CHANGED Credentialed CORS is live on /content/q/ at both hosts: ACAO reflects evil.example, ACAC:true, 7 methods
 - CHANGED /en/account transport resolved: acct.js postGraphQL resolves base as window.location.origin + "/q" (same /q endpoint, different credentials mode)
+
+## 2026-10-07 00:22:58 UTC
+- CHANGED core.hypofriend.de/q: coercion/validation error channel reconstructs the WRITE surface (6 contracts + 3 payload types + 1 nested input type) in a single cross-origin batched request with `data` absent
+- CHANGED core.hypofriend.de/property-search-api: full-DB BOLA chain `propertySearch→exposes→expose` remains unauthenticated on direct origin with PII returned; OPTIONS remains 200 with NO ACAO echo (CORS close
+- CHANGED hypofriend.de/en/exchange: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` is auth-by-obscurity, `utm_*` raw pass-through into 302 L
+- CHANGED core.hypofriend.de: global rack-cors middleware echoes any `Origin` including `null` + `access-control-allow-credentials: true` + 7 methods + echoes `Access-Control-Request-Headers` verbatim across al
+- CHANGED core.hypofriend.de/content/q (+ hypofriend.de/content/q): 4th GraphQL instance live (POST 200), credentialed CORS active, mutations disabled via config `"missingMutationConfiguration"`; no suggester, 
+- CHANGED api.hypofriend.de (designated POC target): dead **55th consecutive cycle** (DNS A `52.15.184.3` resolves; :80/:443 both connect-timeout/SSL_ERROR_SYSCALL) — phase mismatch remains (POC pinned to dead 
+- CHANGED hardcoded HTTP Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`) present in public entry bundle and sent by `g8()` to `advisorEndpoint` (`/api/v3/advisors`) — credential delivered to every
+- CHANGED core.hypofriend.de/q (+ hypofriend.de/q, /en/plus/q, /en/health/q): `root.lead.has_admin_cookie` (custom JSON scalar, no per-field authz) and `root.form_authenticity_token` (per-request CSRF token for
+- CHANGED CORS faceting on /q family: POST returns `vary: Accept,Origin,Accept-Encoding`; OPTIONS returns `vary: Accept-Encoding` only (Vary:Origin absent on preflight path) — preflight cache keying is tuple-ba
+- NEW None.
+- NEW /content/q confirmed as LIVE 4th GraphQL instance on both hypofriend.de and core.hypofriend.de (POST 200, credentialed CORS active, mutations disabled via missingMutationConfiguration) — was previousl
+- NEW *.app.hypofriend.de tier fingerprinted: uploader/frontend/appointments/profile/admin all resolve to single A record 52.14.251.223 (distinct from main fleet) — EIP-recycling takeover class
+- NEW mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 63.176.45.32/63.182.230.5/63.189.130.21 — zero healthy targets behind mobile-app backend hostname
+- NEW sparplan.hypofriend.de + heyflow.hypofriend.de: CNAME → flow.heyflow.domains (Cloudflare), both fail TLS handshake (sslv3 alert handshake failure) and return 409 Conflict
+- NEW CDN/asset tier consolidated: images/assets/static/maps.hypofriend.de all 503 awselb/2.0 on 18.192.153.149/3.77.143.151/63.188.224.50 pool — ELB-zero-target fingerprint ≥5 names
+- CHANGED api.hypofriend.de dead 55th consecutive cycle (000, 12s connect timeout) — POC phase still pinned to dead host
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live (PII auth-free on direct origin); OPTIONS 200 with NO ACAO echo
+- CHANGED core.hypofriend.de/q family: introspection bypass via error channel live — undefinedField returns parent typeName + did-you-mean suggester; POST varies Accept,Origin,Accept-Encoding; OPTIONS varies Ac
+- CHANGED core.hypofriend.de: global rack-cors middleware echoes any Origin + ACAC:true + 7 methods on arbitrary paths; origin XFO:ALLOWALL vs edge XFO:DENY
+- CHANGED hypofriend.de/en/exchange: share-link forge re-confirmed live (6-key pool harvestable, arbitrary link_id, utm_* raw pass-through into 302 Location)
+- CHANGED hypofriend.de/en/account/assets/index-BLX7yr-v.js bundle rotated (2,468,656B, 37 mutations, 4 object-addressing with caller-supplied IDs)
+- CHANGED uploadDocumentExtended full input mapped: file_link is caller-supplied S3 key with no ownership argument
+- CHANGED createUploadUrl full input/output mapped: returns {s3Key, presignedUrl} — presigned-PUT chain documented end-to-end
+- CHANGED sendVerifiedListingEmail mutation (12+ caller-supplied fields incl. recipient address, free-text body) — vendor-mail send primitive
+- CHANGED submitDocumentAnalysis mutation (files: JSON-stringified blob parsed server-side) — 3rd object-addressing input alongside file_link and offerProductId
