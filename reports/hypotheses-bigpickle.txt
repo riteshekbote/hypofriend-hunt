@@ -1,44 +1,41 @@
-## 2026-10-08 18:18:40 UTC [target] (model bigpickle)
-[PRIO] `core.hypofriend.de/q family (q,/en/plus/q,/en/health/q,/content/q)`,9.6,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
-[PRIO] `hypofriend.de/en/account → core.hypofriend.de/q`,8.9,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=8,cloud_surface=8,freshness=9
-[PRIO] `core.hypofriend.de/graphiql + hypofriend.de/graphiql + /content/graphiql`,8.6,attack_surface=9,business_value=6,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
-[HYP] Cross-Origin Schema Reconstruction + CSRF/Admin-Token Exposure via /q Error/Coercion Channel and Public GraphiQL
-class: MISCONFIG
-asset: `core.hypofriend.de/q + hypofriend.de/q + /en/plus/q + /en/health/q + /content/q + /graphiql + /content/graphiql`
-confidence: 92
-reasoning: GraphiQL IDEs are reachable unauthenticated at /graphiql and /content/graphiql; credentialed CORS echoes any Origin + ACAC:true across /q family; introspection disabled but error/coercion channel reveals parent type names and did-you-mean field names (e.g. form_authenticity_token); root.form_authenticity_token and root.lead.has_admin_cookie exposed; CORS reflection on GET GraphiQL responses enables cross-origin HTML/token read under SameSite=None cookies.
-evidence_needed: (1) Cross-origin credentialed GET of /graphiql from attacker origin capturing ACAO+ACAC and HTML containing X-CSRF-Token/_hf; (2) Replay with existing _hf cookie from attacker origin to confirm session-bound token is readable cross-origin; (3) Error-channel reconstruction via undefinedField on /q confirming schema contract leakage.
-verify_steps: PASSIVE-first. (1) OPTIONS https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET" (2) GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" --cookie "_hf=<known>" (read-only, single GET, <=1 rps)
-impact: Per-victim CSRF token disclosure + schema reconstruction enabling targeted GraphQL abuse across 4 instances. Severity: CRITICAL.
-testability: AUTH_HELPED
+## 2026-10-08 23:14:03 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,9.6,attack_surface=10,business_value=10,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
+[PRIO] core.hypofriend.de/q family + /content/q,9.4,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
+[PRIO] hypofriend.de/en/account → core.hypofriend.de/q,8.9,attack_surface=9,business_value=9,tech_exposure=10,gate_ease=8,cloud_surface=8,freshness=9
 [HYP] Unauthenticated Full-DB BOLA via Direct-Origin WAF Bypass on property-search-api
 class: IDOR
-asset: `core.hypofriend.de/property-search-api`
+asset: core.hypofriend.de/property-search-api
 confidence: 95
-reasoning: Direct origin serves full GraphQL schema with introspection enabled; unauthenticated chain propertySearch→exposes→expose returns broker/owner PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany); exposes/exposesInBounds/mapExposes/pagination support offset/limit enabling offset-walk; direct-origin responses bare vs edge CloudFront stack (WAF/rate-limit bypass). No mutating tests performed.
-evidence_needed: Unauthenticated offset-walk enumeration across >=3 cities demonstrating PII extraction at scale without CloudFront rate-limiting on direct origin. Bulk reads must remain HUMAN-gated per program constraints.
-verify_steps: PASSIVE structure confirmed via schema introspection; bulk enumeration is HUMAN-gated (do not execute bulk reads). No active bulk probes proposed.
-impact: Full production mortgage-listing DB enumeration without auth, bypassing CloudFront WAF — broker/owner PII at scale. Severity: CRITICAL.
+reasoning: Direct origin serves full GraphQL schema with introspection enabled; unauthenticated chain propertySearch→exposes→expose returns broker/owner PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany); auth-free crawl primitives (pagination/exposesInBounds/mapExposes/offset+limit) confirmed; direct-origin responses are bare vs edge CloudFront stack indicating WAF/rate-limit bypass on origin.
+evidence_needed: Unauthenticated offset-walk enumeration across >=3 cities demonstrating PII extraction without CloudFront rate-limiting on direct origin. Bulk reads must remain HUMAN-gated per program constraints.
+verify_steps: PASSIVE structure confirmed via schema introspection. No bulk enumeration probe proposed (bulk reads are HUMAN_ONLY). Passive GET/HEAD/OPTIONS only for any freshness checks.
+impact: Full production mortgage-listing DB enumeration without authentication, bypassing CloudFront WAF — broker/owner PII at scale. Severity: CRITICAL.
 testability: HUMAN_ONLY
+[HYP] Cross-Origin Schema Reconstruction + CSRF/Admin-Token Exposure via /q Error/Coercion Channel and Public GraphiQL
+class: MISCONFIG
+asset: core.hypofriend.de/q + hypofriend.de/q + /en/plus/q + /en/health/q + /content/q + /graphiql + /content/graphiql
+confidence: 92
+reasoning: Public GraphiQL IDEs reachable unauthenticated at /graphiql and /content/graphiql; global credentialed rack-cors echoes any Origin + ACAC:true across /q family routes; introspection is disabled but the error/coercion channel returns parent type names and did-you-mean field names and reconstructs input contracts (including nested S3FileInput) with zero records read; root.form_authenticity_token and root.lead.has_admin_cookie are exposed via the /q family; reflected ACAO+ACAC on GET GraphiQL responses enables cross-origin HTML/token read under SameSite=None cookies.
+evidence_needed: (1) Cross-origin credentialed GET of /graphiql from attacker Origin capturing ACAO+ACAC and HTML containing X-CSRF-Token/_hf; (2) Replay with an existing _hf cookie from attacker Origin to confirm session-bound token is readable cross-origin; (3) Error-channel reconstruction via undefinedField on /q confirming schema contract leakage (read-only).
+verify_steps: PASSIVE-first, single GET ≤1 rps. (1) OPTIONS https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET" (2) GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" --cookie "_hf=<known>" -H "Accept: text/html" --max-time 15 (read-only; do not attempt to authenticate or mutate). 
+impact: Per-victim CSRF token disclosure + schema reconstruction enabling targeted GraphQL abuse across 4 instances. Severity: CRITICAL.
+testability: AUTH_HELPED
 [HYP] Cross-Tenant Object Addressing + S3/File + Mail Send Chain via /en/account → /q
 class: IDOR
-asset: `hypofriend.de/en/account → core.hypofriend.de/q`
+asset: hypofriend.de/en/account → core.hypofriend.de/q
 confidence: 88
-reasoning: /en/account deploy ships mutations with caller-supplied object identifiers and no lead/tenant arg (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key); createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail accepts recipient + free-text body; submitDocumentAnalysis accepts files as JSON blob. Global credentialed CORS on /q enables cross-origin calls.
-evidence_needed: With two consenting test sessions (A,B), object-addressing mutation called by session A using object ID belonging to session B returns data/success (missing ownership check) vs 403/permission error. If proof requires mutating, defer to HUMAN_ONLY; structure-only insufficient alone.
+reasoning: Public /en/account deploy ships mutations with caller-supplied object identifiers and no lead/tenant argument (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key) with no ownership argument; createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail accepts recipient address and free-text body; submitDocumentAnalysis accepts files as a JSON blob. Global credentialed CORS on /q enables cross-origin calls.
+evidence_needed: With two consenting test sessions (A,B), an object-addressing mutation called by session A using an object ID belonging to session B returns data/success (missing ownership check) vs a 403/permission error. Proof requiring cross-tenant mutation is deferred to HUMAN_ONLY; structure-only is insufficient.
 verify_steps: PASSIVE schema mapping only. Do NOT execute cross-tenant mutations. No active probe proposed.
 impact: Cross-tenant read/write of offers/documents/properties; arbitrary S3 object reference/write via file_link+presigned PUT; vendor-mail send primitive. Severity: CRITICAL.
 testability: HUMAN_ONLY
-[FINAL] Cross-Origin Schema Reconstruction + CSRF/Admin-Token Exposure via /q Error/Coercion Channel and Public GraphiQL (confidence 92, MISCONFIG)
 [FINAL] Unauthenticated Full-DB BOLA via Direct-Origin WAF Bypass on property-search-api (confidence 95, IDOR)
+[FINAL] Cross-Origin Schema Reconstruction + CSRF/Admin-Token Exposure via /q Error/Coercion Channel and Public GraphiQL (confidence 92, MISCONFIG)
 [FINAL] Cross-Tenant Object Addressing + S3/File + Mail Send Chain via /en/account → /q (confidence 88, IDOR)
-[PARKED] api.hypofriend.de remains dead 57 consecutive cycles — POC phase pinned to dead host; no live surface for phase completion.
-[PARKED] hypofriend.de/en/exchange share-link forge — attribution integrity issue (BUSLOGIC) but redirect allowlist is {expose,account} only (no external open redirect); bounds to credible first-party URL forgery + poisoned attribution, not data read/frameable page.
-[NEXT] PROBE: curl -sS -D - -o /tmp/opencode/gql2.html --max-time 15 -H "Origin: https://evil.example" --cookie "_hf=<token-from-prior-response>" https://core.hypofriend.de/graphiql (read-only, single GET, <=1 rps) — verify ACAO reflect persists for replayed session and capture X-CSRF-Token in HTML to confirm cross-origin token readability.
-[LEARN] ACCEPTED MISCONFIG @ `core.hypofriend.de/graphiql + hypofriend.de/graphiql + /content/graphiql`: Production GraphiQL IDE reachable unauthenticated (GET 200) exposing data-graphql-endpoint-path and per-request X-CSRF-Token; credentialed CORS reflects any Origin + ACAC:true on GET responses enabling cross-origin HTML/token read; core origin serves XFO:ALLOWALL vs edge DENY.
-[LEARN] ACCEPTED MISCONFIG @ `core.hypofriend.de/q family`: Introspection disabled but error/coercion channel reconstructs contracts (6 contracts + 3 payload types + nested S3FileInput) with data absent; root.form_authenticity_token and root.lead.has_admin_cookie exposed via global credentialed CORS; POST varies Accept,Origin,Accept-Encoding while OPTIONS omits Vary:Origin on /q preflight.
-[LEARN] ACCEPTED MISCONFIG @ `core.hypofriend.de (global rack-cors)`: Arbitrary path echoes any Origin + ACAC:true + 7 methods across Rails routes; includes /api/v3/* and /q family.
-[LEARN] ACCEPTED IDOR @ `core.hypofriend.de/property-search-api`: Unauthenticated full-DB BOLA chain propertySearch→exposes→expose returns broker/owner PII on direct origin; auth-free crawl primitives (offset/limit, exposesInBounds, mapExposes, pagination) confirmed; CORS closed on this route (no ACAO echo) — contrast to /q. CRITICAL.
-[LEARN] ACCEPTED IDOR @ `hypofriend.de/en/account → core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (offerProductId, id) and no lead/tenant arg; file_link + createUploadUrl S3 chain, sendVerifiedListingEmail, submitDocumentAnalysis(files: JSON blob) mapped from public bundle.
-[LEARN] REJECTED @ `api.hypofriend.de`: Dead 57th consecutive cycle (000 on :443/:80, A 52.15.184.3 resolves clean) — POC phase pinned to dead host, phase/target mismatch; no live surface.
-[RISK] hypofriend: 96 — Unauthenticated full-DB PII BOLA on direct-origin GraphQL (CloudFront WAF bypass), credentialed CORS + error/coercion channel reconstructing contracts and exposing root.form_authenticity_token + root.lead.has_admin_cookie across 4 GraphQL instances, public GraphiQL IDE (discovery + cross-origin token readability), object-addressing mutations + S3/file chain + vendor-mail send on /en/account→/q, global rack-cors inheritance to all Rails routes. api.hypofriend.de remains dead (POC-target mismatch). Severity: CRITICAL.
+[PARKED] api.hypofriend.de: remains dead (57+ consecutive cycles, 000 on :443/:80, A 52.15.184.3 clean) — POC phase pinned to dead host; no live surface for phase completion.
+[NEXT] PROBE: curl -sS -D - -o /tmp/opencode/gql2.html --max-time 15 -H "Origin: https://evil.example" --cookie "_hf=<token-from-prior-response>" -H "Accept: text/html" https://core.hypofriend.de/graphiql (read-only, single GET ≤1 rps) — verify ACAO reflect persists for a replayed session and capture X-CSRF-Token/_hf presence in HTML to confirm cross-origin token readability. Do not send any POST/mutation or attempt authentication beyond replaying an existing session cookie obtained passively.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: unauthenticated full-DB BOLA chain propertySearch→exposes→expose returns broker/owner PII on direct origin with auth-free crawl primitives; direct-origin bypass vs edge CloudFront stack (CRITICAL).
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q family + /graphiql + /content/graphiql: credentialed CORS echoes any Origin + ACAC:true across /q family; introspection disabled but error/coercion channel reconstructs contracts and exposes root.form_authenticity_token + root.lead.has_admin_cookie; public GraphiQL enables cross-origin HTML/token read.
+[LEARN] ACCEPTED IDOR @ hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (offerProductId,id) and no lead/tenant arg; file_link + createUploadUrl S3 chain, sendVerifiedListingEmail, submitDocumentAnalysis(files: JSON blob) mapped from public bundle.
+[LEARN] REJECTED @ api.hypofriend.de: dead 57+ consecutive cycles (000 on :443/:80, A 52.15.184.3 clean) — POC phase pinned to dead host, phase/target mismatch; no live surface for phase completion.
+[RISK] hypofriend: 96 — Unauthenticated full-DB PII BOLA on direct-origin GraphQL (CloudFront WAF bypass), credentialed CORS + error/coercion channel reconstructing contracts and exposing root.form_authenticity_token + root.lead.has_admin_cookie across 4 GraphQL instances, public GraphiQL IDE (cross-origin token readability), object-addressing mutations + S3/file chain + vendor-mail send on /en/account→/q, global rack-cors inheritance to all Rails routes. api.hypofriend.de remains dead (POC-target mismatch). Severity: CRITICAL.
