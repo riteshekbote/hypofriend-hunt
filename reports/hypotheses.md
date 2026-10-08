@@ -4556,3 +4556,25 @@
 - LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge re-confirmed by GET — `dddb5cba-…` + nil link_id + attacker utm_* → 302 `/en/account?ts=1791380154&utm_camp
 - LEARN: ACCEPTED NG @ api.hypofriend.de: dead 56th consecutive cycle (000 on :443 and :80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase pinned to a dead hos
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/en/plus/graphiql + /en/health/graphiql: IDE is not mounted per-instance — both 301 to `/` (controls), so GraphiQL exposu
+
+## RANKED HYPOTHESES 2026-10-08 00:06:38 UTC
+- [95] core.hypofriend.de/graphiql: Production GraphiQL IDE Exposure → Interactive Schema Exploration + CSRF Token Harvest (from art/lead_nemotron3.txt)
+- [95] `core.hypofriend.de/property-search-api`: Full-DB BOLA via Direct-Origin WAF Bypass → Cross-Tenant PII Enumeration at Scale (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: `GET https://core.hypofriend.de/graphiql` — read-only, unauthenticated, single GET, ≤1 rps. Capture status, headers, HTML length and whether `data-graphq
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" --cookie-jar /tmp/jar.txt -H "Accept: text/html" — verify GraphiQL IDE accessib
+- LEARN: ACCEPTED MISCONFIG @ `core.hypofriend.de/graphiql + hypofriend.de/graphiql + /content/graphiql`: production GraphiQL IDE reachable unauthenticated (GET 200) exp
+- LEARN: ACCEPTED MISCONFIG @ `core.hypofriend.de/q family`: introspection disabled but error/coercion channel reconstructs schema/contracts (6 contracts + 3 payload typ
+- LEARN: ACCEPTED MISCONFIG @ `core.hypofriend.de (global rack-cors)`: arbitrary path echoes any `Origin` + `ACAC:true` + 7 methods; applies to Rails routes (includes `/
+- LEARN: ACCEPTED IDOR @ `core.hypofriend.de/property-search-api`: unauthenticated full-DB BOLA chain `propertySearch→exposes→expose` returns PII on direct origin; auth-
+- LEARN: ACCEPTED IDOR @ `hypofriend.de/en/account → core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`offerProductId`, `id`) and no lead/t
+- LEARN: ACCEPTED BUSLOGIC @ `hypofriend.de/en/exchange`: 6-key `share_id` pool, arbitrary `link_id` (not cookie-bound), `utm_*` raw pass-through into 302 Location; `red
+- LEARN: REJECTED @ `api.hypofriend.de`: dead 56th consecutive cycle (000 on :443/:80, A `52.15.184.3` resolves clean) — POC phase pinned to dead host, phase/target mism
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + hypofriend.de/graphiql: production GraphiQL IDE reachable unauthenticated (GET 200/697B, fresh `_hf` session)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/graphiql: second GraphiQL IDE on 4th GraphQL app (GET 200/705B, `data-graphql-endpoint-path="/content/q"`)
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: mint set grows 7→8 stems and usable share_id pool 6→7 keys — `/swagger.json` mints deterministic pair
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: full 6-key pool now enumerated by value — `/staff` `f46e3e93-…`, `/uploads` `40595fb5-…`, `/karriere` `c0c7f5c2-…
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (evil.example echo, ACAC:true, 7 methods, Max-Age 7200,
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: GET → 400 JSON "exclusively POST requests" with `vary: Origin` and no ACAO — endpoint live and CORS
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge re-confirmed by GET — `dddb5cba-…` + nil link_id + attacker utm_* → 302 `/en/account?ts=1791380154&utm_camp
+- LEARN: ACCEPTED NG @ api.hypofriend.de: dead 56th consecutive cycle (000 on :443 and :80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase pinned to a dead hos
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/en/plus/graphiql + /en/health/graphiql: IDE is not mounted per-instance — both 301 to `/` (controls), so GraphiQL exposu

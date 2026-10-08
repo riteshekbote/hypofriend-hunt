@@ -1894,3 +1894,20 @@ www.hypofriend.de
 - CHANGED GET core.hypofriend.de/q and GET hypofriend.de/q (with and without `?query={__typename}`) → 301 `https://hypofriend.de/` with rack-cors headers — GraphQL route is POST-only on both origins
 - CHANGED hypofriend.de/en/exchange forge re-confirmed live by GET: `share_id=dddb5cba-…` + arbitrary nil `link_id` + attacker `utm_*` → 302 `https://hypofriend.de/en/account?ts=1791380154&utm_campaign=probe&ut
 - CHANGED core.hypofriend.de global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (Origin `https://evil.example`, ACRH `content-type`): HTTP/2 200, ACAO echo, `access-control-allow-credentials: true`
+
+## 2026-10-08 00:06:38 UTC
+- NEW `core.hypofriend.de/graphiql`, `hypofriend.de/graphiql` and `core.hypofriend.de/content/graphiql` — production GraphiQL IDE reachable unauthenticated (GET 200), exposing `data-graphql-endpoint-path` a
+- CHANGED `/content/q/` (hypofriend.de and core.hypofriend.de) — confirmed as LIVE 4th GraphQL instance (POST 200); previously recorded as 404 on GET artifact
+- CHANGED `hypofriend.de/en/exchange` — recognized-slug mint set expanded to 8 stems (`/swagger.json` becomes 8th) and 6-key `share_id` pool harvestable by unauthenticated GET; `link_id` arbitrary, `utm_*` raw 
+- CHANGED `core.hypofriend.de` — global rack-cors middleware echoes any `Origin` + `access-control-allow-credentials:true` + 7 methods across arbitrary paths; OPTIONS `/q` and `/content/q` omit `Vary:Origin` wh
+- CHANGED `api.hypofriend.de` (POC-designated target) — dead **56th consecutive cycle** (`000` :443/:80, connect-timeout/SSL_ERROR_SYSCALL, A `52.15.184.3` resolves clean); phase/target mismatch persists
+- CHANGED `core.hypofriend.de/q` family — coercion/validation error channel reconstructs input contracts (6 contracts + 3 payload types + nested `S3FileInput`) with `data` absent; `root.form_authenticity_token`
+- CHANGED `hypofriend.de/en/account` — entry bundle rotated (`index-BLX7yr-v.js`, 2,468,656B) shipping 37 named mutations; 4 object-addressing mutations take caller-supplied IDs with no lead/tenant argument (`s
+- CHANGED `core.hypofriend.de/property-search-api` — full-DB BOLA chain `propertySearch→exposes→expose` remains unauthenticated on direct origin returning PII; OPTIONS remains 200 with NO `ACAO` echo (contrast 
+- NEW Production GraphiQL IDE confirmed live at `core.hypofriend.de/graphiql`, `hypofriend.de/graphiql`, `core.hypofriend.de/content/graphiql` (GET 200, no auth, fresh session, exposes endpoint path + per-r
+- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93-...`, `/uploads`→`40595fb5-...`, `/karriere`→`c0c7f5c2-...` (plus prior `/tools`, `/partner`, `/rails`)
+- CHANGED `api.hypofriend.de` dead 56th consecutive cycle (000 on :443/:80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase still pinned to dead host
+- CHANGED `GET core.hypofriend.de/q` and `GET hypofriend.de/q` → 301 `https://hypofriend.de/` with rack-cors headers — GraphQL route confirmed POST-only on both origins
+- CHANGED `hypofriend.de/en/exchange` forge re-confirmed live by GET: `share_id=dddb5cba-…` + nil `link_id` + attacker `utm_*` → 302 with fresh session cookies
+- CHANGED `core.hypofriend.de` global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (Origin `https://evil.example`, ACRH `content-type`): ACAO echo + `access-control-allow-credentials: true` + 7 meth
