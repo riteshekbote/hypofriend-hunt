@@ -56910,3 +56910,162 @@ run3 token=SE_7-eF9GvgH8wGMA8Jt... len=86 cookie=
 
 ## [RISK]
 - `hypofriend: 96` — CRITICAL (unchanged). BOLA PII + credentialed CORS + open GraphiQL + object-addressing/S3/mail chain + exchange forge; H1 (CSRF) is pending precondition proof. Phase/target mismatch persists: POC pinned to dead `api` (57 cycles); all probes remain read-only GET/HEAD/OPTIONS.
+===== ANALYST bigpickle 2026-10-08 11:29:40 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "=== 1. GET core.hypofriend.de/graphiql ==="; curl -sS -D /tmp/opencode/gql_headers.txt -o /tmp/opencode/gql_body.html -w "HTTP:%{http_code} SIZE:%{size_download} TIME:%{time_total}\n" --max-time 15 -H "Accept: text/html" https://core.hypofriend.de/graphiql; echo "--- headers ---"; cat /tmp/opencode/gql_headers.txt; echo "--- body checks ---"; wc -c /tmp/opencode/gql_body.html; grep -o 'data-graphql-endpoint-path="[^"]*"' /tmp/opencode/gql_body.html; grep -c -i 'csrf' /tmp/opencode/gql_body.html; grep -o -i 'name="csrf-token"[^>]*' /tmp/opencode/gql_body.html; grep -o -i 'x-csrf-token[^"]*' /tmp/opencode/gql_body.html | head -3
+=== 1. GET core.hypofriend.de/graphiql ===
+HTTP:200 SIZE:697 TIME:0.617623
+--- headers ---
+HTTP/2 200 
+date: Thu, 08 Oct 2026 11:25:59 GMT
+content-type: text/html; charset=utf-8
+content-length: 697
+x-frame-options: ALLOWALL
+link: </assets/graphiql/rails/graphiql-3.8.3-9997ea56.css>; rel=preload; as=style; nopush,</assets/graphiql/rails/application-6ccc9f44.css>; rel=preload; as=style; nopush,</assets/graphiql/rails/application-f36d7600.js>; rel=preload; as=script; nonce=; nopush
+vary: Accept,Origin,Accept-Encoding
+x-robots-tag: none
+etag: W/"6f02546e6f6f22c02c30224720314dcc"
+cache-control: max-age=0, private, must-revalidate
+set-cookie: _hf=66584c563b90bed89e135d4017a8db6a; domain=hypofriend.de; path=/; expires=Wed, 08 Oct 2036 11:25:59 GMT; secure; httponly
+x-request-id: 8118a444-1887-41b1-9fd4-ce0dca716635
+x-runtime: 0.010928
+strict-transport-security: max-age=63072000; includeSubDomains
+
+--- body checks ---
+697 /tmp/opencode/gql_body.html
+data-graphql-endpoint-path="/q"
+1
+X-CSRF-Token&quot;:&quot;toLf5t381kEgVV0L8CFwPobDplSaGnSF139DpUZ6Z6G9XcWG0Te3lghm59uslF7YF0piBsMn2ZRp90N-Koas9g&quot;}
+[0m
+[0m$ [0mecho "=== api.hypofriend.de (POC target) ==="; getent hosts api.hypofriend.de; curl -sS -I --max-time 8 -o /dev/null -w "443:%{http_code} exit_time:%{time_total}\n" https://api.hypofriend.de/ || echo "443 curl exit: $?"; curl -sS -I --max-time 8 -o /dev/null -w "80:%{http_code} exit_time:%{time_total}\n" http://api.hypofriend.de/ || echo "80 curl exit: $?"
+=== api.hypofriend.de (POC target) ===
+52.15.184.3     api.hypofriend.de
+curl: (28) Connection timed out after 8001 milliseconds
+443:000 exit_time:8.001425
+443 curl exit: 28
+curl: (28) Connection timed out after 8001 milliseconds
+80:000 exit_time:8.001772
+80 curl exit: 28
+[0m
+## Objective
+- Act as a bug bounty ANALYST for the Hypofriend GmbH program (report channel: bugs.olivermaicher.eu), running a 7-step delta/prioritize/hypothesize cycle each round on passive or read-only (GET/HEAD/OPTIONS ≤1 rps) probing.
+- Produce only structured blocks: [PRIO], top-3 [HYP], [PARKED]/[FINAL], exactly one [NEXT], [LEARN], [RISK].
+
+## Important Details
+- Scope: ONLY Hypofriend-owned assets (scope.yml + inventory/hypofriend.md): all company infra, mortgage platforms, portals, APIs, web/mobile apps, domains.
+- Program constraints: passive-first; live probes GET/HEAD/OPTIONS only, ≤1 rps; no auth-bypass/mutating tests against customer data; bulk PII reads are HUMAN-gated; sha256 any secret; facts vs hypotheses strictly separated.
+- REJECTED classes (never file): DoS/lockout, descriptive errors/headers only, robots.txt, outdated libs, OPTIONS/TRACE, logout CSRF, cookie flags on non-sensitive data, self-XSS, username enumeration, brute-force/rate-limit, TLS best practice/clickjacking w/o exploit, mail config, known-vuln libs, password policy, public login panels, "any exposure of customer/employee/financial/authentication data during testing (program note)."
+- My state: `{"phase": "POC", "target": "api"}` — api.hypofriend.de dead 56th consecutive cycle (000 on :443/:80, A 52.15.184.3 resolves clean); phase/target mismatch repeatedly disclosed, no silent substitution.
+- Program-excluded: data-returning POSTs against customer records; `unclaimLead`, `document_analysis_status`, `exposeSeen`, `updateProperty` mass-assignment, `createUploadUrl`, Vary:Origin overgeneralization all REJECTED/closed with controls.
+- Key standing findings (ACCEPTED): full-DB BOLA `propertySearch→exposes→expose` on `core.hypofriend.de/property-search-api` (CRITICAL, CORS closed there — contrast); global rack-cors credentialed echo (ACAO+ACAC:true+7 methods) on all Rails routes; introspection-bypass via error/coercion channel on `/q` family (6 contracts + 3 payload types); `root.form_authenticity_token` + `root.lead.has_admin_cookie` exposed; unauthenticated GraphiQL at `/graphiql`, `/content/graphiql` (bounded — `/en/plus/graphiql`, `/en/health/graphiql` 301); hardcoded Basic `hypo:advisors2018+` (b64 sha256 `56f00b87…`) in public bundle at `/api/v3/advisors` (live 200, do not use in active tests); exchange share-link forge (8 mint stems incl `/swagger.json`, 6-key share_id pool, arbitrary link_id, utm pass-through, redirect allowlist `{expose,account}`); `/en/account` deploy 37 mutations with 4 object-addressing (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requestOfferRenewal:offerProductId`) + `sendVerifiedListingEmail` + `submitDocumentAnalysis(files)` + `uploadDocumentExtended(file_link)`; `/content/q` 4th GraphQL instance live but mutations disabled (`missingMutationConfiguration`), schema oracle absent (REJECTED).
+- Closed with controls (do not reopen): SSRF in `/en/account` bundle (zero URL-accepting args); `*.app.hypofriend.de` / `mobile.hypofriend.de` takeover (HUMAN_ONLY, cloud-side); sparplan/heyflow TLS gap; ELB zero-target 503s; `m_payload.json` S3 403s.
+- Latest cycle (2026-10-08 04:10:59) lead tail and ranked hypotheses emphasize `[95] core.hypofriend.de/graphiql` (from art/lead_nemotron3.txt) as top.
+
+## Work State
+### Completed
+- Steps 1–7 executed for cycles through 2026-10-08 04:10:59 UTC: delta, prioritization, 3 hypotheses, parking, next action, learnings, risk (program risk 96, CRITICAL).
+- GraphiQL exposure discovered and accepted 2026-10-07; controls prove it is not mounted per-instance.
+- Exchange mint set corrected 9→8 stems (prior "9 stems" claim falsified; `/immobilien`, `/beratung` are canonical shell), 6-key share_id pool fully enumerated by value.
+- /q error-channel write-surface reconstruction accepted 2026-10-06; `/content/q` oracle probe executed negative (PARKED→closed).
+
+### Active
+- Latest [NEXT] PROBE (from lead_bigpickle.txt): `GET https://core.hypofriend.de/graphiql` — read-only, unauthenticated, single GET, ≤1 rps; capture status, headers, HTML length, presence of `data-graphql-endpoint-path="/q"` and X-CSRF-Token, `_hf` cookies; do not follow frame/embed.
+- Parallel agent (nemotron3) has equivalent probe: `GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" --cookie-jar /tmp/jar.txt -H "Accept: text/html"`.
+
+### Blocked
+- POC phase pinned to dead `api.hypofriend.de` (56 cycles) — no live surface for phase completion; phase mismatch disclosed each cycle, all activity stays read-only on other hosts.
+- Cross-origin credentialed reads of `root.form_authenticity_token`/`has_admin_cookie`, error-channel enumeration, and GraphiQL-vs-/q X-CSRF-Token comparison require POST to `/q` (POST-only, GET→301) — blocked under GET/HEAD/OPTIONS-only rule.
+- BOLA bulk quantification and object-addressing cross-tenant proof: HUMAN-gated (two consenting sessions / program note on customer data).
+
+## Next Move
+1. Execute the [NEXT] PROBE: single `GET https://core.hypofriend.de/graphiql` (≤1 rps), capture status/headers/length/`data-graphql-endpoint-path`/X-CSRF-Token/`_hf` cookies; optionally paired control `GET https://core.hypofriend.de/content/graphiql`.
+2. If confirmed, emit LEARN ACCEPTED MISCONFIG for GraphiQL freshness and re-rank; otherwise PARK the GraphiQL-as-token-theft claim (already parked: iframe cannot read cross-origin HTML) and pick a new delta-driven probe.
+
+## Relevant Files
+- (none — all work is context-driven HTTP analysis; no local files referenced)
+- Reference endpoints: `https://core.hypofriend.de/graphiql`, `https://hypofriend.de/graphiql`, `https://core.hypofriend.de/content/graphiql`, `https://core.hypofriend.de/q`, `https://core.hypofriend.de/property-search-api`, `https://hypofriend.de/en/exchange`, `https://hypofriend.de/en/account/assets/index-BLX7yr-v.js`, `https://hypofriend.de/m/_nuxt/Bitus3YJ.js` (current entry bundle), `https://api.hypofriend.de` (dead POC target)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mecho "=== graphiql body ==="; cat /tmp/opencode/gql_body.html; echo; echo "=== control: GET core.hypofriend.de/content/graphiql ==="; curl -sS -D /tmp/opencode/cgql_headers.txt -o /tmp/opencode/cgql_body.html -w "HTTP:%{http_code} SIZE:%{size_download}\n" --max-time 15 -H "Accept: text/html" https://core.hypofriend.de/content/graphiql; echo "--- headers ---"; cat /tmp/opencode/cgql_headers.txt; echo "--- body checks ---"; grep -o 'data-graphql-endpoint-path="[^"]*"' /tmp/opencode/cgql_body.html; grep -o 'X-CSRF-Token[^}]*' /tmp/opencode/cgql_body.html | head -2; wc -c /tmp/opencode/cgql_body.html
+=== graphiql body ===
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GraphiQL</title>
+        <link rel="stylesheet" href="/assets/graphiql/rails/graphiql-3.8.3-9997ea56.css" />
+        <link rel="stylesheet" href="/assets/graphiql/rails/application-6ccc9f44.css" />
+        <script src="/assets/graphiql/rails/application-f36d7600.js"></script>
+  </head>
+  <body>
+    <div id="graphiql-container" data-graphql-endpoint-path="/q" data-headers="{&quot;Content-Type&quot;:&quot;application/json&quot;,&quot;X-CSRF-Token&quot;:&quot;toLf5t381kEgVV0L8CFwPobDplSaGnSF139DpUZ6Z6G9XcWG0Te3lghm59uslF7YF0piBsMn2ZRp90N-Koas9g&quot;}" data-query-params="false" data-input-value-deprecation="false">Loading...</div>
+  </body>
+</html>
+
+=== control: GET core.hypofriend.de/content/graphiql ===
+HTTP:200 SIZE:705
+--- headers ---
+HTTP/2 200 
+date: Thu, 08 Oct 2026 11:27:50 GMT
+content-type: text/html; charset=utf-8
+content-length: 705
+x-frame-options: SAMEORIGIN
+x-xss-protection: 0
+x-content-type-options: nosniff
+x-permitted-cross-domain-policies: none
+referrer-policy: strict-origin-when-cross-origin
+link: </assets/graphiql/rails/graphiql-3.8.3-9c05942f.css>; rel=preload; as=style; nopush,</assets/graphiql/rails/application-dffc27f1.css>; rel=preload; as=style; nopush,</assets/graphiql/rails/application-5aa1cd8a.js>; rel=preload; as=script; nonce=; nopush
+vary: Accept,Origin,Accept-Encoding
+etag: W/"8213b742a47ea356e95be95355fee7ad"
+cache-control: max-age=0, private, must-revalidate
+set-cookie: _content_api_session=SvGFFkTGu%2FQh3VIkHj07YjvyZphWvr9DROC8Xg5NS7i%2BC0Lik7HefMCs3%2FhDn5O8nSEWIj8xXzHxqxUmrkJx91%2FXAB6H20UvOOnNGWQuSAatWms7ysqx3rfG9Wl9GNYvgRjZVGdvkNP2TpgJtnXqLPy8iTGQ8LPwJ6l%2B7TGqyopOOHcRUmyfNHmqBDA8RkjytrtfoDCPEMj99XlDXnB9vaIqEs7dwooXMLeiS52m7QHEeFebJG11uiOZle13bwfR8SLefBOGR0H%2B%2FxccYwgOMYCRmXYtXJV3aVFtXw%3D%3D--BAq%2FunnZPvIKH5ca--52jnQKQ5lR9i22tRpMKihQ%3D%3D; path=/; httponly; samesite=lax
+x-request-id: a61d5f3c-ce5a-4855-aae6-bddc354bd498
+x-runtime: 0.002341
+
+--- body checks ---
+data-graphql-endpoint-path="/content/q"
+X-CSRF-Token&quot;:&quot;lIfdIBvt9PsoZY2xbHnpaBI9QbTHGXpRPQ77q8r0Jfg98JmeBglf2S29EHQdrHMLiGcs1Zqd2rf5lUMSYzvCLQ&quot;
+705 /tmp/opencode/cgql_body.html
+[0m
+[0m$ [0mecho "=== GET /graphiql with evil Origin (CORS read test, read-only) ==="; curl -sS -D - -o /dev/null --max-time 15 -H "Origin: https://evil.example" -H "Accept: text/html" https://core.hypofriend.de/graphiql | tr -d '\r' | grep -iE '^(HTTP|access-control|vary|set-cookie)'; sleep 2; echo "=== GET /content/graphiql with evil Origin ==="; curl -sS -D - -o /dev/null --max-time 15 -H "Origin: https://evil.example" -H "Accept: text/html" https://core.hypofriend.de/content/graphiql | tr -d '\r' | grep -iE '^(HTTP|access-control|vary|set-cookie)'; sleep 2; echo "=== GET /q with evil Origin (known 301) ==="; curl -sS -D - -o /dev/null --max-time 15 -H "Origin: https://evil.example" https://core.hypofriend.de/q | tr -d '\r' | grep -iE '^(HTTP|location|access-control)'
+=== GET /graphiql with evil Origin (CORS read test, read-only) ===
+HTTP/2 200 
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept,Origin,Accept-Encoding
+set-cookie: _hf=5355ef8321f087f80bbd463d61dcba1a; domain=hypofriend.de; path=/; expires=Wed, 08 Oct 2036 11:28:30 GMT; secure; httponly
+=== GET /content/graphiql with evil Origin ===
+HTTP/2 200 
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept,Origin,Accept-Encoding
+set-cookie: _content_api_session=pzAYj68%2B4D02TJRpBjiiW9Xea0ZHuLx0A5wrgc5W4FmOX8%2FVRDvkuQLj4acVHF57sRNG%2FzpoNcn6yInhW2HB8AImP2kSeWiZucj7fQ6Dux7vMkx6KuWerP1LmaAGbjhrXEYLcyLNP%2BoqLxpRuv985%2BPK19Fb5OqTxqzN8QAxp6tcZyp0ZcqUZN2BKDO7xku2B2aTaUA15H%2FDAQMYP33I%2BiN%2B94LqznzkB4kdKks6Z134sS9%2FOnD%2FeZT9CbbyQsCVF9p3s4qyfHuVyw07Thshq896N2O765cyR2vrqA%3D%3D--cGAlRHUyN0IcHKEP--Y6k1urj3HmXjBCHybmVIrA%3D%3D; path=/; httponly; samesite=lax
+=== GET /q with evil Origin (known 301) ===
+HTTP/2 301 
+location: https://hypofriend.de/
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+[0m
+[PRIO] `core.hypofriend.de/graphiql` confirmed 200/697B with `data-graphql-endpoint-path="/q"` + embedded `X-CSRF-Token`; **new delta**: both `/graphiql` and `/content/graphiql` return `access-control-allow-origin: <reflected https://evil.example>` + `access-control-allow-credentials: true` + 7 methods on GET — the GraphiQL HTML (containing the session CSRF token) is cross-origin readable. `x-frame-options: ALLOWALL` on core instance (control `/content/graphiql` = SAMEORIGIN). api.hypofriend.de still dead 57th cycle (000 :443/:80, timeout).
+
+[HYP]
+- **[95] CORS + GraphiQL = live CSRF-token theft**: victim visits attacker page → credentialed `GET https://core.hypofriend.de/graphiql` → response readable (ACAO reflect + ACAC) → attacker recovers victim's `X-CSRF-Token` + confirms `_hf` cookie issuance → combined with known global rack-cors credentialed echo, this closes the missing read-primitive that was PARKED last cycle (POST to `/q` still not needed for token *theft*, only for token *use*). Chain multiplier for root-token exposure.
+- **[80] `x-frame-options: ALLOWALL` on core GraphiQL** enables cross-origin framing of `/graphiql` — iframe cannot read cross-origin HTML (still PARKED as standalone), but with ALLOWALL the framed page auto-loads attacker-injectable... no: CSP absent, but frame-bust dead means clickjack-assisted token use only; low standalone value.
+- **[65] api.hypofriend.de revival** — DNS resolves (52.15.184.3) but TCP blackhole 57 cycles; hypothesis now *infrastucture-retired*, not intermittent.
+
+[PARKED] GraphiQL-as-iframe-token-read (cross-origin HTML unreadable — but now superseded by CORS read path); `/content/graphiql` oracle (closed); api POC target (dead — phase/target mismatch continues to be disclosed, no substitution). [FINAL] not yet — CORS-token-theft needs one confirmation: whether reflected ACAO on `/graphiql` also fires on responses carrying a *pre-existing* authenticated session token (test used fresh sessions only).
+
+[NEXT] PROBE — read-only, single GET ≤1 rps: `curl -sS -D - -o /tmp/opencode/gql2.html --max-time 15 -H "Origin: https://evil.example" --cookie "_hf=<token-from-prior-response>" https://core.hypofriend.de/graphiql` — replay the `_hf=5355ef8321f087f80bbd463d61dcba1a` cookie issued at 11:28:30 with the evil Origin and verify (a) ACAO reflect persists for a replayed session, (b) `X-CSRF-Token` in body differs from the fresh-session value (`toLf5t38…`), proving token is session-bound and thus stealable per-victim. Then optionally HEAD `https://core.hypofriend.de/robots.txt`-adjacent — no; stay on the single probe.
+
+[LEARN] Delta from this cycle: (1) reflected ACAO+ACAC extends to GET `/graphiql` and `/content/graphiql` — the previously blocked "cross-origin read of CSRF token" is unblocked for GET without needing POST to `/q`; (2) core GraphiQL serves `x-frame-options: ALLOWALL` vs control SAMEORIGIN; (3) api.hypofriend.de dead 57 consecutive cycles → hypothesis downgraded to retired-infrastructure; (4) two independent GraphiQL mounts leak two different session token types (`_hf` vs `_content_api_session`), both CORS-readable.
+
+[RISK] Program risk **96 / CRITICAL** — credentialed CORS reflection on a page that embeds session CSRF tokens converts the standing global rack-cors finding from "echo" into per-victim token disclosure; unauthenticated GraphiQL remains live on 3+ hosts; api POC blocked indefinitely, mitigation phase stuck pending human-gated confirmation of the authenticated-session replay.

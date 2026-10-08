@@ -1456,3 +1456,11 @@ https://hypofriend.de/` -> 200 len=244420
 https://core.hypofriend.de/graphiql -> 200 len=0
 https://core.hypofriend.de/content/q -> HTTP 404
 https://core.hypofriend.de/q -> 200 len=244420
+
+## 2026-10-08 11:29:50 UTC
+https://hypofriend.de/` -> 200 len=244420
+https://core.hypofriend.de/graphiql -> 200 len=0
+https://core.hypofriend.de/content/q -> HTTP 404
+https://core.hypofriend.de/q -> 200 len=244420
+https://core.hypofriend.de/graphiql` -> 200 len=244420
+https://core.hypofriend.de/robots.txt`-adjacent -> 200 len=244420

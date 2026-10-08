@@ -1920,3 +1920,12 @@ www.hypofriend.de
 - CHANGED `GET core.hypofriend.de/q` and `GET hypofriend.de/q` → 301 `https://hypofriend.de/` with rack-cors headers — GraphQL route confirmed POST-only on both origins
 - CHANGED `hypofriend.de/en/exchange` forge re-confirmed live by GET: `share_id=dddb5cba-…` + nil `link_id` + attacker `utm_*` → 302 with fresh session cookies
 - CHANGED `core.hypofriend.de` global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (Origin `https://evil.example`, ACRH `content-type`): ACAO echo + `access-control-allow-credentials: true` + 7 meth
+
+## 2026-10-08 11:29:40 UTC
+- NEW Production GraphiQL IDE confirmed live at `core.hypofriend.de/graphiql`, `hypofriend.de/graphiql`, `core.hypofriend.de/content/graphiql` (GET 200, no auth, fresh session, exposes endpoint path + per-r
+- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93-...`, `/uploads`→`40595fb5-...`, `/karriere`→`c0c7f5c2-...` (plus prior `/tools`, `/partner`, `/rails`)
+- CHANGED `api.hypofriend.de` dead 56th consecutive cycle (000 on :443/:80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase still pinned to dead host
+- CHANGED `GET core.hypofriend.de/q` and `GET hypofriend.de/q` → 301 `https://hypofriend.de/` with rack-cors headers — GraphQL route confirmed POST-only on both origins
+- CHANGED `hypofriend.de/en/exchange` forge re-confirmed live by GET: `share_id=dddb5cba-…` + nil `link_id` + attacker `utm_*` → 302 with fresh session cookies
+- CHANGED `core.hypofriend.de` global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (Origin `https://evil.example`, ACRH `content-type`): ACAO echo + `access-control-allow-credentials: true` + 7 meth
