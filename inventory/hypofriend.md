@@ -1977,3 +1977,14 @@ www.hypofriend.de
 - CHANGED `core.hypofriend.de/q` family — coercion/validation error channel reconstructs input contracts (6 contracts + 3 payload types + nested `S3FileInput`) with `data` absent; `root.form_authenticity_token`
 - CHANGED `core.hypofriend.de/property-search-api` — full-DB BOLA chain `propertySearch→exposes→expose` remains unauthenticated on direct origin returning PII; OPTIONS remains 200 with NO `ACAO` echo (contrast 
 - CHANGED `core.hypofriend.de` global rack-cors — echoes any `Origin` + `ACAC:true` + 7 methods across arbitrary paths; OPTIONS `/q` and `/content/q` omit `Vary:Origin` while POST includes it
+
+## 2026-10-09 21:45:03 UTC
+- NEW Production GraphiQL IDEs at `/graphiql` and `/content/graphiql` confirmed live (GET 200, no auth, fresh session, exposes endpoint path + per-request X-CSRF-Token) — 3 instances across `/q` and `/conte
+- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93-...`, `/uploads`→`40595fb5-...`, `/karriere`→`c0c7f5c2-...` (plus prior `/tools`, `/partner`, `/rails`)
+- NEW `/content/q/` confirmed as LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`)
+- CHANGED `api.hypofriend.de` dead 57th consecutive cycle (000 on :443/:80, A 52.15.184.3 clean) — POC phase pinned to dead host; phase/target mismatch
+- CHANGED `core.hypofriend.de/property-search-api`: unauthenticated full-DB BOLA chain `propertySearch→exposes→expose` returns broker/owner PII auth-free on direct origin; auth-free crawl primitives (`paginatio
+- CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any `Origin` + `ACAC:true` across `/q` family; introspection disabled but error/coercion channel reconstruct
+- CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
+- CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` is auth-by-obscurity, `utm_*` raw pass-through into 302
