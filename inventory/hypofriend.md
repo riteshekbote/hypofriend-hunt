@@ -1949,3 +1949,14 @@ www.hypofriend.de
 - CHANGED `core.hypofriend.de` global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (Origin `https://evil.example`, ACRH `content-type`): ACAO echo + `access-control-allow-credentials: true` + 7 meth
 
 ## 2026-10-09 03:00:13 UTC
+
+## 2026-10-09 10:12:28 UTC
+- NEW Production GraphiQL IDEs at `/graphiql` and `/content/graphiql` confirmed live (GET 200, no auth, fresh session, exposes endpoint path + per-request X-CSRF-Token) — 3 instances across `/q` and `/conte
+- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93-...`, `/uploads`→`40595fb5-...`, `/karriere`→`c0c7f5c2-...` (plus prior `/tools`, `/partner`, `/rails`)
+- CHANGED `api.hypofriend.de` dead 56th consecutive cycle (000 on :443/:80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase still pinned to dead host
+- CHANGED `core.hypofriend.de/q` family — coercion/validation error channel reconstructs input contracts (6 contracts + 3 payload types + nested `S3FileInput`) with `data` absent; `root.form_authenticity_token`
+- CHANGED `hypofriend.de/en/account` — entry bundle rotated (`index-BLX7yr-v.js`, 2,468,656B) shipping 37 named mutations; 4 object-addressing mutations take caller-supplied IDs with no lead/tenant argument
+- CHANGED `core.hypofriend.de/property-search-api` — full-DB BOLA chain `propertySearch→exposes→expose` remains unauthenticated on direct origin returning PII; OPTIONS remains 200 with NO `ACAO` echo (contrast 
+- CHANGED `core.hypofriend.de` global rack-cors — echoes any `Origin` + `ACAC:true` + 7 methods across arbitrary paths; OPTIONS `/q` and `/content/q` omit `Vary:Origin` while POST includes it
+- CHANGED `/content/q/` confirmed as LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`)

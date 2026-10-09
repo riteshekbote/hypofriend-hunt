@@ -58043,3 +58043,114 @@ vary: Origin,Accept-Encoding
 - `[RISK] 96` — Unchanged. Standing impact: unauthenticated full-customer-PII read (BOLA) + unauth prod GraphiQL/CSRF-token surface. Only human-gated quantification prevents 97+.
 
 **Stopping here** — probes complete; NEXT actions above are the remaining steps. Flag if you want me to execute the two `/crm` + `/content/graphiql` read-only GETs now, or proceed to draft the coordinator phase-reassignment request.
+===== ANALYST bigpickle 2026-10-09 10:12:28 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS -D - -o /tmp/opencode/gql2.html --max-time 15 -H "Origin: https://evil.example" -H "Accept: text/html" -c /tmp/opencode/jar.txt https://core.hypofriend.de/graphiql 2>&1 | head -50; echo "---BODY---"; wc -c /tmp/opencode/gql2.html; grep -oE 'data-graphql-endpoint-path="[^"]*"|X-CSRF-Token[^<]*|csrf[_-]token[^"]*"' /tmp/opencode/gql2.html | head -10
+HTTP/2 200 
+date: Fri, 09 Oct 2026 10:09:39 GMT
+content-type: text/html; charset=utf-8
+content-length: 697
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: ALLOWALL
+link: </assets/graphiql/rails/graphiql-3.8.3-9997ea56.css>; rel=preload; as=style; nopush,</assets/graphiql/rails/application-6ccc9f44.css>; rel=preload; as=style; nopush,</assets/graphiql/rails/application-f36d7600.js>; rel=preload; as=script; nonce=; nopush
+vary: Accept,Origin,Accept-Encoding
+x-robots-tag: none
+etag: W/"d9948ecefbef4acddbcce7c244a38a1a"
+cache-control: max-age=0, private, must-revalidate
+set-cookie: _hf=d8094b523dc9a388121c3a23fdf8eb61; domain=hypofriend.de; path=/; expires=Thu, 09 Oct 2036 10:09:39 GMT; secure; httponly
+x-request-id: 393a990b-c5dd-4a49-b411-7c3b6442e758
+x-runtime: 0.056369
+strict-transport-security: max-age=63072000; includeSubDomains
+
+---BODY---
+697 /tmp/opencode/gql2.html
+data-graphql-endpoint-path="/q"
+X-CSRF-Token&quot;:&quot;Ro6AOziKh5g7oCN0XuUdfTOrDZk_cpK-CDLO1DrHppib6m-U7s-DxPyOAS8a8EokJ55E6u-fv8-xSohrSfw5Cg&quot;}" data-query-params="false" data-input-value-deprecation="false">Loading...
+[0m
+[0m$ [0mcurl -sS -I --max-time 12 https://api.hypofriend.de/ 2>&1 | head -5; echo "exit=$?"; getent hosts api.hypofriend.de
+curl: (28) Connection timed out after 12002 milliseconds
+exit=0
+52.15.184.3     api.hypofriend.de
+[0m
+## Objective
+- Act as a senior bug bounty analyst for the Hypofriend GmbH program (report channel: bugs.olivermaicher.eu), running a 8-step hypothesis cycle (delta → prioritize → hypotheses → self-critique → next probe → learning → risk) over read-only reconnaissance.
+- Produce only structured blocks ([PRIO]/[HYP]/[FINAL]/[PARKED]/[NEXT]/[LEARN]/[RISK]) with strict field schema; never invent vulnerabilities.
+
+## Important Details
+- Scope: ONLY assets from scope.yml + inventory/hypofriend.md — all Hypofriend GmbH infrastructure, mortgage platforms, portals, APIs, web/mobile apps, domains.
+- Probe rules: passive-first, ≤1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; no bulk PII reads (HUMAN-gated); sha256 any secret; facts vs hypotheses strictly separated.
+- OUT OF SCOPE (rejected classes): descriptive errors/headers, OPTIONS/TRACE standalone, logout-CSRF, clickjacking w/o exploit, TLS best practice, brute-force/rate-limit, mail config, public login panels, DoS, etc. XFO:ALLOWALL and credentialed-CORS echo are recorded as chain multipliers only, not standalone findings.
+- State: `{"phase": "POC", "target": "api"}` — api.hypofriend.de dead ~57 consecutive cycles (000 on :443/:80, A `52.15.184.3` resolves clean); phase/target mismatch disclosed each cycle, not silently substituted.
+- Key confirmed findings: unauthenticated full-DB BOLA on `core.hypofriend.de/property-search-api` (propertySearch→exposes→expose returns broker/owner PII; CORS closed there — contrast class); global rack-cors on core.hypofriend.de (any Origin + ACAC:true + 7 methods, echoes ACRH incl. `null` origin); /q family error/coercion channel reconstructs contracts (6 input types, 3 payloads, nested `S3FileInput`) cross-origin; `root.form_authenticity_token` + `root.lead.has_admin_cookie` exposed; public GraphiQL at `/graphiql` and `/content/graphiql` (per-request X-CSRF-Token, CORS-readable GET); hardcoded Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87...`) in public entry bundle → `/api/v3/advisors` (200; do not use actively).
+- 4 GraphQL instances: `/q` (mutations enabled), `/en/plus/q`, `/en/health/q`, `/content/q` (mutations disabled `missingMutationConfiguration`).
+- `/en/exchange` share-link forge: 6-key share_id pool (108ee8c6…, dddb5cba…, ed177279…, f46e3e93…, 40595fb5…, c0c7f5c2…), 8 mint stems (incl. `/swagger.json`; corrected 9→7+swagger, `/immobilien`/`/beratung` are canonical shell), arbitrary link_id, utm_* raw pass-through, redirect allowlist `{expose,account}` only — bounds to credible URL + poisoned attribution, not data read.
+- `/en/account` deploy: 37 mutations, 4 object-addressing with caller-supplied IDs (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); `file_link` (S3 key), `createUploadUrl` (s3Key/presignedUrl), `sendVerifiedListingEmail` (recipient+body), `submitDocumentAnalysis(files: JSON blob)`; SSRF class closed (no URL-accepting args); `updateProperty` mass-assignment closed server-side (`PropertyMutationsUpdateInput` rejects unknown keys).
+- Closed/rejected: `unclaimLead` session-scoped; `document_analysis_status`/`exposeSeen` not existence oracles; Vary:Origin overgeneralization withdrawn (POST varies `Accept,Origin,Accept-Encoding`, OPTIONS omits — near-inert); createUploadUrl 301-gated; property-search.hypofriend.de 503; *.app.hypofriend.de EIP-recycling class (cloud-side check HUMAN); mobile/images/assets/static/maps ELB 503 = availability not vuln; sparplan/heyflow Cloudflare cert gap not attacker-controllable.
+- Dead fleet: api/core-api/graph/auth/admin/portal/dashboard/billing/offer/documents/my/profile/account etc. all 503/000/301/403.
+- Known lesson: bundle mining on `/m/_nuxt/` is exhausted; correct pivot is "which route serves a different deploy" + "ask the server what it will admit to" (error channel); paired controls on same endpoint are cheapest defense (repeatedly learned).
+
+## Work State
+### Completed
+- Delta step for 2026-10-09 cycle: NO_DELTA — surface identical to 2026-10-08 23:14Z cycle (GraphiQL live, 8 mint stems, 6-key pool enumerated, api dead 56th cycle, GET /q → 301, exchange forge confirmed).
+- Prior cycle (2026-10-08 23:14Z) hypotheses emitted: 3 [HYP] blocks (BOLA 95, GraphiQL/schema-reconstruction 92, object-addressing chain 88) → all [FINAL].
+
+### Active
+- Current cycle (2026-10-09 03:00Z) mid-execution: ranked hypotheses tail shows only nemotron3's GraphiQL hypothesis [95] plus its [NEXT] probe pending aggregation; my last leads show [FINAL]×3, [PARKED]×2, [NEXT] probe on /graphiql ACAO replay.
+
+### Blocked
+- POC phase pinned to dead api.hypofriend.de (57+ cycles) — no live surface for phase completion; constraints all activity to read-only GET/HEAD/OPTIONS ≤1rps.
+- Cross-tenant mutation proofs and bulk BOLA quantification are HUMAN_ONLY per program constraints.
+
+## Next Move
+1. Execute the standing [NEXT] PROBE: `curl -sS -D - -o /tmp/opencode/gql2.html --max-time 15 -H "Origin: https://evil.example" --cookie "_hf=<token-from-prior-response>" -H "Accept: text/html" https://core.hypofriend.de/graphiql` — single read-only GET ≤1rps, verify ACAO reflect on replayed session + capture X-CSRF-Token/_hf presence; no POST/mutation.
+2. Emit the 2026-10-09 structured blocks: [PRIO] (property-search-api 9.6, /q family 9.4, /en/account→/q 8.9 unchanged), 3 [HYP], [FINAL]/[PARKED] survivors, one [NEXT], [LEARN], [RISK] (96).
+
+## Relevant Files
+- (none) — no local files referenced; all work is remote HTTP probing against hypofriend.de / core.hypofriend.de plus the conversation's knowledge-base/inventory state.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mecho "== CONTROL: no Origin =="; curl -sS -I --max-time 12 -H "Accept: text/html" https://core.hypofriend.de/graphiql 2>&1 | grep -iE 'access-control|vary|set-cookie|x-frame'; sleep 1; echo "== ORIGIN: null =="; curl -sS -I --max-time 12 -H "Origin: null" -H "Accept: text/html" https://core.hypofriend.de/graphiql 2>&1 | grep -iE 'access-control|vary|set-cookie|x-frame'
+== CONTROL: no Origin ==
+x-frame-options: ALLOWALL
+vary: Accept,Origin,Accept-Encoding
+set-cookie: _hf=7a75ba50cfe82aca71ff3c5cc7430f23; domain=hypofriend.de; path=/; expires=Thu, 09 Oct 2036 10:11:31 GMT; secure; httponly
+== ORIGIN: null ==
+access-control-allow-origin: null
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: ALLOWALL
+vary: Accept,Origin,Accept-Encoding
+set-cookie: _hf=bdc6de9b18ef6a957cf4d4b7b2f68425; domain=hypofriend.de; path=/; expires=Thu, 09 Oct 2036 10:11:33 GMT; secure; httponly
+[0m
+**DELTA: MINOR_DELTA** — new facts this cycle: (a) no-Origin control on `/graphiql` returns **no** ACAO headers at all → reflector is Origin-conditional, not constant-wildcard; (b) `Origin: null` is reflected as `ACAO: null` + `ACAC: true`; (c) `api.hypofriend.de` 000 for the 57th consecutive cycle (A `52.15.184.3` still resolves, connection timeout). Disclosed state mismatch: `phase=POC target=api`, surface dead — not substituted silently.
+
+**[PRIO]**
+1. `core.hypofriend.de/property-search-api` BOLA — 9.6 (unchanged)
+2. `core.hypofriend.de/q` family error/CORS chain — 9.4 (upgrade: null-origin reflect now proven)
+3. `/en/account` mutations → `/q` object-addressing chain — 8.9 (unchanged)
+
+**[HYP] id=hyp-07 class=CORS-misconfig target=core.hypofriend.de/graphiql→/q confidence=0.97**
+- mechanism: rack-cors reflects arbitrary Origin (incl. `null`) with `ACAC:true` on HTML+GraphQL responses; `Vary: Origin` present, no-Origin control returns no ACAO — implemented reflector, not header absence.
+- exploitability: cross-*site* reads bounded — `_hf` sets no SameSite attribute → browser Lax default → credentialed cross-site fetch gets a **fresh** session, not the victim's. Same-*site* foothold (any `*.hypofriend.de` sibling, Domain=hypofriend.de cookie) **does** send `_hf` and can read a valid per-request `X-CSRF-Token` from the GraphiQL body → cross-origin `/q` mutation with victim session.
+- blast_radius: session-bound GraphQL mutations on `/q` (mutations enabled) from any sibling-subdomain XSS/content host.
+- corrective_control: same-site CORS allowlist (drop reflect), `SameSite=Strict` on `_hf`, disable GraphiQL in prod.
+- evidence: 2026-10-09 10:09–10:11Z probes — `ACAO: https://evil.example`+`ACAC:true`, `ACAO: null`+`ACAC:true`, no-Origin → no ACAO; `set-cookie: _hf=…; secure; httponly` (no SameSite); body embeds `X-CSRF-Token: Ro6AOziKh…`.
+
+**[HYP] id=hyp-01 class=BOLA target=property-search-api confidence=0.95** — prior cycle final, unchanged (propertySearch→exposes→expose returns broker/owner PII, CORS closed there).
+**[HYP] id=hyp-09 class=object-addressing target=/en/account→/q confidence=0.88** — prior cycle final, unchanged (caller-supplied IDs on 4 mutations; HUMAN-gated for cross-tenant proof).
+
+**[FINAL]** hyp-07 (reflect-only CORS + null-origin reflect confirmed, same-site-chain bound stated), hyp-01, hyp-09.
+**[PARKED]** EIP-recycling on `*.app.hypofriend.de` (HUMAN cloud check); `_hf` cross-site cookie behavior (needs real victim browser — not testable read-only).
+
+**[NEXT]** PROBE (read-only, single GET, ≤1rps): `curl -sS -L -D - --max-time 15 -H "Accept: application/json" "https://core.hypofriend.de/q?query=%7B__typename%7D"` — test whether the 301 on `GET /q` preserves query strings, i.e. whether schema introspection is reachable via GraphQL-over-GET without any mutation.
+
+**[LEARN]** Cheapest defense again proven: the paired control (same endpoint, no Origin) is what distinguishes an implemented reflector from missing CORS headers — without it the finding is unfalsifiable. Reflexive lesson carried forward: never report ACAO without the no-Origin control in the same cycle.
+
+**[RISK]** 96 (unchanged — reflector design flaw confirmed and scoped, but exploitation is same-site-gated; no new attack surface, dead api unchanged).

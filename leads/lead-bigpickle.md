@@ -7917,3 +7917,4 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED @ api.hypofriend.de: dead 57+ consecutive cycles (000 on :443/:80, A 52.15.184.3 clean) — POC phase pinned to dead host, phase/target mismatch; no live surface for phase completion.
 [RISK] hypofriend: 96 — Unauthenticated full-DB PII BOLA on direct-origin GraphQL (CloudFront WAF bypass), credentialed CORS + error/coercion channel reconstructing contracts and exposing root.form_authenticity_token + root.lead.has_admin_cookie across 4 GraphQL instances, public GraphiQL IDE (cross-origin token readability), object-addressing mutations + S3/file chain + vendor-mail send on /en/account→/q, global rack-cors inheritance to all Rails routes. api.hypofriend.de remains dead (POC-target mismatch). Severity: CRITICAL.
 ## 2026-10-09 02:59:39 UTC [target] (model bigpickle)
+## 2026-10-09 10:12:17 UTC [target] (model bigpickle)
