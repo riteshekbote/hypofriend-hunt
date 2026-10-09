@@ -1947,3 +1947,5 @@ www.hypofriend.de
 - CHANGED `GET core.hypofriend.de/q` and `GET hypofriend.de/q` → 301 `https://hypofriend.de/` with rack-cors headers — GraphQL route confirmed POST-only on both origins
 - CHANGED `hypofriend.de/en/exchange` forge re-confirmed live by GET: `share_id=dddb5cba-…` + nil `link_id` + attacker `utm_*` → 302 with fresh session cookies
 - CHANGED `core.hypofriend.de` global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (Origin `https://evil.example`, ACRH `content-type`): ACAO echo + `access-control-allow-credentials: true` + 7 meth
+
+## 2026-10-09 03:00:13 UTC
