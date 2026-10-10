@@ -2032,3 +2032,14 @@ www.hypofriend.de
 - CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any `Origin` + `ACAC:true` across `/q` family; introspection disabled but error/coercion channel reconstruct
 - CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
 - CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` is auth-by-obscurity, `utm_*` raw pass-through into 302
+
+## 2026-10-10 22:01:37 UTC
+- NEW Three production GraphiQL IDEs confirmed live: `core.hypofriend.de/graphiql`, `hypofriend.de/graphiql`, `core.hypofriend.de/content/graphiql` (GET 200, no auth, fresh session, exposes `data-graphql-en
+- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93-...`, `/uploads`→`40595fb5-...`, `/karriere`→`c0c7f5c2-...` (plus prior `/tools`, `/partner`, `/rails`)
+- NEW `/content/q/` confirmed as LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`)
+- CHANGED `api.hypofriend.de` dead 57th consecutive cycle (000 on :443/:80, A 52.15.184.3 clean) — POC phase pinned to dead host; phase/target mismatch
+- CHANGED `core.hypofriend.de/property-search-api`: unauthenticated full-DB BOLA chain `propertySearch→exposes→expose` returns broker/owner PII auth-free on direct origin; auth-free crawl primitives confirmed; 
+- CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any `Origin` + `ACAC:true` across `/q` family; introspection disabled but error/coercion channel reconstruct
+- CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
+- CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` is auth-by-obscurity, `utm_*` raw pass-through into 302
