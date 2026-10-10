@@ -4744,3 +4744,16 @@
 - LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge re-confirmed by GET — `dddb5cba-…` + nil link_id + attacker utm_* → 302 `/en/account?ts=1791380154&utm_camp
 - LEARN: ACCEPTED NG @ api.hypofriend.de: dead 56th consecutive cycle (000 on :443 and :80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase pinned to a dead hos
 - LEARN: REJECTED MISCONFIG @ core.hypofriend.de/en/plus/graphiql + /en/health/graphiql: IDE is not mounted per-instance — both 301 to `/` (controls), so GraphiQL exposu
+
+## RANKED HYPOTHESES 2026-10-10 14:13:43 UTC
+- [95] core.hypofriend.de/graphiql: Production GraphiQL IDE Exposure → Interactive Schema Exploration + CSRF Token Harvest (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" --cookie-jar /tmp/jar.txt -H "Accept: text/html" — verify GraphiQL IDE accessib
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + hypofriend.de/graphiql: production GraphiQL IDE reachable unauthenticated (GET 200/697B, fresh `_hf` session)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/graphiql: second GraphiQL IDE on 4th GraphQL app (GET 200/705B, `data-graphql-endpoint-path="/content/q"`)
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: mint set grows 7→8 stems and usable share_id pool 6→7 keys — `/swagger.json` mints deterministic pair
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: full 6-key pool now enumerated by value — `/staff` `f46e3e93-…`, `/uploads` `40595fb5-…`, `/karriere` `c0c7f5c2-…
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (evil.example echo, ACAC:true, 7 methods, Max-Age 7200,
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: GET → 400 JSON "exclusively POST requests" with `vary: Origin` and no ACAO — endpoint live and CORS
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge re-confirmed by GET — `dddb5cba-…` + nil link_id + attacker utm_* → 302 `/en/account?ts=1791380154&utm_camp
+- LEARN: ACCEPTED NG @ api.hypofriend.de: dead 56th consecutive cycle (000 on :443 and :80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase pinned to a dead hos
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/en/plus/graphiql + /en/health/graphiql: IDE is not mounted per-instance — both 301 to `/` (controls), so GraphiQL exposu
