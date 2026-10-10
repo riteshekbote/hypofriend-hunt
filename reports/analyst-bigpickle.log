@@ -59270,3 +59270,162 @@ vary: Accept,Origin,Accept-Encoding
 ## STEP 7 — RISK
 - `[RISK] hypofriend: 96` (unchanged score; Finding #2 evidence strengthened, remaining gap is the human-gated POST step).
 - **Filesystem integrity:** `/tmp/opencode/gql2.html`, `/tmp/opencode/gql_content.html` now contain live session CSRF tokens. Treat as sensitive test artifacts; do not attach to report without redaction. No repo files modified this cycle.
+===== ANALYST bigpickle 2026-10-10 18:41:58 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "=== core.hypofriend.de/q OPTIONS ==="; curl -sS -D - -o /dev/null --max-time 12 -X OPTIONS https://core.hypofriend.de/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" 2>&1 | grep -iE "HTTP/|access-control|vary|x-frame|server|content-type"
+=== core.hypofriend.de/q OPTIONS ===
+HTTP/2 200 
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+access-control-allow-headers: content-type
+vary: Accept-Encoding
+[0m
+[0m$ [0mecho "=== graphiql ==="; curl -sS -D - -o /tmp/opencode/gi.html --max-time 12 https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" -H "Accept: text/html" 2>&1 | grep -iE "HTTP/|access-control|content-length|x-frame|set-cookie"; echo "--- grep token/endpoint ---"; grep -oiE "X-CSRF-Token[^<]{0,40}|data-graphql-endpoint-path=\"[^\"]*\"" /tmp/opencode/gi.html 2>/dev/null | head
+=== graphiql ===
+HTTP/2 200 
+content-length: 697
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: ALLOWALL
+set-cookie: _hf=894488fb5bc9d81127246b88bd99bfae; domain=hypofriend.de; path=/; expires=Fri, 10 Oct 2036 18:40:27 GMT; secure; httponly
+--- grep token/endpoint ---
+data-graphql-endpoint-path="/q"
+X-CSRF-Token&quot;:&quot;xixyfN5wXIqhrkhHuG3dBGp7-S8
+[0m
+I'll run a focused set of read-only probes to establish the current delta, then produce the structured analysis.
+[0m$ [0mecho "=== property-search-api OPTIONS ==="; curl -sS -D - -o /dev/null --max-time 12 -X OPTIONS https://core.hypofriend.de/property-search-api -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" 2>&1 | grep -iE "HTTP/|access-control|vary|x-frame|server"
+=== property-search-api OPTIONS ===
+HTTP/2 200
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "api :443 -> %{http_code} (%{time_total}s)\n" --max-time 8 https://api.hypofriend.de/ 2>&1; curl -sS -o /dev/null -w "api :80 -> %{http_code} (%{time_total}s)\n" --max-time 8 http://api.hypofriend.de/ 2>&1; getent hosts api.hypofriend.de
+curl: (28) Connection timed out after 8001 milliseconds
+api :443 -> 000 (8.002007s)
+curl: (28) Connection timed out after 8002 milliseconds
+api :80 -> 000 (8.002045s)
+52.15.184.3     api.hypofriend.de
+[0m
+## Objective
+- Hunt high-value vulnerability classes (IDOR/BOLA, auth/session, GraphQL, SSRF, mass assignment, business logic) against Hypofriend GmbH in-scope assets, reporting to bugs.olivermaicher.eu.
+- Current phase is POC pinned to `api.hypofriend.de`, which is dead — real findings are on `core.hypofriend.de` / `hypofriend.de`.
+
+## Important Details
+- Program phase/target: POC pinned to `api.hypofriend.de`; host dead 57+ consecutive cycles (`000` on :443/:80, A `52.15.184.3` resolves clean) — phase/target mismatch constrains probes to read-only.
+- Rules of engagement: passive-first, ≤1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; bulk reads + any credential use are HUMAN-gated; sha256 any secret.
+- Out-of-scope (REJECTED) classes: descriptive errors/headers only, DoS, CSRF on logout, cookie flags on non-sensitive data, clickjacking w/o exploit, TLS best practice, public login panels, scanner output without POC, exposing customer/employee/financial/auth data during testing.
+- Key architectural facts: direct origin `core.hypofriend.de` serves bare headers vs edge CloudFront full security stack (WAF/header bypass); origin `X-Frame-Options: ALLOWALL` vs edge `DENY`; global rack-cors middleware echoes any Origin (incl. `null`) + `ACAC:true` + 7 methods on arbitrary Rails paths; session cookies `samesite=none; secure; httponly` (`__hfp__`, `_hf`).
+- `/content/q/` is a live 4th GraphQL instance (POST 200), mutations disabled via config `"missingMutationConfiguration"`; introspection disabled on all `/q` family but error/coercion channel reconstructs schema/contracts.
+- `hypofriend.de/en/exchange` redirect allowlist is exactly `{expose, account}` — NOT an open redirect.
+- Entry bundles: main `/m/_nuxt` mining exhausted (many renames, mutation-template counts bit-identical); `/en/account/assets/index-BLX7yr-v.js` (2,468,656B, sha256 `4304a74473862400498e26eb8c366f4447d022aedba90679ea43b846b7fee3d3`) is the richer target with 37 mutations.
+
+## Work State
+### Completed
+- [ACCEPTED IDOR] `core.hypofriend.de/property-search-api`: unauthenticated full-DB BOLA — `propertySearch→exposes→expose` returns broker/owner PII (`propertyOwnerLastName`, `cellPhoneNumber`, `phoneNumber`, `ownerCompany`, `providerCompany`) auth-free; crawl primitives `pagination(id,offset,limit)`, `exposes(id,offset,limit)`, `exposesInBounds(id,bounds)`, `mapExposes(id,bounds)`; limit capped ~50, offset walk required; introspection enabled (graphql-2.5.26); direct-origin bare headers; CORS closed (no ACAO echo). CRITICAL. Bulk quant is HUMAN_ONLY.
+- [ACCEPTED MISCONFIG] `/q` family (`core.hypofriend.de/q`, `hypofriend.de/q`, `/en/plus/q`, `/en/health/q`, `/content/q`): introspection bypass via error/coercion channel — `undefinedField` returns parent `typeName` (`HypofriendType`, `Lead`) + did-you-mean suggester; coercion reconstructs input contracts (`SelectOfferInput`, `PropertyMutationsUpdateInput`, `DeleteLeadDocumentAttachmentInput`, `RequestOfferRenewalInput`, `VerifiedListingEmailInput` x8 req args, `SubmitDocumentAnalysisInput.files:[S3FileInput!]!`) + 3 payload types with `data` absent. `S3FileInput` = `s3_key: String!`, `file_name: String!`. CRITICAL.
+- [ACCEPTED MISCONFIG] `root.form_authenticity_token` (per-request 86-char CSRF token for `/crm` backoffice) + `root.lead.has_admin_cookie` (custom JSON scalar, `selectionMismatch`, `extensions.typeName:"JSON"`) exposed via global credentialed CORS.
+- [ACCEPTED MISCONFIG] Public GraphiQL IDEs: `core.hypofriend.de/graphiql`, `hypofriend.de/graphiql` (GET 200/697B, `data-graphql-endpoint-path="/q"`), `core.hypofriend.de/content/graphiql` (GET 200/705B, `data-graphql-endpoint-path="/content/q"`, `graphiql-rails 3.8.3`); per-request X-CSRF-Token in HTML; controls `/en/plus/graphiql`, `/en/health/graphiql` → 301.
+- [ACCEPTED IDOR] `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs, no lead/tenant arg (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requestOfferRenewal:offerProductId`); `uploadDocumentExtended` `file_link` caller-supplied S3 key; `createUploadUrl`→`{s3Key, presignedUrl}`; `sendVerifiedListingEmail` 12+ caller fields incl. recipient + free-text; `submitDocumentAnalysis(files:<json blob>)`; `offerId` client-visible via Vuex `setOptimalOfferId`. CRITICAL (execution HUMAN_ONLY).
+- [ACCEPTED AUTH] Hardcoded HTTP Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87...`) in public entry bundle, sent by `g8()` to `advisorEndpoint` = `/api/v3/advisors` (401 Basic, live probe 200 OK).
+- [ACCEPTED MISCONFIG] Global rack-cors on `core.hypofriend.de`: arbitrary paths `/zzz-3684`, `/zzz-arbitrary-path`, `/api/v3/advisors` OPTIONS echo any Origin + `ACAC:true` + all methods (max-age 7200); GET 302/301 shells carry ACAO.
+- [ACCEPTED BUSLOGIC] `hypofriend.de/en/exchange` share-link forge: 8 mint stems, 6–7 key `share_id` pool plaintext harvestable by unauth GET (`/tools` `dddb5cba-7e96-44b2-be7d-bb621c8a8e68`, `/partner`+`/partnerprogramm` `108ee8c6-4330-4a59-867c-c0a6a638046f`, `/staff` `f46e3e93-…`, `/uploads` `40595fb5-…`, `/karriere` `c0c7f5c2-…`, `/rails` `ed177279-…`, `/swagger.json` `985da3c5-60f6-46cf-b467-8edcf0a61063`); arbitrary `link_id` minted; `utm_*` raw pass-through into 302 Location; destination shell byte-identical → credible-URL forgery + poisoned attribution, NOT data read.
+- [REJECTED] `api.hypofriend.de` dead 57+ cycles (phase mismatch). `unclaimLead` session-scoped zero-arg. `document_analysis_status`/`exposeSeen` not existence oracles. `updateProperty` mass assignment — server closes attribute set (`argumentNotAccepted`, type `PropertyMutationsUpdateInput`). `Vary:Origin` mitigation near-inert (POST varies correctly, OPTIONS omits). `*.app.hypofriend.de` EIP-recycle class (cloud-side only). `mobile.hypofriend.de` ELB zero-target 503. `sparplan`/`heyflow` CNAMEs → Cloudflare heyflow zone. `auth.hypofriend.de` OAuth 503. `hypofriend.de/auth/google_oauth2` → 301. `internal` cookie = provenance flag. Bundle mining exhausted.
+
+### Active
+- Verifying whether the credential CORS echo allows cross-origin read of the GraphiQL-rendered CSRF token/`_hf` session cookie for a replayed session.
+- Top-3 FINAL survivors: [1] Full-DB BOLA @ `core.hypofriend.de/property-search-api` (conf 95, HUMAN_ONLY bulk); [2] Cross-origin schema reconstruction + CSRF/admin-token exposure via `/q` error/coercion + public GraphiQL (conf 92, AUTH_HELPED); [3] Cross-tenant object addressing + S3/file + mail send chain `hypofriend.de/en/account` → `/q` (conf 88, HUMAN_ONLY).
+
+### Blocked
+- POC phase pinned to dead `api.hypofriend.de` — no live surface for phase completion.
+- Bulk PII quantification and cross-tenant mutation proofs are HUMAN_ONLY / program-excluded; cannot execute live.
+- No known live admin session cookie to fully prove cross-origin token readability (only replay of passively obtained cookie allowed).
+
+## Next Move
+1. Run the read-only probe: `curl -sS -D - -o /tmp/opencode/gql2.html --max-time 15 -H "Origin: https://evil.example" -H "Accept: text/html" --cookie "_hf=<known-session-cookie>" https://core.hypofriend.de/graphiql` — confirm ACAO reflect persists for replayed session and capture `X-CSRF-Token`/`_hf` presence in HTML (single GET ≤1 rps, no POST/mutation).
+2. If ACAO/HTML token readability confirms, draft the cross-origin token-read POC chain (GraphiQL GET → ACAO+ACAC → token in body) as the reportable artifact.
+
+## Relevant Files
+- `inventory/hypofriend.md`: full 71-host inventory + historical passive recon, deep service scans, timestamps.
+- `scope.yml`: in-scope asset definition (all Hypofriend GmbH affiliated infrastructure/domains).
+- `art/lead_nemotron3.txt`: source of the ranked [95] `core.hypofriend.de/graphiql` GraphiQL IDE hypothesis.
+- `hypotheses-nemotron3.txt`: carries the [NEXT] GraphiQL probe action.
+- `/tmp/opencode/gql2.html`: target output for the pending GraphiQL probe (capture ACAO + token HTML).
+- `/tmp/jar.txt`: cookie jar used for GraphiQL probe session handling.
+- Report channel: `bugs.olivermaicher.eu`.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+Key delta: `api.hypofriend.de` still dead (timeout :443/:80, A `52.15.184.3`), and `core.hypofriend.de/graphiql` mints a fresh `_hf` cookie with `domain=hypofriend.de` on **anonymous** GET, plus embeds `X-CSRF-Token`. Let me determine if that CSRF token is session-bound or static, and how `_hf` behaves.
+[0m$ [0mcd /tmp/opencode
+# two anonymous sessions, no cookie jar, compare embedded CSRF tokens
+t1=$(curl -sS --max-time 12 https://core.hypofriend.de/graphiql | grep -oiE "X-CSRF-Token&quot;:&quot;[^&]*" | head -1)
+sleep 1
+t2=$(curl -sS --max-time 12 https://core.hypofriend.de/graphiql | grep -oiE "X-CSRF-Token&quot;:&quot;[^&]*" | head -1)
+echo "anon#1: $t1"
+echo "anon#2: $t2"
+[ "$t1" = "$t2" ] && echo "=> STATIC token (session-independent)" || echo "=> per-session token (session-bound)"
+anon#1: X-CSRF-Token&quot;:&quot;aS1wTQlRTbYuvR7thGWZqxG9sqsUYcf628VZT-KxHiprXaxHtPFFKdQMDai1NY4Ah4rSbCZ_5gsnXmsGrFqcWQ
+anon#2: X-CSRF-Token&quot;:&quot;qtqtarX8BQPRrDzLZymNgjw2O97xkpVuNOgSEruRnyhEbOhdsJr00a2RqeibIe53BBQASSoYfD_HSH5Ly3HOpQ
+=> per-session token (session-bound)
+[0m
+[0m$ [0mecho "=== _hf set on repeated anon GET? ==="
+for i in 1 2; do
+  curl -sS -D - -o /dev/null --max-time 12 https://core.hypofriend.de/graphiql | grep -iE "^set-cookie|^HTTP/"; sleep 1
+done
+=== _hf set on repeated anon GET? ===
+HTTP/2 200 
+set-cookie: _hf=d185f58f63c78bf924c1b0c0f0df9e06; domain=hypofriend.de; path=/; expires=Fri, 10 Oct 2036 18:41:24 GMT; secure; httponly
+HTTP/2 200 
+set-cookie: _hf=1bec660ee008586b1e418a10cdb86a2c; domain=hypofriend.de; path=/; expires=Fri, 10 Oct 2036 18:41:25 GMT; secure; httponly
+[0m
+Important corrections: the CSRF token is **per-session (session-bound)**, and `_hf` is freshly minted per anonymous GET. So the "CSRF token exposure" angle is weak — an attacker only gets a token bound to their own fresh session. Let me confirm the actual impactful mechanism: credentialed cross-origin reads on the real GET response.
+[0m$ [0mecho "=== GET /q with Origin (real response, not preflight) ==="
+curl -sS -D - -o /dev/null --max-time 12 "https://core.hypofriend.de/q?query=%7B__typename%7D" -H "Origin: https://evil.example" -H "Accept: application/json" 2>&1 | grep -iE "HTTP/|access-control|vary|x-frame|content-type"
+echo
+echo "=== does preflight allow x-csrf-token? ==="
+curl -sS -D - -o /dev/null --max-time 12 -X OPTIONS https://core.hypofriend.de/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: x-csrf-token,content-type" 2>&1 | grep -iE "access-control-allow-headers|HTTP/"
+=== GET /q with Origin (real response, not preflight) ===
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Origin,Accept-Encoding
+
+=== does preflight allow x-csrf-token? ===
+HTTP/2 200 
+access-control-allow-headers: x-csrf-token,content-type
+[0m
+## Delta (this cycle)
+
+- **Target still dead:** `api.hypofriend.de` → timeout on :443 and :80 (000/8s), A record unchanged `52.15.184.3`. POC phase/target mismatch persists (57+ cycles).
+- **CORS reflection re-confirmed live** on `core.hypofriend.de/q`:
+  - OPTIONS preflight reflects `Origin: https://evil.example` + `ACAC:true` + all 7 methods, **and reflects requested `Access-Control-Request-Headers`: `x-csrf-token,content-type`**.
+  - Real GET response: `vary: Origin,Accept-Encoding`, ACAO reflects `evil.example`, ACAC `true`. Preflight has no `Vary: Origin` (only real response does).
+- **Correction — CSRF token is SESSION-BOUND, not static:** two anonymous GraphiQL GETs returned different `X-CSRF-Token` values. A cross-origin attacker can read a token, but it is bound to their *own* fresh session, so it does **not** authorize a victim's session. The "CSRF token exposure" angle is therefore largely inert on its own.
+- **Correction — `_hf` behavior:** `_hf` is freshly minted (new random value) on every anonymous GET to `/graphiql`, `domain=hypofriend.de; secure; httponly` (no `samesite`). This is normal server-side session minting — not attacker-settable, so no session fixation.
+- **`property-search-api` OPTIONS:** 200 with **no** ACAO — CORS closed there (unchanged).
+
+## Reframed highest-value finding
+
+The real strength of finding [2] is **not** CSRF-token theft — it is the **credentialed CORS misconfiguration**: arbitrary-Origin reflection + `ACAC:true` + reflected `x-csrf-token` allow-header means a malicious page can issue credentialed cross-origin requests to `core.hypofriend.de/q` and **read the JSON responses** (e.g. `root.lead.has_admin_cookie`, lead-scoped data) for any victim holding a session.
+
+Open sub-question that determines severity: **does `/q` enforce CSRF on state-changing POSTs?** If it does not, the credential+CORS combination becomes a cross-origin authenticated **mutation** primitive (attacker reads responses and supplies their own `x-csrf-token`). That is untestable under current RoE (mutating tests vs live data are HUMAN-gated) — needs your call.
+
+## Blocked / needs your decision
+
+1. Confirm `/q` CSRF enforcement: I can only send a **read-only** POST (safe query) to check for `CSRF`/`missing` rejection — no state change. OK to run?
+2. Any live cross-tenant / bulk PII proof remains HUMAN_ONLY and out of scope for me to execute.
+3. Given the CSRF-token downgrade, finding [2]'s reportability now rests entirely on the credentialed-CORS cross-origin read (and header-reflection), not token exposure.
+
+## Next Move (pending your go-ahead)
+
+Read-only POST probe to `https://core.hypofriend.de/q` with `Origin: https://evil.example`, `Content-Type: application/json`, a benign `{__typename}`/`form_authenticity_token` selection, **without** an `x-csrf-token` header, to observe whether the server rejects for missing CSRF (=> protected) or executes (=> CORS+CSRF bypass, critical). This is a single non-mutating request, ≤1 rps.
+
+Shall I run that read-only POST probe, or stop here?

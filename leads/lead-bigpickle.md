@@ -8072,3 +8072,4 @@ testability: HUMAN_ONLY
 [RISK] hypofriend: 96 — Unauthenticated full-DB PII BOLA on direct-origin GraphQL (CloudFront WAF bypass), credentialed CORS + error/coercion channel reconstructing contracts and exposing root.form_authenticity_token + root.lead.has_admin_cookie across 4 GraphQL instances, public GraphiQL IDE (cross-origin token readability), object-addressing mutations + S3/file chain + vendor-mail send on /en/account→/q, global rack-cors inheritance to all Rails routes. api.hypofriend.de remains dead (POC-target mismatch). Severity: CRITICAL.
 ## 2026-10-10 07:45:00 UTC [target] (model bigpickle)
 ## 2026-10-10 14:11:46 UTC [target] (model bigpickle)
+## 2026-10-10 18:41:50 UTC [target] (model bigpickle)
