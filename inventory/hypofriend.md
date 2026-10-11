@@ -2043,3 +2043,5 @@ www.hypofriend.de
 - CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any `Origin` + `ACAC:true` across `/q` family; introspection disabled but error/coercion channel reconstruct
 - CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
 - CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` is auth-by-obscurity, `utm_*` raw pass-through into 302
+
+## 2026-10-11 00:47:36 UTC
