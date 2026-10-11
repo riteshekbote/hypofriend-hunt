@@ -2056,3 +2056,14 @@ www.hypofriend.de
 - CHANGED core.hypofriend.de/q family has credentialed CORS + introspection bypass via error/coercion channel + GraphiQL exposure (cross-origin token leakage)
 
 ## 2026-10-11 18:39:20 UTC
+
+## 2026-10-11 22:27:23 UTC
+- NEW Production GraphiQL IDE confirmed live at `core.hypofriend.de/content/graphiql` (GET 200, 705B, `data-graphql-endpoint-path="/content/q"`) — 3rd GraphiQL instance across `/q` + `/content/q` families
+- NEW `/swagger.json` recognized as 8th mint stem on both `hypofriend.de` and `core.hypofriend.de` (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus prior `/tools`, `/partner`, `/rails`)
+- CHANGED `api.hypofriend.de` dead 57th consecutive cycle (000 on :443/:80, A `52.15.184.3` clean) — POC phase pinned to dead host, phase/target mismatch
+- CHANGED `core.hypofriend.de/property-search-api` full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives `pagination/exposesInBounds/mapExposes`, CORS closed)
+- CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any `Origin` + `ACAC:true`; introspection disabled but error/coercion channel reconstructs contracts (6 inpu
+- CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
+- CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity, `utm_*` raw pass-through into 302 Lo
+- CHANGED `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`)

@@ -1172,3 +1172,5 @@
 - 2026-10-11 ACCEPTED IDOR @ hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (no lead/tenant arg); file_link + createUploadUrl S3 chain, sendVerifiedListingEmail, submitDocumentAnalysis(files: JSON blob) mapped from public bundle.
 - 2026-10-11 REJECTED @ api.hypofriend.de: dead 57th consecutive cycle (000 on :443/:80, A 52.15.184.3 clean) — POC phase pinned to dead host, phase/target mismatch; no live surface.
 - 2026-10-11 REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization): POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple); POST-path varies correctly, facet near-inert.
+- 2026-10-11 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: full 6-key pool now enumerated by value — `/staff` `f46e3e93...`, `/uploads` `40595fb5...`, `/karriere` `c0c7f5c2...`
+- 2026-10-11 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge re-confirmed by GET — `dddb5cba...` + nil link_id + attacker utm_* → 302 `/en/account?ts=1791380154&utm_campaign=probe...`

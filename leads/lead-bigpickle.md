@@ -8127,3 +8127,13 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization): POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:Origin (browser preflight caching keyed on tuple); POST-path varies correctly, facet near-inert.
 [RISK] hypofriend: 96 — Unauthenticated full-DB PII BOLA on direct-origin GraphQL (CloudFront WAF bypass), credentialed CORS + error/coercion channel reconstructing contracts and exposing root.form_authenticity_token + root.lead.has_admin_cookie across 4 GraphQL instances, public GraphiQL IDE (cross-origin token readability), object-addressing mutations + S3/file chain + vendor-mail send on /en/account→/q, global rack-cors inheritance to all Rails routes. api.hypofriend.de remains dead (POC-target mismatch). Severity: CRITICAL.
 ## 2026-10-11 18:36:23 UTC [target] (model bigpickle)
+## 2026-10-11 22:25:57 UTC [target] (model bigpickle)
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
