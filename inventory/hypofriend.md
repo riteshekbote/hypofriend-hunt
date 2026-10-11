@@ -2047,3 +2047,10 @@ www.hypofriend.de
 ## 2026-10-11 00:47:36 UTC
 
 ## 2026-10-11 06:45:52 UTC
+
+## 2026-10-11 13:52:48 UTC
+- NEW Production GraphiQL IDEs confirmed live at /graphiql and /content/graphiql (unauthenticated, expose CSRF tokens and endpoint paths)
+- NEW /swagger.json recognized as 8th mint stem on share-link forge (extends exchange abuse surface)
+- CHANGED api.hypofriend.de remains dead 57th consecutive cycle (POC target mismatch)
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, CRITICAL)
+- CHANGED core.hypofriend.de/q family has credentialed CORS + introspection bypass via error/coercion channel + GraphiQL exposure (cross-origin token leakage)
