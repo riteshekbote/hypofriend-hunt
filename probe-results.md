@@ -1560,3 +1560,17 @@ https://core.hypofriend.de/q -> 200 len=244420
 https://core.hypofriend.de/graphiql -> 200 len=0
 https://core.hypofriend.de/content/q -> HTTP 404
 https://core.hypofriend.de/q -> 200 len=244420
+
+## 2026-10-12 08:39:14 UTC
+https://core.hypofriend.de/graphiql -> 200 len=0
+https://core.hypofriend.de/content/q -> HTTP 404
+https://core.hypofriend.de/q -> 200 len=244420
+https://api.hypofriend.de/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/v1/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/v2/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/beta/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/internal/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/swagger -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/openapi.json -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/docs -> ERR <urlopen error timed out>
