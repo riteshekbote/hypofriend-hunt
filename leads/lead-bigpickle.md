@@ -8424,3 +8424,4 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ core.hypofriend.de/content/graphiql: `x-frame-options: SAMEORIGIN` present (only `/graphiql` sets ALLOWALL) — clickjacking class not per-instance.
 [RISK] hypofriend: 96 — Cross-origin-readable GraphiQL + credentialed CORS proven global on `core.` and edge `hypofriend.de/q`, but the per-victim session-binding step is now DISPROVEN (`_hf` SameSite-Lax), so GraphiQL is downgraded to MEDIUM; the auth-free full-DB BOLA on `property-search-api` remains the CRITICAL and is the true prize. `api.hypofriend.de` dead 59th cycle (POC-target mismatch). Bulk-PII proof HUMAN-only.
 ## 2026-10-13 07:18:57 UTC [target] (model bigpickle)
+## 2026-10-13 15:09:14 UTC [target] (model bigpickle)

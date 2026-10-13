@@ -2156,3 +2156,17 @@ www.hypofriend.de
 - CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
 - CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity, `utm_*` raw pass-through into 302 Lo
 - CHANGED `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`)
+
+## 2026-10-13 15:11:27 UTC
+- NEW `/content/graphiql` confirmed live 3rd GraphiQL IDE instance (GET 200, exposes `/content/q` endpoint + per-request X-CSRF-Token) — first observed 2026-10-07, cross-origin readable via credentialed COR
+- NEW `/swagger.json` recognized as 8th mint stem on share-link forge (both origins, 301 → `/en/exchange?format=json&link_id=...`) — expands exchange abuse surface
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus `/tools`, `/partner`, `/rails`)
+- NEW Cross-origin response-body readability PROVEN on GraphiQL IDEs: `GET /graphiql` and `GET /content/graphiql` with `Origin: https://evil.example` return `200` + `ACAO: evil.example` + `ACAC:true` — enab
+- NEW `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded `YIs4Da3...` → `_FrjXZ...`, ETag `3ada`→`1535b`) — replay window = Rails rotate/decay window
+- NEW `_hf` cookie from `/graphiql` is `httponly; secure; domain=hypofriend.de` with **NO SameSite attribute** → browsers default to `Lax` → strict cross-site `fetch(credentials:"include")` binds token to a
+- CHANGED `api.hypofriend.de` convicted 58th consecutive dead cycle (HTTP 000 @10s timeout, A `52.15.184.3` unchanged) — POC phase pinned to dead host
+- CHANGED `core.hypofriend.de/property-search-api` full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives `pagination/exposesInBounds/mapExposes`, CORS closed)
+- CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any `Origin` + `ACAC:true`; introspection disabled but error/coercion channel reconstructs contracts (6 inpu
+- CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
+- CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity, `utm_*` raw pass-through into 302 Lo
+- CHANGED `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`); no suggester, no `root.lead`, no `root.form_authenticity_t
