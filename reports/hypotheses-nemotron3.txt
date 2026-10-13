@@ -1,7 +1,7 @@
-## 2026-10-12 18:14:26 UTC [target] (model nemotron3)
-[NEW] Cross-origin response-body readability PROVEN on GraphiQL IDEs: `GET /graphiql` and `GET /content/graphiql` with `Origin: https://evil.example` return `200` + `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true` — HTML body exposes `data-graphql-endpoint-path` and per-request `X-CSRF-Token`
+## 2026-10-13 00:47:26 UTC [target] (model nemotron3)
+[NEW] Cross-origin response-body readability PROVEN on GraphiQL IDEs: `GET /graphiql` and `GET /content/graphiql` with `Origin: https://evil.example` return `200` + `access-control-allow-origin: https://evil.example` + `access-control-allow-credentials: true`; HTML body exposes `data-graphql-endpoint-path` and per-request `X-CSRF-Token`
 [NEW] `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded `YIs4Da3...` → `_FrjXZ...`, ETag `3ada`→`1535b`) — replay window = Rails rotate/decay window
-[NEW] `_hf` cookie from `/graphiql` is `httponly; secure; domain=hypofriend.de` with **NO SameSite attribute** → browsers default to `Lax` → strict cross-site `fetch(credentials:"include")` binds token to anonymous session; per-victim theft needs `SameSite=None` cookie (historically confirmed on `/q` family) or top-level navigation
+[NEW] `_hf` cookie from `/graphiql` is `httponly; secure; domain=hypofriend.de` with **NO SameSite attribute** → browsers default to `Lax` → strict cross-site `fetch(credentials:"include")` binds token to anonymous session; per-victim theft needs SameSite=None cookie (historically confirmed on /q family) or top-level navigation
 [NEW] `/content/q` confirmed LIVE 4th GraphQL instance on both `hypofriend.de` and `core.hypofriend.de` (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`)
 [NEW] Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus prior `/tools`, `/partner`, `/rails`)
 [NEW] `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface

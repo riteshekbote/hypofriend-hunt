@@ -1,1 +1,43 @@
-## 2026-10-12 18:12:05 UTC [target] (model bigpickle)
+## 2026-10-13 00:48:30 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,8.8 IDOR/GraphQL/auth-free
+[PRIO] core.hypofriend.de/q family,7.4 GraphQL/MISCONFIG/CSRF
+[PRIO] core.hypofriend.de/graphiql+/content/graphiql,7.0 MISCONFIG/CORS
+[HYP] Auth-free full-DB BOLA via property-search-api expose chain
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 88
+reasoning: GET→400 JSON "exclusively POST requests containing valid JSON"; prior CONFIRMED `expose(id)`/`favoritedExposes(leadId)` return live PII with NO auth/leadId; IDs enumerable via auth-free `propertySearch→exposes`.
+evidence_needed: one real expose UUID returning listing/PII without credentials.
+verify_steps: `GET https://core.hypofriend.de/property-search-api` (400 baseline, done); then HUMAN-gated `POST` body `{"query":"{ expose(id:\"<real-uuid>\") { id } }"}` — data-returning, program-excluded without authorization.
+impact: full-cross-tenant customer PII (phone/email/surname) auth-free on a financial platform → CRITICAL.
+testability: HUMAN_ONLY
+[HYP] Credentialed CORS + CSRF-token disclosure on production GraphiQL IDEs
+class: MISCONFIG
+asset: core.hypofriend.de/graphiql
+confidence: 80
+reasoning: GET with `Origin: evil.example` → 200 + `ACAO` echo + `ACAC:true` + body discloses endpoint path and 86-char `X-CSRF-Token`; token rotates per request; `_hf` is SameSite-Lax so cross-site fetch binds to anonymous session.
+evidence_needed: a route that returns a victim-bound secret under CORS, or a SameSite=None `_hf`.
+verify_steps: `curl -D- -o- -H "Origin: https://evil.example" https://core.hypofriend.de/graphiql` (done this cycle); `OPTIONS https://core.hypofriend.de/q -H "Origin: https://evil.example"`.
+impact: cross-origin read of own anonymous IDE + token; no victim session binding → MEDIUM (not ATO).
+testability: PASSIVE
+[HYP] GraphQL contract reconstruction via `/q` error/coercion channel
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: introspection disabled but coercion/property-error output historically reconstructed 6 input contracts; credentialed CORS global.
+evidence_needed: a coercion/property error echoing a type it should not, or a resolver returning auth-scoped data without auth.
+verify_steps: `POST https://core.hypofriend.de/q` body `{"query":"{ __typename }"}` with GraphiQL-issued token (read-only); compare error shapes.
+impact: schema/contract disclosure, enabler only → LOW-MEDIUM.
+testability: PASSIVE
+[PARKED] GraphiQL per-victim CSRF-token theft: `_hf` reproduced as SameSite-Lax/unset → cross-site credentialed fetch cannot bind the token to a victim session; chain closed. Re-open only if a SameSite=None session cookie is observed.
+[PARKED] `/en/exchange` share-link forge: re-probe blocked at bare 404 this cycle; re-confirm with params before re-ranking.
+[FINAL] 1) property-search-api BOLA (CRITICAL, HUMAN-gated proof) → 2) credentialed-CORS GraphiQL token disclosure (MEDIUM) → 3) `/q` contract reconstruction (LOW enabler).
+[NEXT] HUMAN: authorize ONE read-only `expose(id)` PII-field read on `core.hypofriend.de/property-search-api` to convert the standing BOLA into a CONFIRMED-severity finding; probes remain read-only GET/HEAD/OPTIONS ≤1 rps until then.
+[LEARN] CONFIRMED MISCONFIG @ core.hypofriend.de/graphiql + /content/graphiql: re-evidenced this cycle — ACAO echo `evil.example` + `ACAC:true` on GET; bodies disclose `/q` `/content/q` + rotating 86-char `X-CSRF-Token`.
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/graphiql: per-victim token theft — `_hf` is SameSite-unset (Lax) on `/graphiql` and `/robots.txt`; only `internal` is SameSite=None; cross-site fetch binds anonymous session → REJECTED class as ATO.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is origin-global (`/graphiql`, `/robots.txt`, `/q`, `/en/*`) and also reflected on edge host `hypofriend.de/q`.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: GET→400 `vary: Origin`, no ACAO — endpoint live, CORS closed to script; BOLA proof still POST-gated.
+[LEARN] ACCEPTED NG @ hypofriend.de/en/health: edge S3/CloudFront static (200, no Set-Cookie, no CORS echo) — not a live Rails response.
+[LEARN] CONFIRMED NG @ api.hypofriend.de: dead 59th consecutive cycle (000) — POC target pinned to a dead host.
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/content/graphiql: `x-frame-options: SAMEORIGIN` present (only `/graphiql` sets ALLOWALL) — clickjacking class not per-instance.
+[RISK] hypofriend: 96 — Cross-origin-readable GraphiQL + credentialed CORS proven global on `core.` and edge `hypofriend.de/q`, but the per-victim session-binding step is now DISPROVEN (`_hf` SameSite-Lax), so GraphiQL is downgraded to MEDIUM; the auth-free full-DB BOLA on `property-search-api` remains the CRITICAL and is the true prize. `api.hypofriend.de` dead 59th cycle (POC-target mismatch). Bulk-PII proof HUMAN-only.

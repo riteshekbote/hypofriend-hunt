@@ -2126,3 +2126,17 @@ www.hypofriend.de
 - CHANGED `core.hypofriend.de/property-search-api` full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives `pagination/exposesInBounds/mapExposes`, CORS closed)
 - CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any `Origin` + `ACAC:true`; introspection disabled but error/coercion channel reconstructs contracts (6 inpu
 - CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
+
+## 2026-10-13 00:48:40 UTC
+- NEW Cross-origin response-body readability PROVEN on GraphiQL IDEs: `GET /graphiql` and `GET /content/graphiql` with `Origin: https://evil.example` return `200` + `access-control-allow-origin: https://evi
+- NEW `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded `YIs4Da3...` → `_FrjXZ...`, ETag `3ada`→`1535b`) — replay window = Rails rotate/decay window
+- NEW `_hf` cookie from `/graphiql` is `httponly; secure; domain=hypofriend.de` with **NO SameSite attribute** → browsers default to `Lax` → strict cross-site `fetch(credentials:"include")` binds token to a
+- NEW `/content/q` confirmed LIVE 4th GraphQL instance on both `hypofriend.de` and `core.hypofriend.de` (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`)
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus prior `/tools`, `/partner`, `/rails`)
+- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface
+- NEW `*.app.hypofriend.de` tier fingerprinted: `uploader`/`frontend`/`appointments`/`profile`/`admin` all resolve to single A record `52.14.251.223` (distinct from main fleet) — EIP-recycling takeover clas
+- NEW `mobile.hypofriend.de`: distinct ELB fingerprint `awselb/2.0` on `63.176.45.32`/`63.182.230.5`/`63.189.130.21` — zero healthy targets behind mobile-app backend hostname
+- CHANGED `api.hypofriend.de` convicted 58th consecutive dead cycle (HTTP 000 @10s timeout, A `52.15.184.3` unchanged) — POC phase pinned to dead host
+- CHANGED `core.hypofriend.de/property-search-api` full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives `pagination/exposesInBounds/mapExposes`, CORS closed)
+- CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any `Origin` + `ACAC:true`; introspection disabled but error/coercion channel reconstructs contracts (6 inpu
+- CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ

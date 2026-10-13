@@ -4945,3 +4945,31 @@
 - LEARN: CONFIRMED @ core.hypofriend.de/q: OPTIONS preflight re-proven (ACAO echo, ACAC:true, allow-headers content-type,x-csrf-token, vary:Accept-Encoding only) — globa
 - LEARN: CONFIRMED NG @ hypofriend.de/en: edge S3/CloudFront static snapshot (server: AmazonS3, x-cache: Hit, age:2651, no set-cookie) — /en HTML not a live Rails respon
 - LEARN: CONFIRMED NG @ api.hypofriend.de: dead 58th consecutive cycle (000 @10s timeout, A 52.15.184.3) — POC phase pinned to dead host
+
+## RANKED HYPOTHESES 2026-10-13 00:48:40 UTC
+- [95] core.hypofriend.de/graphiql: Production GraphiQL IDE Exposure → Interactive Schema Exploration + CSRF Token Harvest (from art/lead_nemotron3.txt)
+- [88] core.hypofriend.de/property-search-api: Auth-free full-DB BOLA via property-search-api expose chain (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: authorize ONE read-only `expose(id)` PII-field read on `core.hypofriend.de/property-search-api` to convert the standing BOLA into a CONFIRMED-severity fi
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" --cookie-jar /tmp/jar.txt -H "Accept: text/html" — verify GraphiQL IDE accessib
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/graphiql + /content/graphiql: re-evidenced this cycle — ACAO echo `evil.example` + `ACAC:true` on GET; bodies disclose 
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/graphiql: per-victim token theft — `_hf` is SameSite-unset (Lax) on `/graphiql` and `/robots.txt`; only `internal` is Sa
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: credentialed CORS is origin-global (`/graphiql`, `/robots.txt`, `/q`, `/en/*`) and also reflected on edge host `hypofri
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: GET→400 `vary: Origin`, no ACAO — endpoint live, CORS closed to script; BOLA proof still POST-gated
+- LEARN: ACCEPTED NG @ hypofriend.de/en/health: edge S3/CloudFront static (200, no Set-Cookie, no CORS echo) — not a live Rails response.
+- LEARN: CONFIRMED NG @ api.hypofriend.de: dead 59th consecutive cycle (000) — POC target pinned to a dead host.
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/content/graphiql: `x-frame-options: SAMEORIGIN` present (only `/graphiql` sets ALLOWALL) — clickjacking class not per-in
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + hypofriend.de/graphiql: production GraphiQL IDE reachable unauthenticated (GET 200/697B, fresh `_hf` session)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/graphiql: second GraphiQL IDE on 4th GraphQL app (GET 200/705B, `data-graphql-endpoint-path="/content/q"`)
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: mint set grows 7→8 stems and usable share_id pool 6→7 keys — `/swagger.json` mints deterministic pair
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: full 6-key pool now enumerated by value — `/staff` `f46e3e93...`, `/uploads` `40595fb5...`, `/karriere` `c0c7f5c2
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (evil.example echo, ACAC:true, 7 methods, Max-Age 7200,
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: GET → 400 JSON "exclusively POST requests" with `vary: Origin` and no ACAO — endpoint live and CORS
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge re-confirmed by GET — `dddb5cba...` + nil link_id + attacker utm_* → 302 `/en/account?ts=1791380154&utm_cam
+- LEARN: ACCEPTED NG @ api.hypofriend.de: dead 56th consecutive cycle (000 on :443 and :80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase pinned to a dead hos
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/en/plus/graphiql + /en/health/graphiql: IDE is not mounted per-instance — both 301 to `/` (controls), so GraphiQL exposu
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/graphiql + /content/graphiql: cross-origin response-body readability PROVEN (GET, Origin evil.example → ACAO echo + ACA
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/graphiql: per-request CSRF token rotation within same session (token1 YIs4Da3... → token2 _FrjXZ..., ETag 3ada→1535b) —
+- LEARN: BOUND @ core.hypofriend.de/graphiql: `_hf` minted here is SameSite-unset (browser default Lax) → cross-site fetch binds token to anonymous session; per-victim t
+- LEARN: CONFIRMED @ core.hypofriend.de/q: OPTIONS preflight re-proven (ACAO echo, ACAC:true, allow-headers content-type,x-csrf-token, vary:Accept-Encoding only) — globa
+- LEARN: CONFIRMED NG @ hypofriend.de/en: edge S3/CloudFront static snapshot (server: AmazonS3, x-cache: Hit, age:2651, no set-cookie) — /en HTML not a live Rails respon
+- LEARN: CONFIRMED NG @ api.hypofriend.de: dead 58th consecutive cycle (000 @10s timeout, A 52.15.184.3) — POC phase pinned to dead host
