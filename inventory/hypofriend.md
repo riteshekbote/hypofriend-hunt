@@ -2170,3 +2170,5 @@ www.hypofriend.de
 - CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
 - CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity, `utm_*` raw pass-through into 302 Lo
 - CHANGED `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`); no suggester, no `root.lead`, no `root.form_authenticity_t
+
+## 2026-10-13 20:45:45 UTC
