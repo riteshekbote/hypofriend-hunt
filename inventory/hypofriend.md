@@ -2192,3 +2192,19 @@ www.hypofriend.de
 - CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
 - CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity, `utm_*` raw pass-through into 302 Lo
 - CHANGED `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`); no suggester, no `root.lead`, no `root.form_authenticity_t
+
+## 2026-10-14 15:02:46 UTC
+- NEW 2026-10-14: `/content/graphiql` confirmed as 3rd live GraphiQL IDE (GET 200, exposes `/content/q` + per-request X-CSRF-Token), cross-origin readable via credentialed CORS
+- NEW 2026-10-14: Cross-origin response-body readability PROVEN on `/graphiql` and `/content/graphiql` (Origin: evil.example → 200 + ACAO echo + ACAC:true)
+- NEW 2026-10-14: `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded token1→token2, ETag change)
+- NEW 2026-10-14: `_hf` cookie from `/graphiql` is `httponly; secure; domain=hypofriend.de` with NO SameSite attribute → browsers default Lax
+- NEW 2026-10-14: `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`)
+- NEW 2026-10-14: Full 6-key `share_id` pool enumerated by value (`/staff`, `/uploads`, `/karriere` + prior `/tools`, `/partner`, `/rails`)
+- NEW 2026-10-14: `*.app.hypofriend.de` tier fingerprinted: 5 high-value names resolve to single A `52.14.251.223` (distinct from main fleet) — EIP-recycling takeover class
+- NEW 2026-10-14: `mobile.hypofriend.de`: distinct ELB fingerprint `awselb/2.0` on 3 IPs — zero healthy targets behind mobile-app backend
+- CHANGED `api.hypofriend.de` convicted 58th consecutive dead cycle (HTTP 000 @10s timeout, A `52.15.184.3` unchanged) — POC phase pinned to dead host
+- CHANGED `core.hypofriend.de/property-search-api` full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives, CORS closed)
+- CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any Origin + ACAC:true; introspection disabled but error/coercion channel reconstructs contracts (6 input co
+- CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
+- CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity, `utm_*` raw pass-through into 302 Lo
+- CHANGED `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`); no suggester, no `root.lead`, no `root.form_authenticity_t
