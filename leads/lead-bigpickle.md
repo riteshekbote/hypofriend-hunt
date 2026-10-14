@@ -8427,3 +8427,11 @@ testability: PASSIVE
 ## 2026-10-13 15:09:14 UTC [target] (model bigpickle)
 ## 2026-10-13 20:44:27 UTC [target] (model bigpickle)
 ## 2026-10-14 00:05:41 UTC [target] (model bigpickle)
+## 2026-10-14 05:01:05 UTC [target] (model bigpickle)
+[FINAL] Cross-Origin Schema Reconstruction + CSRF/Admin-Token Exposure via /q Error/Coercion Channel (confidence 92, MISCONFIG)
+[FINAL] Cross-Tenant Object Addressing + S3/File + Mail Send Chain via /en/account → /q (confidence 88, IDOR)
+[PARKED] api.hypofriend.de dead
+[PARKED] /en/exchange share-link forge
+[NEXT] HUMAN: export session for _hf SameSite confirmation; authorize PII read on property-search-api
+[RISK] hypofriend: 96-97
+[RISK]
