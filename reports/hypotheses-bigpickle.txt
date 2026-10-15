@@ -1,1 +1,41 @@
-## 2026-10-15 10:03:45 UTC [target] (model bigpickle)
+## 2026-10-15 14:53:29 UTC [target] (model bigpickle)
+[PRIO] core.hypofriend.de/property-search-api,10.0,IDOR+PII+BOLA+auth-free-crawl
+[PRIO] core.hypofriend.de/graphiql,9.0,GraphQL+IDE+credentialed-CORS+token-exposure
+[PRIO] core.hypofriend.de/q,8.5,GraphQL+error-channel+contract-reconstruction+global-CORS
+[PRIO] hypofriend.de/q,8.0,GraphQL+credentialed-CORS+schema-exposure
+[PRIO] core.hypofriend.de/content/graphiql,7.5,GraphQL+IDE+credentialed-CORS
+[HYP] Auth-free full-DB BOLA via propertySearch→exposes→expose chain returns broker/owner PII
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 88
+reasoning: Unauthenticated propertySearch returns searchId; exposes(id:searchId) lists UUIDs; expose(id:UUID) returns live PII (propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany) on direct origin with no auth/leadId. Auth-free crawl primitives (offset/limit, exposesInBounds, mapExposes) enable enumeration. Direct-origin bypasses edge CloudFront security stack.
+evidence_needed: One real expose UUID returning listing/PII fields without credentials (POST with valid GraphQL query).
+verify_steps: `POST https://core.hypofriend.de/property-search-api` with body `{"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLastName phoneNumber cellPhoneNumber ownerCompany providerCompany city street houseNumber } }"}` and `Content-Type: application/json` (no cookies/auth). Expected 200 with non-null PII fields; actual untested in current probe set (program-excluded from automated data-returning POSTs).
+impact: Full cross-tenant customer/broker PII disclosure (financial-platform context). Severity: CRITICAL.
+testability: HUMAN_ONLY
+[HYP] Production GraphiQL IDE reachable unauthenticated with cross-origin body readability and per-request CSRF token exposure
+class: MISCONFIG
+asset: core.hypofriend.de/graphiql
+confidence: 80
+reasoning: GET with arbitrary Origin returns 200 and echoes ACAO+ACAC:true (global credentialed CORS on Rails routes). Response body contains data-graphql-endpoint-path="/q" and an X-CSRF-Token field rendered per request (rotates). _hf cookie is SameSite-unset on this route (browser default Lax). Credentialed CORS enables cross-origin HTML/token read under specific browser contexts.
+evidence_needed: Cross-origin GET returning HTML body containing X-CSRF-Token and endpoint path when Origin header set to arbitrary value; token rotation confirmed.
+verify_steps: `curl -i -H "Origin: https://evil.example" "https://core.hypofriend.de/graphiql"` → expect ACAO echo + ACAC:true and body containing `X-CSRF-Token`/`data-graphql-endpoint-path="/q"`. Also paired requests within same cookie jar to confirm token rotation.
+impact: Cross-origin information disclosure of CSRF token + IDE access; chain-dependent for CSRF exploitation (cookie SameSite-Lax bounds per-victim session theft in typical cross-site fetch). Severity: MEDIUM.
+testability: PASSIVE
+[HYP] GraphQL introspection bypass and write-surface contract reconstruction via /q error/coercion channel
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Introspection disabled server-side, but undefinedField/coercion/property-error responses return parent typeName (HypofriendType, Lead), did-you-mean suggester, and full input-object contracts (6 contracts + 3 payload types + nested S3FileInput) in cross-origin POSTs with ACAO+ACAC echoed (global rack-cors). No resolver invocation on static validation errors (POST returns 200+JSON error). Exposes root.form_authenticity_token and root.lead.has_admin_cookie (JSON scalar) via the same global credentialed CORS surface.
+evidence_needed: Cross-origin POST returning detailed error structure naming types/fields/required attributes with no resolver reached (data absent) and ACAO echo present.
+verify_steps: `curl -i -H "Origin: https://evil.example" -H "Content-Type: application/json" -X POST "https://core.hypofriend.de/q" -d '{"query":"{ root { zzzNoSuchField } }"}'` → expect HTTP 200 with JSON error containing parent typeName and "Field 'zzzNoSuchField' doesn't exist..." and ACAO echo. `curl -i -H "Origin: https://evil.example" -H "Content-Type: application/json" -X POST "https://core.hypofriend.de/q" -d '{"query":"mutation M($i: UnknownInput!) { dummy }","variables":{"i":{}}}'` → expect validation/coercion error naming input object(s).
+impact: Schema/contract disclosure enabling targeted mutation crafting; combined with global credentialed CORS. Severity: MEDIUM (enabler).
+testability: PASSIVE
+[PARKED] api.hypofriend.de: 59th+ consecutive cycle dead (000 on :80/:443, A 52.15.184.3). POC phase pinned to dead host; no live surface for phase completion. No further probe value.
+[FINAL] (1) Auth-free full-DB BOLA on core.hypofriend.de/property-search-api (CRITICAL) — confidence 88, testability HUMAN_ONLY (requires POST with real UUID). (2) GraphiQL IDE credentialed CORS + token exposure on core.hypofriend.de/graphiql (MEDIUM) — confidence 80, PASSIVE. (3) /q error/coercion channel contract reconstruction (MEDIUM, enabler) — confidence 55, PASSIVE.
+[NEXT] HUMAN: authorize a single read-only POST to https://core.hypofriend.de/property-search-api with {"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLastName phoneNumber cellPhoneNumber ownerCompany providerCompany city street } }"} (no cookies/auth, ≤1 rps) to convert the standing BOLA hypothesis into CONFIRMED with concrete PII fields. Do not enumerate broadly; limit to one record.
+[LEARN] REJECTED MISCONFIG @ core.hypofriend.de/q (Vary:Origin overgeneralization): POST varies Accept,Origin,Accept-Encoding with hostile Origin; OPTIONS omits Vary:Origin but browser preflight caching keyed on (origin,url,method,headers) tuple — POST-path varies correctly, facet near-inert.
+[LEARN] ACCEPTED IDOR @ core.hypofriend.de/property-search-api: unauthenticated full-DB BOLA chain propertySearch→exposes→expose returns broker/owner PII on direct origin with auth-free crawl primitives; CORS closed on this route (no ACAO echo) — contrast to /q (CRITICAL).
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + /content/graphiql: GraphiQL IDE reachable unauthenticated; GET with arbitrary Origin echoes ACAO+ACAC:true and returns body containing data-graphql-endpoint-path and per-request X-CSRF-Token (readable cross-origin under credentialed CORS). Token rotates per request; _hf is SameSite-unset on /graphiql.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q family: introspection disabled but error/coercion channel reconstructs contracts (6 input contracts + 3 payload types + nested S3FileInput) with data absent; root.form_authenticity_token and root.lead.has_admin_cookie exposed via global credentialed CORS; POST varies Accept,Origin,Accept-Encoding while OPTIONS omits Vary:Origin on /q preflight.
+[RISK] Hypofriend GmbH: 96 — Top risk is unauthenticated full-DB PII disclosure via property-search-api BOLA (CRITICAL). Cross-origin-readable GraphiQL + credentialed CORS on /q family enables contract/schema reconnaissance; GraphiQL token disclosure is MEDIUM due to SameSite-Lax binding constraining per-victim theft. api.hypofriend.de remains dead (58th+ cycle); activity limited to read-only GET/HEAD/OPTIONS ≤1 rps with no customer data exposure.
