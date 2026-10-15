@@ -8484,3 +8484,11 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q family: introspection disabled but error/coercion channel reconstructs contracts (6 input contracts + 3 payload types + nested S3FileInput) with data absent; root.form_authenticity_token and root.lead.has_admin_cookie exposed via global credentialed CORS; POST varies Accept,Origin,Accept-Encoding while OPTIONS omits Vary:Origin on /q preflight.
 [RISK] Hypofriend GmbH: 96 — Top risk is unauthenticated full-DB PII disclosure via property-search-api BOLA (CRITICAL). Cross-origin-readable GraphiQL + credentialed CORS on /q family enables contract/schema reconnaissance; GraphiQL token disclosure is MEDIUM due to SameSite-Lax binding constraining per-victim theft. api.hypofriend.de remains dead (58th+ cycle); activity limited to read-only GET/HEAD/OPTIONS ≤1 rps with no customer data exposure.
 ## 2026-10-15 18:53:15 UTC [target] (model bigpickle)
+## 2026-10-15 21:57:14 UTC [target] (model bigpickle)
+[PRIO]
+[HYP] (max 1/asset, top 3)
+[PARKED]
+[FINAL]
+[NEXT]
+[LEARN]
+[RISK]
