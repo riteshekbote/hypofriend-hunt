@@ -2355,3 +2355,16 @@ www.hypofriend.de
 - CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
 - CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted; `utm_*` raw pass-through into 302 Location
 - CHANGED `core.hypofriend.de` global rack-cors middleware re-confirmed via OPTIONS `/q` and `/content/q` (evil.example echo, ACAC:true, 7 methods, Max-Age 7200, ACRH reflected, no Vary:Origin on OPTIONS)
+
+## 2026-10-16 00:06:24 UTC
+- NEW Three production GraphiQL IDEs confirmed live with cross-origin body readability: core.hypofriend.de/graphiql, hypofriend.de/graphiql, core.hypofriend.de/content/graphiql (GET 200, ACAO echo + ACAC:tr
+- NEW /swagger.json recognized as 8th mint stem on share-link forge at /en/exchange (expands abuse surface)
+- NEW Full 6-key share_id pool enumerated by value: /staff, /uploads, /karriere + prior /tools, /partner, /rails
+- NEW *.app.hypofriend.de tier fingerprinted: 5 high-value names (uploader/frontend/appointments/profile/admin) resolve to single A 52.14.251.223 — EIP-recycling takeover class
+- NEW mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 3 IPs — zero healthy targets behind mobile-app backend
+- CHANGED api.hypofriend.de dead 58th+ consecutive cycle (HTTP 000 @10s timeout) — POC phase pinned to dead host
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives, CORS closed)
+- CHANGED core.hypofriend.de/q family + /graphiql + /content/graphiql: credentialed CORS echoes any Origin + ACAC:true; introspection disabled but error/coercion channel reconstructs contracts (6 input contract
+- CHANGED hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRen
+- CHANGED hypofriend.de/en/exchange: 6-key share_id pool harvestable by unauthenticated GET; arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity, utm_* raw pass-through into 302 Location
+- CHANGED core.hypofriend.de global rack-cors middleware re-confirmed via OPTIONS /q and /content/q (evil.example echo, ACAC:true, 7 methods, Max-Age 7200, ACRH reflected, no Vary:Origin on OPTIONS)
