@@ -8572,3 +8572,13 @@ testability: PASSIVE
 [RISK] Hypofriend GmbH: 96 — unauth full-DB PII (property-search-api BOLA) remains top; GraphiQL token exposure bounded MEDIUM by SameSite=Lax; share-link forge downgraded one notch (HTML landing 404) but `format=json` redirector + utm injection still live.
 ## 2026-10-16 09:22:41 UTC [target] (model bigpickle)
 ## 2026-10-16 14:03:45 UTC [target] (model bigpickle)
+## 2026-10-16 18:10:11 UTC [target] (model bigpickle)
+[PRIO]
+[HYP] — asset 1: `core.hypofriend.de/property-search-api`
+[HYP] — asset 2: `core.hypofriend.de/graphiql` (+ `/content/graphiql`, `hypofriend.de/graphiql`)
+[HYP] — asset 3: `core.hypofriend.de/q`
+[PARKED]
+[FINAL] (this cycle)
+[NEXT]
+[LEARN]
+[RISK]
