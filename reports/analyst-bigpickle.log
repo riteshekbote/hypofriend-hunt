@@ -65626,3 +65626,98 @@ appended
 [RISK] Hypofriend GmbH: 96 — unauth full-DB PII (property-search-api BOLA) remains top; GraphiQL token exposure bounded MEDIUM by SameSite=Lax; share-link forge downgraded one notch (HTML landing 404) but `format=json` redirector + utm injection still live.
 
 **Standing HUMAN gate unchanged** — authorize the single-record read-only POST to `core.hypofriend.de/property-search-api` to convert the BOLA to CONFIRMED. Phase remains pinned to dead `api.hypofriend.de` (59th+ cycle); no substitution made.
+===== ANALYST bigpickle 2026-10-16 09:36:45 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sI -m 15 -H "Origin: https://evil.example" https://core.hypofriend.de/graphiql 2>&1 | tr -d '\r' | grep -iE "^(HTTP|access-control|set-cookie|x-frame|etag|last-modified|content-length)" ; echo "===BODY-HEAD==="; curl -s -m 15 -H "Origin: https://evil.example" https://core.hypofriend.de/graphiql 2>&1 | grep -oE 'data-graphql-endpoint-path="[^"]*"|X-CSRF-Token" content="[^"]*"' | head -5
+HTTP/2 200 
+content-length: 0
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+x-frame-options: ALLOWALL
+etag: W/"034666231fbde08f8f33cfd88ed2516b"
+set-cookie: _hf=9f0785f1933bd5890f422981a1718bb6; domain=hypofriend.de; path=/; expires=Thu, 16 Oct 2036 09:19:01 GMT; secure; httponly
+===BODY-HEAD===
+data-graphql-endpoint-path="/q"
+[0m
+[0m$ [0mdate -u +"%Y-%m-%d %H:%M:%S UTC"; echo "---"; curl -sI --connect-timeout 8 -m 10 https://api.hypofriend.de/ -o /dev/null -w "api443: %{http_code} time:%{time_total}\n" 2>&1; curl -sI --connect-timeout 8 -m 10 http://api.hypofriend.de/ -o /dev/null -w "api80: %{http_code} time:%{time_total}\n" 2>&1; getent hosts api.hypofriend.de
+2026-10-16 09:18:58 UTC
+---
+api443: 000 time:8.001865
+api80: 000 time:8.002189
+52.15.184.3     api.hypofriend.de
+[0m
+## Objective
+- Act as senior bug bounty hunter ANALYST for Hypofriend GmbH (report channel: bugs.olivermaicher.eu); run the 7-step delta→prioritize→hypothesize→critique→next-action→learning→risk cycle and emit only structured blocks.
+- Continuously refine a knowledge base of accepted/rejected hypotheses across scan cycles against the hypofriend inventory.
+
+## Important Details
+- State: `{"phase": "POC", "target": "api"}` — POC phase pinned to `api.hypofriend.de`, which has been dead 58+ consecutive cycles (000 on :80/:443, A `52.15.184.3` resolves clean); phase/target mismatch disclosed each cycle, no silent substitution.
+- Rules: facts vs hypotheses strictly separated; passive-first, ≤1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass/mutating tests against live customer data; sha256 secrets; no REJECTED classes (DoS, descriptive errors, OPTIONS/TRACE-only, clickjacking w/o exploit, TLS best-practice, mail config, logout-CSRF, cookie flags on non-sensitive data, etc.).
+- REJECTED classes confirmed in KB: forced-logout-via-CSRF (`/api/v3/delete-cookie`), XFO:ALLOWALL + CORS echo as standalone findings (chain multipliers only), `createUploadUrl` presigned-URL vector (301), `unclaimLead` (zero-arg, session-scoped), `document_analysis_status`/`exposeSeen` (not existence oracles), `updateProperty` mass assignment (server-closed `PropertyMutationsUpdateInput`), Vary:Origin overgeneralization (POST varies correctly; OPTIONS omits but preflight cache is tuple-keyed → near-inert), sparplan/heyflow Cloudflare cert gap, ELB zero-target 503s.
+- Standing HUMAN gate: single read-only POST to `https://core.hypofriend.de/property-search-api` with `{"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLastName phoneNumber cellPhoneNumber ownerCompany providerCompany city street } }"}` (no cookies/auth, ≤1 rps, one record) to convert BOLA hypothesis (conf 88→90) to CONFIRMED.
+- Hardcoded HTTP Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87...`) in public entry bundle — do NOT use in active tests.
+- Key live-verified findings: full-DB BOLA on `core.hypofriend.de/property-search-api` (CRITICAL, HUMAN-gated); 3 production GraphiQL IDEs (`/graphiql`, `/content/graphiql`) cross-origin body-readable with per-request X-CSRF-Token (`_hf` SameSite-unset → Lax, caps ATO); `/q` error/coercion channel reconstructs 6 input contracts + 3 payload types cross-origin; global rack-cors on `core.hypofriend.de` (any Origin incl. null, ACAC:true, 7 methods, ACRH echoed); exchange share-link forge (6-key `share_id` pool, 8 mint stems incl. `/swagger.json`, arbitrary `link_id`, `utm_*` raw pass-through into 302, `redirect` allowlist `{expose,account}`; locale binding: `/rails` key `ed177279-…` → `/de/konto`); `root.form_authenticity_token` + `root.lead.has_admin_cookie` exposed via credentialed CORS; 4 object-addressing mutations from `/en/account` bundle; `/content/q` = 4th GraphQL instance (mutations disabled `missingMutationConfiguration`, no schema oracle — closed).
+- LEARN (latest): `format=json` on the exchange redirector is the live forge path; probe machine-readable variants of retired UIs before downgrading; client-bundle rename (403 on old entry) = feature-pulled signal; re-baseline new bundle mutation count (9) when mining resumes.
+
+## Work State
+### Completed
+- 2026-10-16 04:57:40 UTC cycle emitted: ranked hypotheses (90 = property-search-api BOLA), NEXT(HUMAN) POST gate, LEARN entries, RISK = 96.
+- Cross-origin GraphiQL body readability + per-request CSRF token rotation + `_hf` SameSite-Lax bound all live-proven (2026-10-12).
+- Mint-set correction completed (9→7 stems/6 keys), then expanded to 8 stems/7 keys with `/swagger.json`.
+- All prior standing hypotheses carried forward with accept/reject status each cycle.
+
+### Active
+- Standing survivor list: (1) property-search-api BOLA — conf 88–90, HUMAN_ONLY; (2) GraphiQL credentialed CORS + token exposure — conf 82, PASSIVE, MEDIUM (SameSite-Lax bound); (3) `/q` error/coercion contract reconstruction — conf 55, PASSIVE, MEDIUM enabler.
+
+### Blocked
+- HUMAN gate blocks BOLA confirmation (no data-returning POSTs allowed programmatically).
+- POC phase pinned to dead `api.hypofriend.de` (58+ cycles) — no live surface for phase completion; only trivial re-probe of api host possible as automated action.
+
+## Next Move
+1. [NEXT] HUMAN: authorize the single read-only POST to `https://core.hypofriend.de/property-search-api` with the `expose(id:"<real-enumerated-uuid>")` PII query (no cookies/auth, ≤1 rps, one record) to convert BOLA conf 88→CONFIRMED.
+2. If not authorized: re-probe `api.hypofriend.de` :443/:80 (expect 000, 59th+ cycle) plus one OPTIONS freshness check on `core.hypofriend.de/en/plus/q`; consider re-baselining `/en/account` bundle mutation count (now 9) when it next rotates.
+
+## Relevant Files
+- `inventory/hypofriend.md`: 71-host discovery inventory + passive recon (CNAME/CT/port-scan tables) — scope seed.
+- Knowledge base (conversation-embedded): accepted/rejected hypothesis ledger, dates 2026-09-02 → 2026-10-16.
+- Key live endpoints: `core.hypofriend.de/property-search-api`, `core.hypofriend.de/q` (+`/en/plus/q`, `/en/health/q`, `/content/q`), `core.hypofriend.de/graphiql`, `core.hypofriend.de/content/graphiql`, `hypofriend.de/en/exchange`, `hypofriend.de/en/account/assets/index-BLX7yr-v.js`, `hypofriend.de/crm`, `core.hypofriend.de/api/v3/{advisors,delete-cookie,delete-admin-cookie,chatbase}`.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+## Cycle 2026-10-16 09:18:58 UTC
+
+### DELTA
+- `api.hypofriend.de` (designated POC target): **dead, cycle 59+** — `000` on :80 and :443, A=`52.15.184.3` resolves clean, no listener.
+- `core.hypofriend.de/graphiql`: **200**, ACAO echoes `https://evil.example`, `ACAC: true`, 7 methods allowed, `X-Frame-Options: ALLOWALL`, sets `_hf` (domain=`hypofriend.de`, path=/, secure, httponly, **no SameSite → Lax default**, exp 2036-10-16), endpoint `/q` confirmed via `data-graphql-endpoint-path`.
+- CSRF meta tag **not captured this cycle** — grep pattern was wrong (`X-CSRF-Token" content=` vs actual `<meta name="csrf-token" content=…>`); this is a probe bug, not a negative finding.
+- New ETag baseline: `W/"034666231fbde08f8f33cfd88ed2516b"`.
+
+### PRIORITIZE (ranked, conf)
+| # | Hypothesis | Conf | Class | Status |
+|---|---|---|---|---|
+| 1 | BOLA on `property-search-api` (full-DB PII read) | 90 | HUMAN_ONLY | **Blocked** — awaiting gate |
+| 2 | GraphiQL credentialed CORS + XFO:ALLOWFULL + `_hf` set | 82 | PASSIVE | Live this cycle; SameSite=Lax caps session-riding → MEDIUM (misconfig + schema/endpoint disclosure), not ATO |
+| 3 | `/q` error/coercion contract reconstruction | 55 | PASSIVE | Enabler, no direct exploit |
+| 4 | `api.hypofriend.de` | 100 dead | — | No action |
+
+### CRITIQUE
+- H1 (token exposure): Prior cycles confirmed per-request CSRF token rotation; this cycle's miss is a regex artifact, not evidence of absence. SameSite=Lax (implicit) continues to block cross-site credentialed fetch/XHR, so token exfil alone does not yield ATO — standing MEDIUM, correctly capped.
+- H2 (ETag): New value, no prior to diff; low standalone value, useful only as drift baseline.
+
+### NEXT
+1. **[HUMAN GATE — standing]** Approve single read-only POST to `https://core.hypofriend.de/property-search-api` with `expose(id:"<real-uuid>")` PII query (no cookies/auth, ≤1 rps, one record) → converts BOLA 90→CONFIRMED. Awaiting your authorization.
+2. **[PASSIVE, ≤1 rps]** Corrected GET to `/graphiql` grepping `<meta[^>]*csrf[^>]*>` to confirm token still embedded/exposed.
+3. **[PASSIVE]** OPTIONS freshness check on `/en/plus/q`.
+4. **[PASSIVE]** Re-baseline `/en/account` bundle mutation count (was 9) on next rotation.
+
+### LEARN (delta)
+- Always verify grep/regex patterns against actual HTML structure (meta attr order varies) before treating non-match as negative — probe hygiene, not finding.
+
+### RISK: **96** (unchanged — BOLA remains unconfirmed solely due to human gate; no new critical surface discovered this cycle)
+
+---
+
+**Awaiting your call on the HUMAN gate (item 1) and whether to proceed with passive items 2–4.**

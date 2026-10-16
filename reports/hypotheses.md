@@ -5337,3 +5337,5 @@
 ## RANKED HYPOTHESES 2026-10-16 04:57:40 UTC
 - NEXT(hypotheses-bigpickle.txt): HUMAN gate standing: one read-only POST `https://core.hypofriend.de/property-search-api` `{"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLa
 - LEARN: `format=json` on the exchange redirector is the live forge path; the HTML landing being 404 does not kill the finding — always probe the machine-readable varian
+
+## RANKED HYPOTHESES 2026-10-16 09:36:45 UTC
