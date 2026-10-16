@@ -8607,3 +8607,32 @@ evidence_needed: None open — live-evidenced this cycle.
 verify_steps: POST https://core.hypofriend.de/q `{"query":"{ root { zzzNoSuchField } }"}` -H "Origin: https://evil.example" -H "Content-Type: application/json" → expect 200 + error w/ typeName + ACAO echo.
 impact: Schema/contract disclosure + cross-origin auth-state read primitive; MEDIUM (enabler).
 testability: PASSIVE
+## 2026-10-16 23:58:48 UTC [target] (model bigpickle)
+class: IDOR
+asset: core.hypofriend.de/property-search-api
+confidence: 88
+reasoning: Auth-free propertySearch→exposes→expose chain returns live PII (propertyOwnerLastName="GmbH", phoneNumber="+493054906400", ownerCompany="RESIDEA…") on direct origin (no CloudFront); auth-free crawl primitives (pagination/exposesInBounds/mapExposes) enable enumeration; CORS closed on route (no ACAO echo) — contrast to /q family.
+evidence_needed: One real expose UUID returning non-null PII w/o credentials (POST validated query, ≤1 rps, single record).
+verify_steps: POST https://core.hypofriend.de/property-search-api with {"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLastName phoneNumber cellPhoneNumber ownerCompany providerCompany city street houseNumber } }"}, Content-Type: application/json, no cookies/auth → expect 200 + non-null PII.
+impact: Full cross-tenant broker/owner PII + financial-context disclosure. CRITICAL.
+testability: HUMAN_ONLY
+class: MISCONFIG
+asset: core.hypofriend.de/graphiql
+confidence: 80
+reasoning: GET /graphiql with Origin https://evil.example → 200 + ACAO echo + ACAC:true; body carries data-graphql-endpoint-path ("/q") + data-headers with per-request X-CSRF-Token (rotation t1 YIs4Da3… → t2 _FrjXZ…, ETag 3ada→1535b); _hf cookie httponly;secure;domain=hypofriend.de, NO SameSite → default Lax → cross-site token theft bounded.
+evidence_needed: ATO feasibility under Lax/default cookie policy or top-level navigation.
+verify_steps: curl -i -H "Origin: https://evil.example" https://core.hypofriend.de/graphiql — reproduced (200 + ACAO + ACAC:true).
+impact: Cross-origin CSRF-token + endpoint disclosure enabling backoffice/session abuse; MEDIUM (bounded by SameSite).
+testability: PASSIVE
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 55
+reasoning: Introspection disabled (`__schema` unknown) but unauth `undefinedField` error returns parent typeName (HypofriendType, Lead); did-you-mean suggester reveals real fields (formAuthenticityToken→form_authenticity_token); batched mutation doc with empty inputs returns 6 distinct input contracts (SelectOfferInput, PropertyMutationsUpdateInput, DeleteLeadDocumentAttachmentInput, RequestOfferRenewalInput, VerifiedListingEmailInput x8 required args, SubmitDocumentAnalysisInput.files: S3FileInput!) + 3 payload type names, `data` absent; global credentialed CORS echoes any Origin + ACAC:true + 7 methods; POST varies Accept,Origin,Accept-Encoding, OPTIONS omits Vary:Origin (near-inert).
+evidence_needed: None open — live-evidenced this cycle.
+verify_steps: POST https://core.hypofriend.de/q {"query":"{ root { zzzNoSuchField } }"} -H "Origin: https://evil.example" -H "Content-Type: application/json" → expect 200 + error w/ typeName + ACAO echo.
+impact: Schema/contract disclosure enabling targeted mutation crafting; cross-origin auth-state read primitive. MEDIUM (enabler).
+testability: PASSIVE
+[PARKED] api.hypofriend.de: dead 58th+ consecutive cycle (HTTP 000 @10s connect-timeout, A 52.15.184.3 clean) — POC phase pinned to dead host; phase mismatch constrains probe actions to read-only GET/HEAD/OPTIONS ≤1rps; no live surface for phase completion.
+[FINAL] survivors ranked:
+[NEXT] HUMAN: authorize a single read-only POST to https://core.hypofriend.de/property-search-api with {"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLastName phoneNumber cellPhoneNumber ownerCompany providerCompany city street houseNumber } }"} (no cookies/auth, ≤1 rps, single record) to convert the standing BOLA hypothesis (conf 88) to CONFIRMED.
+[RISK] Hypofriend GmbH: 96 — Top risk remains unauthenticated full-DB PII disclosure via property-search-api BOLA (CRITICAL, HUMAN-gated confirmation); GraphiQL token exposure bounded MEDIUM by SameSite=Lax + HttpOnly; api.hypofriend.de dead 58th+ consecutive cycle, POC phase pinned to dead host.

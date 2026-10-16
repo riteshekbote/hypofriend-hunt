@@ -5346,3 +5346,6 @@
 - [0] ?: — asset 1: `core.hypofriend.de/property-search-api` (from art/lead_bigpickle.txt)
 
 ## RANKED HYPOTHESES 2026-10-16 21:35:59 UTC
+
+## RANKED HYPOTHESES 2026-10-16 23:59:00 UTC
+- NEXT(hypotheses-bigpickle.txt): HUMAN: authorize a single read-only POST to https://core.hypofriend.de/property-search-api with {"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyO
