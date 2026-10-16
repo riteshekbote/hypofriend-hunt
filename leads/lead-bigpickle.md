@@ -8571,3 +8571,4 @@ testability: PASSIVE
 [LEARN] `format=json` on the exchange redirector is the live forge path; the HTML landing being 404 does not kill the finding — always probe the machine-readable variant of a retired UI before downgrading. Client-bundle rotation (403 on old entry) is the cleanest signal a feature was pulled; new bundle mutation count (9) should be re-baselined when mining resumes.
 [RISK] Hypofriend GmbH: 96 — unauth full-DB PII (property-search-api BOLA) remains top; GraphiQL token exposure bounded MEDIUM by SameSite=Lax; share-link forge downgraded one notch (HTML landing 404) but `format=json` redirector + utm injection still live.
 ## 2026-10-16 09:22:41 UTC [target] (model bigpickle)
+## 2026-10-16 14:03:45 UTC [target] (model bigpickle)

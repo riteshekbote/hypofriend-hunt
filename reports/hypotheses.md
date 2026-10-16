@@ -5339,3 +5339,5 @@
 - LEARN: `format=json` on the exchange redirector is the live forge path; the HTML landing being 404 does not kill the finding — always probe the machine-readable varian
 
 ## RANKED HYPOTHESES 2026-10-16 09:36:45 UTC
+
+## RANKED HYPOTHESES 2026-10-16 14:20:48 UTC
