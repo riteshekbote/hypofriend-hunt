@@ -5333,3 +5333,7 @@
 - LEARN: CONFIRMED @ core.hypofriend.de/q: OPTIONS preflight re-proven (ACAO echo, ACAC:true, allow-headers content-type,x-csrf-token, vary:Accept-Encoding only) — globa
 - LEARN: CONFIRMED NG @ hypofriend.de/en: edge S3/CloudFront static snapshot (server: AmazonS3, x-cache: Hit, age:2651, no set-cookie) — /en HTML not a live Rails respon
 - LEARN: CONFIRMED NG @ api.hypofriend.de: dead 58th consecutive cycle (000 @10s timeout, A 52.15.184.3) — POC phase pinned to dead host
+
+## RANKED HYPOTHESES 2026-10-16 04:57:40 UTC
+- NEXT(hypotheses-bigpickle.txt): HUMAN gate standing: one read-only POST `https://core.hypofriend.de/property-search-api` `{"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLa
+- LEARN: `format=json` on the exchange redirector is the live forge path; the HTML landing being 404 does not kill the finding — always probe the machine-readable varian

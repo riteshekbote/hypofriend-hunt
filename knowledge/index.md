@@ -1310,3 +1310,4 @@
 - 2026-10-16 CONFIRMED @ core.hypofriend.de/q: OPTIONS preflight re-proven (ACAO echo, ACAC:true, allow-headers content-type,x-csrf-token, vary:Accept-Encoding only) — global rack-cors precondition intact
 - 2026-10-16 CONFIRMED NG @ hypofriend.de/en: edge S3/CloudFront static snapshot (server: AmazonS3, x-cache: Hit, age:2651, no set-cookie) — /en HTML not a live Rails response at edge
 - 2026-10-16 CONFIRMED NG @ api.hypofriend.de: dead 58th consecutive cycle (000 @10s timeout, A 52.15.184.3) — POC phase pinned to dead host
+- 2026-10-16 `format=json` on the exchange redirector is the live forge path; the HTML landing being 404 does not kill the finding — always probe the machine-readable variant of a retired UI before downgrading. Client-bundle rotation (403 on old entry) is the cleanest signal a feature was pulled; new bundle mutation count (9) should be re-baselined when mining resumes.

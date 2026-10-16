@@ -2368,3 +2368,5 @@ www.hypofriend.de
 - CHANGED hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRen
 - CHANGED hypofriend.de/en/exchange: 6-key share_id pool harvestable by unauthenticated GET; arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity, utm_* raw pass-through into 302 Location
 - CHANGED core.hypofriend.de global rack-cors middleware re-confirmed via OPTIONS /q and /content/q (evil.example echo, ACAC:true, 7 methods, Max-Age 7200, ACRH reflected, no Vary:Origin on OPTIONS)
+
+## 2026-10-16 04:57:40 UTC

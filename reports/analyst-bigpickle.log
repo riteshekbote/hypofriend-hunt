@@ -65369,3 +65369,260 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/ global rack-cors: reflects any Origin (incl. null) + ACAC:true + 7 methods + echoes Access-Control-Request-Headers verbatim on arbitrary paths.
 
 [RISK] Hypofriend GmbH: 96 — Top risk remains unauthenticated full-DB PII disclosure via property-search-api BOLA (CRITICAL, HUMAN-gated confirmation). GraphiQL credentialed-CORS token exposure is confirmed live but bounded to MEDIUM by `_hf` SameSite=Lax + HttpOnly (directly verified this cycle), reducing ATO feasibility. api.hypofriend.de dead 59th+ cycle; activity limited to read-only GET/HEAD/OPTIONS ≤1 rps with no customer-data exposure and no mutating tests executed.
+===== ANALYST bigpickle 2026-10-16 04:57:40 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "=== api target check ==="; timeout 12 curl -sI --connect-timeout 8 "https://api.hypofriend.de/" -o /dev/null -w "https:%{http_code} exit:%{exitcode}\n" ; echo "exit:$?"; getent hosts api.hypofriend.de; echo "=== graphiql freshness ==="; timeout 12 curl -si -H "Origin: https://evil.example" "https://core.hypofriend.de/graphiql" -o /tmp/gql.txt -w "code:%{http_code} size:%{size_download}\n"; grep -iE "access-control-allow-|x-csrf-token|data-graphql-endpoint" /tmp/gql.txt | head -20
+=== api target check ===
+https:000 exit:28
+exit:28
+52.15.184.3     api.hypofriend.de
+=== graphiql freshness ===
+code:200 size:697
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-allow-credentials: true
+    <div id="graphiql-container" data-graphql-endpoint-path="/q" data-headers="{&quot;Content-Type&quot;:&quot;application/json&quot;,&quot;X-CSRF-Token&quot;:&quot;WCw8RMWOOTNNCb7Rf0Sx8nv65AaPK6DtdZZTns_f0TR4GjbyGolQOTrt21cayL36FO90QrO6XzX6T9spxGo6-w&quot;}" data-query-params="false" data-input-value-deprecation="false">Loading...</div>
+[0m
+## Objective
+- Act as senior bug bounty analyst for Hypofriend GmbH (report channel: bugs.olivermaicher.eu), running a 7-step per-cycle analysis (delta → prioritize → hypotheses → self-critique → next action → learning → risk) over the hypofriend inventory, keeping a knowledge base of ACCEPTED/REJECTED/CONFIRMED findings.
+- Emit only structured blocks: [PRIO], [HYP], [PARKED], [FINAL], [NEXT], [LEARN], [RISK].
+
+## Important Details
+- State: `{"phase": "POC", "target": "api"}` — POC phase pinned to `api.hypofriend.de`, dead 58th+ consecutive cycle (000 on :80/:443, A `52.15.184.3` resolves clean). Phase/target mismatch disclosed each cycle, never silently substituted.
+- Live probe rules: passive-first, ≤1 rps, GET/HEAD/OPTIONS only; no auth-bypass/mutating tests against customer data; data-returning POSTs to `property-search-api` are program-excluded (HUMAN-gated).
+- Out-of-scope classes are extensive (list in prompt): descriptive errors/headers, OPTIONS/TRACE, logout-CSRF, clickjacking without exploit, TLS best practice, etc. Stack-trace/backtrace disclosures classed as "descriptive errors" → out of scope.
+- Top accepted findings:
+  - IDOR/CRITICAL (conf 88–90, HUMAN_ONLY): `core.hypofriend.de/property-search-api` auth-free BOLA `propertySearch→exposes→expose` returns broker/owner PII (`propertyOwnerLastName, cellPhoneNumber, phoneNumber, ownerCompany, providerCompany`); crawl primitives `pagination/exposesInBounds/mapExposes`, offset/limit ~50 cap; CORS closed there (no ACAO echo).
+  - MISCONFIG (conf 82, PASSIVE): `core.hypofriend.de/graphiql` + `hypofriend.de/graphiql` + `/content/graphiql` — unauth IDE, GET with `Origin: https://evil.example` → ACAO echo + ACAC:true + body with `data-graphql-endpoint-path` + rotating 86-char `X-CSRF-Token` (rotation proven). `_hf` cookie is `httponly; secure; domain=hypofriend.de` with NO SameSite → default Lax → caps ATO (per-victim theft REJECTED as ATO class). `/content/graphiql` uses `_content_api_session` (SameSite=Lax). Core serves `XFO:ALLOWALL` vs edge `DENY`.
+  - MISCONFIG (conf 55, PASSIVE): `core.hypofriend.de/q` coercion/error channel reconstructs schema contracts (6 input contracts + 3 payload types + nested `S3FileInput`) with `data` absent; `undefinedField` returns parent typeName + did-you-mean suggester; exposes `root.form_authenticity_token` + `root.lead.has_admin_cookie`.
+  - Global rack-cors on `core.hypofriend.de`: any Origin (incl. `null`) + ACAC:true + 7 methods + ACRH echoed on arbitrary paths; POST `/q` varies `Accept,Origin,Accept-Encoding`, OPTIONS omits `Vary:Origin` (near-inert; Vary:Origin reversion claims REJECTED 3× — use paired controls).
+  - `/content/q/` = 4th GraphQL instance (POST 200), mutations disabled (`missingMutationConfiguration`), no suggester/root.lead → schema oracle absent (closed).
+  - `hypofriend.de/en/exchange` share-link forge: 6-key `share_id` pool (`/tools` dddb5cba…, `/partner` 108ee8c6…, `/rails` ed177279…, `/staff` f46e3e93…, `/uploads` 40595fb5…, `/karriere` c0c7f5c2…), 7–8 mint stems (incl. `/swagger.json`), arbitrary `link_id`, `utm_*` raw pass-through into 302; `redirect` allowlist `{expose,account}` only; `/rails` key has locale binding → `/de/konto`; destination shell byte-identical (bounds: credible URL + poisoned attribution, not data read).
+  - AUTH: hardcoded Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87...`) in public entry bundle → `/api/v3/advisors`; live 200 but do not use in active tests.
+- Key closed/rejected hypotheses: `unclaimLead` (zero-arg, session-scoped); `document_analysis_status` & `exposeSeen` (not existence oracles); `updateProperty` mass assignment (server-closed `PropertyMutationsUpdateInput`); `createUploadUrl` → 301; Vary:Origin overgeneralization; open redirect on `redirect` param (allowlisted); SSRF absent in `/en/account` deploy; `*.local.hypofriend.de` ngrok takeover HUMAN-only; `/en/plus/graphiql` + `/en/health/graphiql` not mounted (301 controls).
+- Methodology lessons (repeated): run paired controls on same endpoint before generalizing a header/mitigation in either direction; cheapest probe beats structural reasoning; bundle mining exhausted for `/m/_nuxt/` (path breadth + error channel paid off instead).
+
+## Work State
+### Completed
+- Cycles through 2026-10-16 00:06:24 UTC ranked hypotheses: [90] property-search-api BOLA; GraphiQL CORS/token (conf 82, PASSIVE); /q coercion channel (conf 55, PASSIVE).
+- Cross-origin GraphiQL body-read + token rotation + `_hf` SameSite-Lax all directly verified (prior `_hf` HUMAN gate closed via passive Set-Cookie).
+- 151-chunk re-mine negative; `/en/account` deploy (index-BLX7yr-v.js, 2,468,656B, 37 mutations) SSRF class closed.
+- Fleet dead-host/ELB tiers fingerprinted (`*.app` A 52.14.251.223 EIP-recycle class; `mobile.hypofriend.de` distinct ELB; sparplan/heyflow Cloudflare TLS gap rejected).
+
+### Active
+- Latest [LEARN] entries and [RISK] Hypofriend GmbH: 96 — top risk unauth full-DB PII via property-search-api BOLA (HUMAN-gated), GraphiQL token exposure bounded MEDIUM by SameSite=Lax.
+
+### Blocked
+- [NEXT] HUMAN gate: authorize one read-only POST to `https://core.hypofriend.de/property-search-api` with `{"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLastName phoneNumber cellPhoneNumber ownerCompany providerCompany city street } }"}` (no cookies/auth, ≤1 rps, single record) to convert BOLA conf 88 → CONFIRMED.
+- POC phase pinned to dead `api.hypofriend.de` (58th+ cycle) — no live surface for phase completion.
+
+## Next Move
+1. Re-emit the standing [NEXT] HUMAN: single-record read-only POST against `core.hypofriend.de/property-search-api` to confirm the BOLA with concrete PII fields.
+2. Continue passive freshness checks this cycle: `api.hypofriend.de` :443/:80 000 probe + one `OPTIONS https://core.hypofriend.de/en/plus/q` with `Origin: https://evil.example` CORS re-verify + `HEAD https://hypofriend.de/m/_nuxt/<current-entry>.js` bundle delta check.
+
+## Relevant Files
+- `inventory/hypofriend.md`: 71-host inventory + passive recon + per-cycle NEW/CHANGED changelog.
+- `scope.yml`: defines in-scope assets (all Hypofriend GmbH infrastructure/brands).
+- Knowledge base section of conversation: ACCEPTED/REJECTED/CONFIRMED/CHANGED hypothesis log since 2026-09-03 (dedupe when appending).
+- `hypofriend.de/m/_nuxt/` entry bundle (current: last known rename `DRDuhMz8.js` → `CMAtwEsq.js` → `Bitus3YJ.js`; hashes `28ffba1c…`, `3c8b3887…`, `a28e9773…`): mutation-template counts frozen, mining exhausted.
+- `hypofriend.de/en/account/assets/index-BLX7yr-v.js` (2,468,656B, sha256 `4304a74473862400498e26eb8c366f4447d022aedba90679ea43b846b7fee3d3`): 37 mutations, object-addressing IDs.
+- `art/lead_nemotron3.txt`, `art/lead_bigpickle.txt` (hypotheses-*.txt): external ranked-hypothesis sources referenced in RANKED HYPOTHESES block.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mecho "=== OPTIONS /q preflight ==="; timeout 12 curl -si -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type,x-csrf-token" "https://core.hypofriend.de/q" -o /tmp/pref.txt -w "code:%{http_code}\n"; grep -iE "access-control-allow-|vary" /tmp/pref.txt; echo "=== /content/graphiql ==="; timeout 12 curl -si -H "Origin: https://evil.example" "https://core.hypofriend.de/content/graphiql" -o /tmp/cgql.txt -w "code:%{http_code} size:%{size_download}\n"; grep -iE "access-control-allow-origin|access-control-allow-credentials|data-graphql-endpoint" /tmp/cgql.txt | head -6; echo "=== bundle HEAD ==="; timeout 12 curl -sI "https://hypofriend.de/m/_nuxt/Bitus3YJ.js" -o /dev/null -w "code:%{http_code} len:%{size_download}\n"; echo "=== /en/exchange share_id ==="; timeout 12 curl -sI "https://hypofriend.de/en/exchange?share_id=108ee8c6&link_id=test123&utm_source=x" -o /dev/null -w "code:%{http_code} loc:%{redirect_url}\n"
+=== OPTIONS /q preflight ===
+code:200
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-allow-credentials: true
+access-control-allow-headers: content-type,x-csrf-token
+vary: Accept-Encoding
+=== /content/graphiql ===
+code:200 size:705
+access-control-allow-origin: https://evil.example
+access-control-allow-credentials: true
+    <div id="graphiql-container" data-graphql-endpoint-path="/content/q" data-headers="{&quot;Content-Type&quot;:&quot;application/json&quot;,&quot;X-CSRF-Token&quot;:&quot;sUXKV9S5G86Y7KZf5GmiD54vYzAv-_SSvLy3KVKX7UuIQq4NNoPAbozlQYZIMSuj9Xq8ALA1vVdbo0v6ft5kxA&quot;}" data-query-params="false" data-input-value-deprecation="false">Loading...</div>
+=== bundle HEAD ===
+code:403 len:0
+=== /en/exchange share_id ===
+code:404 loc:
+[0m
+Two potential surface changes: bundle HEAD returned 403 and `/en/exchange` share_id returned 404 (was 302). Verifying.
+[0m$ [0mecho "=== GET Bitus3YJ ==="; timeout 12 curl -s "https://hypofriend.de/m/_nuxt/Bitus3YJ.js" -o /dev/null -w "code:%{http_code} size:%{size_download}\n"; echo "=== exchange page ==="; timeout 12 curl -s "https://hypofriend.de/en/exchange" -o /tmp/ex.html -w "code:%{http_code} size:%{size_download}\n"; grep -oE '_nuxt/[A-Za-z0-9_-]+\.js' /tmp/ex.html | head -5; echo "=== exchange share variants ==="; timeout 12 curl -sI "https://hypofriend.de/en/exchange?share_id=108ee8c6e8d1&link_id=test" -o /dev/null -w "v1:%{http_code} loc:%{redirect_url}\n"; timeout 12 curl -sI "https://hypofriend.de/exchange?share_id=108ee8c6e8d1&link_id=test" -o /dev/null -w "v2:%{http_code} loc:%{redirect_url}\n"
+=== GET Bitus3YJ ===
+code:403 size:111
+=== exchange page ===
+code:404 size:0
+=== exchange share variants ===
+v1:404 loc:
+v2:301 loc:https://hypofriend.de/
+[0m
+`/en/exchange` is 404 now — surface changed. Checking what replaced it and the current entry bundle.
+[0m$ [0mecho "=== 403 body ==="; timeout 12 curl -s "https://hypofriend.de/m/_nuxt/Bitus3YJ.js" | head -c 200; echo; echo "=== entry HTML ==="; timeout 12 curl -s "https://hypofriend.de/en" -o /tmp/en.html -w "code:%{http_code} size:%{size_download}\n"; grep -oE '_nuxt/[A-Za-z0-9_-]+\.js' /tmp/en.html | head -10; echo "=== exchange-adjacent paths ==="; for p in en/exchange de/exchange en/partner de/partner en/rails de/rails en/staff en/uploads en/karriere; do timeout 8 curl -sI "https://hypofriend.de/$p" -o /dev/null -w "$p:%{http_code} loc:%{redirect_url}\n"; done
+=== 403 body ===
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message></Error>
+=== entry HTML ===
+code:200 size:244420
+_nuxt/K9-2u0kO.js
+_nuxt/By6NB-9M.js
+_nuxt/J2lJfJOd.js
+_nuxt/CY1abTKs.js
+_nuxt/CnI0mAGr.js
+_nuxt/N7bqA8ao.js
+_nuxt/BN1aZHJI.js
+_nuxt/Ch9rZTI6.js
+_nuxt/3SwBAW2Q.js
+_nuxt/5671_28_.js
+=== exchange-adjacent paths ===
+en/exchange:404 loc:
+de/exchange:301 loc:https://hypofriend.de/de
+en/partner:301 loc:https://hypofriend.de/en
+de/partner:301 loc:https://hypofriend.de/de
+en/rails:301 loc:https://hypofriend.de/en
+de/rails:301 loc:https://hypofriend.de/de
+en/staff:301 loc:https://hypofriend.de/en
+en/uploads:301 loc:https://hypofriend.de/en
+en/karriere:301 loc:https://hypofriend.de/en
+[0m
+Major surface change: `/en/exchange` gone, share-link mint paths 301 to root, old entry bundle 403 AccessDenied. Verifying whether the share-link feature is fully retired.
+[0m$ [0mecho "=== de/exchange ==="; timeout 12 curl -sI "https://hypofriend.de/de/exchange" -o /dev/null -w "code:%{http_code} loc:%{redirect_url}\n"; echo "=== mint stems passive ==="; for p in tools swagger.json; do timeout 8 curl -sI "https://hypofriend.de/$p" -o /dev/null -w "$p:%{http_code} loc:%{redirect_url}\n"; done; echo "=== new bundle sample ==="; timeout 15 curl -s "https://hypofriend.de/m/_nuxt/K9-2u0kO.js" -o /tmp/nb.js -w "code:%{http_code} size:%{size_download}\n"; grep -oE 'share_id|link_id|utm_source|/exchange' /tmp/nb.js | sort | uniq -c | head; echo "=== entry HTML share refs ==="; grep -oE 'share_id|exchange|link_id' /tmp/en.html | sort | uniq -c | head
+=== de/exchange ===
+code:301 loc:https://hypofriend.de/de
+=== mint stems passive ===
+tools:301 loc:https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&redirect=expose&utm_source=email&utm_medium=free&utm_campaign=real_estate_v35&link_id=cb8917e2-41d9-5ae9-bf82-d3a5ecc97705
+swagger.json:301 loc:https://hypofriend.de/en/exchange?format=json&link_id=00383791-c379-5cf0-870e-0aedff3372aa&redirect=expose&share_id=985da3c5-60f6-46cf-b467-8edcf0a61063&utm_campaign=real_estate_v35&utm_medium=free&utm_source=email
+=== new bundle sample ===
+code:200 size:1342945
+      9 utm_source
+=== entry HTML share refs ===
+[0m
+Mint stems still emit forged redirects to `/en/exchange?share_id=...` but that page 404s — landing retired, forge chain incomplete. Checking `format=json` and remaining mint stems.
+[0m$ [0mecho "=== exchange format=json ==="; timeout 12 curl -sI "https://hypofriend.de/en/exchange?format=json&link_id=00383791-c379-5cf0-870e-0aedff3372aa&redirect=expose&share_id=985da3c5-60f6-46cf-b467-8edcf0a61063" -o /dev/null -w "code:%{http_code} loc:%{redirect_url}\n"; echo "=== remaining mint stems ==="; for p in rails staff uploads karriere partner; do timeout 8 curl -sI "https://hypofriend.de/$p" -o /dev/null -w "$p:%{http_code} loc:%{redirect_url}\n"; done; echo "=== new entry HTML title ==="; grep -oE '<title>[^<]*</title>' /tmp/en.html | head -1; echo "=== /q token rotation still ==="; timeout 12 curl -si "https://core.hypofriend.de/graphiql" | grep -oE 'X-CSRF-Token&quot;:&quot;[A-Za-z0-9_-]+' | head -1
+=== exchange format=json ===
+code:302 loc:https://hypofriend.de/en/account/property-search/expose-00383791-c379-5cf0-870e-0aedff3372aa?ts=1792125696
+=== remaining mint stems ===
+rails:301 loc:https://hypofriend.de/en/exchange?share_id=ed177279-7dbe-4abc-9a57-c770117075f6&redirect=expose&utm_source=email&utm_medium=free&utm_campaign=real_estate_v35&link_id=0a347c9d-6d47-55de-9e3e-565766fe0079
+staff:301 loc:https://hypofriend.de/en/exchange?share_id=f46e3e93-1b07-423d-837f-b5f56d4f9f90&redirect=expose&utm_source=email&utm_medium=free&utm_campaign=real_estate_v35&link_id=0df9db96-120b-56f3-90b8-97185ce37b9d
+uploads:301 loc:https://hypofriend.de/en/exchange?share_id=40595fb5-660f-477a-80ce-abcfbae2d7d2&redirect=expose&utm_source=email&utm_medium=free&utm_campaign=real_estate_v35&link_id=ac887340-1ea9-5eed-bc5b-1725ec9e66b3
+karriere:301 loc:https://hypofriend.de/en/exchange?share_id=c0c7f5c2-b82a-4b6d-bc7e-18a5b0bb376c&redirect=expose&utm_source=email&utm_medium=free&utm_campaign=real_estate_v35&link_id=a21edcd8-32bb-5e28-aea0-a65e34538e02
+partner:301 loc:https://hypofriend.de/en/exchange?share_id=108ee8c6-4330-4a59-867c-c0a6a638046f&redirect=expose&utm_source=email&utm_medium=free&utm_campaign=real_estate_v35&link_id=867ef48e-d7ef-5a88-b7c8-86d0a7ba14ca
+=== new entry HTML title ===
+<title>Hypofriend is Germany’s Clever Online Mortgage Broker</title>
+=== /q token rotation still ===
+X-CSRF-Token&quot;:&quot;CStjeHqHDCe591d7j7UuN_UA0SIJ0mynNMLNPul3Z4BZyLjdxd6HoGThBZ8m9D5BcY8Wu68_b1xqU2LqLO_3Bg
+[0m
+`format=json` still 302s to `/en/account/property-search/expose-<link_id>?ts=...` — the HTML exchange page 404s but the JSON redirector lives. Checking the destination and whether it's unauthenticated.
+[0m$ [0mecho "=== expose dest unauth ==="; timeout 12 curl -sI "https://hypofriend.de/en/account/property-search/expose-00383791-c379-5cf0-870e-0aedff3372aa?ts=1792125696" -o /dev/null -w "code:%{http_code} loc:%{redirect_url}\n"; timeout 12 curl -s "https://hypofriend.de/en/account/property-search/expose-00383791-c379-5cf0-870e-0aedff3372aa?ts=1792125696" -o /tmp/exp.html -w "getcode:%{http_code} size:%{size_download}\n"; echo "=== arbitrary link_id ==="; timeout 12 curl -si "https://hypofriend.de/en/exchange?format=json&link_id=deadbeef-0000-0000-0000-000000000001&redirect=expose&share_id=108ee8c6-4330-4a59-867c-c0a6a638046f" -o /dev/null -w "arb:%{http_code} loc:%{redirect_url}\n"; echo "=== redirect=account ==="; timeout 12 curl -si "https://hypofriend.de/en/exchange?format=json&link_id=00383791-c379-5cf0-870e-0aedff3372aa&redirect=account&share_id=108ee8c6-4330-4a59-867c-c0a6a638046f" -o /dev/null -w "acc:%{http_code} loc:%{redirect_url}\n"; echo "=== redirect=//evil ==="; timeout 12 curl -si "https://hypofriend.de/en/exchange?format=json&link_id=00383791-c379-5cf0-870e-0aedff3372aa&redirect=https://evil.example&share_id=108ee8c6-4330-4a59-867c-c0a6a638046f" -o /dev/null -w "evil:%{http_code} loc:%{redirect_url}\n"
+=== expose dest unauth ===
+code:200 loc:
+getcode:200 size:3766
+=== arbitrary link_id ===
+arb:302 loc:https://hypofriend.de/en/account/property-search/expose-deadbeef-0000-0000-0000-000000000001?ts=1792125736
+=== redirect=account ===
+acc:302 loc:https://hypofriend.de/en/account?ts=1792125736
+=== redirect=//evil ===
+evil:404 loc:
+[0m
+[0m$ [0mecho "=== utm on format=json ==="; timeout 12 curl -si "https://hypofriend.de/en/exchange?format=json&link_id=deadbeef-0000-0000-0000-000000000001&redirect=expose&share_id=108ee8c6-4330-4a59-867c-c0a6a638046f&utm_source=attacker&utm_medium=phish&utm_campaign=forge" -o /dev/null -w "utm:%{http_code} loc:%{redirect_url}\n"; echo "=== deadbeef dest ==="; timeout 12 curl -s "https://hypofriend.de/en/account/property-search/expose-deadbeef-0000-0000-0000-000000000001?ts=1792125736" -o /tmp/dead.html -w "code:%{http_code} size:%{size_download}\n"; echo "=== share_id pool still on json path? (bad key) ==="; timeout 12 curl -si "https://hypofriend.de/en/exchange?format=json&link_id=00383791-c379-5cf0-870e-0aedff3372aa&redirect=expose&share_id=00000000-0000-0000-0000-000000000000" -o /dev/null -w "badkey:%{http_code} loc:%{redirect_url}\n"; echo "=== new entry mutation count ==="; timeout 15 curl -s "https://hypofriend.de/m/_nuxt/K9-2u0kO.js" | grep -oE 'mutation [A-Za-z0-9_]+' | sort -u | wc -l; timeout 15 curl -s "https://hypofriend.de/m/_nuxt/K9-2u0kO.js" | grep -oE 'share_id|/exchange|link_id' | sort | uniq -c
+=== utm on format=json ===
+utm:302 loc:https://hypofriend.de/en/account/property-search/expose-deadbeef-0000-0000-0000-000000000001?ts=1792125778&utm_campaign=forge&utm_medium=phish&utm_source=attacker
+=== deadbeef dest ===
+code:200 size:3766
+=== share_id pool still on json path? (bad key) ===
+badkey:301 loc:https://hypofriend.de/
+=== new entry mutation count ===
+9
+[0m
+[0m$ [0mls -la inventory/ 2>/dev/null; ls -la *.md 2>/dev/null | head; ls scope.yml 2>/dev/null
+total 312
+drwxr-xr-x  2 runner runner   4096 Oct 16 04:37 .
+drwxr-xr-x 12 runner runner   4096 Oct 16 04:37 ..
+-rw-r--r--  1 runner runner 309318 Oct 16 04:37 hypofriend.md
+-rw-r--r-- 1 runner runner  1885 Oct 16 04:37 README.md
+-rw-r--r-- 1 runner runner 72484 Oct 16 04:37 probe-results.md
+scope.yml
+[0m
+[0m$ [0mtail -40 inventory/hypofriend.md
+- CHANGED `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`); no suggester, no `root.lead`, no `root.form_authenticity_t
+
+## 2026-10-15 21:59:38 UTC
+- NEW `/content/graphiql` confirmed as 3rd live GraphiQL IDE (GET 200, exposes `/content/q` + per-request X-CSRF-Token), cross-origin readable via credentialed CORS — first observed 2026-10-07, re-verified 
+- NEW Cross-origin response-body readability PROVEN on `/graphiql` and `/content/graphiql` (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+- NEW `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+- NEW `_hf` cookie from `/graphiql` is `httponly; secure; domain=hypofriend.de` with NO SameSite attribute → browsers default Lax → strict cross-site `fetch(credentials:"include")` binds token to anonymous 
+- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface, live 2026-10-14
+- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus prior `/tools`, `/partner`, `/rails`) — live 2026-10-14
+- NEW `*.app.hypofriend.de` tier fingerprinted: 5 high-value names (`uploader`/`frontend`/`appointments`/`profile`/`admin`) resolve to single A `52.14.251.223` (distinct from main fleet) — EIP-recycling tak
+- NEW `mobile.hypofriend.de`: distinct ELB fingerprint `awselb/2.0` on 3 IPs — zero healthy targets behind mobile-app backend
+- CHANGED `api.hypofriend.de` convicted 58th consecutive dead cycle (HTTP 000 @10s timeout, A `52.15.184.3` unchanged) — POC phase pinned to dead host
+- CHANGED `core.hypofriend.de/property-search-api` full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives `pagination/exposesInBounds/mapExposes`, CORS closed)
+- CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: credentialed CORS echoes any Origin + ACAC:true; introspection disabled but error/coercion channel reconstructs contracts (6 input co
+- CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
+- CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted (not cookie-bound), `share_id` auth-by-obscurity, `utm_*` raw pass-through into 302 Lo
+- CHANGED `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`); no suggester, no `root.lead`, no `root.form_authenticity_t
+- NEW `/content/q` confirmed LIVE 4th GraphQL instance (POST 200, credentialed CORS active, mutations disabled via `missingMutationConfiguration`) on both `hypofriend.de` and `core.hypofriend.de`
+- NEW Three production GraphiQL IDEs (`core.hypofriend.de/graphiql`, `hypofriend.de/graphiql`, `core.hypofriend.de/content/graphiql`) cross-origin body readability PROVEN (GET with Origin: evil.example → 20
+- NEW `*.app.hypofriend.de` tier: 5 high-value subdomains (`uploader`/`frontend`/`appointments`/`profile`/`admin`) resolve to single A `52.14.251.223` (distinct from main fleet) — EIP-recycling takeover cla
+- NEW `mobile.hypofriend.de`: distinct ELB fingerprint `awselb/2.0` on 3 IPs — zero healthy targets behind mobile-app backend hostname
+- CHANGED `api.hypofriend.de` dead 58th+ consecutive cycle (000 @10s timeout, A `52.15.184.3`) — POC phase pinned to dead host, phase/target mismatch
+- CHANGED `core.hypofriend.de/property-search-api` full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives `pagination/exposesInBounds/mapExposes`, CORS closed — c
+- CHANGED `core.hypofriend.de/q` family + `/graphiql` + `/content/graphiql`: global credentialed CORS echoes any Origin + ACAC:true; introspection disabled but error/coercion channel reconstructs 6 input contra
+- CHANGED `hypofriend.de/en/account` → `core.hypofriend.de/q`: 4 object-addressing mutations with caller-supplied IDs (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requ
+- CHANGED `hypofriend.de/en/exchange`: 6-key `share_id` pool harvestable by unauthenticated GET; arbitrary `link_id` minted; `utm_*` raw pass-through into 302 Location
+- CHANGED `core.hypofriend.de` global rack-cors middleware re-confirmed via OPTIONS `/q` and `/content/q` (evil.example echo, ACAC:true, 7 methods, Max-Age 7200, ACRH reflected, no Vary:Origin on OPTIONS)
+
+## 2026-10-16 00:06:24 UTC
+- NEW Three production GraphiQL IDEs confirmed live with cross-origin body readability: core.hypofriend.de/graphiql, hypofriend.de/graphiql, core.hypofriend.de/content/graphiql (GET 200, ACAO echo + ACAC:tr
+- NEW /swagger.json recognized as 8th mint stem on share-link forge at /en/exchange (expands abuse surface)
+- NEW Full 6-key share_id pool enumerated by value: /staff, /uploads, /karriere + prior /tools, /partner, /rails
+- NEW *.app.hypofriend.de tier fingerprinted: 5 high-value names (uploader/frontend/appointments/profile/admin) resolve to single A 52.14.251.223 — EIP-recycling takeover class
+- NEW mobile.hypofriend.de: distinct ELB fingerprint awselb/2.0 on 3 IPs — zero healthy targets behind mobile-app backend
+- CHANGED api.hypofriend.de dead 58th+ consecutive cycle (HTTP 000 @10s timeout) — POC phase pinned to dead host
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives, CORS closed)
+- CHANGED core.hypofriend.de/q family + /graphiql + /content/graphiql: credentialed CORS echoes any Origin + ACAC:true; introspection disabled but error/coercion channel reconstructs contracts (6 input contract
+- CHANGED hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRen
+- CHANGED hypofriend.de/en/exchange: 6-key share_id pool harvestable by unauthenticated GET; arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity, utm_* raw pass-through into 302 Location
+- CHANGED core.hypofriend.de global rack-cors middleware re-confirmed via OPTIONS /q and /content/q (evil.example echo, ACAC:true, 7 methods, Max-Age 7200, ACRH reflected, no Vary:Origin on OPTIONS)
+[0m
+Appending the delta to the inventory, then emitting structured blocks.
+[0m$ [0mcat >> inventory/hypofriend.md << 'EOF'
+
+## 2026-10-16 04:41:00 UTC
+- CHANGED hypofriend.de/en/exchange HTML landing page now returns 404 (was live share-link forge UI); mint stems /tools /swagger.json /rails /staff /uploads /karriere /partner still 301 to /en/exchange?share_id=... but default HTML landing is dead
+- CHANGED format=json redirector on /en/exchange STILL fully functional: GET format=json + arbitrary link_id + valid share_id → 302 to /en/account/property-search/expose-<link_id>?ts=...; utm_* raw pass-through confirmed; redirect allowlist {expose,account} enforced (https://evil.example → 404); invalid share_id → 301 to /
+- CHANGED hypofriend.de entry bundle rotated: Bitus3YJ.js now 403 AccessDenied (S3); new entry set K9-2u0kO.js (1,342,945B, 9 mutations — down from prior frozen count) + By6NB-9M.js J2lJfJOd.js CY1abTKs.js CnI0mAGr.js N7bqA8ao.js BN1aZHJI.js Ch9rZTI6.js 3SwBAW2Q.js 5671_28_.js; share_id/link_id refs absent from new entry HTML and K9-2u0kO.js (forge UI removed from client)
+- CHANGED api.hypofriend.de dead 59th+ consecutive cycle (HTTP 000 @8s timeout, A 52.15.184.3) — POC phase pinned to dead host
+- CONFIRMED core.hypofriend.de/graphiql + /content/graphiql still live with cross-origin body readability (Origin evil.example → 200, ACAO echo + ACAC:true); X-CSRF-Token rotates per request (new tokens observed both instances)
+- CONFIRMED core.hypofriend.de OPTIONS /q preflight unchanged: evil.example echo, ACAC:true, 7 methods, ACRH reflected (content-type,x-csrf-token), Vary: Accept-Encoding only (no Vary:Origin)
+- CONFIRMED /en/account/property-search/expose-<arbitrary-uuid>?ts=... returns 200 SPA shell (3,766B) unauthenticated for both real and deadbeef UUIDs — forged URLs land on real app shell; data loaded client-side
+EOF
+echo appended
+appended
+[0m
+[DELTA]
+- `hypofriend.de/en/exchange` HTML landing: 404 (was live share-link forge UI). Mint stems (`/tools`,`/swagger.json`,`/rails`,`/staff`,`/uploads`,`/karriere`,`/partner`) still 301 to `/en/exchange?share_id=...` but landing dead.
+- `format=json` redirector STILL live: arbitrary `link_id` + valid `share_id` → 302 `/en/account/property-search/expose-<link_id>?ts=...`; `utm_*` raw pass-through; allowlist `{expose,account}` enforced (`https://evil.example` → 404); bad `share_id` → 301 `/`.
+- Destination `/en/account/property-search/expose-<uuid>?ts=...` = 200 SPA shell (3,766B) unauth for real+deadbeef UUIDs.
+- Entry bundle rotated: `Bitus3YJ.js` → 403 AccessDenied (S3). New set: `K9-2u0kO.js` (1,342,945B, **9 mutations** vs prior frozen higher count) + 9 peers; share_id/link_id refs gone from new HTML/bundle (forge UI removed client-side).
+- `api.hypofriend.de`: 000 @8s, A `52.15.184.3` — 59th+ dead cycle.
+- GraphiQl×2 + OPTIONS `/q` preflight unchanged (ACAO echo, ACAC:true, no Vary:Origin on OPTIONS); CSRF tokens rotated.
+
+[PRIO 92] `core.hypofriend.de/property-search-api` unauth BOLA — full-DB broker/owner PII (`propertyOwnerLastName`,`cellPhoneNumber`,`phoneNumber`,`ownerCompany`,`providerCompany`); crawl `pagination/exposesInBounds/mapExposes`. conf 88–90, HUMAN_ONLY.
+
+[PRIO 82] `core.hypofriend.de/graphiql` + `hypofriend.de/graphiql` + `/content/graphiql` — unauth IDE, cross-origin body-read proven, per-request CSRF rotation. `_hf` SameSite=Lax caps ATO. PASSIVE, MEDIUM.
+
+[PRIO 60] share-link forge `format=json` redirector — arbitrary `link_id` mint + raw `utm_*` into 302 on real `hypofriend.de` path; landing SPA shell. HTML forge UI retired → practical phishing credibility reduced but redirector still forgeable. conf 60 (down from prior, HTML shell gone), PASSIVE.
+
+[PRIO 55] `core.hypofriend.de/q` coercion/error oracle — 6 input contracts + nested `S3FileInput`, `root.form_authenticity_token`, `root.lead.has_admin_cookie`. PASSIVE.
+
+[PARKED] `*.app.hypofriend.de` EIP-recycle takeover (HUMAN-only, `52.14.251.223`); hardcoded advisor Basic cred (do not use).
+
+[NEXT] HUMAN gate standing: one read-only POST `https://core.hypofriend.de/property-search-api` `{"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLastName phoneNumber cellPhoneNumber ownerCompany providerCompany city street } }"}` — no cookies/auth, ≤1 rps, single record → BOLA conf 88→CONFIRMED.
+
+[LEARN] `format=json` on the exchange redirector is the live forge path; the HTML landing being 404 does not kill the finding — always probe the machine-readable variant of a retired UI before downgrading. Client-bundle rotation (403 on old entry) is the cleanest signal a feature was pulled; new bundle mutation count (9) should be re-baselined when mining resumes.
+
+[RISK] Hypofriend GmbH: 96 — unauth full-DB PII (property-search-api BOLA) remains top; GraphiQL token exposure bounded MEDIUM by SameSite=Lax; share-link forge downgraded one notch (HTML landing 404) but `format=json` redirector + utm injection still live.
+
+**Standing HUMAN gate unchanged** — authorize the single-record read-only POST to `core.hypofriend.de/property-search-api` to convert the BOLA to CONFIRMED. Phase remains pinned to dead `api.hypofriend.de` (59th+ cycle); no substitution made.
