@@ -2393,3 +2393,5 @@ www.hypofriend.de
 - NEW none — property-search.hypofriend.de was already in inventory (12 refs); earlier "new host" read retracted.
 - CHANGED hypofriend.de entry bundle rotated Bitus3YJ.js -> Yk1WCsof.js (1,347,963B, Last-Modified 2026-10-16T22:23:43Z); /en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7…).
 - CHANGED property-search.hypofriend.de root = 3.65.251.207 (AWS) -> 503 awselb/2.0 (no healthy target); bundled as API host in new entry but no live listener.
+
+## 2026-10-17 11:09:12 UTC

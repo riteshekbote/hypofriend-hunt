@@ -8963,3 +8963,4 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0) is a routing label, not a live dedicated host; and inventory already listed it — check inventory before emitting [NEW] host deltas.
 [LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: origin-global credentialed rack-cors re-confirmed this cycle (evil.example echo + ACAC:true + 7 methods).
 [RISK] Hypofriend: 88 — unauthenticated production GraphQL (property-search-api) exposes broker/owner PII via auth-free expose(id) BOLA, full introspection, and Ruby stack-trace/internal-path disclosure, alongside origin-global credentialed CORS on core GraphQL (schema/token read) and an attribution-unbound share-link forge on a mortgage/financial platform.
+## 2026-10-17 11:09:03 UTC [target] (model bigpickle)

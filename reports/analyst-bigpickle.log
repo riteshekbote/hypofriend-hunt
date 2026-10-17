@@ -68022,3 +68022,928 @@ STEP 7 — RISK
 ```
 
 Two notes on my own process this cycle: the `property-search.hypofriend.de` "new host" was a false positive (already in inventory), and the `/en/exchange` "forge retired" read was a bad control — both corrected before emitting. Standing blocker unchanged: POC phase is pinned to dead `api.hypofriend.de` (60th cycle), so the top finding remains HUMAN-gated on a single read-only POST.
+===== ANALYST bigpickle 2026-10-17 11:09:12 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "--- entry bundle ---"; curl -sI --max-time 10 https://hypofriend.de/m/_nuxt/Yk1WCsof.js -o /dev/null -w "Yk1WCsof:%{http_code} len:%{size_download}\n"; curl -sI --max-time 10 https://hypofriend.de/m/_nuxt/Bitus3YJ.js -o /dev/null -w "Bitus3YJ(old):%{http_code}\n"; curl -s --max-time 15 -o /tmp/opencode/bundle.js -w "download:%{http_code} bytes:%{size_download}\n" https://hypofriend.de/m/_nuxt/Yk1WCsof.js; sha256sum /tmp/opencode/bundle.js 2>/dev/null | cut -c1-20
+--- entry bundle ---
+Yk1WCsof:200 len:0
+Bitus3YJ(old):403
+download:200 bytes:1347963
+13165e5c4ebd21c1fe73
+[0m
+[0m$ [0mdate -u +%FT%TZ; echo "--- api target ---"; curl -sI --max-time 8 https://api.hypofriend.de/ -o /dev/null -w "api443:%{http_code} exit:%{exitcode}\n"; curl -sI --max-time 8 http://api.hypofriend.de/ -o /dev/null -w "api80:%{http_code} exit:%{exitcode}\n"; getent hosts api.hypofriend.de
+2026-10-17T10:51:41Z
+--- api target ---
+api443:000 exit:28
+api80:000 exit:28
+52.15.184.3     api.hypofriend.de
+[0m
+## Objective
+- Act as senior bug bounty hunter analyst for Hypofriend GmbH (report channel: bugs.olivermaicher.eu), running a 7-step hypothesis cycle (DELTA → PRIORITIZE → HYPOTHESES → SELF-CRITIQUE → NEXT → LEARNING → RISK) with passive-only probing (GET/HEAD/OPTIONS, ≤1 rps).
+- Deep-hunt high-value classes (IDOR/BOLA, GraphQL introspection+mutations, business logic, subdomain takeover, auth flaws) on authorized in-scope Hypofriend assets only.
+
+## Important Details
+- Current state: `phase: POC`, `target: api` (api.hypofriend.de) — dead 58+ consecutive cycles (000, A 52.15.184.3 resolves, connect-timeouts on :80/:443); phase/target mismatch explicitly disclosed each cycle, never silently substituted.
+- OUT OF SCOPE classes (rejected repeatedly, do not re-raise): logout-CSRF/forced-logout, descriptive errors/headers only, XFO:ALLOWALL + credentialed CORS echo as standalone findings (chain multipliers only), Vary:Origin OPTIONS-vs-POST differential (near-inert), ELB zero-target 503s, Cloudflare TLS gaps on heyflow names, clickjacking without exploit.
+- Standing rules: no mutating probes against customer data; data-returning POSTs to property-search-api are HUMAN-gated; facts vs hypotheses strictly separated; sha256 any secret; never use the found Basic credential `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87…`) in active tests.
+- Methodological lessons (from [LEARN]): verify inventory before emitting [NEW] hosts; replay the exact previously-working parameter set before declaring a surface dead (exchange forge was falsely retired once); paired same-path controls before generalizing header behavior (Vary:Origin was mis-stated 3×); format=json variants of retired UIs still work.
+- Top confirmed findings (ranked FINAL): (1) unauthenticated full-DB BOLA on property-search-api, confidence 88, HUMAN_ONLY; (2) origin-global credentialed CORS + error-channel schema reconstruction on core.hypofriend.de/q family, 82, PASSIVE; (3) /en/exchange share-link forge, 68-70, PASSIVE.
+
+## Work State
+### Completed
+- Cycle run for 2026-10-17: three [HYP] blocks emitted (property-search-api BOLA @88, /q CORS+introspection-bypass @82, /en/exchange forge @68-70), all survived [FINAL] ranking (H1 88 > H2 82 > H3 70).
+- Key live evidence: `GET /en/exchange?share_id=dddb5cba-…&link_id=<x>&utm_*=attacker` → 302 with attacker utm echoed; exchange forge re-confirmed after initial false retirement (bad control omitted link_id/redirect).
+- Delta recorded: entry bundle rotated `Bitus3YJ.js` → `Yk1WCsof.js` (1,347,963B, Last-Modified 2026-10-16T22:23:43Z); /en/plus re-deployed (LM 2026-10-16T22:24:36Z).
+- RETRACTED false delta: `property-search.hypofriend.de` (root 3.65.251.207 → 503 awselb/2.0) was already in inventory (12 refs) — not [NEW]; previously REJECTED as routing label, not live surface.
+
+### Active
+- [NEXT] pending: HUMAN authorization for ONE read-only POST to `https://hypofriend.de/property-search-api` with `{"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"}` then `exposes(id:searchId)` → `expose(id)` to capture PII evidence for the CRITICAL IDOR report.
+- `/en/exchange` forge at confidence ~70 — HYP lead active, PASSIVE testable; verify: `GET https://hypofriend.de/en/exchange?share_id=<pool>&link_id=<x>&utm_campaign=<x>&format=json`.
+
+### Blocked
+- POC phase pinned to dead host api.hypofriend.de (58+ cycles 000) — no live surface for phase completion; phase mismatch constrains probes.
+- property-search-api PII-reading POSTs require HUMAN authorization (exposure of customer/financial data during testing is program-excluded from agent actions).
+
+## Next Move
+1. HUMAN: authorize the single read-only property-search-api POST chain (propertySearch → exposes → expose) to produce reportable PII evidence for the standing CRITICAL BOLA.
+2. If not authorized: PASSIVE — replay the exchange forge with `format=json` and a pool share_id (`dddb5cba-…`, `108ee8c6-…`, `ed177279-…`, `f46e3e93-…`, `40595fb5-…`, `c0c7f5c2-…`) to lock the 302-Location evidence at confidence >70; re-mine `Yk1WCsof.js` for auth-surface delta (prior rotations were rename-only).
+
+## Relevant Files
+- `hypofriend.de/m/_nuxt/Yk1WCsof.js`: current entry bundle (1,347,963B, LM 2026-10-16T22:23:43Z) — mine for mutation/secret delta vs prior 10-op set.
+- `hypofriend.de/en/account/assets/index-BLX7yr-v.js`: separate deploy, 2,468,656B, 37 mutations, 4 object-addressing (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId), sha256 `4304a744…`.
+- `art/lead_bigpickle.txt`: lead source referenced by aggregated hypotheses ([88] property-search-api BOLA entry).
+- `scope.yml` + `inventory/hypofriend.md`: authoritative scope/inventory (71 hosts) — consult before emitting [NEW].
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+api target still dead (000/28, cycle #59). Proceeding with the passive [NEXT] path — exchange forge replay + bundle delta mine.
+[0m$ [0mcd /tmp/opencode
+echo "=== mutation names (entry bundle) ==="
+grep -o 'mutation [A-Za-z0-9_]*' bundle.js | sort -u
+echo "=== graphql endpoint refs ==="
+grep -oE '/(graphql|api)/[A-Za-z0-9_/-]*' bundle.js | sort -u | head -30
+echo "=== property-search-api refs ==="
+grep -c 'property-search-api' bundle.js
+echo "=== secrets ==="
+grep -oiE '(supabase|aws_|AKIA[0-9A-Z]{16}|service_role|eyJhbGciOi)[A-Za-z0-9_.-]*' bundle.js | sort -u | head -20
+=== mutation names (entry bundle) ===
+mutation 
+mutation calculateCityTax
+mutation createGoogleConversion
+mutation requestAccountLink
+mutation requestAppointmentLink
+mutation requestFacebookConversion
+mutation setLocale
+mutation setNameAppointment
+mutation unclaimLead
+mutation uploadDocumentExtended
+=== graphql endpoint refs ===
+/api/v1/
+/api/v3/
+=== property-search-api refs ===
+0
+=== secrets ===
+[0m
+[0m$ [0mcd /tmp/opencode
+IDS="dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a 108ee8c6-2e5f-4a8b-9c1d-3b6e5f7a8c9d ed177279-4d2a-4f6b-8e1c-2a9f0b3c5d7e f46e3e93-6b1c-4d8e-a7f2-5c0e9d1b3a6f 40595fb5-8a3d-4c7e-b6f1-9d2a4e8c0b5f c0c7f5c2-9e4b-4a2d-8c5f-1b7e6a0d9f3c"
+for id in $IDS; do
+  code=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" "https://hypofriend.de/en/exchange?share_id=${id}&link_id=attacker-ctrl&utm_campaign=attacker&utm_source=attacker&utm_medium=attacker&format=json")
+  loc=$(curl -s --max-time 10 -o /dev/null -D - "https://hypofriend.de/en/exchange?share_id=${id}&link_id=attacker-ctrl&utm_campaign=attacker&utm_source=attacker&utm_medium=attacker&format=json" | grep -i '^location:' | tr -d '\r')
+  echo "${id:0:8} json:${code} ${loc}"
+  sleep 1.2
+done
+dddb5cba json:301 location: https://hypofriend.de/
+108ee8c6 json:301 location: https://hypofriend.de/
+ed177279 json:301 location: https://hypofriend.de/
+f46e3e93 json:301 location: https://hypofriend.de/
+40595fb5 json:301 location: https://hypofriend.de/
+c0c7f5c2 json:301 location: https://hypofriend.de/
+[0m
+`format=json` returned a uniform `301 → /` — need a same-path control to see whether that's the format param or the forge itself.
+[0m$ [0mcd /tmp/opencode
+echo "=== unclaimLead context ==="
+grep -o 'unclaimLead[^}]\{0,200\}' bundle.js | head -3
+echo "=== object-addressing args (id-bearing) ==="
+grep -oE '(offerProductId|leadId|documentId|appointmentId|searchId|exposeId)"?[^,}]{0,60}' bundle.js | sort -u | head -25
+echo "=== mutation set size / new vs prior ==="
+grep -o 'mutation [A-Za-z0-9_]*' bundle.js | sort -u | wc -l
+=== unclaimLead context ===
+unclaimLead:()=>`
+unclaimLead {
+unclaimLead(input: {
+=== object-addressing args (id-bearing) ===
+leadId:e=>e.id
+searchId
+searchId:a
+searchId:e
+searchId;return a===void 0?(console.error(`Failed: City: ${n
+=== mutation set size / new vs prior ===
+10
+[0m
+[0m$ [0mcd /tmp/opencode
+ID="dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a"
+BASE="share_id=${ID}&link_id=attacker-ctrl&utm_campaign=attacker&utm_source=attacker&utm_medium=attacker"
+echo "A) plain:            $(curl -s --max-time 10 -o /dev/null -D - "https://hypofriend.de/en/exchange?${BASE}" | awk 'NR<=1{print $2} /^location:/ || /^Location:/{print $0}' | tr -d '\r' | tr '\n' ' ')"
+sleep 1.2
+echo "B) format=json:      $(curl -s --max-time 10 -o /dev/null -D - "https://hypofriend.de/en/exchange?${BASE}&format=json" | awk 'NR<=1{print $2} /^location:/ || /^Location:/{print $0}' | tr -d '\r' | tr '\n' ' ')"
+sleep 1.2
+echo "C) format=json BADID:$(curl -s --max-time 10 -o /dev/null -D - "https://hypofriend.de/en/exchange?share_id=00000000-0000-0000-0000-000000000000&link_id=attacker-ctrl&utm_campaign=attacker&format=json" | awk 'NR<=1{print $2} /^location:/ || /^Location:/{print $0}' | tr -d '\r' | tr '\n' ' ')"
+sleep 1.2
+echo "D) no utm, format=json: $(curl -s --max-time 10 -o /dev/null -D - "https://hypofriend.de/en/exchange?share_id=${ID}&link_id=attacker-ctrl&format=json" | awk 'NR<=1{print $2} /^location:/ || /^Location:/{print $0}' | tr -d '\r' | tr '\n' ' ')"
+A) plain:            404 
+B) format=json:      301 location: https://hypofriend.de/ 
+C) format=json BADID:301 location: https://hypofriend.de/ 
+D) no utm, format=json: 301 location: https://hypofriend.de/
+[0m
+Plain replay now returns **404** (was 302 last cycle), and `format=json` returns a uniform `301 → /` regardless of share_id — that's a generic redirect, not forge evidence. Probing the route contract.
+[0m$ [0mcd /tmp/opencode
+echo "=== exchange route in bundle ==="
+grep -oE '[^"`]{0,80}exchange[^"`]{0,80}' bundle.js | head -12
+echo "=== share_id handling ==="
+grep -oE '[^"`]{0,60}share_id[^"`]{0,60}' bundle.js | head -12
+=== exchange route in bundle ===
+=== share_id handling ===
+[0m
+[0m$ [0mfor u in "/en/exchange" "/en/exchange?share_id=dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a" "/en/exchange?link_id=x" "/de/exchange?share_id=dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a" "/en/exchange.json" "/en/exchange?share_id=dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a&link_id=x&utm_campaign=x"; do
+  out=$(curl -s --max-time 10 -o /dev/null -D - "https://hypofriend.de${u}" | awk 'NR==1{c=$2} /^[Ll]ocation:/{l=$0} END{gsub(/\r/,"");print c" "l}')
+  echo "$u -> $out"; sleep 1.2
+done
+/en/exchange -> 404 
+/en/exchange?share_id=dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a -> 404 
+/en/exchange?link_id=x -> 404 
+/de/exchange?share_id=dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a -> 301 location: /de
+/en/exchange.json -> 404 
+/en/exchange?share_id=dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a&link_id=x&utm_campaign=x -> 404
+[0m
+`/en/exchange` → 404 with zero `exchange`/`share_id` refs in the current entry bundle — the route was removed in yesterday's deploy. Checking other entry points before declaring it retired (per the exact-surface lesson).
+[0m$ [0mcd /tmp/opencode
+echo "=== account bundle: exchange/share_id ==="
+curl -s --max-time 15 -o acct.js -w "acct:%{http_code} bytes:%{size_download}\n" "https://hypofriend.de/en/account/assets/index-BLX7yr-v.js"
+grep -c 'exchange' acct.js; grep -c 'share_id' acct.js
+echo "=== which chunks reference exchange (index manifest) ==="
+curl -s --max-time 12 -o entrymap.js -w "map:%{http_code} bytes:%{size_download}\n" "https://hypofriend.de/m/_nuxt/entry.map.js" -o /dev/null
+grep -oE '"[A-Za-z0-9_-]+\.js"' entrymap.js 2>/dev/null | head -5
+=== account bundle: exchange/share_id ===
+acct:301 bytes:326
+0
+0
+=== which chunks reference exchange (index manifest) ===
+map:403 bytes:111
+[0m
+[0m$ [0mfor u in "/exchange" "/m/en/exchange?share_id=dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a" "/en/exchange/redirect" "/en/plus" "/en/account"; do
+  out=$(curl -s --max-time 10 -o /dev/null -D - "https://hypofriend.de${u}" | awk 'NR==1{c=$2} /^[Ll]ocation:/{l=$0} END{gsub(/\r/,"");print c" "l}')
+  echo "$u -> $out"; sleep 1.2
+done
+/exchange -> 301 location: https://hypofriend.de/
+/m/en/exchange?share_id=dddb5cba-1b6e-4f4d-9e3a-7f0d1f0f6a7a -> 403 
+/en/exchange/redirect -> 301 location: https://hypofriend.de/
+/en/plus -> 200 
+/en/account -> 200
+[0m
+[0m$ [0mcd /tmp/opencode
+curl -sI --max-time 12 "https://hypofriend.de/en/account/assets/index-BLX7yr-v.js" | tr -d '\r' | grep -iE '^(HTTP|location)'
+echo "---"
+curl -sL --max-time 15 -o acct.js -w "follow:%{http_code} bytes:%{size_download} url:%{url_effective}\n" "https://hypofriend.de/en/account/assets/index-BLX7yr-v.js"
+grep -c 'exchange' acct.js; grep -c 'share_id' acct.js; grep -o 'mutation [A-Za-z0-9_]*' acct.js | sort -u | wc -l; sha256sum acct.js | cut -c1-16
+HTTP/2 301 
+location: /en/account
+---
+follow:200 bytes:3766 url:https://hypofriend.de/en/account
+0
+0
+0
+5d111f02c123b054
+[0m
+Account asset path rotated too (301 → HTML). Extracting the current asset list.
+[0m$ [0mcd /tmp/opencode
+curl -sL --max-time 15 "https://hypofriend.de/en/account" -o acct.html -w "html:%{http_code} bytes:%{size_download}\n"
+grep -oE '(src|href)="[^"]*\.js[^"]*"' acct.html | sort -u
+echo "=== title/entry hints ==="
+grep -oE '_nuxt/[A-Za-z0-9_.-]+\.js' acct.html | sort -u | head -20
+html:200 bytes:3766
+href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css"
+src="/en/account/assets/index-B5hM0Scp.js"
+src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
+=== title/entry hints ===
+[0m
+[0m$ [0mcd /tmp/opencode
+curl -s --max-time 20 -o acct2.js -w "acct2:%{http_code} bytes:%{size_download}\n" "https://hypofriend.de/en/account/assets/index-B5hM0Scp.js"
+echo "sha256: $(sha256sum acct2.js | cut -c1-16)"
+echo "mutations: $(grep -o 'mutation [A-Za-z0-9_]*' acct2.js | sort -u | wc -l)"
+echo "=== mutation list ==="
+grep -o 'mutation [A-Za-z0-9_]*' acct2.js | sort -u
+echo "=== id-bearing args ==="
+grep -oE '(offerProductId|leadId|documentId|attachmentId|appointmentId|propertyId|offerId|userId)"? *:' acct2.js | sort | uniq -c
+acct2:200 bytes:2464399
+sha256: 2ae876976bf18288
+mutations: 41
+=== mutation list ===
+mutation 
+mutation Favorited
+mutation PropertySearchV2Trigger
+mutation autocompleteLocation
+mutation createProperty
+mutation createUploadUrl
+mutation deleteLeadDocumentAttachment
+mutation requestOfferRenewal
+mutation selectOffer
+mutation sendVerifiedListingEmail
+mutation setAgeForAffordability
+mutation setChildrenNumberForAffordability
+mutation setCityForAffordability
+mutation setColdRentForNewMortgage
+mutation setDecisionAppointment
+mutation setDevotionMonthlyPayOffMortgageForNewMortgage
+mutation setEmploymentStatusForCriteria
+mutation setHomeBuyingStatusForLead
+mutation setHomeOwnerForAffordability
+mutation setLocale
+mutation setMarketingAppointment
+mutation setNameAppointment
+mutation setNetIncomeAfterTaxForNewMortgage
+mutation setNewPropertyForNewMortgage
+mutation setNumberOfCarsForAffordability
+mutation setOfferViewedByCustomerAt
+mutation setOwnFinancesForNewMortgage
+mutation setOwnPropertyColdRent
+mutation setOwnPropertyInterestRate
+mutation setOwnPropertyMonthlyPayment
+mutation setOwnPropertyRemainingDebt
+mutation setOwnPropertySquareMeters
+mutation setOwnPropertyValue
+mutation setPartnerForNewMortgage
+mutation setPartnerNetIncomeForAffordability
+mutation setPartnerResidencyForAffordability
+mutation setPhoneAppointment
+mutation setPlotOfLandForNewMortgage
+mutation submitDocumentAnalysis
+mutation updateProperty
+mutation uploadDocumentExtended
+=== id-bearing args ===
+     18 leadId:
+      1 offerId:
+      2 offerProductId:
+      1 propertyId:
+     15 userId:
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== createUploadUrl ==="
+grep -oE '.{160}createUploadUrl.{300}' acct2.js | head -2
+echo; echo "=== userId arg contexts (distinct) ==="
+grep -oE '.{70}userId:\s*[a-zA-Z0-9_$.]{1,40}.{40}' acct2.js | sort -u | head -18
+=== createUploadUrl ===
+urn new Promise(t=>setTimeout(t,e))}function NH(e){return String(e??"").toLowerCase()}const xH={async getSignedURL(e){var t,n;const o=`\n              mutation createUploadUrl {\n                createUploadUrl(input: { fileName: ${JSON.stringify(e.name)}, contentType: "${e.type}" }) {\n                  s3Key\n                  presignedUrl\n                }\n              },\n            `,r=await yH.postGraphQL(o),i=null==(n=null==(t=r.data)?void 0:t.data)?void 0:n.c
+
+=== userId arg contexts (distinct) ===
+),t.prototype.updateStorage=function(){var e={deviceId:this._deviceId,userId:this._userId,sessionId:this._sessionId,deferredSessi
+,r=void 0):(o=null==t?void 0:t.userId,r=t),Tv(this._init($m($m({},r),{userId:o,apiKey:e})))},t.prototype._init=functio
+;return{deviceId:null===(e=this.config)||void 0===e?void 0:e.deviceId,userId:null===(t=this.config)||void 0===t?void 0:t.
+Finish:b,onError:d}){const M=c||i(o),z=NZ({message:e,conversationId:t,userId:n,stream:!0});let f;try{f=s(p)}catch(A){r
+d&&void 0!==e||(this.config.userId=e,this.timeline.onIdentityChanged({userId:e}),function(e,t){cq(t).identityStore.edi
+ean);return o.length?`Recent topics: ${o.join("; ")}`:""}function HZ({userId:e,config:t}={}){const n=t||function(){con
+h(e=>{SZ.isCancel(e)||(r("Chat API stream failed",e,{conversationId:t,userId:n,agentId:M}),d&&d(e))})},sendChat:async 
+ncelToken=e),t}return{streamChat:function({message:e,conversationId:t,userId:n,locale:o,chatbotId:c,cancelToken:p,onDe
+otId:c}){var p,l,u,b;const d=c||i(o),M=NZ({message:e,conversationId:t,userId:n,stream:!1}),z=s();try{const e=await SZ.
+plit("."),6),a=i[0],s=i[1],c=i[2],p=i[3],l=i[4],u=i[5],[2,{deviceId:a,userId:UW(s),sessionId:jW(p),lastEventId:jW(u),la
+ssionId)),[2]})})}),(q=cq(t.instanceName)).identityStore.setIdentity({userId:this.config.userId,deviceId:this.config.deviceId}),null===
+t SZ=aK(sK.exports),TZ=()=>{};function NZ({message:e,conversationId:t,userId:n,stream:o}){const r={message:e,stream:o}
+|null}}catch(f){throw r("Chat API request failed",f,{conversationId:t,userId:n,agentId:d}),f}},resolveAgentId:i}}const
+[0m
+Account bundle rotated: 37 → **41 mutations** (+4: `createProperty`, `createUploadUrl`, `sendVerifiedListingEmail`, `Favorited`, `PropertySearchV2Trigger`...). 15 `userId:` refs — checking whether it's client-supplied on arguments.
+[0m$ [0mcd /tmp/opencode
+echo "=== updateProperty / createProperty arg shapes ==="
+grep -oE '.{60}mutation updateProperty.{260}' acct2.js | head -1
+echo
+grep -oE '.{40}createProperty\(.{260}' acct2.js | head -1
+echo
+echo "=== selectOffer / sendVerifiedListingEmail ==="
+grep -oE '.{40}mutation selectOffer.{200}' acct2.js | head -1
+grep -oE '.{40}sendVerifiedListingEmail.{220}' acct2.js | head -1
+=== updateProperty / createProperty arg shapes ===
+=`,propertySubtype: ${e.propertySubtype}`);const a=`\n      mutation updateProperty {\n        updateProperty(input: {\n          id: "${e.id}",\n          address: "${e.address}",\n          area: ${e.livingArea},\n          city: "${e.city}",\n          condition: ${e.propertyCondition},\n          constructionYear: ${e.buildingYear},\n   
+
+     mutation createProperty {\n        createProperty(input: {\n          address: "${e.address}",\n          area: ${e.livingArea},\n          city: "${e.city}",\n          condition: ${e.propertyCondition},\n          constructionYear: ${e.buildingYear},\n          country: "${e.country}",\n          houseNumbe
+
+=== selectOffer / sendVerifiedListingEmail ===
+{await async function(e){const t=`\n    mutation selectOffer {\n      selectOffer(input: { offerProductId: "${e}"}) {\n        success\n      }\n    }\n  `;await yH.postGraphQL(t)}(t),e("FETCH_OPTIMAL_OFFERS")},async RENEW_OFFER({dispatch:e},t){await async fun
+on(e){var t,n,o;const r=`\n    mutation sendVerifiedListingEmail {\n      sendVerifiedListingEmail(\n        input: {\n          customerName: ${JSON.stringify(e.name)},\n          customerEmail: ${JSON.stringify(e.email)},\n          customerPhoneNumber: ${JSON.stringify(e.phoneNumb
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== postGraphQL endpoint ==="
+grep -oE '.{100}postGraphQL.{200}' acct2.js | head -2
+echo; echo "=== graphql URL literals ==="
+grep -oE 'https?://[a-z0-9.-]*hypofriend[a-z0-9./-]*' acct2.js | sort -u | head -20
+=== postGraphQL endpoint ===
+t t=e?"/content":"";return window.location.protocol+"//"+window.location.hostname+t}return""},async postGraphQL(e,t=!1,n=null,o=null){const r=await this.baseURL(t),i={query:e};o&&(i.variables=o);const a={method:"POST",data:i,mode:"cors",headers:{...vH,...qH(),"Content-Type":"application/json"},withCredentials:
+){if(s&&s.code&&"ERR_CANCELED"===s.code||KP.isCancel(s))return{cancelled:!0};throw new AH("Error on postGraphQL function",{cause:s,extra:a})}},async postDevise(e){const t=await this.baseURL();let n=new FormData;Object.entries(e).forEach(e=>{n.append(`lead[${e[0]}]`,e[1])});const o={method:"POST",data:n,mode:"c
+
+=== graphql URL literals ===
+http://hypofriend.local
+https://hypofriend.de
+https://hypofriend.de/de/plus
+https://hypofriend.de/en/plus
+https://hypofriend.tech
+[0m
+Confirming the GraphQL endpoint + checking whether the exchange/share surface moved (not just renamed) before retiring it.
+[0m$ [0mcd /tmp/opencode
+echo "=== 'share' in entry bundle ==="
+grep -oiE '.{50}share[A-Za-z]*.{50}' bundle.js | head -8
+echo "=== 'share' in account bundle ==="
+grep -oiE '.{40}share_id.{60}' acct2.js | head -6
+grep -oE '"share[A-Za-z]*"' acct2.js | sort -u | head
+=== 'share' in entry bundle ===
+elay:500,showDelay:0,padding:8,position:{x:0,y:3},shared:!1,snap:Hp?25:10,headerFormat:'<span style="font-
+showTimer)};class l3{constructor(i,o,l){this.allowShared=!0,this.crosshairs=[],this.distance=0,this.isHidd
+&(L+=E[0],b+=E[1])}),L/=i.length,b/=i.length,this.shared&&i.length>1&&o&&(f?L=o.chartX:b=o.chartY),l=[L-g,
+styledMode,u=this.options,f=this.split&&this.allowShared,p=this.container,g=this.chart.renderer;if(this.la
+s:f,split:p}=this,g=f.position,v=g.relativeTo,L=f.shared||d?.yAxis?.isRadial&&(v==="pane"||!v)?"plotBox":v
+!0,this.split=o.split&&!i.inverted&&!i.polar,this.shared=o.shared||this.split,this.outside=ie(o.outside,!!
+resh(i,o){let l=this,{chart:d,options:u,pointer:f,shared:p}=this,g=xt(i),v=g[0],L=u.format,b=u.formatter||
+d;if(!u.enabled||!v.series)return;$s(this),l.allowShared=!(!r2(i)&&i.series&&i.series.noSharedTooltip),E=E
+=== 'share' in account bundle ===
+     phone\n            id\n            share_id\n            property_location\n            advisor {\n    
+               lead_id\n                share_id\n              }\n            }\n          }\n        }\n  
+dren_number: ${o.children_number}`,o&&o.share_id&&(z+=`, share_id: "${o.share_id}"`),z+="}";try{const t=awai
+"shareId"
+"shareLink"
+"shareLinkToInvestfriend"
+"shareLinkToPensionfriend"
+"shareLinkToQualificationNewPropertyStart"
+"shareLinkToQualificationStart"
+[0m
+Share surface **moved into GraphQL** (account bundle) — a query selects `phone`, `id`, `share_id`, `property_location`, `advisor`. Extracting the operation.
+[0m$ [0mcd /tmp/opencode
+echo "=== query containing phone/id/share_id/property_location ==="
+grep -oE '.{400}share_id\\n[^"]{0,400}' acct2.js | head -2
+echo; echo "=== lead_id/share_id block ==="
+grep -oE '.{500}lead_id\\n\s*share_id.{100}' acct2.js | head -2
+=== query containing phone/id/share_id/property_location ===
+ortgage_funnel_finished\n            optimal_mortgage {\n              all_inputs_filled_in\n            }\n            affordability_funnel_finished\n            qualification_funnel_finished\n            rent_vs_buy_funnel_finished\n            partner\n            given_name\n            home_buying_status\n            surename\n            email\n            phone\n            id\n            share_id\n            property_location\n            advisor {\n              enumValue\n              name\n              email\n              title\n              givenName\n              picture\n              pictureWebp\n              phoneNumber\n              description\n              gender\n            }\n            default_advisor {\n              enumValue\n              name\n              ema
+       inputs {\n                  consider_loan\n                  safe_max_monthly_devotion\n                  down_payment\n                  monthly_devotion\n                  monthly_income\n                  security_margin\n                  years\n                  commision\n                }\n                can_afford\n                new_lead\n                lead_id\n                share_id\n              }\n            }\n          }\n        }\n      }
+
+=== lead_id/share_id block ===
+rest_amount\n                  annual_repayment_amount\n                  repayment_rate_report\n                }\n                inputs {\n                  consider_loan\n                  safe_max_monthly_devotion\n                  down_payment\n                  monthly_devotion\n                  monthly_income\n                  security_margin\n                  years\n                  commision\n                }\n                can_afford\n                new_lead\n                lead_id\n                share_id\n              }\n            }\n          }\n        }\n      }",e);return(null==r?void 0:r.cancel
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== share_id as INPUT arg ==="
+grep -oE '.{180}share_id: "\$\{[^}]{0,40}\}.{80}' acct2.js | sort -u
+echo; echo "=== 'shareLink' contexts ==="
+grep -oE '.{60}shareLink[A-Za-z]*.{140}' acct2.js | sort -u | head -8
+=== share_id as INPUT arg ===
+ecurity_margin},`,z+=`years: ${o.years},`,z+=`commision: ${o.commission},`,z+=`consider_loan: ${o.consider_loan},`,z+=`children_number: ${o.children_number}`,o&&o.share_id&&(z+=`, share_id: "${o.share_id}"`),z+="}";try{const t=await zV.reCalculate(z,o.token);if(await zV.recalculateRe
+
+=== 'shareLink' contexts ===
+At:null,germanResidenceStatus:null,locale:null,shareId:null,shareLink:null,shareLinkToPensionfriend:null,shareLinkToInvestfriend:null,shareLinkToQualificationStart:null,shareLinkToQualificationNewPropertyStart
+e_of_deal\n            }\n            unsubscribeShareLink: shareLink(linkType: "unsubscribe")\n            hypofriendToPensionfriendShareLink: shareLink(linkType: "hypofriend_to_pensionfriend")\n            h
+er((e,t,n)=>"secondary"===e.applicant&&"personal"===e.kind),shareLinkToInvestfriend:e=>e.shareLinkToInvestfriend,shareLinkToPensionfriend:e=>e.shareLinkToPensionfriend,shareLinkToQualificationNewPropertyStart:e=>e.shareLink
+ficationNewPropertyStart,shareLinkToQualificationStart:e=>e.shareLinkToQualificationStart,showDocuments:e=>null!==e.documents&&e.documents.length>0,updatingDocuments:e=>e.updatingDocuments,userSegmentForAmplitudeAnalytics:e=>e.af
+kToInvestfriend",t.hypofriendToInvestfriendShareLink),UH(e,"shareLinkToQualificationStart",t.qualificationStartShareLink),UH(e,"shareLinkToQualificationNewPropertyStart",t.qualificationNewPropertyStartShareLink),UH(e,"locale",t.l
+to_investfriend")\n            qualificationStartShareLink: shareLink(linkType: "qualification_start")\n            qualificationNewPropertyStartShareLink: shareLink(linkType: "qualification_new_property_start
+void 0:o.allInputsFilledIn),UH(e,"shareId",t.shareId),UH(e,"shareLink",t.unsubscribeShareLink),UH(e,"affordabilityCalculations",t.affordabilityCalculations),UH(e,"shareLinkToPensionfriend",t.hypofriendToPensio
+[0m
+[0m$ [0mcd /tmp/opencode
+grep -oiE 'https?://[a-z0-9.-]*(investfriend|pensionfriend|qualif)[a-z0-9.-]*' bundle.js acct2.js | sort -u
+for h in investfriend.hypofriend.de pensionfriend.hypofriend.de; do
+  echo -n "$h -> "; getent hosts $h || echo "NXDOMAIN"
+done
+acct2.js:https://pensionfriend.de
+investfriend.hypofriend.de -> 63.181.142.36   investfriend.hypofriend.de
+3.65.251.207    investfriend.hypofriend.de
+3.126.242.241   investfriend.hypofriend.de
+pensionfriend.hypofriend.de -> 3.65.251.207    pensionfriend.hypofriend.de
+63.181.142.36   pensionfriend.hypofriend.de
+3.126.242.241   pensionfriend.hypofriend.de
+[0m
+[0m$ [0mls /home/runner/work/hypofriend-hunt/hypofriend-hunt/ 2>/dev/null; echo "---"; ls /home/runner/work/hypofriend-hunt/hypofriend-hunt/inventory 2>/dev/null
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+probe-results.md
+recon-notes
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_mimo.json
+state_nemotron3.json
+triage
+---
+hypofriend.md
+[0m
+Share surface confirmed moved to GraphQL. Quick delta check on the newly-visible share-target domains (investfriend/pensionfriend), then I'll close the cycle.
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt
+grep -nE 'investfriend|pensionfriend' inventory/hypofriend.md scope.yml | head -20
+(no output)
+[0m
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt; tail -60 analyst-prompt.txt; echo "=== analyst-out tail ==="; tail -30 analyst-out.txt
+- CHANGED api.hypofriend.de dead 58th+ consecutive cycle (HTTP 000 @10s timeout) — POC phase pinned to dead host
+- CHANGED core.hypofriend.de/property-search-api full-DB BOLA chain re-confirmed live (unauthenticated PII on direct origin, auth-free crawl primitives, CORS closed)
+- CHANGED core.hypofriend.de/q family + /graphiql + /content/graphiql: credentialed CORS echoes any Origin + ACAC:true; introspection disabled but error/coercion channel reconstructs contracts (6 input contract
+- CHANGED hypofriend.de/en/account → core.hypofriend.de/q: 4 object-addressing mutations with caller-supplied IDs (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRen
+- CHANGED hypofriend.de/en/exchange: 6-key share_id pool harvestable by unauthenticated GET; arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity, utm_* raw pass-through into 302 Location
+- CHANGED core.hypofriend.de global rack-cors middleware re-confirmed via OPTIONS /q and /content/q (evil.example echo, ACAC:true, 7 methods, Max-Age 7200, ACRH reflected, no Vary:Origin on OPTIONS)
+
+## 2026-10-16 04:57:40 UTC
+
+## 2026-10-16 09:36:45 UTC
+
+## 2026-10-16 14:20:48 UTC
+
+## 2026-10-16 18:10:23 UTC
+
+## 2026-10-16 21:35:59 UTC
+
+## 2026-10-16 23:59:00 UTC
+
+## 2026-10-17 01:37:11 UTC
+- CHANGED hypofriend.de/property-search-api `expose(id)` resolver: previously boundary-only ("99999999 -> not found"); NOW confirmed live on a real enumerated expose UUID (200, returns title/price/street/proper
+- NEW hypofriend.de/property-search-api: full search lifecycle is auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` retur
+- NEW Expose type PII surface confirmed on same auth-free object: cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String scalars)
+
+## 2026-10-17 06:15:57 UTC
+- NEW none
+- CHANGED hypofriend.de entry bundle rotated Bitus3YJ.js -> Yk1WCsof.js (1,347,963B, Last-Modified 2026-10-16T22:23:43Z); /en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7...).
+- CHANGED property-search.hypofriend.de root: 3.65.251.207 (AWS) -> 503 awselb/2.0 (no healthy target); bundled as API host in new entry but no live listener (already in inventory, 12 refs).
+- NEW none — property-search.hypofriend.de was already in inventory (12 refs); earlier "new host" read retracted.
+- CHANGED hypofriend.de entry bundle rotated Bitus3YJ.js -> Yk1WCsof.js (1,347,963B, Last-Modified 2026-10-16T22:23:43Z); /en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7…).
+- CHANGED property-search.hypofriend.de root = 3.65.251.207 (AWS) -> 503 awselb/2.0 (no healthy target); bundled as API host in new entry but no live listener.
+You are a senior bug bounty hunter ANALYST for the Hypofriend GmbH program (report channel: bugs.olivermaicher.eu).
+Eligible in-scope assets (ONLY these, from scope.yml + inventory/hypofriend.md): All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands
+Deep-hunt directives:
+- Prioritize HIGH-VALUE classes: broken auth/session, IDOR/BOLA, SSRF-to-cloud-metadata (169.254.169.254), mass assignment, JWT alg/key confusion, OAuth redirect_uri/state flaws, business logic on money/auth flows, file upload, GraphQL introspection+mutations, subdomain takeover.
+- CHAIN aggressively: open redirect -> OAuth code theft -> ATO; IDOR -> cross-tenant PII dump; SSRF -> metadata -> keys; XSS -> session theft -> ATO.
+- Request-level reasoning: exact METHOD path params headers body, expected vs actual status. No filler.
+- Breadth over the full inventory for anomalies (odd status codes, id/uid/email/user_id params, versioned /api/v1|v2|beta|internal, debug/test flags, swagger/openapi/json), then depth on top-3 anomalies.
+- If a hypothesis needs live confirmation you cannot do passively, emit [NEXT] PROBE with the EXACT read-only request.
+OUT OF SCOPE (REJECTED classes): network DoS, account-lockout DoS, descriptive errors/headers only, robots.txt / known public files, outdated library versions, OPTIONS/TRACE, CSRF on logout or anonymous forms, cookie flags on non-sensitive data, self-XSS, scanner reports without POC, physical access, social engineering of employees/vendors, username enumeration on login/forgot-password, brute-force/rate-limit/lockout policy, SSL/TLS best practice, SSL attacks, clickjacking without demonstrated exploit, mail config (SPF/DKIM/DMARC), known-vulnerable library without program-specific exploit, password/account-recovery policy, autocomplete in fields, public login panels, lack of email verification, session control during email/password change, and any exposure of customer/employee/financial/authentication data during testing (program note). Focus on real logic flaws in scoped assets.
+Your job is NOT to invent vulnerabilities. Run the 8 steps and output ONLY structured blocks.
+
+STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface. [NEW]/[CHANGED] one line each, or NO_DELTA.
+STEP 2 — PRIORITIZE: score top new (or existing) assets 0-10 on attack_surface, business_value, tech_exposure (GraphQL/OAuth/JWT/upload/admin/uncommon), gate_ease (10=no auth), cloud_surface, freshness. priority=0.25a+0.25b+0.15t+0.15g+0.10c+0.10f. Emit [PRIO] asset,score,axis.
+STEP 3 — HYPOTHESES: top 3 assets, max 1 hypothesis each. Strict schema, one field per line under [HYP] title line:
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
+Never put fields inline in the [HYP] title.
+STEP 4 — SELF-CRITIQUE: drop confidence<40 or REJECTED-class or no-verify-steps. [PARKED] <title>: <why>. [FINAL] survivors ranked.
+STEP 5 — NEXT ACTION: exactly one [NEXT] <PROBE|SCAN|RAG|HUMAN>: <one concrete action, exact endpoint if PROBE>.
+STEP 6 — LEARNING: [LEARN] REJECTED/ACCEPTED <class> @ <asset>: <reason>.
+STEP 7 — RISK: [RISK] <program>: <0-100> reason.
+RULES: facts vs hypotheses strictly separated; no endpoint-map-only; no REJECTED class; sha256 any secret; all claims trace to context or your own read-only probes; passive-first, <=1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; any scanner output requires manual validation.
+=== analyst-out tail ===
+[0m$ [0mls /home/runner/work/hypofriend-hunt/hypofriend-hunt/ 2>/dev/null; echo "---"; ls /home/runner/work/hypofriend-hunt/hypofriend-hunt/inventory 2>/dev/null
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+probe-results.md
+recon-notes
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_mimo.json
+state_nemotron3.json
+triage
+---
+hypofriend.md
+[0m
+Share surface confirmed moved to GraphQL. Quick delta check on the newly-visible share-target domains (investfriend/pensionfriend), then I'll close the cycle.
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt
+grep -nE 'investfriend|pensionfriend' inventory/hypofriend.md scope.yml | head -20
+(no output)
+[0m
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt
+echo "=== head of analyst-prompt.txt ==="; head -25 analyst-prompt.txt
+echo "=== state ==="; cat state_bigpickle.json 2>/dev/null | head -60
+echo "=== leads ==="; ls leads knowledge | head -30
+=== head of analyst-prompt.txt ===
+=== KNOWLEDGE BASE ===
+# Knowledge Base (seed)
+- 2026-09-03 FIRST_RUN — no prior hypotheses to accept/reject; baseline established from passive DNS/CT inventory
+- 2026-09-03 ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- 2026-09-03 ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- 2026-09-03 ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration
+- 2026-09-03 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- 2026-09-03 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-03 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable
+- 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout), not a misconfiguration
+- 2026-09-03 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- 2026-09-03 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-03 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- 2026-09-03 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable.
+- 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration.
+- 2026-09-03 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls.
+- 2026-09-03 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503.
+- 2026-09-03 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+- 2026-09-03 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+- 2026-09-04 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- 2026-09-04 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+=== state ===
+{"phase": "POC", "target": "api"}=== leads ===
+knowledge:
+index.md
+
+leads:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-mimo.md
+lead-nemotron3.md
+reposcan-hypofriend.md
+[0m
+Running the passive baseline on the two newly-verified hosts before finalizing the cycle.
+[0m$ [0mfor h in investfriend.hypofriend.de pensionfriend.hypofriend.de; do
+  echo "--- $h ---"
+  curl -sI --max-time 12 -o /dev/null -w "HEAD:%{http_code} srv:%{remote_ip} redir:%{redirect_url}\n" "https://$h/"
+  sleep 1.3
+  curl -s --max-time 12 -o /dev/null -D - "https://$h/" -w "GET:%{http_code}\n" | tr -d '\r' | grep -iE '^(HTTP|server|location|x-powered)' 
+  sleep 1.3
+done
+--- investfriend.hypofriend.de ---
+HEAD:503 srv:63.181.142.36 redir:
+HTTP/2 503 
+server: awselb/2.0
+--- pensionfriend.hypofriend.de ---
+HEAD:503 srv:3.65.251.207 redir:
+HTTP/2 503 
+server: awselb/2.0
+[0m
+[0m$ [0mgetent hosts pensionfriend.de || echo NXDOMAIN
+curl -sI --max-time 12 -o /dev/null -w "pensionfriend.de HEAD:%{http_code} ip:%{remote_ip} redir:%{redirect_url}\n" "https://pensionfriend.de/"
+18.238.96.69    pensionfriend.de
+18.238.96.32    pensionfriend.de
+18.238.96.28    pensionfriend.de
+18.238.96.116   pensionfriend.de
+pensionfriend.de HEAD:301 ip:18.238.96.32 redir:https://pensionfriend.de/en
+[0m
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt; grep -rniE 'pensionfriend|investfriend' inventory/ knowledge/ leads/ --include='*.md' | head -10 || echo "none in inventory/knowledge/leads"
+leads/lead-bigpickle.md:5841:[NEW] `GET/HEAD core.hypofriend.de/api/v3/delete-cookie` AND `hypofriend.de/api/v3/delete-cookie` → **200 unauthenticated on both origin and edge**; sibling `/api/v3/advisors` in the same namespace is **401 Basic**. Untracked route in a namespace previously holding exactly one route. Response expires all 6 brand session cookies (`__hfp__`, `__hfp___hypofriend.health__`, `.protect__`, `.holistic__`, `__hfp___investfriend__`, `__hfp___hypofriend.plus__`), all `httponly; secure; samesite=none`.
+leads/lead-bigpickle.md:6017:reasoning: (1) The public static page https://hypofriend.de/crm (200, 7465B, S3/CloudFront) ships inline JS that does POST /q with body {"query":"query { root { form_authenticity_token } }"} and credentials:"include", then writes the value into a form input. That is the vendor's own code path for obtaining the CSRF token, and it proves `form_authenticity_token` is a live server-side field on the `root` type of the /q schema (absent from every prior mined op-map). (2) Re-verified live 2026-09-26 09:56Z on origin OPTIONS /en/plus/q with Origin: https://evil.example: access-control-allow-origin: https://evil.example, access-control-allow-credentials: true, all 7 methods, max-age 7200 — and the echo is a global rack-cors middleware, not path-scoped (arbitrary /zzz paths behave identically per prior cycles). (3) Session cookies are samesite=none; secure; httponly (re-confirmed this cycle on /api/v3/delete-admin-cookie: __hfp__, __hfp___hypofriend.health__, __hfp___hypofriend.protect__, __hfp___hypofriend.holistic__, __hfp___investfriend__, __hfp___hypofriend.plus__ all domain=hypofriend.de; samesite=none; httponly) — i.e. the app is deliberately configured to attach credentials on cross-site requests. (4) /crm is the "Login to Backoffice" staff CRM and consumes exactly this token in a POST form to /auth/google_oauth2. (5) Not a REJECTED class: this is a cross-origin *read* of a session-bound security token (confidentiality break), not CSRF on an anonymous or logout form.
+[0m
+`pensionfriend.de` apex is live (301 → /en) and absent from inventory — baselineing it.
+[0m$ [0mcd /tmp/opencode
+curl -s --max-time 15 -o pf.html -D pf.h -w "GET /en:%{http_code} bytes:%{size_download} url:%{url_effective}\n" "https://pensionfriend.de/en"
+tr -d '\r' < pf.h | grep -iE '^(server|x-powered|location|set-cookie|content-type)'
+echo "=== title/tech ==="
+grep -oiE '<title>[^<]*</title>' pf.html | head -2
+grep -oiE '(generator[^>]{0,60}|_nuxt|__NEXT|wp-content|drupal|heyflow)' pf.html | sort -u | head -10
+echo "=== js bundles ==="
+grep -oE 'src="[^"]*\.js[^"]*"' pf.html | sort -u | head -10
+GET /en:200 bytes:50676 url:https://pensionfriend.de/en
+content-type: text/html; charset=UTF-8
+server: AmazonS3
+=== title/tech ===
+=== js bundles ===
+[0m
+[0m$ [0mcd /tmp/opencode
+head -c 1500 pf.html; echo; echo "=== script/link refs ==="
+grep -oE '(src|href)="[^"]{1,120}"' pf.html | sort -u | head -25
+echo "=== api/graphql refs ==="
+grep -oiE 'https?://[a-z0-9.-]*hypofriend[a-z0-9./_-]*|/graphql|/api/[a-z0-9_-]*' pf.html | sort -u | head -20
+�      ���䶑/��>܊ޙ�I6�b}k�֌${�%yV���z(U5��I�G�OGl�g8�q�>�}�}�	�d�gZs��iu��D"��e"��o>���o��Zg������G�$�x�������a�q�����6[����i�7��Ŏ�}̒��,�H����� [�Ȏ����F4�84S��c���\���v$�x�qF���|K���h�P3�5�hBОfk��EK��'_���4�E		_\�	�Y?�@�,_\��,Ng�׫d�cjE$�P#���.fB+ �T���Z1�
+I�W�I,�m.^~�fw!A4xq�ے�.��lM6����5�f	c�����4wy��oW	ۂ2�����͏4A�!�37�0�qHI2C�L�n�%��	�y�3�����֙"oQ��*¼������({n;�Pe34��O�����X$Wr�qB78��!wl8�p�u�T�YprK"ә��cL���u4�]X��)̗�����m��G
+�͵&�c8���<��:"I�@wd8�g8v_U�4Z�N
+g24\{�]B}��>I��Ng26���[H��'�Vb�:ө�5s�B�<Y�X�l�6:�f�B�r�9]2<U��]�V��`mԝ����g�/��bbԝ�M�
+�CDR�%IL�� �m���(�b���n�l�i��5]�M���8�i�ؤ�nlH@��΂��+�)^�$�h��4I���X?�0��_/��M�����Y�v�Q;�3�í"M&qB��X� ��ձJD��.�ɔ?:����8Q�g��(tr���?�ݦ&=3��Q���
+>b�FTf�û�X���1;HL�`��6����
+&m0i��j�k0�<豗��qkɁ%�p:Z���``���v����1\�k�:m'um�����nF�k�F��I���e�\��
+���cRG���p\�#���D�x�3q
+g�eʾ#i��hj8��@�Jꨩ؅��خ�gYI�~u�'{��Ή��k�ጇ��L#��e�Hc�sD���Ǻ��^�RR,x���hi��\���`�v���`A5���afu�O
+a��S��_���4�0�F##��o9�v[�~�F���A��a-V�����ֵ��p�\��*����e�Z<��tu�~C7��QV��k�v�US�U�Q��7��jd�����I�˗�wje�y�������~r���;���r}T��wjw���ܢ}����ӏjz��э璘��[�jv��~Vss6g7��Nj^i��S;��ip��-?Ơ6���qC��w�y��`t�p>B���w�k�Ϯ�5����ĢR7�����³̙���>��Y��V�|���(�qv�z���Zy����|�f��<b�飫��c=�y���g5/gsv�����e�u�������ɞ��'i/wY̶��Ӻ)`�W�1�
+����
+���Ý�v��
+����D�c�[h�W�9<!r��}3�[�.KZE�oٜ=-�9&0WM�~�
+=== script/link refs ===
+=== api/graphql refs ===
+[0m
+[0m$ [0mcd /tmp/opencode
+curl -s --compressed --max-time 15 -o pf.html -w "bytes:%{size_download}\n" "https://pensionfriend.de/en"
+grep -oiE '<title>[^<]*</title>' pf.html | head -2
+echo "=== refs ==="; grep -oE '(src|href)="[^"]{1,140}"' pf.html | sort -u | head -25
+echo "=== endpoints ==="; grep -oiE 'https?://[a-z0-9.-]*hypofriend[a-z0-9./_-]*|/q[a-z]*|graphql' pf.html | sort -u | head -15
+bytes:50676
+<title>Pensionfriend: Retire with Confidence</title>
+=== refs ===
+href="#"
+href="#comparison"
+href="#costs"
+href="#howitworks"
+href="#performance"
+href="/en"
+href="/en/about"
+href="/en/blog"
+href="/en/calculators"
+href="/en/companies.lp"
+href="/en/faqs"
+href="/en/imprints"
+href="/en/philosophy.ap"
+href="/en/privacy"
+href="/en/private-pension-plan-for-employees.lp"
+href="/en/private-pension-plan-for-etf-investors.lp"
+href="/en/private-pension-plan-for-expats.lp"
+href="/en/private-pension-plan-for-parents.lp"
+href="/en/private-pension-plan-for-people-close-to-retiring.lp"
+href="/en/private-pension-plan-for-self-employed.lp"
+href="/en/terms"
+href="/pdfs/pensionfriend-whitepaper.pdf"
+href="https://a.hypofriend.de"
+href="https://a.hypofriend.de/favicons/pf/114x114.png"
+href="https://a.hypofriend.de/favicons/pf/144x144.png"
+=== endpoints ===
+https://a.hypofriend.de
+https://a.hypofriend.de/favicons/pf/114x114.png
+https://a.hypofriend.de/favicons/pf/144x144.png
+https://a.hypofriend.de/favicons/pf/150x150.svg
+https://a.hypofriend.de/favicons/pf/32x32.png
+https://a.hypofriend.de/favicons/pf/57x57.png
+https://a.hypofriend.de/favicons/pf/72x72.png
+https://a.hypofriend.de/favicons/pf/favicon.ico
+https://a.hypofriend.de/fonts/fonts/woff2/TT_Norms_Pro_Regular.woff2
+https://a.hypofriend.de/fonts/hypofriend-fonts.css
+https://a.hypofriend.de/fonts/icons.css
+https://a.hypofriend.de/pensionfriend/favicons/browserconfig.xml
+https://a.hypofriend.de/pensionfriend/pensionfriend-og-image-en.png
+https://hypofriend.de/en
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== forms/actions ==="; grep -oiE '<form[^>]{0,200}|action="[^"]{0,140}"' pf.html | head -12
+echo "=== inline js endpoints ==="; grep -oiE '(fetch|axios|XMLHttpRequest|/q\b|api/[a-z0-9_-]+|property-search)' pf.html | sort -u | head -15
+cd /home/runner/work/hypofriend-hunt/hypofriend-hunt; grep -c 'a\.hypofriend\.de' inventory/hypofriend.md; grep -c 'pensionfriend\.de' inventory/hypofriend.md
+=== forms/actions ===
+=== inline js endpoints ===
+fetch
+15
+0
+[0m
+[0m$ [0mcd /tmp/opencode
+grep -oiE '.{80}fetch\(.{160}' pf.html | head -6
+(no output)
+[0m
+[0m$ [0mcd /tmp/opencode
+grep -oiE '<script[^>]{0,200}>' pf.html | head -10
+echo "=== fetch occurrence line ==="
+grep -oiE '.{60}fetch.{120}' pf.html | head -4
+<script>
+<script id="faq-schema" type="application/ld+json">
+<script type="module" src="https://pensionfriend.de/_nuxt/B1bO4TDH.js" crossorigin>
+<script type="application/ld+json">
+<script type="application/json" data-nuxt-data="nuxt-app" data-ssr="true" id="__NUXT_DATA__" data-src="https://pensionfriend.de/en/_payload.json?598ca909-f5bd-4d11-b086-22bee066f2de">
+<script>
+=== fetch occurrence line ===
+/hero-new-small.BXNDWEYK.avif" as="image" type="image/avif" fetchpriority="high" media="(max-width: 420px)"><link rel="preload" href="https://pensionfriend.de/_nuxt/hero-new-medium.CBlh
+/hero-new-large.BpiKBFv7.avif" as="image" type="image/avif" fetchpriority="high" media="(min-width: 769px)"><link rel="preload" as="fetch" crossorigin="anonymous" href="https://pensionf
+8ca909-f5bd-4d11-b086-22bee066f2de"><link rel="preload" as="fetch" fetchpriority="low" crossorigin="anonymous" href="https://pensionfriend.de/_nuxt/builds/meta/598ca909-f5bd-4d11-b086-2
+="dns-prefetch" href="https://grwapi.net"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="dns-prefetch" href="https://a.hypofriend.de"><meta name="format-det
+[0m
+[0m$ [0mcd /tmp/opencode
+curl -s --compressed --max-time 20 -o pf.js -w "bundle:%{http_code} bytes:%{size_download}\n" "https://pensionfriend.de/_nuxt/B1bO4TDH.js"
+echo "=== endpoints ==="; grep -oiE 'https?://[a-z0-9.-]*(hypofriend|grwapi|heyflow)[a-z0-9./_-]*' pf.js | sort -u | head -20
+echo "=== graphql/lead ==="; grep -oiE 'graphql|property-search|mutation |lead\[|/q\b' pf.js | sort | uniq -c | head
+bundle:200 bytes:376811
+=== endpoints ===
+=== graphql/lead ===
+      4 /q
+      5 GraphQL
+      1 Mutation 
+      4 graphql
+      6 mutation
+[0m
+[0m$ [0mcd /tmp/opencode
+curl -s --max-time 12 -o /dev/null -w "nuxt-dir:%{http_code} type:%{content_type}\n" "https://pensionfriend.de/_nuxt/"
+curl -s --max-time 12 -w "\npayload:%{http_code} bytes:%{size_download}\n" "https://pensionfriend.de/en/_payload.json" -o pf_payload.json
+head -c 300 pf_payload.json 2>/dev/null; echo
+nuxt-dir:301 type:
+
+payload:200 bytes:9112
+[{"data":1,"prerenderedAt":40},["ShallowReactive",2],{"homepage-faqs-en":3},{"faqs":4},["Ref",5],["Reactive",6],[7,10,13,16,19,22,25,28,31,34,37],{"question":8,"answer":9},"How much can I gift tax-free in Germany?","\u003Cp>Parents can gift \u003Cb>up to 400,000 € per child\u003C/b> every 10 years
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== mutations ==="; grep -oE 'mutation [A-Za-z0-9_]+' pf.js | sort -u
+echo "=== endpoint construction ==="; grep -oE '.{100}/q.{60}' pf.js | head -5
+echo "=== base url logic ==="; grep -oE '.{80}graphql.{100}' pf.js | head -4
+=== mutations ===
+mutation createGoogleConversion
+mutation generateAndSendCustomerOfferDoc
+mutation jiyuCalculate
+mutation pensionfriendSaveInputs
+mutation requestFacebookConversion
+mutation setLocale
+=== endpoint construction ===
+nner.CNmsp0LG.css","./blog.rmp76iUI.css","./EzFtXsJz.js","./default.BTvnsZL8.css","./nRIZZv3F.js","./q2LPzQN1.js","./error.GV9JXQ2e.css","./Dxi-q-5p.js","./mustar
+.js"),__vite__mapDeps([132,5]),import.meta.url).then(e=>e.default||e)),error:yr(()=>Ve(()=>import("./q2LPzQN1.js"),__vite__mapDeps([133,35,5,134]),import.meta.url
+indow.location.hash}`}}const Q3=nt(async e=>{const t=Gr().public,n=t.coreApiUrl.replace(/\/+$/,"")+"/q",r=t.contentApiUrl.replace(/\/+$/,"")+"/q";let i;const a=()
+V_CORE_API_URL;if(!e)throw new Error("Missing NUXT_ENV_CORE_API_URL");const t=e.replace(/\/+$/,"")+"/q";return new jd(t,{credentials:"include",headers:{[mP]:gP}})
+ENT_API_URL;if(!e)throw new Error("Missing NUXT_ENV_CONTENT_API_URL");const t=e.replace(/\/+$/,"")+"/q";return new jd(t)}const wi=new Proxy({},{get(e,t){return(Jd
+=== base url logic ===
+?t:!1}const HS="Accept",Hm="Content-Type",Wm="application/json",vP="application/graphql-response+json",WS=e=>e.replace(/([\s,]|#[^\n\r]+)+/g," ").trim(),j3=e=>{const t=e.toLowerCase();ret
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== runtime config in SSR html ==="
+grep -oE '"coreApiUrl":"[^"]*"|"contentApiUrl":"[^"]*"|NUXT_ENV[A-Z_]*":"[^"]*"' pf.html | sort -u | head
+grep -oE 'https://[a-z0-9.-]*hypofriend[a-z0-9./_-]*' pf.html | sort -u | head -20
+echo "=== generateAndSendCustomerOfferDoc shape ==="
+grep -oE '.{60}generateAndSendCustomerOfferDoc.{300}' pf.js | head -2
+=== runtime config in SSR html ===
+https://a.hypofriend.de
+https://a.hypofriend.de/favicons/pf/114x114.png
+https://a.hypofriend.de/favicons/pf/144x144.png
+https://a.hypofriend.de/favicons/pf/150x150.svg
+https://a.hypofriend.de/favicons/pf/32x32.png
+https://a.hypofriend.de/favicons/pf/57x57.png
+https://a.hypofriend.de/favicons/pf/72x72.png
+https://a.hypofriend.de/favicons/pf/favicon.ico
+https://a.hypofriend.de/fonts/fonts/woff2/
+https://a.hypofriend.de/fonts/hypofriend-fonts.css
+https://a.hypofriend.de/fonts/icons.css
+https://a.hypofriend.de/pensionfriend/favicons/browserconfig.xml
+https://a.hypofriend.de/pensionfriend/pensionfriend-og-image-en.png
+https://hypofriend.de/en
+=== generateAndSendCustomerOfferDoc shape ===
+[0m
+[0m$ [0mcd /tmp/opencode
+grep -oiE '"[a-z]*api[a-z]*url":"[^"]*"|https://[a-z0-9.-]*\.hypofriend[a-z0-9./_-]*' pf_payload.json | sort -u | head
+echo "=== runtime config script ==="
+grep -oE 'window\.__NUXT__[^<]{0,400}' pf.html | head -c 600; echo
+grep -oE '"public":\{[^}]{0,300}' pf.html | head -c 400; echo
+=== runtime config script ===
+window.__NUXT__={};window.__NUXT__.config={public:{appBaseUrl:"/",hostName:"https://pensionfriend.de",HOST_NAME:"https://pensionfriend.de",coreApiUrl:"https://pensionfriend.de",contentApiUrl:"https://pensionfriend.de/content",flagsmithKey:"cqupGKF7Y3f5i2g62Zwbsv",stagingCoreApiUrl:"",NODE_ENV:"production",DEPLOY_ENV:"production",USE_LOCAL_PROXY:false,i18n:{baseUrl:"",defaultLocale:"en",defaultDirection:"ltr",str
+[0m
+Runtime config leaks `coreApiUrl: pensionfriend.de` — same-origin GraphQL proxy front door. Probing it with GET/OPTIONS only.
+[0m$ [0mecho "--- OPTIONS /q ---"
+curl -s --max-time 12 -X OPTIONS -o /dev/null -D - "https://pensionfriend.de/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" | tr -d '\r' | grep -iE '^(HTTP|access-control|allow|max-age|vary|server)'
+sleep 1.3
+echo "--- GET /q ---"
+curl -s --max-time 12 -o /dev/null -D - "https://pensionfriend.de/q" -H "Origin: https://evil.example" -w "\nGET_code:%{http_code}\n" | tr -d '\r' | grep -iE '^(HTTP|access-control|content-type|server|GET_code)'
+--- OPTIONS /q ---
+HTTP/2 200 
+server: CloudFront
+vary: Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+--- GET /q ---
+HTTP/2 301 
+server: CloudFront
+content-type: text/html; charset=utf-8
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+GET_code:301
+[0m
+[0m$ [0mcurl -s --max-time 12 -o /dev/null -D - "https://pensionfriend.de/q" -H "Origin: https://evil.example" | tr -d '\r' | grep -iE '^(HTTP|location|vary|server)'; sleep 1.3; curl -s --max-time 12 -o /dev/null -D - "https://pensionfriend.de/q/" -H "Origin: https://evil.example" -w "\ncode:%{http_code}\n" | tr -d '\r' | grep -iE '^(HTTP|content-type|access-control-allow-origin|vary|code)'
+HTTP/2 301 
+server: CloudFront
+location: https://hypofriend.de/
+vary: Origin,Accept-Encoding
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+access-control-allow-origin: https://evil.example
+vary: Origin,Accept-Encoding
+code:301
+[0m
+[0m$ [0mcurl -s --max-time 12 -o /dev/null -D - "https://pensionfriend.de/q/" -H "Origin: https://evil.example" | tr -d '\r' | grep -iE '^(HTTP|location|vary|server|access-control-allow-credentials)'; echo "--- no-origin control ---"; sleep 1.3; curl -s --max-time 12 -o /dev/null -D - "https://pensionfriend.de/q/" | tr -d '\r' | grep -iE '^(HTTP|location|access-control|vary)'
+HTTP/2 301 
+server: CloudFront
+location: https://hypofriend.de/
+access-control-allow-credentials: true
+vary: Origin,Accept-Encoding
+--- no-origin control ---
+HTTP/2 301 
+location: https://hypofriend.de/
+vary: Origin,Accept-Encoding
+[0m
+Testing the content-API front door (`contentApiUrl + /q`) with a read-only GET query before closing.
+[0m$ [0mQ='%7B__typename%7D'
+echo "--- content/q with query (Origin) ---"
+curl -s --max-time 12 -G "https://pensionfriend.de/content/q" --data-urlencode "query={__typename}" -H "Origin: https://evil.example" -D - -o /tmp/opencode/cq.json -w "\ncode:%{http_code} bytes:%{size_download}\n" | tr -d '\r' | grep -iE '^(HTTP|content-type|access-control-allow-origin|access-control-allow-credentials|location|vary|code)'
+echo "body: $(head -c 200 /tmp/opencode/cq.json)"
+sleep 1.5
+echo "--- /q with query (Origin) ---"
+curl -s --max-time 12 -G "https://pensionfriend.de/q" --data-urlencode "query={__typename}" -H "Origin: https://evil.example" -D - -o /tmp/opencode/q.json -w "\ncode:%{http_code} bytes:%{size_download}\n" | tr -d '\r' | grep -iE '^(HTTP|content-type|access-control-allow-origin|location|code)'
+echo "body: $(head -c 200 /tmp/opencode/q.json)"
+--- content/q with query (Origin) ---
+HTTP/2 404 
+content-type: text/html; charset=UTF-8
+vary: Origin,Accept-Encoding
+access-control-allow-origin: https://evil.example
+access-control-allow-credentials: true
+code:404 bytes:5201
+body: <!doctype html>
+
+<html lang="en">
+
+  <head>
+
+    <title>The page you were looking for doesn't exist (404 Not found)</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale
+--- /q with query (Origin) ---
+HTTP/2 301 
+content-type: text/html; charset=utf-8
+location: https://hypofriend.de/
+access-control-allow-origin: https://evil.example
+code:301 bytes:0
+body:
+[0m
+Probe budget exhausted for this cycle (all GET/HEAD/OPTIONS, ≤1 rps). Structured output:
+
+```
+STEP 1 — DELTA
+[CHANGED] api.hypofriend.de: 59th consecutive dead cycle (000/exit28 on :443 and :80, DNS A 52.15.184.3) — POC phase pinned to dead host; phase/target mismatch disclosed, no silent substitution.
+[CHANGED] hypofriend.de/en/exchange: exact-surface replay (6 share_id pool + link_id + utm_*) → 404; all variants (no-params, share_id-only, /en/exchange.json, /de/exchange) 404/301; entry bundle Yk1WCsof.js contains 0 refs to "exchange"/"share_id" → public share route removed in 2026-10-16T22:23Z deploy. format=json returns uniform 301 → https://hypofriend.de/ for both valid and invalid share_ids (negative control = inert, not evidence).
+[CHANGED] hypofriend.de/en/account assets: index-BLX7yr-v.js removed (301 → /en/account) → index-B5hM0Scp.js (2,464,399B, sha256 2ae876976bf18288), mutations 37 → 41.
+[NEW] account-bundle ops: createProperty, createUploadUrl(input{fileName,contentType} → s3Key+presignedUrl), sendVerifiedListingEmail(customerName/customerEmail/customerPhoneNumber), Favorited, PropertySearchV2Trigger, autocompleteLocation, submitDocumentAnalysis, set{Decision,Marketing,Phone}Appointment. id-bearing args: leadId×18, offerId×1, offerProductId×2, propertyId×1. userId×15 verified = analytics/chat SDK identity fields, NOT GraphQL args (no userId BOLA vector in client).
+[CHANGED] share links are now GraphQL data, not a route: shareLink(linkType:"unsubscribe"|"hypofriend_to_pensionfriend"|...) fields, plus share_id/lead_id adjacent to email/phone/advisor.phoneNumber inside account queries.
+[NEW] pensionfriend.de (affiliated-brand apex, A 18.238.96.x, verified absent from inventory 0 refs): live Nuxt3 SSR (AmazonS3 + CloudFront), /en → 200 (50,676B), own bundle /_nuxt/B1bO4TDH.js (376,811B) with 6 mutations incl. generateAndSendCustomerOfferDoc, pensionfriendSaveInputs, jiyuCalculate; runtime config leaks coreApiUrl="https://pensionfriend.de", contentApiUrl="https://pensionfriend.de/content", flagsmithKey=cqupGKF7Y3f5i2g62Zwbsv (public client key).
+[NEW] pensionfriend.de/q + /content/q: OPTIONS /q → 200 reflects Origin:https://evil.example, ACAC:true, 7 methods, max-age 7200, vary lacks Origin on OPTIONS; GET /q and /q/?query={__typename} → 301 → https://hypofriend.de/ (ACAO echo present only when Origin sent); /content/q → 404 with Rails default error page + ACAO echo + ACAC:true → confirms request reaches the Rails core app from this origin. No Set-Cookie observed on pensionfriend.de yet.
+[NEW] investfriend.hypofriend.de (63.181.142.36/3.65.251.207/3.126.242.241) + pensionfriend.hypofriend.de: verified absent from inventory, DNS-live, both GET/HEAD → 503 awselb/2.0 (no healthy target) → not an attack surface.
+
+STEP 2 — PRIORITIZE
+[PRIO] core.hypofriend.de/property-search-api, 8.85, a10 b10 t9 g10 c5 f5
+[PRIO] core.hypofriend.de/q (+ pensionfriend.de origin echo), 8.15, a9 b8 t9 g9 c6 f6
+[PRIO] hypofriend.de/en/account GraphQL (createUploadUrl/updateProperty/selectOffer), 6.85, a7 b8 t9 g3 c5 f8
+[PRIO] pensionfriend.de (brand site + content proxy + new mutations), 6.30, a6 b6 t6 g6 c6 f9
+
+STEP 3 — HYPOTHESES
+[HYP] Unauthenticated full-DB BOLA on property-search-api exposes customer PII
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: FACT: propertySearch(city:BERLIN,propertyType:APARTMENT) returns searchId with zero credentials; exposes(id:) returns live expose records; Expose type selects cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany; a real enumerated expose UUID returned 200 with title/price/street (prior cycle), where 99999999 returned "not found".
+evidence_needed: one HTTP 200 body containing a real phone/email/name from an id the test identity does not own, plus the same id failing under a second control.
+verify_steps: HUMAN-authorized single read-only chain: POST https://hypofriend.de/property-search-api body {"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"} then {"query":"query($s:ID!){exposes(id:$s){id expose{cellPhoneNumber propertyOwnerLastName}}}","variables":{"s":"<searchId>"}}; compare against a second searchId.
+impact: unauthenticated cross-lead PII dump (names, phones, emails, owner companies) on a mortgage platform — Critical, reportable at bugs.olivermaicher.eu.
+testability: HUMAN_ONLY
+
+[HYP] Origin-global credentialed CORS echo with contract reconstruction on core /q, now mirrored by pensionfriend.de front door
+class: MISCONFIG
+asset: core.hypofriend.de/q (extension: pensionfriend.de/q, pensionfriend.de/content/q)
+confidence: 82
+reasoning: FACT: OPTIONS core /q and /content/q reflect any Origin with ACAC:true, 7 methods, max-age 7200, no Vary:Origin on OPTIONS (re-confirmed prior cycles); FACT this cycle: pensionfriend.de/q OPTIONS → 200 reflects https://evil.example with ACAC:true and same method set, and /content/q (Rails 404 page) echoes ACAO+ACAC → same rack-cors middleware reachable from a second origin; FACT: session cookies are samesite=none; secure; httponly; FACT: introspection disabled but error/coercion channel reconstructs input contracts.
+evidence_needed: a cross-origin read of a session-bound value (form_authenticity_token or lead payload) executed from evil.example.
+verify_steps: PASSIVE follow-up: login-state cookie presence on pensionfriend.de (GET /en/login and record Set-Cookie); then HUMAN-gated credentialed POST from an evil.example page against /q capturing a session-bound field.
+impact: cross-origin confidentiality break of authenticated GraphQL responses from any page the victim visits; chain multiplier for OAuth/token theft — High when chained, not standalone.
+testability: PASSIVE (evidence collection) / AUTH_HELPED (exploit)
+
+[HYP] GraphQL argument injection via unescaped double-quote interpolation in account mutation builders
+class: OTHER
+asset: hypofriend.de/en/account → core /q mutations updateProperty/createProperty/selectOffer
+confidence: 45
+reasoning: FACT: account bundle builds documents by string concatenation — updateProperty(input:{id:"${e.id}", address:"${e.address}", city:"${e.city}", ...}), createProperty(input:{address:"${e.address}", ...}), selectOffer(input:{offerProductId:"${e}"}), and share_id:"${o.share_id}" — user-derived fields (address/city) are interpolated unescaped inside double quotes, unlike fileName which uses JSON.stringify. FACT: mutation document can legally contain multiple root fields (serial execution).
+evidence_needed: a field value containing a double quote reaching the server unfiltered (server accepts or reflects it in an error distinguishing syntax vs validation failure).
+verify_steps: HUMAN-authorized single read-only probe: POST https://hypofriend.de/q body {"query":"mutation{updateProperty(input:{id:\"probe\", address:\"a\\\", b: \\\"x\"}){id}}"} and record whether error is GraphQL parse error (interpolation reaches parser) vs input validation; no customer data touched.
+impact: document-structure injection under the attacker's own session → invoke root mutations the UI never exposes (unclaimLead, deleteProperty) or overwrite sibling input fields → client-side enforcement bypass; Medium.
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] createUploadUrl presigned-PUT abuse: real file-upload surface (client fileName/contentType → s3Key+presignedUrl) but every meaningful test is a mutating PUT/POST and no passive signal indicates unsanitized keys — pending HUMAN auth budget, would be raised over H3 only if quota allows two human-gated items.
+[PARKED] exchange share-link forge: surface removed in 2026-10-16 deploy (404, zero bundle refs); format=json 301 proved inert via invalid-share_id control; re-raise only if a share route reappears.
+[PARKED] investfriend/pensionfriend .hypofriend.de ELB hosts: 503 no healthy target — rejected-class zero-target ELB, no verify path.
+[FINAL] (1) property-search-api unauth BOLA/PII @ 88 — HUMAN_ONLY; (2) core /q credentialed CORS + contract reconstruction, extended by pensionfriend.de origin @ 82 — PASSIVE/AUTH_HELPED; (3) GraphQL argument injection in account mutation builders @ 45 — HUMAN_ONLY.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: authorize the single read-only property-search-api chain (propertySearch → exposes → expose) that produces the reportable PII evidence for the standing Critical IDOR; one POST pair, no writes, no customer data modified, findings reported without data exposure details.
+
+STEP 6 — LEARNING
+[LEARN] REJECTED class @ hypofriend.de/en/exchange: format=json uniform 301 → / reproduced with an invalid share_id (control) → generic redirect, not forge evidence; route retirement now proven by zero bundle refs, not by status code alone.
+[LEARN] ACCEPTED class @ pensionfriend.de: affiliate brand apex domains referenced only inside bundles (shareLink targets) are not in inventory — grep inventory before claiming [NEW], then baseline with GET/HEAD; this yielded a live S3+CloudFront Nuxt app with its own mutation set.
+
+STEP 7 — RISK
+[RISK] hypofriend: 52 — top finding (unauth PII BOLA) sits near the program's own exclusion "exposure of customer/employee/financial/authentication data during testing", which may get it scoped out despite Critical severity; POC phase remains pinned to api.hypofriend.de (dead 59 cycles) so no phase-completing surface exists; passive evidence for H2 accumulates but standalone CORS is a rejected class and must ship as a chain.
+```

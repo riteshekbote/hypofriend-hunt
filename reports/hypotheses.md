@@ -5383,3 +5383,5 @@
 - LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge live again (302 /en/account/property-search/expose-<link_id>?ts=1792217688&utm_*=attacker) — my initial 301
 - LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0) is a routing label, not a live dedicated host; and inventory already listed it — check
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin-global credentialed rack-cors re-confirmed this cycle (evil.example echo + ACAC:true + 7 methods).
+
+## RANKED HYPOTHESES 2026-10-17 11:09:12 UTC
