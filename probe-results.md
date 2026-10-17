@@ -1696,3 +1696,17 @@ https://core.hypofriend.de/q -> 200 len=244939
 https://core.hypofriend.de/property-search-api -> HTTP 400
 https://core.hypofriend.de/graphiql -> 200 len=0
 https://core.hypofriend.de/q -> 200 len=244939
+
+## 2026-10-17 01:39:13 UTC
+https://api.hypofriend.de/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/v1/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/v2/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/beta/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/internal/ -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/swagger -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/openapi.json -> ERR <urlopen error timed out>
+https://api.hypofriend.de/api/docs -> ERR <urlopen error timed out>
+https://core-api.hypofriend.de/graphql -> HTTP 503
+https://admin.hypofriend.de/ -> HTTP 503
+https://admin.hypofriend.de/api -> HTTP 503

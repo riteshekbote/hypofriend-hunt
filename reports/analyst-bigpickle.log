@@ -66121,3 +66121,961 @@ testability: PASSIVE
 
 ## STEP 7 – RISK
 [RISK] Hypofriend GmbH: 96 — Top risk remains unauthenticated full-DB PII disclosure via property-search-api BOLA (CRITICAL, HUMAN-gated confirmation); GraphiQL token exposure bounded MEDIUM by SameSite=Lax + HttpOnly; api.hypofriend.de dead 58th+ consecutive cycle, POC phase pinned to dead host.
+===== ANALYST bigpickle 2026-10-17 01:37:11 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "Starting analysis..."
+Starting analysis...
+[0m
+## Objective
+- Continue the Hypofriend GmbH bug bounty deep-hunt (report channel: bugs.olivermaicher.eu) by validating the highest-value confirmed anomalies and closing the open HUMAN-gated items. Focus on the unauthenticated full-DB BOLA on `core.hypofriend.de/property-search-api`, the credentialed-CORS + GraphiQL cross-origin token exposure, and the `/en/exchange` share-link forge.
+
+## Important Details
+- **Program scope**: All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands.
+- **Top risk**: CRITICAL unauthenticated full-DB BOLA on `core.hypofriend.de/property-search-api` (propertySearch→exposes→expose returns broker/owner PII; auth-free crawl primitives `pagination`, `exposesInBounds`, `mapExposes`, `offset`+`limit`).
+- **GraphQL surface**: 4 live instances — `core.hypofriend.de/q` (+ `hypofriend.de/q` edge), `/en/plus/q`, `/en/health/q`, `/content/q` (`/content/q` has mutations disabled via `missingMutationConfiguration`).
+- **GraphiQL exposure**: `core.hypofriend.de/graphiql`, `hypofriend.de/graphiql`, `core.hypofriend.de/content/graphiql` reachable unauthenticated (GET 200). Bodies expose `data-graphql-endpoint-path` and per-request `X-CSRF-Token`; cross-origin readable under global credentialed CORS. `_hf` from `/graphiql` has NO SameSite attribute (defaults to Lax).
+- **CORS posture**: Global rack-cors middleware echoes any `Origin` (including `null`) + `access-control-allow-credentials: true` + 7 methods on arbitrary Rails paths. On `/q` family: POST varies `Accept,Origin,Accept-Encoding`; OPTIONS `/q` varies `Accept-Encoding` only (Vary:Origin absent on preflight). `/property-search-api` is CORS-closed (no ACAO echo) — contrast to `/q` family.
+- **Error/coercion oracle**: `/q` introspection disabled but `undefinedField` returns parent `typeName` (`HypofriendType`, `Lead`) and did-you-mean suggester reveals fields; batched mutation documents reconstruct input contracts/payload types with `data` absent (enables targeted crafting without hitting resolvers).
+- **Business logic**: `/en/exchange` share-link forge — 6-key `share_id` pool harvestable by unauthenticated GET, arbitrary `link_id` (not cookie-bound), `utm_*` raw pass-through into 302 Location, `redirect` allowlist `{expose,account}` only (8th stem `/swagger.json` observed).
+- **Secrets/identity**: Hardcoded HTTP Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`) shipped in public entry bundles and sent by `g8()` to `advisorEndpoint: "/api/v3/advisors"`.
+- **Inventory notes**: `api.hypofriend.de` dead 58th+ consecutive cycle (HTTP 000 on :443/:80, A `52.15.184.3` resolves clean) — POC phase pinned to dead host. `*.app.hypofriend.de` (uploader/frontend/appointments/profile/admin) → A `52.14.251.223`. `mobile.hypofriend.de` distinct ELB fingerprint with zero healthy targets. `/content/q/` is POST 200 (GET-only 404 artifact).
+- **Testing constraints**: read-only GET/HEAD/OPTIONS ≤1 rps; no auth-bypass or mutating tests against live customer data; passive-first; HUMAN_ONLY for data-returning BOLA confirmation.
+
+## Work State
+### Completed
+- **BOLA boundary mapped**: `propertySearch→exposes→expose` chain enumerated and PII fields identified (`propertyOwnerLastName`, `phoneNumber`, `cellPhoneNumber`, `ownerCompany`, `providerCompany`, `city`, `street`, `houseNumber`) on direct origin.
+- **CORS + GraphiQL evidence**: Cross-origin ACAO+ACAC echo proven on `/graphiql`, `/content/graphiql`, `/q` family and global paths; per-request `X-CSRF-Token` rotation observed; `_hf` SameSite=Lax on `/graphiql` bound recorded.
+- **Error oracle mapped**: `/q` coercion/validation channel yields 6 input contracts + 3 payload types + nested `S3FileInput` from a single cross-origin batched request (no resolvers invoked).
+- **Exchange forge enumerated**: 6-key `share_id` pool + 8 mint stems (`/tools`, `/staff`, `/rails`, `/uploads`, `/karriere`, `/partner`, `/partnerprogramm`, `/swagger.json`) with deterministic `link_id` mapping and `utm_*` pass-through.
+- **Bundle mining exhausted**: Entry bundles (`hypofriend.de/m/_nuxt/CQoy7ifk.js` lineage) and `/en/account/assets/index-BLX7yr-v.js` fully mined (named ops, helpers `g8()`, `xk(path)`, `C8()` identified). API namespace `/api/v3/*` (`advisors`, `delete-cookie`, `delete-admin-cookie`, `chatbase`) catalogued.
+- **Fleet inventory stabilized**: `api.hypofriend.de` confirmed dead 58th+ consecutive cycle; `*.app.hypofriend.de`, `mobile.hypofriend.de`, asset/CDN ELB tiers fingerprinted.
+
+### Active
+- **HUMAN-gated BOLA verification (NEXT)**: Need single read-only POST to `https://core.hypofriend.de/property-search-api` with a real enumerated `expose(id: "<real-uuid>")` returning non-null PII (no cookies/auth, ≤1 rps) to convert hypothesis (conf 88) to CONFIRMED.
+- **Chain validation**: Maintain the standing enablers (`/graphiql` token exposure + global credentialed CORS + `/q` error oracle) as multipliers for any write-surface that becomes reachable (do not test writes against customer data).
+- **Exchange attribution bound**: Record the precise scope (forge yields credible first-party URL + poisoned attribution, not a data read and not an open redirect to arbitrary host — `redirect` allowlist `{expose,account}` only).
+
+### Blocked
+- **POC phase mismatch**: Designated target `api.hypofriend.de` is dead 58th+ consecutive cycle (HTTP 000 on :443/:80, A `52.15.184.3` clean). Cannot complete POC on that host; all activity must stay off live customer data and constrained to other in-scope assets.
+- **Cannot execute BOLA read automatically**: Verification requires a real enumerated expose UUID obtained from `propertySearch→exposes` chain (HUMAN_ONLY) under program constraints (no bulk enumeration, ≤1 rps, read-only POST with no credentials).
+- **Write-surface testing gated**: The 4 object-addressing mutations mapped from `/en/account` bundle (`selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requestOfferRenewal:offerProductId`) plus `sendVerifiedListingEmail`, `submitDocumentAnalysis(files: JSON blob)`, `uploadDocumentExtended(file_link: ...)`, `createUploadUrl` must remain untested (do not send mutating requests). Only schema/contract recovery via error channel allowed.
+
+## Next Move
+1. **Immediate (HUMAN)**: Authorize and execute a single read-only POST to `https://core.hypofriend.de/property-search-api`  
+   `{"query":"{ expose(id:\"<real-enumerated-uuid>\") { id propertyOwnerLastName phoneNumber cellPhoneNumber ownerCompany providerCompany city street houseNumber } }"}`  
+   Headers: `Content-Type: application/json` (no cookies/auth). Expect HTTP 200 + non-null PII. Log request+response only (≤1 rps, single record). 
+2. **Next (ANALYST)**: If BOLA confirmed, record evidence artifact (redacted UUIDs/PII) and pivot to GraphiQL CSRF-token theft bound (SameSite=Lax + rotation window) without testing ATO; else close hypothesis with negative result and focus on `/en/exchange` attribution impact documentation.
+
+## Relevant Files
+- `hypofriend.de/m/_nuxt/CQoy7ifk.js` — Entry bundle (GraphQL op templates, helpers `g8()`, `C8()`, `xk(path)`, hardcoded Basic `hypo:advisors2018+`, `advisorEndpoint` mapping). Use for op surface + endpoint resolution.
+- `hypofriend.de/en/account/assets/index-BLX7yr-v.js` — `/en/account` deploy bundle (37 mutations; 4 object-addressing with caller-supplied IDs: `selectOffer:offerProductId`, `updateProperty:id`, `deleteLeadDocumentAttachment:id`, `requestOfferRenewal:offerProductId`; `sendVerifiedListingEmail`, `submitDocumentAnalysis(files: JSON blob)`, `uploadDocumentExtended`, `createUploadUrl`). Schema-reference only (no live mutation execution).
+- `core.hypofriend.de/graphiql` — GraphiQL IDE (unauth GET 200). Source of per-request `X-CSRF-Token` + `data-graphql-endpoint-path="/q"`. Cross-origin readability under credentialed CORS.
+- `core.hypofriend.de/content/graphiql` — Second IDE (`data-graphql-endpoint-path="/content/q"`). Separate `_content_api_session`.
+- `core.hypofriend.de/q` — Primary GraphQL (POST-only). Error/coercion oracle surface + `root.form_authenticity_token`, `root.lead.has_admin_cookie` (JSON scalar). Global credentialed CORS precondition.
+- `core.hypofriend.de/content/q` — Fourth GraphQL (POST 200), mutations disabled (`missingMutationConfiguration`), credentialed CORS active.
+- `core.hypofriend.de/property-search-api` — CRITICAL target: unauthenticated full-DB BOLA chain `propertySearch→exposes→expose` with PII; CORS closed (no ACAO). Auth-free crawl primitives confirmed.
+- `hypofriend.de/en/exchange` — Share-link forge endpoint (6-key `share_id` pool, arbitrary `link_id`, `utm_*` raw pass-through, `redirect` allowlist `{expose,account}`, 8th mint stem `/swagger.json`).
+- `core.hypofriend.de/api/v3/*` — Namespace: `advisors` (401 Basic, credential public), `delete-cookie` (200 unauth), `delete-admin-cookie` (200 unauth), `chatbase` (referenced, 301).
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m→ [0mRead .
+[0m
+[0m$ [0mcat /home/runner/work/hypofriend-hunt/hypofriend-hunt/README.md | head -200
+# hypofriend-hunt
+
+24/7 deep multi-model bug-hunting automation for **Hypofriend GmbH** (Oliver Maicher bug-bounty hub).
+
+Scope: All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands
+(full exclusion + rules list in `scope.yml`)
+
+Pipeline (all workflows run every 20 minutes):
+
+- **Deep Hunt** (`hunt.yml`): analyst hunts the discovered inventory + hypotheses, emits structured
+  leads, chains primitives, self-critiques. Models: mimo.
+- **Triager** (`triage.yml`): second-model 7-Question Gate validation + live passive probe; keeps
+  running count in `reports/valid-bugs.md`.
+- **Reposcan** (`reposcan.yml`): deep source scan of any public GitHub org (if configured).
+- **Sync Issues** (`sync-issues.yml`): mirrors leads to GitHub issues.
+
+Testing discipline: rate-limited (1 rps), no DoS/account-lockout, writes only on non-prod/test
+assets, no exposure of customer/employee/financial/auth data, secrets committed only as hashes.
+
+> IMPORTANT: the pipeline produces CANDIDATE leads. A reportable, validated finding requires
+> human triage + proof against the program's gate. No finding is fabricated; scanner output alone
+> is never accepted. Active testing is gated behind the in-scope hosts in `inventory/hypofriend.md` and
+> must stay within the program's published scope.
+
+Artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+| `reports/valid-bugs.md` | Validated findings + running count |
+| `scope.yml` | Program scope and exclusions (edit to adjust) |
+
+Program description: German digital mortgage broker and financial technology company providing mortgage comparison, financing advice, property search, pension, and investment services
+[0m
+[0m$ [0mcat /home/runner/work/hypofriend-hunt/hypofriend-hunt/reports/valid-bugs.md 2>&1 | head -150
+# Validated findings (running count 0)
+
+- 1 lead(s) marked VALID at 2026-09-04 14:11:03 UTC
+  - | **VALID** | GraphQL BOLA/IDOR on `favoritedExposes`/`favoriteExpose` — arbitrary leadId read+write with no auth, exposing cross-tenant PII (broker phone/email/surname) on a financial mortgage platfo
+
+- 4 lead(s) marked VALID at 2026-09-07 17:48:26 UTC
+  - | Q7 Reasonable | **Yes** — auth-free R/W BOLA over customer-scoped IDs on a mortgage platform is a textbook valid bug |
+  - **VERDICT: VALID**
+  - | Q2 Reachable | **Partially** — endpoint returns 401, but no valid credentials confirmed |
+  - | 1 | GraphQL BOLA/IDOR (favoritedExposes/favoriteExpose) | **VALID** | 8.6 | bugs.olivermaicher.eu |
+
+- 14 lead(s) marked VALID at 2026-09-08 08:58:20 UTC
+  - **Verdict: VALID** — Read-only proof: POST introspection query. **Impact: Medium** (enabler). **CVSS 3.1: 5.3 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: execute GraphQL queries as shown. **Impact: CRITICAL**. **CVSS 3.1: 8.6 (High)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: call mutation with arbitrary leadId, observe error differential. **Impact: High**. **CVSS 3.1: 8.1 (High)**. **Report via:** bugs.olivermaicher.eu
+  - | Q3 Impact? | YES | Returns appointment data for arbitrary lead_id; zero-UUID returns `[]` but valid UUIDs may return booked appointment details |
+  - **Verdict: VALID** — Read-only: POST with zero-UUID. **Impact: Medium-High**. **CVSS 3.1: 6.5 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: OPTIONS request with custom Origin. **Impact: High** (session hijack if authenticated users exist). **CVSS 3.1: 8.1 (High)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: `curl -I` to origin vs edge. **Impact: Medium**. **CVSS 3.1: 5.3 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: HOLD** — Needs active validation to confirm takeover is possible. Risk of false positive if ngrok re-registers. **Impact: Medium if confirmed**. **CVSS 3.1: 6.5 (Medium)** if valid.
+  - | 1 | GraphQL introspection enabled | **VALID** | 5.3 (M) | Enabler for PII leak |
+  - | 2 | Unauthenticated PII enumeration | **VALID** | 8.6 (H) | Direct customer data exposure |
+  - | 3 | Cross-tenant write via `favoriteExpose` | **VALID** | 8.1 (H) | IDOR write + oracle |
+  - | 4 | BOLA on `already_booked_appointments` | **VALID** | 6.5 (M) | Unauth appointment data |
+  - | 5 | Open credentialed CORS on `/q` | **VALID** | 8.1 (H) | Session hijack vector |
+  - | 7 | Direct-origin CloudFront bypass | **VALID** | 5.3 (M) | WAF/security-header bypass |
+
+- 1 lead(s) marked VALID at 2026-09-13 06:46:05 UTC
+  - Please paste the lead findings (URLs, probe results, descriptions) and I'll run each through the 7-Question Gate with the verdict, reasoning, and (for VALID) minimal proof steps, impact assessment, CV
+
+- 4 lead(s) marked VALID at 2026-09-16 01:20:41 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL BOLA/IDOR (property-search-api) | **VALID** | 8.6 High |
+  - | 2 | GraphQL Introspection + Stack-Trace Leak | **VALID** | 5.3 Medium |
+
+- 8 lead(s) marked VALID at 2026-09-18 11:30:54 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID** (bundle with Finding 1 in a single report)
+  - | 1 | GraphQL IDOR/BOLA on property-search-api | **VALID** | 8.6 | Report to program |
+  - | 2 | Open Credentialed CORS on /q endpoints | **VALID** | 8.1 | Report to program |
+  - | 3 | Unauthenticated /q resolvers (rates_table, etc.) | **VALID** | 5.3 | Report to program |
+  - | 7 | GraphQL introspection enabled | **VALID** | 5.3 | Bundle with #1 |
+
+- 4 lead(s) marked VALID at 2026-09-21 17:09:26 UTC
+  - **VERDICT: VALID**
+  - **VERDICT: VALID**
+  - | 1 | GraphQL BOLA favoritedExposes/favoriteExpose | **VALID** | HIGH | 7.4 |
+  - | 2 | Auth-free expose(id) PII dump | **VALID** | HIGH | 7.5 |
+
+- 6 lead(s) marked VALID at 2026-09-22 05:12:16 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL BOLA/IDOR property-search-api PII dump | **VALID** | 8.6 | HIGH |
+  - | 2 | Open credentialed CORS on `/q` | **VALID** | 9.1 | CRITICAL |
+  - | 3 | Open CORS + auth-free mutations on `/en/health/q` & `/en/plus/q` | **VALID** | 8.8 | HIGH |
+[0m
+[0m$ [0mgrep -n "property-search-api\|graphiql\|exchange" /home/runner/work/hypofriend-hunt/hypofriend-hunt/reports/valid-bugs.md | head -30
+34:  - | 1 | GraphQL BOLA/IDOR (property-search-api) | **VALID** | 8.6 High |
+42:  - | 1 | GraphQL IDOR/BOLA on property-search-api | **VALID** | 8.6 | Report to program |
+57:  - | 1 | GraphQL BOLA/IDOR property-search-api PII dump | **VALID** | 8.6 | HIGH |
+[0m
+[0m$ [0mls -la /home/runner/work/hypofriend-hunt/hypofriend-hunt/leads/ | head -20
+total 4680
+drwxr-xr-x  2 runner runner    4096 Oct 17 01:31 .
+drwxr-xr-x 12 runner runner    4096 Oct 17 01:31 ..
+-rw-r--r--  1 runner runner 1452815 Oct 17 01:31 lead-bigpickle.md
+-rw-r--r--  1 runner runner   12954 Oct 17 01:31 lead-laguna.md
+-rw-r--r--  1 runner runner   12700 Oct 17 01:31 lead-ling3.md
+-rw-r--r--  1 runner runner   13208 Oct 17 01:31 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Oct 17 01:31 lead-mimo.md
+-rw-r--r--  1 runner runner 3213960 Oct 17 01:31 lead-nemotron3.md
+-rw-r--r--  1 runner runner   58647 Oct 17 01:31 reposcan-hypofriend.md
+[0m
+[0m$ [0mcat /home/runner/work/hypofriend-hunt/hypofriend-hunt/leads/lead-bigpickle.md | head -250
+## 2026-09-03 15:38:53 UTC [target] (model bigpickle)
+[PRIO] api.hypofriend.de,9.2,attack_surface=9 business_value=10 tech_exposure=8 gate_ease=10 cloud_surface=8 freshness=9
+[PRIO] admin.hypofriend.de,8.8,attack_surface=9 business_value=9 tech_exposure=9 gate_ease=7 cloud_surface=8 freshness=9
+[PRIO] auth.hypofriend.de,8.5,attack_surface=8 business_value=10 tech_exposure=8 gate_ease=5 cloud_surface=8 freshness=9
+[PRIO] core-api.hypofriend.de,8.3,attack_surface=8 business_value=9 tech_exposure=8 gate_ease=6 cloud_surface=8 freshness=9
+[PRIO] staging.hypofriend.de,7.8,attack_surface=8 business_value=7 tech_exposure=7 gate_ease=9 cloud_surface=7 freshness=9
+[PRIO] documents.hypofriend.de,7.5,attack_surface=7 business_value=8 tech_exposure=7 gate_ease=6 cloud_surface=7 freshness=9
+[HYP] API versioning/bypass on api.hypofriend.de
+class: MISCONFIG
+asset: api.hypofriend.de
+confidence: 68
+reasoning: Versioned API endpoints (/api/v1, /api/v2, /api/beta, /api/internal) often expose legacy or privileged endpoints. Target is explicitly "api". No prior probes on this host.
+evidence_needed: Response from GET /api/, /api/v1/, /api/v2/, /api/beta/, /api/internal/, /api/swagger, /api/openapi.json, /api/docs
+verify_steps: GET https://api.hypofriend.de/, GET https://api.hypofriend.de/api/, GET https://api.hypofriend.de/api/v1/, GET https://api.hypofriend.de/api/v2/, GET https://api.hypofriend.de/api/beta/, GET https://api.hypofriend.de/api/internal/, GET https://api.hypofriend.de/api/swagger, GET https://api.hypofriend.de/api/openapi.json, GET https://api.hypofriend.de/api/docs
+impact: Information disclosure, legacy endpoint access, potential privilege escalation. Severity: MEDIUM
+testability: PASSIVE
+[HYP] GraphQL introspection on core-api.hypofriend.de
+class: MISCONFIG
+asset: core-api.hypofriend.de
+confidence: 62
+reasoning: GraphQL endpoints often left open for introspection, exposing entire schema. "core-api" suggests backend service. Financial recommendation engine likely uses GraphQL for complex queries.
+evidence_needed: Response from POST /graphql with introspection query, GET /graphql
+verify_steps: GET https://core-api.hypofriend.de/graphql, POST https://core-api.hypofriend.de/graphql with {"query":"{__schema{types{name,fields{name}}}}"}
+impact: Full schema disclosure, potential mutation access to financial data. Severity: HIGH
+testability: PASSIVE
+[HYP] Admin panel exposure on admin.hypofriend.de
+class: MISCONFIG
+asset: admin.hypofriend.de
+confidence: 65
+reasoning: Admin portals often have weaker access controls, debug endpoints, or default credentials. "admin" subdomain likely internal tooling exposed to internet.
+evidence_needed: Login page, API endpoints, debug endpoints (/admin/api, /admin/debug, /admin/health)
+verify_steps: GET https://admin.hypofriend.de/, GET https://admin.hypofriend.de/api, GET https://admin.hypofriend.de/debug, GET https://admin.hypofriend.de/health
+impact: Administrative access to platform, customer data, financial systems. Severity: CRITICAL
+testability: AUTH_HELPED
+[PARKED] API versioning/bypass on api.hypofriend.de: Confidence 68 > 40, class MISCONFIG not REJECTED. Verified.
+[PARKED] GraphQL introspection on core-api.hypofriend.de: Confidence 62 > 40, class MISCONFIG not REJECTED. Verified.
+[PARKED] Admin panel exposure on admin.hypofriend.de: Confidence 65 > 40, class MISCONFIG not REJECTED. Verified.
+[FINAL] Survivors ranked:
+[NEXT] PROBE: GET https://api.hypofriend.de/, GET https://api.hypofriend.de/api/, GET https://api.hypofriend.de/api/v1/, GET https://api.hypofriend.de/api/v2/, GET https://api.hypofriend.de/api/beta/, GET https://api.hypofriend.de/api/internal/, GET https://api.hypofriend.de/api/swagger, GET https://api.hypofriend.de/api/openapi.json, GET https://api.hypofriend.de/api/docs (passive, ≤1 rps)
+[LEARN] ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+[LEARN] ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+[LEARN] ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+[RISK] hypofriend: 75 High business value (financial platform), moderate attack surface, API-focused target. SSRF/IDOR on financial flows would be critical.
+## 2026-09-03 18:53:43 UTC [target] (model bigpickle)
+[PRIO] api.hypofriend.de,9.2,attack_surface=9 business_value=10 tech_exposure=8 gate_ease=10 cloud_surface=8 freshness=9
+[PRIO] admin.hypofriend.de,8.8,attack_surface=9 business_value=9 tech_exposure=9 gate_ease=7 cloud_surface=8 freshness=9
+[PRIO] auth.hypofriend.de,8.5,attack_surface=8 business_value=10 tech_exposure=8 gate_ease=5 cloud_surface=8 freshness=9
+[PRIO] graph.hypofriend.de,8.5,attack_surface=8 business_value=9 tech_exposure=10 gate_ease=7 cloud_surface=8 freshness=9
+[PRIO] core-api.hypofriend.de,8.3,attack_surface=8 business_value=9 tech_exposure=8 gate_ease=6 cloud_surface=8 freshness=9
+[HYP] API versioning/bypass on api.hypofriend.de
+class: MISCONFIG
+asset: api.hypofriend.de
+confidence: 68
+reasoning: Versioned API endpoints (/api/v1, /api/v2, /api/beta, /api/internal) often expose legacy or privileged endpoints. Target is explicitly "api". No prior probes on this host.
+evidence_needed: Response from GET /api/, /api/v1/, /api/v2/, /api/beta/, /api/internal/, /api/swagger, /api/openapi.json, /api/docs
+verify_steps: GET https://api.hypofriend.de/, GET https://api.hypofriend.de/api/, GET https://api.hypofriend.de/api/v1/, GET https://api.hypofriend.de/api/v2/, GET https://api.hypofriend.de/api/beta/, GET https://api.hypofriend.de/api/internal/, GET https://api.hypofriend.de/api/swagger, GET https://api.hypofriend.de/api/openapi.json, GET https://api.hypofriend.de/api/docs
+impact: Information disclosure, legacy endpoint access, potential privilege escalation. Severity: MEDIUM
+testability: PASSIVE
+[HYP] Admin panel exposure on admin.hypofriend.de
+class: MISCONFIG
+asset: admin.hypofriend.de
+confidence: 65
+reasoning: Admin portals often have weaker access controls, debug endpoints, or default credentials. "admin" subdomain likely internal tooling exposed to internet.
+evidence_needed: Login page, API endpoints, debug endpoints (/admin/api, /admin/debug, /admin/health)
+verify_steps: GET https://admin.hypofriend.de/, GET https://admin.hypofriend.de/api, GET https://admin.hypofriend.de/debug, GET https://admin.hypofriend.de/health
+impact: Administrative access to platform, customer data, financial systems. Severity: CRITICAL
+testability: AUTH_HELPED
+[HYP] OAuth redirect_uri manipulation on auth.hypofriend.de
+class: OATH
+asset: auth.hypofriend.de
+confidence: 60
+reasoning: Auth endpoints often have OAuth flows with redirect_uri parameters that may be misvalidated, leading to code theft or open redirect.
+evidence_needed: OAuth endpoints, redirect_uri parameter behavior.
+verify_steps: GET https://auth.hypofriend.de/.well-known/openid-configuration, GET https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid
+impact: Account takeover via OAuth code interception. Severity: HIGH
+testability: PASSIVE
+[PARKED] API versioning/bypass on api.hypofriend.de: Confidence 68 > 40, class MISCONFIG not REJECTED. Verified.
+[PARKED] Admin panel exposure on admin.hypofriend.de: Confidence 65 > 40, class MISCONFIG not REJECTED. Verified.
+[PARKED] OAuth redirect_uri manipulation on auth.hypofriend.de: Confidence 60 > 40, class OATH not REJECTED. Verified.
+[FINAL] Survivors ranked:
+[NEXT] PROBE: GET https://api.hypofriend.de/, GET https://api.hypofriend.de/api/, GET https://api.hypofriend.de/api/v1/, GET https://api.hypofriend.de/api/v2/, GET https://api.hypofriend.de/api/beta/, GET https://api.hypofriend.de/api/internal/, GET https://api.hypofriend.de/api/swagger, GET https://api.hypofriend.de/api/openapi.json, GET https://api.hypofriend.de/api/docs (passive, ≤1 rps)
+[LEARN] ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+[LEARN] ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+[LEARN] ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+[RISK] hypofriend: 75 High business value (financial platform), moderate attack surface, API-focused target. SSRF/IDOR on financial flows would be critical.
+## 2026-09-03 21:34:24 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de,8.6,attack_surface=9 business_value=10 tech_exposure=8 gate_ease=6 cloud_surface=8 freshness=9
+[PRIO] hypofriend.de/api/v3/advisors,8.2,attack_surface=7 business_value=9 tech_exposure=7 gate_ease=5 cloud_surface=7 freshness=9
+[PRIO] auth.hypofriend.de,7.8,attack_surface=8 business_value=9 tech_exposure=8 gate_ease=4 cloud_surface=7 freshness=6
+[HYP] Broken authentication on /api/v3/advisors endpoint
+class: AUTH
+asset: hypofriend.de/api/v3/advisors
+confidence: 70
+reasoning: Endpoint requires HTTP Basic auth but may have weak/predictable credentials. Financial advisor data likely contains PII.
+evidence_needed: Successful authentication with default/common credentials, or enumeration of valid usernames.
+verify_steps: GET https://hypofriend.de/api/v3/advisors with Authorization: Basic credentials for common usernames (admin, test, user). Note: requires credential testing, not purely passive.
+impact: Access to advisor data, potential PII exposure. Severity: HIGH
+testability: AUTH_HELPED
+[HYP] OAuth redirect_uri manipulation on auth.hypofriend.de
+class: OATH
+asset: auth.hypofriend.de
+confidence: 60
+reasoning: Auth endpoints often have OAuth flows with redirect_uri parameters that may be misvalidated, leading to code theft or open redirect.
+evidence_needed: OAuth endpoints, redirect_uri parameter behavior.
+verify_steps: GET https://auth.hypofriend.de/.well-known/openid-configuration, GET https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid
+impact: Account takeover via OAuth code interception. Severity: HIGH
+testability: PASSIVE
+[PARKED] Broken authentication on /api/v3/advisors endpoint: Confidence 70 > 40, class AUTH not REJECTED. Requires credential testing.
+[PARKED] OAuth redirect_uri manipulation on auth.hypofriend.de: Confidence 60 > 40, class OATH not REJECTED. Requires live probe.
+[FINAL] Survivors ranked: 1) Broken auth on /api/v3/advisors (70), 2) OAuth redirect_uri manipulation on auth.hypofriend.de (60)
+[NEXT] PROBE: GET https://auth.hypofriend.de/.well-known/openid-configuration, GET https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid (passive, ≤1 rps)
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable.
+[LEARN] REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration.
+[LEARN] REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls.
+[LEARN] REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503.
+[RISK] hypofriend: 85 High business value (financial platform), primary attack surface consolidated on main domain, API endpoint with basic auth. SSRF/IDOR on financial flows would be critical.
+## 2026-09-03 23:31:16 UTC [target] (model bigpickle)
+[PRIO] auth.hypofriend.de,7.9,attack_surface=8 business_value=9 tech_exposure=8(OAuth/JWT) gate_ease=6 cloud_surface=7 freshness=6
+[PRIO] hypofriend.de/property-search-api,7.0,attack_surface=7 business_value=8 tech_exposure=6 gate_ease=7 cloud_surface=6 freshness=8
+[HYP] OAuth redirect_uri open-redirect / code-interception on auth.hypofriend.de
+class: OATH
+asset: auth.hypofriend.de
+confidence: 60
+reasoning: Auth subdomain with expected OAuth/OpenID flow; main domain uses Nuxt SPA + Flagsmith/Sentry, implying SSO infra. redirect_uri misvalidation is a common HIGH-severity flaw.
+evidence_needed: Discovery of OAuth client endpoints / redirect_uri validation behavior (accepts attacker domain, returns 302 Location to it).
+verify_steps: GET https://auth.hypofriend.de/.well-known/openid-configuration, GET https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid (read-only, ≤1rps), HEAD https://auth.hypofriend.de/oauth/authorize
+impact: OAuth authorization-code theft via open redirect -> account takeover. Severity: HIGH
+testability: PASSIVE
+[NEXT] PROBE: GET https://auth.hypofriend.de/.well-known/openid-configuration ; GET https://auth.hypofriend.de/authorize?response_type=code&client_id=test&redirect_uri=https://example.com&scope=openid (passive, ≤1 rps; check for 302 to example.com = open redirect)
+[LEARN] REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).
+[RISK] hypofriend: 85 High business value (financial platform); primary live API surface is `/api/v3/advisors` (Basic auth) + property-search-api on main domain; auth/SSO surface consolidates on auth.hypofriend.de. OAuth redirect_uri / IDOR on financial+advisor flows would be critical.
+## 2026-09-04 01:22:06 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de/property-search-api,8.6,attack_surface=9 business_value=9 tech_exposure=10(GraphQL+PII) gate_ease=10(no auth) cloud_surface=6 freshness=9
+[PRIO] hypofriend.de/api/v3/advisors,6.9,attack_surface=6 business_value=8 tech_exposure=6(Basic) gate_ease=3 cloud_surface=6 freshness=6
+[HYP] GraphQL IDOR/BOLA on favoritedExposes(leadId) — cross-user favorites enumeration
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 82
+reasoning: Query resolver `favoritedExposes(leadId: ID)` accepted a universally-bogus leadId and, without any auth/session check, returned a populated JSON response `{"data":{"favoritedExposes":[]}}` rather than an unauthorized error. Schema allows arbitrary `leadId` scalar with no credential binding, and `Expose` type exposes PII (cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail).
+evidence_needed: Supply a valid customer `leadId` (UUID) returns that lead's favorited (property prices/addresses/provider) — PII cross-tenant leak; or dedupe via `exposeSeen(leadId,exposeId)` oracle.
+verify_steps: POST JSON {"query":"{favoritedExposes(leadId:\"<valid-lead-uuid>\"){id title price street providerEmail}}"}; also {"query":"{exposeSeen(leadId:\"<uuid>\",exposeId:\"1\"){seen}}"}. HUMAN confirmation required for real-UUID data; boundary test already confirmed auth-free resolver.
+impact: Enumerate/cross-tenant PII — property price/address, broker phone/email/owner surname of other customers' saved/favorited listings. Severity: HIGH
+testability: AUTH_HELPED
+[PARKED] HTTP Basic credential reuse on /api/v3/advisors: needs live credential testing (out of passive scope), confidence 65; boundary confirmed 401 only.
+[PARKED] OAuth redirect_uri on auth.hypofriend.de: endpoint 503 in 3 separate probes; not testable passively, confidence 60.
+[FINAL] 1. GraphQL IDOR/BOLA favoritedExposes(leadId) [82] — auth-free resolver + PII schema confirmed
+[FINAL] 2. GraphQL meta(id) stack-trace leak + introspectible surface [70] — aids exploitation
+[NEXT] PROBE: POST https://hypofriend.de/property-search-api {"query":"{exposeSeen(leadId:\"00000000-0000-0000-0000-000000000000\",exposeId:\"1\"){seen}}"} and {"query":"{informationRequest(exposeId:\"1\",leadId:\"00000000-0000-0000-0000-000000000000\"){requestId}}"} (non-existent lead boundary, read-only; escalate to real-UUID only with HUMAN program authorization to avoid touching live PII)
+[LEARN] ACCEPTED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolver returns data for arbitrary unauthenticated leadId (200, no auth), exposing lead-scoped PII schema.
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full GraphQL introspection enabled in production (Ruby, graphql-2.5.26) — schema + stack traces exposed; `meta(id)` leaks /app/app/types/query.rb internals.
+[LEARN] REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author from auth.hypofriend.de returns 503 (3 probes); not reachable passively, hypothesis parked not confirmed.
+[RISK] hypofriend: 82 Live unauthenticated GraphQL API (property-search-api) with full introspection and an auth-free `favoritedExposes(leadId)` resolver over a schema carrying broker/owner PII (phone/email/surname); Ruby stack-trace disclosure. A real-lead-UUID IDOR would be a cross-tenant PII dump on a financial mortgage platform. High value, high exploitability.
+## 2026-09-04 06:03:59 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de/property-search-api,8.9,attack_surface=9 business_value=10 tech_exposure=10(GraphQL+PII+full introspection) gate_ease=10(no auth) cloud_surface=6 freshness=9
+[PRIO] hypofriend.de/api/v3/advisors,6.9,attack_surface=6 business_value=8 tech_exposure=6(Basic) gate_ease=3 cloud_surface=6 freshness=6
+[HYP] GraphQL BOLA/read+write on property-search-api favoritedExposes/favoriteExpose — arbitrary leadId, no auth
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: Confirmed on boundary IDs. Read: `favoritedExposes(leadId:"<any-uuid-format>")` returns 200 populated shapes with NO auth/credential binding; a zero-UUID and random UUID both accepted. Write: `mutation favoriteExpose(leadId,exposeId)` reaches a real handler unauth'd for an arbitrary leadId (`error:"expose does not exist"` = executes code path). Schema `Expose` exposes PII (cellPhoneNumber,phoneNumber,propertyOwnerLastName,providerEmail,providerCompany). Our own successful probe of the resolver is HARD evidence the resolver is auth-free; real-UUID escalation needs HUMAN authorization.
+evidence_needed: Supply a valid customer leadId scraped/guessed (UUID) returns that lead's favorited properties + provider PII; or use favoriteExpose to modify a victim's favorites (cross-tenant write). Boundary proves auth-free oracle.
+verify_steps: POST JSON {"query":"{favoritedExposes(leadId:\"<valid-lead-uuid>\"){id title price street providerEmail propertyOwnerLastName}}"}; POST {"query":"mutation{favoriteExpose(leadId:\"<victim-uuid>\",exposeId:\"<real-expose>\"){error message}}". HUMAN confirmation required for real-UUID to avoid live PII.
+impact: Cross-tenant PII read (other customers' saved listings + broker/owner contact), cross-tenant write (modify victims' favorites), message-send oracle spoof. Severity: HIGH (PII on financial mortgage platform)
+testability: AUTH_HELPED
+[HYP] Unauth'd `expose(id)` returns full PII of any public/known listing (owner surname, provider phone/email)
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 70
+reasoning: Full Query schema introspection shows `expose(id:ID!,leadId:ID)` returns complete `Expose` object incl. phoneNumber, cellPhoneNumber, propertyOwnerLastName, providerEmail — served without auth on the same auth-free endpoint. `expose(id:"99999999")` returned `not found` (resolver executes); any real listing id enumerable via public search results.
+evidence_needed: GET a real expose id -> full Expose PII returned without auth. HUMAN confirmation on a real id.
+verify_steps: POST {"query":"{expose(id:\"<real-expose-id>\"){id title street price phoneNumber cellPhoneNumber propertyOwnerLastName providerEmail}}"} (enum from public property-search-api results). HUMAN authorization required to touch real listing data.
+impact: Broker/owner PII (phone/email/surname) of any listed property via auth-free endpoint. Severity: HIGH if confirmed on real ids.
+testability: AUTH_HELPED
+[PARKED] HTTP Basic credential reuse on /api/v3/advisors: needs live credential testing (out of passive scope), confidence 65; boundary confirmed 401 only.
+[PARKED] OAuth redirect_uri on auth.hypofriend.de: auth.hypofriend.de returns 503 on all probes; not testable passively, confidence 60 parked.
+[FINAL] 1. GraphQL BOLA favoritedExposes/favoriteExpose arbitrary-leadId R/W [88] — auth-free read+write resolver confirmed on boundary
+[FINAL] 2. Unauth'd expose(id) full Expose PII [70] — schema carries broker/owner PII, resolver auth-free
+[FINAL] 3. Full schema introspection + meta(id) Ruby stack-trace leak [72] — already ACCEPTED, aids exploitation
+[NEXT] PROBE: (read-only, ≤1 rps every few sec) POST https://hypofriend.de/property-search-api {"query":"{exposes(id:\"1\",limit:1){...}}"} to learn expose-id format for enumeration; then confirm an enumerated public expose id via {"query":"{expose(id:\"<id>\"){id title price}}"}. HUMAN authorization required to pull phoneNumber/ownerLastName for real listing (PII).
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolves for arbitrary unauthenticated leadId (200, both zero-UUID and random-UUID accepted), returning lead-scoped favorites with PII schema — auth-free read oracle.
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (`error:"expose does not exist"` proves code path reachable) — cross-tenant write primitive.
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with bogus/nil leak returns full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app/app/types/query.rb internals) — stack-trace + internal-path disclosure.
+[RISK] hypofriend: 88 Unauthenticated production GraphQL API with full introspection, an auth-free read resolver and an auth-free write mutation over leadId (favoritedExposes/favoriteExpose) plus an unsolicited-message oracle (informationRequest), all carrying broker/owner PII (phone/email/surname) on a financial mortgage platform, plus Ruby stack-trace disclosure. Boundary-level IDOR R/W is confirmed; a real-lead-UUID escalation would be a cross-tenant PII dump/account-modification with HIGH severity.
+[PRIO] hypofriend.de/property-search-api,8.9,attack_surface=9 business_value=10 tech_exposure=10(GraphQL+PII+full introspection) gate_ease=10(no auth) cloud_surface=6 freshness=9
+[PRIO] hypofriend.de/api/v3/advisors,6.9,attack_surface=6 business_value=8 tech_exposure=6(Basic) gate_ease=3 cloud_surface=6 freshness=6
+[HYP] GraphQL BOLA read+write on property-search-api favoritedExposes/favoriteExpose arbitrary leadId, no auth
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: Read: `favoritedExposes(leadId:"<any-uuid-format>")` returns 200 populated shapes with NO auth/credential binding; both zero-UUID and random-UUID accepted. Write: `mutation favoriteExpose(leadId,exposeId)` executes a real handler unauth'd for arbitrary leadId (`error:"expose does not exist"` = code path reached). Schema `Expose` exposes PII (cellPhoneNumber,phoneNumber,propertyOwnerLastName,providerEmail). Our successful read+write resolver probes are HARD evidence the resolvers are auth-free; real-UUID escalation needs HUMAN authorization.
+evidence_needed: Supply a valid customer leadId returns that lead's favorited properties + provider PII; or use favoriteExpose to modify victim's favorites (cross-tenant write). Boundary proves auth-free oracle.
+verify_steps: POST JSON {"query":"{favoritedExposes(leadId:\"<valid-lead-uuid>\"){id title price street providerEmail propertyOwnerLastName}}"} and {"query":"mutation{favoriteExpose(leadId:\"<victim-uuid>\",exposeId:\"<real-expose>\"){error message}}". HUMAN confirmation required for real-UUID.
+impact: Cross-tenant PII read (other customers' saved listings + broker/owner contact) and cross-tenant write, message-send oracle spoof. Severity: HIGH
+testability: AUTH_HELPED
+[HYP] Unauth'd `expose(id)` returns full PII of any listed/enumerable property (owner surname, provider phone/email)
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 70
+reasoning: Full Query introspection shows `expose(id,leadId)` returns the complete `Expose` object incl. phoneNumber, cellPhoneNumber, propertyOwnerLastName, providerEmail — served without auth on the same auth-free endpoint. `expose(id:"99999999")` returned `not found` (executes resolver); real ids enumerable from public search.
+evidence_needed: GET a real expose id -> full Expose PII returned without auth. HUMAN confirmation on a real id.
+verify_steps: POST {"query":"{expose(id:\"<real-expose-id>\"){id title street price phoneNumber cellPhoneNumber propertyOwnerLastName providerEmail}}"} — HUMAN authorization required to touch real listing PII.
+impact: Broker/owner PII of any listed property via auth-free endpoint. Severity: HIGH if confirmed on real ids.
+testability: AUTH_HELPED
+[FINAL] 1. GraphQL BOLA favoritedExposes/favoriteExpose arbitrary-leadId R/W [88] — auth-free read+write confirmed on boundary
+[FINAL] 2. Full schema introspection + meta(id) Ruby stack-trace leak [72] — already ACCEPTED, aids exploitation
+[FINAL] 3. Unauth'd expose(id) full Expose PII [70] — schema carries broker/owner PII, resolver auth-free
+[PARKED] HTTP Basic credential reuse on /api/v3/advisors: needs live credential testing (out of passive scope), confidence 65; boundary 401 only.
+[PARKED] OAuth redirect_uri on auth.hypofriend.de: 503 on all probes; not testable passively, confidence 60.
+[NEXT] PROBE: POST https://hypofriend.de/property-search-api {"query":"{expose(id:\"<real-public-id>\"){id title price propertyOwnerLastName providerEmail}}"} — enumerate a public expose id from property-search-api search results and confirm auth-free PII; HUMAN authorization required to pull PII fields.
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolves for arbitrary unauthenticated leadId (200, zero-UUID and random-UUID accepted), lead-scoped PII schema — auth-free read oracle.
+[LEARN] CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (`error:"expose does not exist"` proves code path reachable) — cross-tenant write primitive.
+[LEARN] CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure.
+[LEARN] REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively.
+[RISK] hypofriend: 88 Unauthenticated production GraphQL API with full introspection, auth-free read (favoritedExposes) and auth-free write (favoriteExpose) over leadId, an unsolicited contact-request oracle (informationRequest), all carrying broker/owner PII (phone/email/surname) on a financial mortgage platform, plus Ruby stack-trace disclosure. Boundary-level IDOR read+write is confirmed; a real-lead-UUID escalation would be a cross-tenant PII dump / account-modification, HIGH severity.
+## 2026-09-04 11:31:03 UTC [target] (model bigpickle)
+## 2026-09-04 15:12:59 UTC [target] (model bigpickle)
+## 2026-09-04 18:34:09 UTC [target] (model bigpickle)
+[CHANGED] hypofriend.de/property-search-api `expose(id)` resolver: previously boundary-only ("99999999 -> not found"); NOW confirmed live on a real enumerated expose UUID (200, returns title/price/street/propertyType) with NO auth and NO leadId
+[NEW] hypofriend.de/property-search-api: full search lifecycle is auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` returns real expose UUIDs -> exposure IDs are enumerable without auth
+[NEW] Expose type PII surface confirmed on same auth-free object: cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String scalars)
+[PRIO] hypofriend.de/property-search-api,9.3,attack_surface=9 business_value=10 tech_exposure=10(GraphQL+PII schema) gate_ease=10(no auth across propertySearch/exposes/expose) cloud_surface=6 freshness=10(live evidence today)
+[PRIO] hypofriend.de/api/v3/advisors,6.9,attack_surface=6 business_value=8 tech_exposure=6(Basic) gate_ease=3 cloud_surface=6 freshness=6
+[HYP] Unauth'd expose(id) returns full PII of any enumerated listing (provider phone/email, owner surname, companies)
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 85
+reasoning: `expose(id:"<real-uuid>")` returned 200 + live data (title/price/street/propertyType) with no auth and no leadId. Real UUIDs enumerable via auth-free propertySearch()->exposes() chain. Same Expose object carries cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany.
+evidence_needed: pull providerEmail/propertyOwnerLastName/cellPhoneNumber for one real enumerated expose UUID -> confirmed PII dump primitive. HUMAN authorization required (PII).
+verify_steps: POST {"query":"{expose(id:\"<real-uuid>\"){id title price phoneNumber cellPhoneNumber propertyOwnerLastName providerEmail ownerCompany}}"} — only after HUMAN approval.
+impact: Broker/owner contact PII + company attribution for every property in the DB via auth-free enumerated IDs. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] GraphQL BOLA read+write on favoritedExposes/favoriteExpose arbitrary leadId
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: Read resolver returns 200 populated shapes for zero-UUID & random-UUID leadId with no credential binding; write mutation executes real handler for arbitrary leadId ("expose does not exist" proves reachable). Expose type carries PII schema. Confirmed on boundary; real-lead-UUID escalation requires HUMAN auth.
+evidence_needed: valid customer leadId returns victim favorites+PII, or favoriteExpose modifies victim favorites. HUMAN confirmation for real-UUID.
+verify_steps: POST {"query":"{favoritedExposes(leadId:\"<valid-lead-uuid>\"){id title price street providerEmail propertyOwnerLastName}}"} (HUMAN auth).
+impact: Cross-tenant PII read + cross-tenant write on mortgage platform. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] informationRequest mutation = unsolicited contact-request email oracle (spoofable leadId/providerId/exposeId)
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 55
+reasoning: Mutation signature `informationRequest(leadId!, providerId!, exposeId!, email, name, message, viewingTime, requests*)` is auth-free by same gate; likely dispatches email to the provider with forged lead fields. Not yet probed.
+evidence_needed: invoke with synthetic leadId+real exposeId/providerId and observe provider-side email receipt — HUMAN/auth required (side effect = external email send).
+verify_steps: NONE read-only; requires HUMAN decision. Parked until PII-confirm round clears.
+impact: forged spam/phishing contact-requests to brokers under victim lead identity. Severity: MEDIUM-HIGH.
+testability: HUMAN_ONLY
+[FINAL] 1. GraphQL BOLA favoritedExposes/favoriteExpose arbitrary-leadId R/W [88] — auth-free read+write confirmed on boundary
+[0m
+[0m$ [0mgrep -B 5 -A 120 "Continue the Hypofriend GmbH bug bounty deep-hunt" /home/runner/work/hypofriend-hunt/hypofriend-hunt/ctx.txt | head -180
+(no output)
+[0m
+[0m$ [0mcat /home/runner/work/hypofriend-hunt/hypofriend-hunt/ctx.txt | head -240
+=== KNOWLEDGE BASE ===
+# Knowledge Base (seed)
+- 2026-09-03 FIRST_RUN — no prior hypotheses to accept/reject; baseline established from passive DNS/CT inventory
+- 2026-09-03 ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- 2026-09-03 ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- 2026-09-03 ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration
+- 2026-09-03 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- 2026-09-03 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-03 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable
+- 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout), not a misconfiguration
+- 2026-09-03 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- 2026-09-03 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-03 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- 2026-09-03 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable.
+- 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration.
+- 2026-09-03 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls.
+- 2026-09-03 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503.
+- 2026-09-03 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- 2026-09-03 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+- 2026-09-03 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+- 2026-09-04 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- 2026-09-04 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- 2026-09-04 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-04 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable
+- 2026-09-04 ACCEPTED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolver returns data for arbitrary unauthenticated leadId (200, no auth), exposing lead-scoped PII schema.
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full GraphQL introspection enabled in production (Ruby, graphql-2.5.26) — schema + stack traces exposed; `meta(id)` leaks /app/app/types/query.rb internals.
+- 2026-09-04 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author from auth.hypofriend.de returns 503 (3 probes); not reachable passively, hypothesis parked not confirmed.
+- 2026-09-04 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolves for arbitrary unauthenticated leadId (200, both zero-UUID and random-UUID accepted), returning lead-scoped favorites with PII schema — auth-free read oracle.
+- 2026-09-04 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (`error:"expose does not exist"` proves code path reachable) — cross-tenant write primitive.
+- 2026-09-04 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with bogus/nil leak returns full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app/app/types/query.rb internals) — stack-trace + internal-path disclosure.
+- 2026-09-04 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolves for arbitrary unauthenticated leadId (200, zero-UUID and random-UUID accepted), lead-scoped PII schema — auth-free read oracle.
+- 2026-09-04 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (`error:"expose does not exist"` proves code path reachable) — cross-tenant write primitive.
+- 2026-09-04 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure.
+- 2026-09-04 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively.
+- 2026-09-04 FIRST_RUN — no prior hypotheses to accept/reject; baseline established from passive DNS/CT inventory
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout), not a misconfiguration
+- 2026-09-04 ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- 2026-09-04 ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- 2026-09-04 ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- 2026-09-04 ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- 2026-09-04 ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- 2026-09-04 ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable.
+- 2026-09-04 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration.
+- 2026-09-04 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls.
+- 2026-09-04 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503.
+- 2026-09-04 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).
+- 2026-09-04 CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain.
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: entire search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive.
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive
+- 2026-09-04 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-04 ACCEPTED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: `expose(id)` resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain.
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: entire search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive.
+- 2026-09-05 ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) resolver returns live listing data (200) for enumerated real expose UUID with NO auth and NO leadId — full-DB auth-free read oracle; IDs enumerable via auth-free propertySearch()->exposes() chain
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch mutation, exposes listing) is unauthenticated, turning searchId into a public enumeration primitive
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed on auth-free object — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled on production mortgage search API — high business value, passive testable
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200, zero-UUID and random-UUID accepted), lead-scoped PII schema — auth-free read oracle
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) mutation executes a real write handler for arbitrary leadId with no auth (error:"expose does not exist" proves code path reachable) — cross-tenant write primitive
+- 2026-09-05 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable
+- 2026-09-05 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth endpoint confirmed (401), only active API surface on main domain
+- 2026-09-05 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (timeout/000), not a misconfiguration
+- 2026-09-05 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls
+- 2026-09-05 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout
+- 2026-09-05 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503
+- 2026-09-05 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+- 2026-09-05 ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; IDs enumerable via propertySearch→exposes chain
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primitive
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- 2026-09-05 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
+- 2026-09-05 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals)
+- 2026-09-05 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — passive testable
+- 2026-09-05 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- 2026-09-05 REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hypofriend.de/my.hypofriend.de/profile.hypofriend.de/account.hypofriend.de: All 503/000 — not misconfigurations
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — passive testable
+- 2026-09-05 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of the main-domain app — canonical redirect shell (root 302→https://hypofriend.de/en, unknown paths 301→https://hypofriend.de/), 200 robots.txt/sitemap.xml, 401 /api/v3/advisors Basic, 400 /property-search-api GraphQL; served WITHOUT CloudFront (direct origin)
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE on every response regardless of request value
+- 2026-09-05 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 on all probed objects (index.html/favicon.ico/images/robots/sitemap/assets) — no exposure
+- 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior knowledge, no exposure
+- 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge, not a misconfiguration
+- 2026-09-05 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged this cycle (503 HTTPS / 000 / 301 HTTP) — no new surface
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE on every response regardless of request value
+- 2026-09-05 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket — 403 on all probed objects (index.html/favicon.ico/images/robots/sitemap/assets) — no exposure
+- 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior knowledge, no exposure
+- 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge, not a misconfiguration
+- 2026-09-05 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged this cycle (503 HTTPS / 000 / 301 HTTP) — no new surface
+- 2026-09-05 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property-search-api GraphQL; without CloudFront (direct origin)
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
+- 2026-09-05 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket, 403 all objects — no exposure
+- 2026-09-05 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior; no exposure
+- 2026-09-05 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
+- 2026-09-05 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
+- 2026-09-05 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE each response
+- 2026-09-05 CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin (no CloudFront) serves FULL identical GraphQL schema — read-side enum primary path bypasses edge (header diff proven)
+- 2026-09-05 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination(id,offset,limit)/exposes(id,offset,limit)/exposesInBounds(id,bounds)/mapExposes(id,bounds) are auth-free crawl primitives (offset+limit + geo-bounds exist in schema)
+- 2026-09-05 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and returnMissing (delisted records) args exposed auth-free
+- 2026-09-05 REJECTED MISCONFIG @ hypofriend.de/property-search-api: meta/informationRequest stack traces are out-of-scope class (descriptive errors) — evidence only
+- 2026-09-05 REJECTED MISCONFIG @ hypofriend.de: Nuxt Sentry DSN/Amplitude/Flagsmith env IDs are public client keys by design — no standalone vuln
+- 2026-09-05 CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, graph-rates, v3, login, sso, portal, dashboard, billing, offer, documents, my, profile, account) + a./blog/m2 buckets: unchanged 503/000/301/403 — no new surface
+- 2026-09-06 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers) vs edge full security-stack — edge security-header layer fully bypassed at origin; header diff live-reconfirmed this cycle
+- 2026-09-06 REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin (OPTIONS, ACR-M: POST) → 200 but NO access-control-allow-origin echo — no open CORS; not a finding
+- 2026-09-06 CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (0.36–0.51s shared edge bounce); .app cluster all 000 (10s timeout); blog HTTPS 000; api 000 — unchanged, no new surface
+- 2026-09-06 ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; IDs enumerable via propertySearch→exposes chain
+- 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primitive
+- 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- 2026-09-06 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- 2026-09-06 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
+- 2026-09-06 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — OUT OF SCOPE (descriptive errors)
+- 2026-09-06 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — OUT OF SCOPE (descriptive errors)
+- 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — public client keys by design, no standalone vuln
+- 2026-09-06 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- 2026-09-06 REJECTED MISCONFIG @ api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hypofriend.de/my.hypofriend.de/profile.hypofriend.de/account.hypofriend.de: All 503/000 — not misconfigurations
+- 2026-09-06 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+- 2026-09-06 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin of main-domain app — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property-search-api GraphQL; without CloudFront (direct origin)
+- 2026-09-06 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie (internal=FALSE, domain=hypofriend.de, samesite=none) is a server-set provenance flag, NOT an authz switch — forced overwritten to FALSE each response
+- 2026-09-06 REJECTED MISCONFIG @ a.hypofriend.de: CloudFront→S3 (eu-central-1) closed bucket, 403 all objects — no exposure
+- 2026-09-06 REJECTED MISCONFIG @ blog.hypofriend.de: direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior; no exposure
+- 2026-09-06 REJECTED MISCONFIG @ m2.hypofriend.de: awselb/2.0 301 chain to hypofriend.de — inert redirect edge
+- 2026-09-06 CONFIRMED NG @ 503-fleet/.app-cluster/relay.m: unchanged (503/000/301) — no new surface
+- 2026-09-06 CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin (no CloudFront) serves FULL identical GraphQL schema — read-side enum primary path bypasses edge (header diff proven)
+- 2026-09-06 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination(id,offset,limit)/exposes(id,offset,limit)/exposesInBounds(id,bounds)/mapExposes(id,bounds) are auth-free crawl primitives (offset+limit + geo-bounds exist in schema)
+- 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and returnMissing (delisted records) args exposed auth-free
+- 2026-09-06 CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, graph-rates, v3, login, sso, portal, dashboard, billing, offer, documents, my, profile, account) + a./blog/m2 buckets: unchanged 503/000/301/403 — no new surface
+- 2026-09-06 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers) vs edge full security-stack — edge security-header layer fully bypassed at origin.
+- 2026-09-06 REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin returns 200 but NO access-control-allow-origin echo — no open CORS, not a finding.
+- 2026-09-06 CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (shared edge bounce); .app cluster all 000; blog HTTPS 000; api 000 — unchanged, no new surface.
+- 2026-09-06 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — confirmed from schema introspection.
+- 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and delisted-record args exposed auth-free.
+- 2026-09-06 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace — OUT OF SCOPE (descriptive errors)
+- 2026-09-06 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names (offline page, no agent), CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, no new exploitable surface; takeover still HUMAN-only.
+- 2026-09-06 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet (wildcard cert, A=51.102.161.196/3.78.178.6/3.79.67.81) — inert.
+- 2026-09-06 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare (date/content-length only) vs edge full CF stack — WAF/security-header bypass live re-proven this cycle.
+- 2026-09-06 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — public client keys by design, no standalone vuln
+- 2026-09-06 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property-search-api GraphQL; without CloudFront
+- 2026-09-06 CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin serves FULL identical GraphQL schema — read-side enum primary path bypasses edge
+- 2026-09-06 CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + a./blog/m2: unchanged 503/000/301/403 — no new surface
+- 2026-09-06 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
+- 2026-09-06 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only.
+- 2026-09-06 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable.
+- 2026-09-06 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare (date/content-length only) vs edge full CF stack — WAF/security-header bypass live re-proven.
+- 2026-09-06 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — from schema introspection.
+- 2026-09-07 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged — no new surface
+- 2026-09-07 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save + delisted-record args exposed auth-free
+- 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL preflight bare vs edge full CF stack — WAF bypass live re-proven
+- 2026-09-07 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed; abandoned tunnel
+- 2026-09-07 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert
+- 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (OPTIONS 200: only date/content-length, no server/HSTS/XFO/nosniff/cache headers) vs edge full security-stack — edge security-header layer fully bypassed at origin
+- 2026-09-07 REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin returns 200 but NO access-control-allow-origin echo — no open CORS
+- 2026-09-07 CONFIRMED NG @ fleet sweep: staging/dev/test/demo/jenkins/kubernetes/pipedrive-sync/secure/support/funnels/web/listings all 503 (shared edge bounce); .app cluster all 000; blog HTTPS 000; api 000 — unchanged
+- 2026-09-07 ACCEPTED IDOR @ hypofriend.de/property-search-api: expose(id) returns live PII (200) for enumerated UUIDs with NO auth/leadId — full-DB auth-free read oracle; IDs enumerable via propertySearch→exposes chain
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full search lifecycle (propertySearch, exposes) unauthenticated — searchId is public enumeration primitive
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Expose type PII surface confirmed — cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: GraphQL introspection enabled in production (graphql-2.5.26)
+- 2026-09-07 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoritedExposes(leadId) resolves for arbitrary unauthenticated leadId (200) — auth-free read oracle
+- 2026-09-07 CONFIRMED IDOR @ hypofriend.de/property-search-api: favoriteExpose(leadId,exposeId) executes write handler for arbitrary leadId (error proves code path) — cross-tenant write primitive
+- 2026-09-07 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: meta(id) with bogus leaks full Ruby backtrace — OUT OF SCOPE (descriptive errors)
+- 2026-09-07 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — OUT OF SCOPE (descriptive errors)
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload — public client keys by design, no standalone vuln
+- 2026-09-07 ACCEPTED ENDPOINT @ hypofriend.de/api/v3/advisors: Live HTTP Basic auth (401), only active API surface on main domain
+- 2026-09-07 ACCEPTED ENDPOINT @ core.hypofriend.de: Live Rails origin — canonical redirect shell, 200 robots/sitemap, 401 /api/v3/advisors, 400 /property-search-api GraphQL; without CloudFront
+- 2026-09-07 CONFIRMED IDOR @ core.hypofriend.de/property-search-api: direct-origin serves FULL identical GraphQL schema — read-side enum primary path bypasses edge
+- 2026-09-07 ACCEPTED IDOR @ hypofriend.de/property-search-api: pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives
+- 2026-09-07 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional leadId/saveExposeContact/returnMissing — contact-save and delisted-record args exposed auth-free
+- 2026-09-07 CONFIRMED NG @ dead fleet (api.*, core-api.*, graph.*, auth.*, admin.*, portal.*, dashboard.*, billing.*, offer.*, documents.*, my.*, profile.*, account.*) + a./blog/m2: unchanged 503/000/301/403 — no new surface
+- 2026-09-07 REJECTED MISCONFIG @ core.hypofriend.de: `internal` cookie is server-set provenance flag, NOT authz switch — forced overwritten to FALSE each response
+- 2026-09-07 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively
+- 2026-09-07 CONFIRMED NG @ *.local.hypofriend.de: ERR_NGROK_3200 re-confirmed on all 5 names; CNAME+stale DST-anchored LE R3 chain intact — abandoned tunnel, takeover still HUMAN-only
+- 2026-09-07 CONFIRMED NG @ local.hypofriend.de bare: folded into main awselb/2.0 503 fleet — inert, not takeoverable
+- 2026-09-07 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: whole-DE geo subset (1004>960) + price-grid subset (429<1006) + offset determinism proven live, limit capped ~50 (offset walk required) — full-DB enumeration primitive validated both on origin and edge
+- 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin GraphQL responses bare (5 POST burst all 200 origin + edge) — no WAF differential at 1rps, edge-header layer still bypassed at origin
+- 2026-09-07 REJECTED MISCONFIG @ core.hypofriend.de: burst of 5 rapid propertySearch mutations all 200 on origin — no ready rate-limit/429 at low rate; scale WAF diff remains HUMAN-gated
+- 2026-09-07 CONFIRMED ENDPOINT @ hypofriend.de/q (also core.hypofriend.de/q): second live GraphQL API (POST `{__typename}` → 200 `{"meta":{status:0,key:"OK"},"data":{"Typename":"Query"}}`); GET 301→`/` Rails shell; introspection DISABLED on /q — schema must be mined from Nuxt bundle strings, not server introspection.
+- 2026-09-07 CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin POST /q returns only `content-type` (no server/HSTS/XFO/nosniff/cache) vs edge full CloudFront stack — WAF/security-header bypass re-proven on the SECOND GraphQL API.
+- 2026-09-07 REJECTED MISCONFIG @ hypofriend.de/q: `__schema` introspection not enabled (`Field '__schema' doesn't exist on type 'Query'`) — unlike property-search-api, no server-side schema dump vector.
+- 2026-09-07 CONFIRMED NG @ fleet sweep: dead fleet + buckets unchanged (503/000/301/403) — no new surface.
+- 2026-09-08 CONFIRMED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-credentials:true + all methods on edge AND direct origin (contrast: property-search-api echoes nothing → closed, previously REJECTED). New standalone finding class this cycle.
+- 2026-09-08 CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-proven this cycle.
+- 2026-09-08 CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uploadDocumentExtended (multipart [File!]!), createDocumentsRequest, submitApplicantsInformation, submitPropertyCertificate, processLeadForAppointment, setOriginAppointment, updateLeadAndScheduleAsyncAppointment, plus root.lead PII schema incl. shareLink(self_disclosure) & referrer{primary_advisor{...}} — all POST→${coreApiUrl}/q, no auth.
+- 2026-09-08 REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-contrast-confirmed vs /q this cycle).
+- 2026-09-08 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven this cycle
+- 2026-09-08 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration confirmed (Berlin 11 listings, phone/owner data exposed)
+- 2026-09-08 ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — limit capped ~50, offset walk required
+- 2026-09-08 ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted-record args exposed auth-free
+- 2026-09-08 ACCEPTED IDOR @ core.hypofriend.de/q: `already_booked_appointments(lead_id)` resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, both 200) — cross-tenant read primitive
+- 2026-09-08 REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
+- 2026-09-08 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
+- 2026-09-08 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-08 ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-credentials:true + all methods on edge AND direct origin (contrast: property-search-api echoes nothing → closed, previously REJECTED). New standalone finding class this cycle.
+- 2026-09-08 CONFIRMED MISCONFIG @ core.hypofriend.de/q (+hypofriend.de/q): anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate (BAYERN 700k→{5:3.87%,10:3.84%}) and `calculateCityTax` returns 3.5% on fresh no-auth session both edge+origin; resolver surface executes with zero credentials.
+- 2026-09-08 CONFIRMED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` is a JSON-scalar resolver reached live with raw interpolation (selectionMismatch proves no schema enum gates the type string) — anonymous scheduling-oracle field.
+- 2026-09-08 CONFIRMED MISCONFIG @ core.hypofriend.de/q: direct-origin responses now carry `x-frame-options: ALLOWALL` + full HSTS while edge forces `x-frame-options: DENY` + nosniff/XSS-protection/referrer-policy CloudFront stack — persistent origin-vs-edge security-header differential (now including clickjacking-relevant XFO mismatch).
+- 2026-09-08 CONFIRMED MISCONFIG @ core.hypofriend.de/q: rates_table returns region-differentiated live mortgage rates — BAYERN 10yr 3.95% vs SAXONY 10yr 3.85% (0.10% delta) for identical 1M/1.2M params; BERLIN/HAMBURG share same rate group. Anonymous per-region lender pricing engine confirmed.
+- 2026-09-08 CONFIRMED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %" (German law); new_property:false→301 redirect to / (old-property path requires site context). Business-logic bifurcation leaked anonymously.
+- 2026-09-08 CONFIRMED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too.
+- 2026-09-08 ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate with 0.10% delta (BAYERN vs SAXONY) — competitive intelligence leak
+- 2026-09-08 ACCEPTED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` JSON-scalar resolver with raw interpolation — no schema enum gates appointment_type string
+- 2026-09-08 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry `x-frame-options: ALLOWALL` + HSTS while edge forces `x-frame-options: DENY` + nosniff/XSS-protection/referrer-policy — persistent security-header differential including clickjacking-relevant XFO mismatch
+- 2026-09-08 ACCEPTED MISCONFIG @ core.hypofriend.de/q: `calculateMaklerFee(new_property:true)`→"0 %" (German law); `new_property:false`→301 redirect to / — business-logic bifurcation leaked anonymously
+- 2026-09-08 ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry `x-frame-options: ALLOWALL` (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too
+- 2026-09-09 ACCEPTED MISCONFIG @ hypofriend.de/q: credentialed CORS (echo + allow-credentials + all methods) and samesite=none httponly session cookies re-confirmed live this cycle on edge — precondition chain for cross-origin lead exfil intact.
+- 2026-09-09 CONFIRMED NG @ fleet sweep: hypofriend.de/core/a/blog/m2/www/dead-fleet all returned prior-cycle statuses (200/400/403/000/301) — no new surface.
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — `rates_table` returns live per-region borrowingRate/monthlyRate with 0.10% delta (BAYERN vs SAXONY) — competitive intelligence leak
+- 2026-09-09 ACCEPTED MISCONFIG @ hypofriend.de/q: `appointment_availability(page,per,appointment_type)` JSON-scalar resolver with raw interpolation — no schema enum gates appointment_type string
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry `x-frame-options: ALLOWALL` + HSTS while edge forces `x-frame-options: DENY` + nosniff/XSS-protection/referrer-policy — persistent security-header differential including clickjacking-relevant XFO mismatch
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: `calculateMaklerFee(new_property:true)`→"0 %" (German law); `new_property:false`→301 redirect to / — business-logic bifurcation leaked anonymously
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry `x-frame-options: ALLOWALL` (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too
+- 2026-09-09 ACCEPTED MISCONFIG @ hypofriend.de/q (+core.hypofriend.de/q): open credentialed CORS — OPTIONS and POST reflect arbitrary Origin with access-control-allow-credentials:true + all methods on edge AND direct origin (contrast: property-search-api echoes nothing → closed, previously REJECTED)
+- 2026-09-09 CONFIRMED IDOR @ hypofriend.de/q: already_booked_appointments(lead_id: zero-UUID) → 200 empty on both hosts, no auth, fresh jar — auth-free BOLA boundary re-proven
+- 2026-09-09 CONFIRMED ENDPOINT @ core.hypofriend.de/q: full query-map mined from Nuxt bundle — rates_table, calculateCityTax, calculateMaklerFee, jiyuCalculate(Chart), uploadDocumentExtended (multipart [File!]!), createDocumentsRequest, submitApplicantsInformation, submitPropertyCertificate, processLeadForAppointment, setOriginAppointment, updateLeadAndScheduleAsyncAppointment, plus root.lead PII schema incl. shareLink(self_disclosure) & referrer{primary_advisor{...}} — all POST→${coreApiUrl}/q, no auth
+- 2026-09-09 REJECTED MISCONFIG @ hypofriend.de/property-search-api: rack-cors preflight for arbitrary Origin remains 200 with NO allow-origin echo — no open CORS there (re-contrast-confirmed vs /q this cycle)
+- 2026-09-09 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven
+- 2026-09-09 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: propertySearch→exposes→expose chain works unauthenticated on direct origin — cross-city PII enumeration confirmed (Berlin 11 listings, phone/owner data exposed)
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: full introspection enabled, pagination/exposes/exposesInBounds/mapExposes are auth-free crawl primitives — limit capped ~50, offset walk required
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: expose(id,leadId,saveExposeContact,returnMissing) accepts optional args — contact-save and delisted-record args exposed auth-free
+- 2026-09-09 ACCEPTED IDOR @ core.hypofriend.de/q: `already_booked_appointments(lead_id)` resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, both 200) — cross-tenant read primitive
+- 2026-09-09 REJECTED MISCONFIG @ core.hypofriend.de/q: `root.lead` does NOT accept ID argument (returns current session lead only) — not an IDOR vector
+- 2026-09-09 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (`__schema` not exist) — unlike property-search-api, no server-side schema dump vector
+- 2026-09-09 CONFIRMED NG @ fleet sweep: all dead subdomains + buckets unchanged (503/000/301/403) — no new surface
+- 2026-09-09 ACCEPTED IDOR @ core.hypofriend.de/property-search-api: direct-origin GraphQL POST returns bare headers (date/content-length/vary only) vs edge full CloudFront stack — WAF/security-header bypass live re-proven this cycle
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: anonymous mortgage-rate engine — rates_table returns live per-region borrowingRate/monthlyRate with 0.10% delta (BAYERN vs SAXONY) — competitive intelligence leak
+- 2026-09-09 ACCEPTED MISCONFIG @ hypofriend.de/q: appointment_availability(page,per,appointment_type) JSON-scalar resolver with raw interpolation — no schema enum gates appointment_type string
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: direct-origin responses carry x-frame-options: ALLOWALL + HSTS while edge forces x-frame-options: DENY + nosniff/XSS-protection/referrer-policy — persistent security-header differential including clickjacking-relevant XFO mismatch
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de/q: calculateMaklerFee(new_property:true)→"0 %" (German law); new_property:false→301 redirect to / — business-logic bifurcation leaked anonymously
+- 2026-09-09 ACCEPTED MISCONFIG @ core.hypofriend.de: direct-origin /q mutation responses carry x-frame-options: ALLOWALL (no nosniff/XSS-protection/referrer-policy) vs edge DENY + full CF stack — clickjacking-relevant differential confirmed on mutations too
+- 2026-09-09 ACCEPTED IDOR @ core.hypofriend.de/q: already_booked_appointments(lead_id) resolver accepts arbitrary lead_id auth-free (tested zero-UUID and random-UUID, both 200) — cross-tenant read primitive
+- 2026-09-09 REJECTED MISCONFIG @ core.hypofriend.de/q: root.lead does NOT accept ID argument (returns current session lead only) — not an IDOR vector
+- 2026-09-09 CONFIRMED MISCONFIG @ core.hypofriend.de/q: introspection disabled (__schema not exist) — unlike property-search-api, no server-side schema dump vector
+- 2026-09-09 CONFIRMED NG @ core.hypofriend.de: fresh probe of `/up`,`/rails/info/routes`,`/graphql`,`/admin`,`/metrics` all 301→https://hypofriend.de/ (canonical redirect shell) — no Rails health/metrics/admin/debug surface at direct origin.
+[0m
+[0m$ [0mgrep -n "core.hypofriend.de/graphiql\|/en/exchange\|share_id" /home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt /home/runner/work/hypofriend-hunt/hypofriend-hunt/ctx.txt | head -15
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:732:- 2026-09-26 ACCEPTED BUSLOGIC @ core.hypofriend.de (slug routes) + hypofriend.de/en/exchange: there is a second, previously unmapped 301 class on the origin — recognized slugs redirect to a first-party share link with a deterministic per-slug `share_id`/`link_id` (real: `link_id` resolves to a live auth-free expose page, 200/3766B), and the `utm_source`/`utm_medium`/`utm_campaign`/`redirect` values in that link are reflected verbatim from the request while the link identity stays fixed. The link's identity is server-bound; its campaign attribution is not bound to it at all, and the vendor's own client then persists those values server-side via `setMarketingCampaign` and into sticky `hypo_utm_*` localStorage keys. Recorded as MEDIUM with the counter-argument stated in the hypothesis: setting utm is normal for a campaign creator, the flaw is the missing integrity binding, and the server-side commission consequence is the single unproven link.
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:733:- 2026-09-26 REJECTED MISCONFIG @ hypofriend.de/en/exchange: the `redirect` parameter is **not** an open redirect. `redirect=evil` and `redirect=https://evil.example/x` both return 404 while `redirect=expose` returns 302 to a first-party target — the value is allowlisted, so no attacker-controlled host is reachable. Killed with a positive control rather than by inspection, and it is the control that makes the 404 meaningful.
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:745:- 2026-09-26 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: the forgeable-link finding is **materially larger than last cycle recorded, and the reason is a measurement error I made, not a change on their side.** I bounded the claim at the 301 stem issuer and concluded `link_id` was "a fixed DB record" — true of the issuer, false of the consumer. At `/en/exchange` the identifier is an unvalidated query parameter: a nil UUID is accepted and echoed into the destination path, `share_id` authorises nothing (cross-binding two known ids resolves cleanly), and the utm triple is server-side pass-through into a 302 `Location`. The correct reading of the 9-stem result was therefore not "a small finite set of forgeable links" but "a free parameter reached through eight documented doors." Confidence 70→88, and the previous cycle's downward bound is withdrawn explicitly rather than quietly amended.
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:746:- 2026-09-26 REJECTED OATH/MISCONFIG @ hypofriend.de/en/exchange: the `redirect` parameter is not an open redirect and the finding must not be filed as one. With the correct `share_id` present the allowlist is exactly `{expose, account}`; the eight other candidate values and every attacker-host form 404. The two resolved targets are both first-party and hard-coded in the 302. The defect is unbound attribution and unbounded link identity, which is a different class with a different remediation.
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:755:- 2026-09-27 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: the forgeable-link finding is materially larger than last cycle recorded — link_id is a free parameter (not cookie-invariant), share_id is auth-by-obscurity (works for any known UUID), redirect allowlist={expose,account}, utm_* raw pass-through into 302 Location, fresh SameSite=None session minted per request, edge CloudFront does not filter
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:756:- 2026-09-27 REJECTED OATH/MISCONFIG @ hypofriend.de/en/exchange: the `redirect` parameter is not an open redirect — allowlist is exactly {expose,account}; all other values including attacker hosts return 404
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:774:- 2026-09-27 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: the share_id pool is cross-usable, which strengthens the finding and corrects its shape. I had been treating the partner key (108ee8c6-…) as the thing that made the `account` mint possible. It is not. The `tools` key (dddb5cba-…) mints the same `account` target today, 302 to /en/account with all three forged utm values echoed and link_id discarded. So the correct statement is not "a partner credential can be reused for the account target" but "the only validated input is a record-existence check over a pool the vendor publishes in plaintext, and it gates neither the target nor the attribution." Confidence 88→90 on the strength of the control, not on new severity.
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:902:- 2026-10-03 ACCEPTED OTHER @ hypofriend.de/en/exchange: Share-link forge — arbitrary link_id minted (not cookie-bound), share_id auth-by-obscurity (pool cross-usable), utm_* raw pass-through into 302 Location; redirect allowlist {expose,account} only (other values 404). Shell byte-identical between forged/real IDs (bounds to attribution/URL credibility, not data read).
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:904:- 2026-10-03 ACCEPTED OTHER @ hypofriend.de/en/exchange: The share-link forge's `share_id` gate is a **six-key plaintext pool, all six harvestable by unauthenticated GET**, and all six mint an arbitrary-`link_id` `account` destination with forged `utm_*` echoed into `Location`. Extends the prior 2-key finding to the full enumerated pool. Bounded honestly: `redirect` allowlist is `{expose, account}` only, exchange destination shell is byte-identical between forged and real `link_id`, so this is credible-URL forgery plus poisoned attribution — **not** a data read, **not** an open redirect, **not** a frameable page.
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:906:- 2026-10-03 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: the `/rails` key `ed177279-…` mints `/de/konto` while the other five mint `/en/account`, so the key carries a **locale binding** that survives forged `redirect` and forged nil `link_id`. The pool is cross-usable in authorisation terms but **not interchangeable** in target terms — a refinement that qualifies, rather than extends, the standing claim.
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:909:- 2026-10-03 ACCEPTED BUSLOGIC @ `hypofriend.de/en/exchange`: 6-key plaintext pool harvestable by unauthenticated GET; arbitrary `link_id` minted, `share_id` auth-by-obscurity, `utm_*` raw pass-through into 302 Location. `redirect` allowlist `{expose,account}` only. Exchange mints fresh anonymous session (SameSite=None;Secure). Destination shell byte-identical (forgery yields credible URL + poisoned attribution, not data read/frameable page). Mint class corrected 9→7 stems (`/immobilien` and `/beratung` are canonical shell). Locale binding exists (`/rails` → `/de/konto`).
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:964:- 2026-10-04 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302 Location
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:982:- 2026-10-04 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: Forge re-confirmed live on cycle 54; server issues `__hfp__` and `_hf` to attacker-chosen `link_id`/campaign values, priming caller-controlled attribution into first-party lead state.
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:986:- 2026-10-04 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302 Location (confirmed live this cycle).
+/home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-prompt.txt:991:- 2026-10-05 ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: Forge re-confirmed live on cycle 54; server issues `__hfp__` and `_hf` to attacker-chosen `link_id`/campaign values
+[0m
+[0m$ [0mcat /home/runner/work/hypofriend-hunt/hypofriend-hunt/inventory/hypofriend.md 2>&1 | grep -B 10 -A 80 "core.hypofriend.de" | head -120
+appointments.app.hypofriend.de
+auth.hypofriend.de
+berater-suche.hypofriend.de
+billing.hypofriend.de
+blog-admin.hypofriend.de
+blog.hypofriend.de
+bonava.hypofriend.de
+bot.hypofriend.de
+cdn.hypofriend.de
+core-api.hypofriend.de
+core.hypofriend.de
+dashboard.hypofriend.de
+demo.hypofriend.de
+dev.hypofriend.de
+dev1.hypofriend.de
+dns.hypofriend.de
+documents.hypofriend.de
+email.m.hypofriend.de
+email.m2.hypofriend.de
+evernest.hypofriend.de
+experiments.hypofriend.de
+frontend.app.hypofriend.de
+funnels.hypofriend.de
+graph-rates.hypofriend.de
+graph.hypofriend.de
+heyflow.hypofriend.de
+hypofriend.de
+images.hypofriend.de
+jenkins.hypofriend.de
+kajsa.local.hypofriend.de
+kubernetes.hypofriend.de
+landingpage.hypofriend.de
+laurence.local.hypofriend.de
+listings.hypofriend.de
+local.hypofriend.de
+login.hypofriend.de
+m2.hypofriend.de
+mail.hypofriend.de
+mobile.hypofriend.de
+my.hypofriend.de
+myne.hypofriend.de
+news.hypofriend.de
+newsletter.hypofriend.de
+offer.hypofriend.de
+pavel.local.hypofriend.de
+pipedrive-sync.hypofriend.de
+portal.hypofriend.de
+profile.app.hypofriend.de
+profile.hypofriend.de
+relay.m.hypofriend.de
+root.hypofriend.de
+secure.hypofriend.de
+sofia.local.hypofriend.de
+sparplan.hypofriend.de
+sso.hypofriend.de
+staging.hypofriend.de
+support.hypofriend.de
+test.hypofriend.de
+tiago.local.hypofriend.de
+uploader.app.hypofriend.de
+v3.hypofriend.de
+web.hypofriend.de
+wildcard.hypofriend.de
+www.hypofriend.de
+
+## PASSIVE RECON 2026-09-02 (read-only, non-intrusive)
+
+> Recon observations only. These are NOT confirmed vulnerabilities; ownership/in-scope of each host must be confirmed against the program scope before any active testing. Hosts resolve + serve HTTP — investigation requires scoped authorization.
+
+**Probed:** 71 hosts | **Live HTTP:** 10
+
+| Host | Status | Server/Tech |
+|---|---|---|
+| `kajsa.local.hypofriend.de` | 404 | - |
+| `laurence.local.hypofriend.de` | 404 | - |
+| `email.m.hypofriend.de` | 404 | - |
+| `pavel.local.hypofriend.de` | 404 | - |
+| `tiago.local.hypofriend.de` | 404 | - |
+| `sofia.local.hypofriend.de` | 404 | - |
+| `email.m2.hypofriend.de` | 404 | - |
+| `bonava.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+| `myne.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+| `evernest.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+
+**CNAME review signals (14):**
+- `accentro.hypofriend.de` -> `flow.heyflow.domains`
+- `berater-suche.hypofriend.de` -> `flow.heyflow.domains`
+- `kajsa.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `laurence.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `email.m.hypofriend.de` -> `eu.mailgun.org`
+- `pavel.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+--
+- CHANGED api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hyp
+- CHANGED app.hypofriend.de → Apple App Store (301), www.hypofriend.de → hypofriend.de (301)
+
+## 2026-09-05 09:51:38 UTC
+- CHANGED hypofriend.de/property-search-api: Full enumeration chain validated across cities — propertySearch→exposes→expose returns PII for 6+ listings per city; 2 real UUIDs confirmed with phone/email/surname/
+- CHANGED hypofriend.de/property-search-api: favoriteExpose mutation error differentiates exist vs non-exist exposeId for arbitrary leadId — cross-tenant write primitive confirmed
+- CHANGED hypofriend.de/property-search-api: informationRequest mutation leaks /app/app/mutations/information_request.rb:53 backtrace on missing advisor_email — additional stack-trace vector
+- CHANGED hypofriend.de: Sentry DSN public key confirmed (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but Sentry API requires auth token, not DSN key — passive PII extraction blocked
+
+## 2026-09-05 13:23:35 UTC
+- NEW core.hypofriend.de — LIVE Rails origin of main-domain app; direct backend without CloudFront edge; canonical redirect shell; 200 robots/sitemap; 401 /api/v3/advisors; 400 /property-search-api GraphQL
+- NEW a.hypofriend.de — CloudFront→S3 (eu-central-1) closed bucket, 403 on all probed objects
+- CHANGED blog.hypofriend.de — direct S3 403 AllAccessDisabled (confirms prior), HTTPS 000
+- CHANGED m2.hypofriend.de — awselb/2.0 301 chain to https://hypofriend.de/en (inert)
+- CHANGED hypofriend.de/property-search-api: Cross-city enumeration validated — propertySearch→exposes→expose returns 6+ listings PII per city (MUNICH, BERLIN, HAMBURG confirmed); 2 real UUIDs (ad1d572e-8c01-5d
+- CHANGED hypofriend.de/property-search-api: favoriteExpose mutation error differentiates exist vs non-exist exposeId for arbitrary leadId — cross-tenant write primitive confirmed (error:"expose does not exist"
+- CHANGED hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — new stack-trace vector
+- CHANGED hypofriend.de: Sentry DSN public key confirmed (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but Sentry API requires auth token — passive PII extraction blocked
+
+## 2026-09-05 16:26:50 UTC
+- NEW core.hypofriend.de — Live Rails origin (direct, no CloudFront), canonical redirect shell, 200 robots.txt/sitemap.xml, 401 /api/v3/advisors Basic, 400 /property-search-api GraphQL
+- NEW a.hypofriend.de — CloudFront→S3 (eu-central-1) closed bucket, 403 all objects (index.html, favicon.ico, images, robots, sitemap, assets)
+- CHANGED hypofriend.de/property-search-api — Cross-city enumeration validated: propertySearch→exposes→expose returns 6+ listings PII per city (MUNICH, BERLIN, HAMBURG confirmed); 2 real UUIDs (ad1d572e-8c01-5d
+- CHANGED hypofriend.de/property-search-api — favoriteExpose mutation error differentiates exist vs non-exist exposeId for arbitrary leadId — cross-tenant write primitive confirmed (error:"expose does not exist
+- CHANGED hypofriend.de/property-search-api — informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — new stack-trace vector
+- CHANGED hypofriend.de — Sentry DSN public key confirmed (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but Sentry API requires auth token — passive PII extraction blocked
+- CHANGED blog.hypofriend.de — Direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior
+- CHANGED m2.hypofriend.de — awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge
+[0m
+[0m$ [0mcat /home/runner/work/hypofriend-hunt/hypofriend-hunt/inventory/hypofriend.md | grep -n "2026-10" | tail -30
+2250:- NEW Full 6-key share_id pool enumerated by value: /staff→f46e3e93..., /uploads→40595fb5..., /karriere→c0c7f5c2... (plus prior /tools, /partner, /rails) — live 2026-10-14
+2259:- NEW /content/graphiql confirmed as 3rd live GraphiQL IDE (GET 200, exposes /content/q + per-request X-CSRF-Token), cross-origin readable via credentialed CORS — first observed 2026-10-07, re-verified 2026
+2260:- NEW Cross-origin response-body readability PROVEN on /graphiql and /content/graphiql (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+2261:- NEW X-CSRF-Token rotates PER REQUEST within same _hf session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+2263:- NEW /swagger.json recognized as 8th mint stem on both origins (301 → /en/exchange?format=json&link_id=...) — expands share-link forge surface, live 2026-10-14
+2264:- NEW Full 6-key share_id pool enumerated by value: /staff→f46e3e93..., /uploads→40595fb5..., /karriere→c0c7f5c2... (plus prior /tools, /partner, /rails) — live 2026-10-14
+2274:## 2026-10-15 05:09:14 UTC
+2286:## 2026-10-15 10:03:57 UTC
+2302:## 2026-10-15 14:53:41 UTC
+2303:- NEW Cross-origin GraphiQL body readability PROVEN on `/graphiql` and `/content/graphiql` (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+2304:- NEW X-CSRF-Token rotates PER REQUEST within same `_hf` session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+2317:## 2026-10-15 18:53:26 UTC
+2318:- NEW `/content/graphiql` confirmed as 3rd live GraphiQL IDE (GET 200, exposes `/content/q` + per-request X-CSRF-Token), cross-origin readable via credentialed CORS — first observed 2026-10-07, re-verified 
+2319:- NEW Cross-origin response-body readability PROVEN on `/graphiql` and `/content/graphiql` (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+2320:- NEW `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+2322:- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface, live 2026-10-14
+2323:- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus prior `/tools`, `/partner`, `/rails`) — live 2026-10-14
+2333:## 2026-10-15 21:59:38 UTC
+2334:- NEW `/content/graphiql` confirmed as 3rd live GraphiQL IDE (GET 200, exposes `/content/q` + per-request X-CSRF-Token), cross-origin readable via credentialed CORS — first observed 2026-10-07, re-verified 
+2335:- NEW Cross-origin response-body readability PROVEN on `/graphiql` and `/content/graphiql` (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+2336:- NEW `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+2338:- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface, live 2026-10-14
+2339:- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus prior `/tools`, `/partner`, `/rails`) — live 2026-10-14
+2359:## 2026-10-16 00:06:24 UTC
+2372:## 2026-10-16 04:57:40 UTC
+2374:## 2026-10-16 09:36:45 UTC
+2376:## 2026-10-16 14:20:48 UTC
+2378:## 2026-10-16 18:10:23 UTC
+2380:## 2026-10-16 21:35:59 UTC
+2382:## 2026-10-16 23:59:00 UTC
+[0m
+[0m$ [0mcat /home/runner/work/hypofriend-hunt/hypofriend-hunt/analyst-out.txt 2>&1 | tail -100
+sparplan.hypofriend.de
+sso.hypofriend.de
+staging.hypofriend.de
+support.hypofriend.de
+test.hypofriend.de
+tiago.local.hypofriend.de
+uploader.app.hypofriend.de
+v3.hypofriend.de
+web.hypofriend.de
+wildcard.hypofriend.de
+www.hypofriend.de
+
+## PASSIVE RECON 2026-09-02 (read-only, non-intrusive)
+
+> Recon observations only. These are NOT confirmed vulnerabilities; ownership/in-scope of each host must be confirmed against the program scope before any active testing. Hosts resolve + serve HTTP — investigation requires scoped authorization.
+
+**Probed:** 71 hosts | **Live HTTP:** 10
+
+| Host | Status | Server/Tech |
+|---|---|---|
+| `kajsa.local.hypofriend.de` | 404 | - |
+| `laurence.local.hypofriend.de` | 404 | - |
+| `email.m.hypofriend.de` | 404 | - |
+| `pavel.local.hypofriend.de` | 404 | - |
+| `tiago.local.hypofriend.de` | 404 | - |
+| `sofia.local.hypofriend.de` | 404 | - |
+| `email.m2.hypofriend.de` | 404 | - |
+| `bonava.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+| `myne.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+| `evernest.hypofriend.de` | 200 | Server: cloudflare; Via: 1.1 google |
+
+**CNAME review signals (14):**
+- `accentro.hypofriend.de` -> `flow.heyflow.domains`
+- `berater-suche.hypofriend.de` -> `flow.heyflow.domains`
+- `kajsa.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `laurence.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+- `email.m.hypofriend.de` -> `eu.mailgun.org`
+- `pavel.local.hypofriend.de` -> `jtkfqjar.cname.eu.ngrok.io`
+--
+- CHANGED api.hypofriend.de/core-api.hypofriend.de/graph.hypofriend.de/auth.hypofriend.de/admin.hypofriend.de/portal.hypofriend.de/dashboard.hypofriend.de/billing.hypofriend.de/offer.hypofriend.de/documents.hyp
+- CHANGED app.hypofriend.de → Apple App Store (301), www.hypofriend.de → hypofriend.de (301)
+
+## 2026-09-05 09:51:38 UTC
+- CHANGED hypofriend.de/property-search-api: Full enumeration chain validated across cities — propertySearch→exposes→expose returns PII for 6+ listings per city; 2 real UUIDs confirmed with phone/email/surname/
+- CHANGED hypofriend.de/property-search-api: favoriteExpose mutation error differentiates exist vs non-exist exposeId for arbitrary leadId — cross-tenant write primitive confirmed
+- CHANGED hypofriend.de/property-search-api: informationRequest mutation leaks /app/app/mutations/information_request.rb:53 backtrace on missing advisor_email — additional stack-trace vector
+- CHANGED hypofriend.de: Sentry DSN public key confirmed (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but Sentry API requires auth token, not DSN key — passive PII extraction blocked
+
+## 2026-09-05 13:23:35 UTC
+- NEW core.hypofriend.de — LIVE Rails origin of main-domain app; direct backend without CloudFront edge; canonical redirect shell; 200 robots/sitemap; 401 /api/v3/advisors; 400 /property-search-api GraphQL
+- NEW a.hypofriend.de — CloudFront→S3 (eu-central-1) closed bucket, 403 on all probed objects
+- CHANGED blog.hypofriend.de — direct S3 403 AllAccessDisabled (confirms prior), HTTPS 000
+- CHANGED m2.hypofriend.de — awselb/2.0 301 chain to https://hypofriend.de/en (inert)
+- CHANGED hypofriend.de/property-search-api: Cross-city enumeration validated — propertySearch→exposes→expose returns 6+ listings PII per city (MUNICH, BERLIN, HAMBURG confirmed); 2 real UUIDs (ad1d572e-8c01-5d
+- CHANGED hypofriend.de/property-search-api: favoriteExpose mutation error differentiates exist vs non-exist exposeId for arbitrary leadId — cross-tenant write primitive confirmed (error:"expose does not exist"
+- CHANGED hypofriend.de/property-search-api: informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — new stack-trace vector
+- CHANGED hypofriend.de: Sentry DSN public key confirmed (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but Sentry API requires auth token — passive PII extraction blocked
+
+## 2026-09-05 16:26:50 UTC
+- NEW core.hypofriend.de — Live Rails origin (direct, no CloudFront), canonical redirect shell, 200 robots.txt/sitemap.xml, 401 /api/v3/advisors Basic, 400 /property-search-api GraphQL
+- NEW a.hypofriend.de — CloudFront→S3 (eu-central-1) closed bucket, 403 all objects (index.html, favicon.ico, images, robots, sitemap, assets)
+- CHANGED hypofriend.de/property-search-api — Cross-city enumeration validated: propertySearch→exposes→expose returns 6+ listings PII per city (MUNICH, BERLIN, HAMBURG confirmed); 2 real UUIDs (ad1d572e-8c01-5d
+- CHANGED hypofriend.de/property-search-api — favoriteExpose mutation error differentiates exist vs non-exist exposeId for arbitrary leadId — cross-tenant write primitive confirmed (error:"expose does not exist
+- CHANGED hypofriend.de/property-search-api — informationRequest missing advisor_email leaks /app/app/mutations/information_request.rb:53 backtrace — new stack-trace vector
+- CHANGED hypofriend.de — Sentry DSN public key confirmed (9ca05e60fc824941825aaeb8010b7e50@o128333.ingest.sentry.io/6376386) but Sentry API requires auth token — passive PII extraction blocked
+- CHANGED blog.hypofriend.de — Direct S3 403 AllAccessDisabled (HTTP), HTTPS 000 — confirms prior
+- CHANGED m2.hypofriend.de — awselb/2.0 301 chain (HTTP→HTTPS→https://hypofriend.de/en) — inert redirect edge
+[0m
+[0m$ [0mcat /home/runner/work/hypofriend-hunt/hypofriend-hunt/inventory/hypofriend.md | grep -n "2026-10" | tail -30
+2250:- NEW Full 6-key share_id pool enumerated by value: /staff→f46e3e93..., /uploads→40595fb5..., /karriere→c0c7f5c2... (plus prior /tools, /partner, /rails) — live 2026-10-14
+2259:- NEW /content/graphiql confirmed as 3rd live GraphiQL IDE (GET 200, exposes /content/q + per-request X-CSRF-Token), cross-origin readable via credentialed CORS — first observed 2026-10-07, re-verified 2026
+2260:- NEW Cross-origin response-body readability PROVEN on /graphiql and /content/graphiql (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+2261:- NEW X-CSRF-Token rotates PER REQUEST within same _hf session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+2263:- NEW /swagger.json recognized as 8th mint stem on both origins (301 → /en/exchange?format=json&link_id=...) — expands share-link forge surface, live 2026-10-14
+2264:- NEW Full 6-key share_id pool enumerated by value: /staff→f46e3e93..., /uploads→40595fb5..., /karriere→c0c7f5c2... (plus prior /tools, /partner, /rails) — live 2026-10-14
+2274:## 2026-10-15 05:09:14 UTC
+2286:## 2026-10-15 10:03:57 UTC
+2302:## 2026-10-15 14:53:41 UTC
+2303:- NEW Cross-origin GraphiQL body readability PROVEN on `/graphiql` and `/content/graphiql` (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+2304:- NEW X-CSRF-Token rotates PER REQUEST within same `_hf` session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+2317:## 2026-10-15 18:53:26 UTC
+2318:- NEW `/content/graphiql` confirmed as 3rd live GraphiQL IDE (GET 200, exposes `/content/q` + per-request X-CSRF-Token), cross-origin readable via credentialed CORS — first observed 2026-10-07, re-verified 
+2319:- NEW Cross-origin response-body readability PROVEN on `/graphiql` and `/content/graphiql` (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+2320:- NEW `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+2322:- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface, live 2026-10-14
+2323:- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus prior `/tools`, `/partner`, `/rails`) — live 2026-10-14
+2333:## 2026-10-15 21:59:38 UTC
+2334:- NEW `/content/graphiql` confirmed as 3rd live GraphiQL IDE (GET 200, exposes `/content/q` + per-request X-CSRF-Token), cross-origin readable via credentialed CORS — first observed 2026-10-07, re-verified 
+2335:- NEW Cross-origin response-body readability PROVEN on `/graphiql` and `/content/graphiql` (Origin: evil.example → 200 + ACAO echo + ACAC:true) — live-evidenced 2026-10-12
+2336:- NEW `X-CSRF-Token` rotates PER REQUEST within same `_hf` session (replayed cookie yielded token1→token2, ETag change) — live-evidenced 2026-10-12
+2338:- NEW `/swagger.json` recognized as 8th mint stem on both origins (301 → `/en/exchange?format=json&link_id=...`) — expands share-link forge surface, live 2026-10-14
+2339:- NEW Full 6-key `share_id` pool enumerated by value: `/staff`→`f46e3e93...`, `/uploads`→`40595fb5...`, `/karriere`→`c0c7f5c2...` (plus prior `/tools`, `/partner`, `/rails`) — live 2026-10-14
+2359:## 2026-10-16 00:06:24 UTC
+2372:## 2026-10-16 04:57:40 UTC
+2374:## 2026-10-16 09:36:45 UTC
+2376:## 2026-10-16 14:20:48 UTC
+2378:## 2026-10-16 18:10:23 UTC
+2380:## 2026-10-16 21:35:59 UTC
+2382:## 2026-10-16 23:59:00 UTC
+[0m
+[0m
+## What we've done so far
+
+**Validated findings (0→28+ VALID entries in `reports/valid-bugs.md`)**, chained across cycles:
+
+1. **CRITICAL** — Unauthenticated full-DB BOLA on `core.hypofriend.de/property-search-api`: `propertySearch→exposes→expose` returns broker/owner PII (phone/email/surname/company) with no auth; `pagination`/`exposesInBounds`/`mapExposes`/`offset+limit` are auth-free crawl primitives. Direct origin bypasses CloudFront edge headers.
+2. **HIGH** — Credentialed CORS (global rack-cors echoes any `Origin` + `ACAC:true`) on `/q` family + unauthenticated GraphiQL IDEs (`/graphiql`, `/content/graphiql`) leaking per-request `X-CSRF-Token`; `_hf` cookie is SameSite=Lax.
+3. **HIGH** — `/en/exchange` share-link forge: 6-key `share_id` pool (harvestable by unauth GET), arbitrary `link_id`, `utm_*` raw pass-through into 302 Location; `redirect` allowlist `{expose,account}` only (not an open redirect).
+4. Plus: `/q` error/coercion oracle (schema mined without introspection), hardcoded HTTP Basic `hypo:advisors2018+` in public bundles, `already_booked_appointments` BOLA, anonymous mortgage-rate engine, direct-origin WAF/security-header bypass.
+
+## Blocked — needs your call
+
+The **single remaining HUMAN-gated step** is the BOLA PII confirmation: one read-only POST to `core.hypofriend.de/property-search-api` with a real enumerated `expose(id:...)` UUID requesting PII fields, ≤1 rps, no credentials. I can't execute this without your explicit authorization (it reads live customer data).
+
+Do you authorize that single read-only proof request, or should I instead close the BOLA lead on existing boundary evidence and finish the `/en/exchange` attribution-impact write-up?

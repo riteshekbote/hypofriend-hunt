@@ -2380,3 +2380,8 @@ www.hypofriend.de
 ## 2026-10-16 21:35:59 UTC
 
 ## 2026-10-16 23:59:00 UTC
+
+## 2026-10-17 01:37:11 UTC
+- CHANGED hypofriend.de/property-search-api `expose(id)` resolver: previously boundary-only ("99999999 -> not found"); NOW confirmed live on a real enumerated expose UUID (200, returns title/price/street/proper
+- NEW hypofriend.de/property-search-api: full search lifecycle is auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` retur
+- NEW Expose type PII surface confirmed on same auth-free object: cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String scalars)

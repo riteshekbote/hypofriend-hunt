@@ -1311,3 +1311,24 @@
 - 2026-10-16 CONFIRMED NG @ hypofriend.de/en: edge S3/CloudFront static snapshot (server: AmazonS3, x-cache: Hit, age:2651, no set-cookie) — /en HTML not a live Rails response at edge
 - 2026-10-16 CONFIRMED NG @ api.hypofriend.de: dead 58th consecutive cycle (000 @10s timeout, A 52.15.184.3) — POC phase pinned to dead host
 - 2026-10-16 `format=json` on the exchange redirector is the live forge path; the HTML landing being 404 does not kill the finding — always probe the machine-readable variant of a retired UI before downgrading. Client-bundle rotation (403 on old entry) is the cleanest signal a feature was pulled; new bundle mutation count (9) should be re-baselined when mining resumes.
+- 2026-10-17 ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- 2026-10-17 ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- 2026-10-17 ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- 2026-10-17 ACCEPTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints are common misconfiguration, high business value.
+- 2026-10-17 ACCEPTED MISCONFIG @ admin.hypofriend.de: Admin portals often exposed with weak controls.
+- 2026-10-17 ACCEPTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection is common misconfiguration.
+- 2026-10-17 ACCEPTED MISCONFIG @ hypofriend.de: Client-side secret exposure in Nuxt payload (Sentry DSN, Amplitude key, Flagsmith env ID) — high business value, passive testable.
+- 2026-10-17 REJECTED MISCONFIG @ api.hypofriend.de: Versioned API endpoints (api.hypofriend.de/api/v1 etc.) do not exist — subdomain unresponsive (000), not a misconfiguration.
+- 2026-10-17 REJECTED MISCONFIG @ admin.hypofriend.de: Admin portal returns 503, not exposed with weak controls.
+- 2026-10-17 REJECTED MISCONFIG @ core-api.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503.
+- 2026-10-17 REJECTED MISCONFIG @ graph.hypofriend.de: GraphQL introspection not accessible — endpoint returns 503/timeout (confirmed prior).
+- 2026-10-17 ACCEPTED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolver returns data for arbitrary unauthenticated leadId (200, no auth), exposing lead-scoped PII schema.
+- 2026-10-17 ACCEPTED MISCONFIG @ hypofriend.de/property-search-api: Full GraphQL introspection enabled in production (Ruby, graphql-2.5.26) — schema + stack traces exposed; `meta(id)` leaks /app/app/types/query.rb internals.
+- 2026-10-17 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author from auth.hypofriend.de returns 503 (3 probes); not reachable passively, hypothesis parked not confirmed.
+- 2026-10-17 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolves for arbitrary unauthenticated leadId (200, both zero-UUID and random-UUID accepted), returning lead-scoped favorites with PII schema — auth-free read oracle.
+- 2026-10-17 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (`error:"expose does not exist"` proves code path reachable) — cross-tenant write primitive.
+- 2026-10-17 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with bogus/nil leak returns full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app/app/types/query.rb internals) — stack-trace + internal-path disclosure.
+- 2026-10-17 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoritedExposes(leadId)` resolves for arbitrary unauthenticated leadId (200, zero-UUID and random-UUID accepted), lead-scoped PII schema — auth-free read oracle.
+- 2026-10-17 CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (`error:"expose does not exist"` proves code path reachable) — cross-tenant write primitive.
+- 2026-10-17 CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby-6.4.1, Ruby 4.0, /app internals) — stack-trace + internal-path disclosure.
+- 2026-10-17 REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively.
