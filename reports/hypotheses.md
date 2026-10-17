@@ -5374,3 +5374,12 @@
 - LEARN: CONFIRMED IDOR @ hypofriend.de/property-search-api: `favoriteExpose(leadId,exposeId)` mutation executes a real write handler for arbitrary leadId with no auth (
 - LEARN: CONFIRMED MISCONFIG @ hypofriend.de/property-search-api: `meta(id)` with nil leaks full Ruby backtrace (graphql-2.5.26, puma-7.2.0, rack-cors-3.0.0, sentry-ruby
 - LEARN: REJECTED OATH @ auth.hypofriend.de: OAuth/OpenID author returns 503 (multiple probes); not reachable passively.
+
+## RANKED HYPOTHESES 2026-10-17 06:15:57 UTC
+- [88] hypofriend.de/property-search-api: Unauthenticated full-DB BOLA: expose(id) returns owner/provider PII on hypofriend.de/property-search-api (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: authorize ONE read-only POST to https://hypofriend.de/property-search-api {"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"} then
+- LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0, no healthy target) — bundled host reference is a routing label, not a live dedicated s
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin-global credentialed rack-cors re-confirmed this cycle (evil.example echo + ACAC:true + 7 methods).
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge live again (302 /en/account/property-search/expose-<link_id>?ts=1792217688&utm_*=attacker) — my initial 301
+- LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0) is a routing label, not a live dedicated host; and inventory already listed it — check
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin-global credentialed rack-cors re-confirmed this cycle (evil.example echo + ACAC:true + 7 methods).

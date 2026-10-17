@@ -1710,3 +1710,10 @@ https://api.hypofriend.de/api/docs -> ERR <urlopen error timed out>
 https://core-api.hypofriend.de/graphql -> HTTP 503
 https://admin.hypofriend.de/ -> HTTP 503
 https://admin.hypofriend.de/api -> HTTP 503
+
+## 2026-10-17 06:16:10 UTC
+https://hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=244939
+https://core.hypofriend.de/graphiql -> 200 len=0
+https://hypofriend.de/en/exchange?share_id=<pool>&link_id=<x>&utm_campaign=<x>&format=json -> HTTP 400
+https://core.hypofriend.de/tools?utm_source=attacker&utm_campaign=evil -> 200 len=3766

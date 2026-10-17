@@ -2385,3 +2385,11 @@ www.hypofriend.de
 - CHANGED hypofriend.de/property-search-api `expose(id)` resolver: previously boundary-only ("99999999 -> not found"); NOW confirmed live on a real enumerated expose UUID (200, returns title/price/street/proper
 - NEW hypofriend.de/property-search-api: full search lifecycle is auth-free — `propertySearch(city:BERLIN,propertyType:APARTMENT)` returns searchId UUID with zero credentials; `exposes(id:<searchId>)` retur
 - NEW Expose type PII surface confirmed on same auth-free object: cellPhoneNumber, phoneNumber, propertyOwnerLastName, providerEmail, ownerCompany, providerCompany (all String scalars)
+
+## 2026-10-17 06:15:57 UTC
+- NEW none
+- CHANGED hypofriend.de entry bundle rotated Bitus3YJ.js -> Yk1WCsof.js (1,347,963B, Last-Modified 2026-10-16T22:23:43Z); /en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7...).
+- CHANGED property-search.hypofriend.de root: 3.65.251.207 (AWS) -> 503 awselb/2.0 (no healthy target); bundled as API host in new entry but no live listener (already in inventory, 12 refs).
+- NEW none — property-search.hypofriend.de was already in inventory (12 refs); earlier "new host" read retracted.
+- CHANGED hypofriend.de entry bundle rotated Bitus3YJ.js -> Yk1WCsof.js (1,347,963B, Last-Modified 2026-10-16T22:23:43Z); /en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7…).
+- CHANGED property-search.hypofriend.de root = 3.65.251.207 (AWS) -> 503 awselb/2.0 (no healthy target); bundled as API host in new entry but no live listener.
