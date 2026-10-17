@@ -1720,3 +1720,13 @@ https://core.hypofriend.de/tools?utm_source=attacker&utm_campaign=evil -> 200 le
 
 ## 2026-10-17 11:09:12 UTC
 
+
+## 2026-10-17 14:10:37 UTC
+https://hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=244939
+https://core.hypofriend.de/graphiql -> 200 len=0
+https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&link_id=<arbitrary>&redirect=account&utm_source=attacker&utm_campaign=evil&format=json -> HTTP 400
+https://hypofriend.de/m/_nuxt/Yk1WCsof.js -> 200 len=1347963
+https://property-search.hypofriend.de` -> ERR <urlopen error [Errno -2] Name or service not know
+https://hypofriend.de/property-search-api` -> HTTP 400
+https://core.hypofriend.de/q` -> 200 len=244939

@@ -68947,3 +68947,775 @@ STEP 6 — LEARNING
 STEP 7 — RISK
 [RISK] hypofriend: 52 — top finding (unauth PII BOLA) sits near the program's own exclusion "exposure of customer/employee/financial/authentication data during testing", which may get it scoped out despite Critical severity; POC phase remains pinned to api.hypofriend.de (dead 59 cycles) so no phase-completing surface exists; passive evidence for H2 accumulates but standalone CORS is a rejected class and must ship as a chain.
 ```
+===== ANALYST bigpickle 2026-10-17 14:10:25 UTC =====
+[0m
+> build · big-pickle
+[0m
+[STEP 1 — DELTA]
+[CHANGED] hypofriend.de/m/_nuxt entry bundle rotated Bitus3YJ.js → Yk1WCsof.js (200, 1,347,963B, Last-Modified 2026-10-16T22:23:43Z) — grew ~11.3KB vs prior 1,336,611B; mutation-template surface needs re-baseline (prior note: new bundle mutation count 9 should be re-baselined when mining resumes).
+[CHANGED] property-search.hypofriend.de A 3.65.251.207 → 503 awselb/2.0 zero-target; bundled as API host in new entry but no live listener — already in inventory (12 refs), not a new host.
+[CHANGED] hypofriend.de/en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7…).
+[CHANGED] exchange forge re-confirmed live 2026-10-17 (302 /en/account/property-search/expose-<link_id>?ts=1792217688&utm_*=attacker) after a prior false-retirement caused by an incomplete control (omitted link_id/redirect).
+
+[STEP 2 — PRIORITIZE]
+[PRIO] hypofriend.de/property-search-api,9.00,attack9/bv10/tech9/gate10/cloud6/fresh9
+[PRIO] core.hypofriend.de/q (+/graphiql,/content/graphiql),8.10,attack8/bv8/tech9/gate9/cloud7/fresh7
+[PRIO] hypofriend.de/en/exchange (+core slug routes),6.40,attack6/bv6/tech4/gate10/cloud5/fresh8
+
+[STEP 3 — HYPOTHESES]
+[HYP] Unauthenticated full-DB BOLA: expose(id) returns broker/owner PII on property-search-api
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: KB confirms expose(id) live on a real enumerated UUID (200; title/price/street/propertyOwnerLastName); full auth-free lifecycle propertySearch(city:BERLIN,propertyType:APARTMENT)→searchId→exposes(id:searchId); Expose PII scalars cellPhoneNumber/phoneNumber/propertyOwnerLastName/providerEmail/ownerCompany/providerCompany. Endpoint re-confirmed live this cycle (OPTIONS 200, GET 400 POST-only, no ACAO).
+evidence_needed: one read-only POST returning non-owned PII via the auth-free crawl chain.
+verify_steps: POST https://hypofriend.de/property-search-api {"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"} then {"query":"{exposes(id:\"<searchId>\"){id}}"} then {"query":"{expose(id:\"<real-id>\"){id title price propertyOwnerLastName providerEmail phoneNumber}}"} (HUMAN authorization for PII fields).
+impact: cross-tenant broker/owner PII dump (phone/email/surname) on a mortgage platform with zero credentials — HIGH/CRITICAL.
+testability: HUMAN_ONLY
+[HYP] Origin-global credentialed CORS + public GraphiQL leaks CSRF tokens and schema cross-origin
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 82
+reasoning: KB: origin-global rack-cors reflects any Origin + ACAC:true + 7 methods (re-confirmed 2026-10-17); introspection disabled but error/coercion channel reconstructs 6 input contracts + 3 payload types; 3 unauthenticated GraphiQL IDEs (/graphiql, /content/graphiql) return rotating 86-char X-CSRF-Token and are cross-origin readable (GET + Origin echo, proven 2026-10-12); POST varies Accept,Origin,Accept-Encoding.
+evidence_needed: cross-origin GET of GraphiQL body carrying token under credentialed CORS (already proven; freshness re-check only).
+verify_steps: OPTIONS https://core.hypofriend.de/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST"; GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example".
+impact: any-origin credentialed read of GraphQL responses + schema reconstruction + CSRF token disclosure; ATO class REJECTED (Lax cookie) — reportable as origin-global credentialed-CORS misconfig, MEDIUM.
+testability: PASSIVE
+[HYP] /en/exchange share-link forge: unbound attribution + free link_id into 302 Location
+class: BUSLOGIC
+asset: hypofriend.de/en/exchange
+confidence: 68
+reasoning: re-confirmed live 2026-10-17 — 8 mint stems (incl. /swagger.json), 6-key share_id pool enumerated by value, arbitrary link_id minted (not cookie-bound), utm_* raw pass-through into 302 Location, redirect allowlist {expose,account} only, format=json is the live forge path; destination shell byte-identical (bounds to attribution/URL credibility, not data read).
+evidence_needed: 302 Location reflecting attacker utm_*/link_id on an officially-issued share_id.
+verify_steps: GET https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&link_id=<arbitrary>&redirect=account&utm_source=attacker&utm_campaign=evil&format=json
+impact: trusted-domain share link with silently re-pointable attribution + link_id path injection; MEDIUM.
+testability: PASSIVE
+
+[STEP 4 — SELF-CRITIQUE]
+[PARKED] per-victim GraphiQL token theft → ATO: _hf from /graphiql is SameSite-unset (Lax) — REJECTED as ATO class; retained only as CORS-readable token disclosure.
+[PARKED] property-search.hypofriend.de dedicated host: root 503 awselb/2.0 zero-target — no live surface; already inventoried.
+[PARKED] auth.hypofriend.de OAuth: 503 across probes — not reachable passively.
+[FINAL] 1) property-search-api unauth BOLA (88) > 2) core /q credentialed CORS + GraphiQL (82) > 3) /en/exchange forge (68).
+
+[STEP 5 — NEXT ACTION]
+[NEXT] PROBE: GET https://hypofriend.de/m/_nuxt/Yk1WCsof.js — re-mine the fresh entry bundle (1,347,963B, LM 2026-10-16T22:23:43Z, ~+11.3KB vs prior) and diff named mutation/op-template counts against the last baseline (10 ops, count set bit-identical through Bitus3YJ.js) to catch auth-surface delta from the overnight deploy.
+
+[STEP 6 — LEARNING]
+[LEARN] REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0 zero healthy target) is a routing label, not a live dedicated surface, and inventory already listed it (12 refs) — verify inventory before emitting [NEW] host deltas.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de: origin-global credentialed rack-cors re-confirmed this cycle (evil.example echo + ACAC:true + 7 methods).
+[LEARN] ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: an initial 301-to-canonical reading was a bad control (omitted link_id/redirect), not a real retirement — always replay the exact previously-working parameter set before declaring a surface dead.
+
+[STEP 7 — RISK]
+[RISK] Hypofriend: 88 — unauthenticated production GraphQL (property-search-api) exposes broker/owner PII via auth-free expose(id) BOLA with full introspection and stack-trace disclosure, plus origin-global credentialed CORS on core GraphQL (cross-origin GraphiQL/CSRF-token/contract read) and a share-link forge with unbound attribution on a mortgage/financial platform.
+## Objective
+- Act as senior bug bounty analyst for Hypofriend GmbH (report channel: bugs.olivermaicher.eu), running the 8-step hypothesis cycle (DELTA→PRIORITIZE→HYPOTHESES→SELF-CRITIQUE→NEXT→LEARNING→RISK) on read-only passive probes only.
+- Current state: phase=POC, target=api (api.hypofriend.de, dead 58+ consecutive cycles — phase/target mismatch persists).
+
+## Important Details
+- Probe rules: passive-first, ≤1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass/mutating tests against live customer data; no exposure of customer/employee/financial/auth data during testing.
+- Out-of-scope (REJECTED) classes list is extensive: descriptive errors/headers only, OPTIONS/TRACE, logout CSRF, clickjacking w/o exploit, TLS best practice, brute-force/rate-limit, robots.txt, cookie flags on non-sensitive data, etc.
+- Hardcoded HTTP Basic `hypo:advisors2018+` (`Basic aHlwbzphZHZpc29yczIwMTgr`, b64 sha256 `56f00b87...`) ships in public entry bundle — do NOT use the credential in active tests; 200 proof is HUMAN-gated.
+- POC phase pinned to dead target `api.hypofriend.de` (A `52.15.184.3`, 000 on :80/:443) — disclosed each cycle, never silently substituted.
+- Key standing findings: full-DB BOLA on `core.hypofriend.de/property-search-api` (CRITICAL, HUMAN-only POST evidence gate); global credentialed rack-cors on `core.hypofriend.de` (any Origin + ACAC:true + 7 methods, including `null` origin, ACRH reflected); 3 unauth GraphiQL IDEs (`/graphiql`, `/content/graphiql`) with cross-origin body readability + per-request X-CSRF-Token rotation; introspection bypass via error/coercion channel on `/q` (6 input contracts + 3 payload types); `/en/exchange` share-link forge (8 mint stems incl. `/swagger.json`, 6-key share_id pool, arbitrary link_id, utm_* raw pass-through into 302, redirect allowlist `{expose,account}`); 4th GraphQL instance `/content/q` (live POST 200, mutations disabled via `missingMutationConfiguration`, no suggester/root.lead/form_authenticity_token); 4 object-addressing mutations in `/en/account` bundle (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId).
+- Explicitly REJECTED/closed: `unclaimLead` (zero-arg, session-scoped), `document_analysis_status` & `exposeSeen` (bind to id, not existence oracles), `updateProperty` mass assignment (server-closed `PropertyMutationsUpdateInput`), Vary:Origin overgeneralization (POST varies correctly, OPTIONS omits — near-inert), open redirect on `redirect` param (allowlist), per-victim GraphiQL token ATO (`_hf` SameSite=Lax), SSRF (zero URL-accepting args in account deploy), `property-search.hypofriend.de` (503 awselb, already in inventory).
+- Learning: verify inventory before emitting [NEW] hosts; replay exact previously-working parameter set before declaring a surface dead (the `format=json` forge path); use paired same-path controls before generalizing header/Vary behavior.
+- Latest bundle: `hypofriend.de/m/_nuxt/Yk1WCsof.js` (rotated from Bitus3YJ.js, 1,347,963B, LM 2026-10-16T22:23:43Z); `/en/plus` redeployed LM 2026-10-16T22:24:36Z.
+
+## Work State
+### Completed
+- Latest cycle 2026-10-17 11:09:12 UTC produced no new deltas beyond prior entries.
+- Prior cycle (2026-10-17 06:15) deltas: entry bundle rotated `Bitus3YJ.js → Yk1WCsof.js` (1,347,963B); `/en/plus` redeployed; `property-search.hypofriend.de` root shifted 3.65.251.207 → 503 awselb/2.0 (already in inventory, "new host" read retracted).
+- Standing re-verifications logged: `/en/exchange` forge live (302 with attacker utm_*, `format=json` path); global credentialed CORS re-confirmed (evil.example echo); BOLA chain evidence last live-captured 2026-09-28T16:50Z.
+- Three ranked hypotheses stabilized: (1) property-search-api unauth BOLA [88, HUMAN_ONLY], (2) core /q credentialed CORS + introspection-bypass [82, PASSIVE], (3) /en/exchange forge [68-70, PASSIVE].
+
+### Active
+- Waiting to run the next 8-step cycle on the current surface (delta vs 2026-10-17 11:09 inventory).
+- [FINAL] ranking: H1 BOLA (88) > H2 core /q CORS (82) > H3 /en/exchange forge (70).
+
+### Blocked
+- HUMAN gate: authorization for one read-only POST to `https://hypofriend.de/property-search-api` (`{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}` → exposes → expose) to capture PII evidence for the confirmed IDOR report.
+- Phase/target mismatch: POC pinned to dead `api.hypofriend.de` — no live surface for phase completion; constrains probe scope.
+
+## Next Move
+1. Run STEP 1 DELTA: probe `https://api.hypofriend.de/` :443/:80 (read-only, ≤1 rps) + re-check bundle name `hypofriend.de/m/_nuxt/Yk1WCsof.js` (HEAD) + one OPTIONS freshness check on `core.hypofriend.de/en/plus/q` with `Origin: https://evil.example`.
+2. If bundle rotated, re-mine for new named mutations (prior baseline: 10 named ops, mutation counts requestAccountLink=3/requestAppointmentLink=7/unclaimLead=9/setNameAppointment=2/setLocale=24); keep [NEXT] as HUMAN authorization for the property-search-api POST.
+
+## Relevant Files
+- (none — all work is remote HTTP probing against hypofriend.de / core.hypofriend.de / api.hypofriend.de; no local files referenced in this session)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcurl -s -D /tmp/opencode/hdr.txt -o /tmp/opencode/Yk1WCsof.js -w "http=%{http_code} size=%{size_download} time=%{time_total}\n" "https://hypofriend.de/m/_nuxt/Yk1WCsof.js"; echo "---HEADERS---"; cat /tmp/opencode/hdr.txt
+http=200 size=1347963 time=0.978130
+---HEADERS---
+HTTP/2 200 
+content-type: text/javascript
+content-length: 1347963
+server: AmazonS3
+date: Sat, 17 Oct 2026 14:07:03 GMT
+last-modified: Fri, 16 Oct 2026 22:23:43 GMT
+etag: "63fae705714f47dcb1320cd1a8624736"
+x-amz-server-side-encryption: AES256
+cache-control: public, max-age=31557600
+accept-ranges: bytes
+x-cache: Miss from cloudfront
+via: 1.1 4c36a8abe082df3ad5bff039eb4fde9c.cloudfront.net (CloudFront)
+x-amz-cf-pop: ORD58-P16
+alt-svc: h3=":443"; ma=86400
+x-amz-cf-id: BUcr6OrdwMqylvqcZp2kXoSH09TouENhX0BehthmMZib7eGo8RjK-A==
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re
+s = open('Yk1WCsof.js', encoding='utf-8', errors='replace').read()
+print("len", len(s))
+# mutation definitions
+muts = re.findall(r'\bmutation\s+(\w+)', s)
+print("mutation defs:", len(muts), sorted(set(muts)))
+qs = re.findall(r'\bquery\s+(\w+)', s)
+print("query defs:", len(qs), sorted(set(qs)))
+# operationName strings
+ops = re.findall(r'operationName["\']?\s*[:=]\s*["\'](\w+)["\']', s)
+print("operationName literals:", len(ops), sorted(set(ops)))
+# GraphQL-ish field names commonly mutating
+fields = re.findall(r'\b(requestAccountLink|requestAppointmentLink|unclaimLead|setNameAppointment|setLocale|selectOffer|updateProperty|deleteLeadDocumentAttachment|requestOfferRenewal|createLead|updateLead|submitForm|login|authenticate|requestToken|requestMagicLink|sendOtp|verifyOtp)\b', s)
+from collections import Counter
+print("known-mutation token hits:", Counter(fields))
+EOF
+len 1347844
+mutation defs: 10 ['calculateCityTax', 'createGoogleConversion', 'requestAccountLink', 'requestAppointmentLink', 'requestFacebookConversion', 'setLocale', 'setNameAppointment', 'unclaimLead', 'uploadDocumentExtended']
+query defs: 2 ['RatesTable']
+operationName literals: 6 ['fetchAdvisorAppointmentCalendar', 'fetchAppointmentCalendar', 'processLeadForAppointment', 'saveAppointment', 'saveTrackingUTM', 'setLocale']
+known-mutation token hits: Counter({'login': 33, 'setLocale': 14, 'unclaimLead': 9, 'requestAppointmentLink': 7, 'requestAccountLink': 3, 'setNameAppointment': 2})
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re, base64, hashlib
+from collections import Counter
+s = open('Yk1WCsof.js', encoding='utf-8', errors='replace').read()
+
+# hardcoded basic auth cred
+for pat in [r'advisors2018\+', r'aHlwbzphZHZpc29yczIwMTgr', r'Basic\s+[A-Za-z0-9+/=]{10,}']:
+    hits = re.findall(pat, s)
+    print(pat, "->", Counter(hits))
+
+# URLs / hosts
+hosts = Counter(re.findall(r'https?://([a-z0-9.\-]+)', s, re.I))
+print("\nHOSTS:")
+for h,c in hosts.most_common(40): print(" ", h, c)
+
+# graphql endpoints (paths containing /q or graphql)
+paths = Counter(re.findall(r'["\'](/[a-z0-9_\-/]*(?:graphql|/q\b|graphiql|api)[a-z0-9_\-/]*)["\']', s, re.I))
+print("\nGRAPHQL-ish PATHS:", paths.most_common(30))
+
+# csrf
+print("\nCSRF tokens:", Counter(re.findall(r'[xX]-[cC][sS][rR][fF]-[tT]oken|csrfToken|authenticity_token', s)))
+EOF
+advisors2018\+ -> Counter()
+aHlwbzphZHZpc29yczIwMTgr -> Counter({'aHlwbzphZHZpc29yczIwMTgr': 1})
+Basic\s+[A-Za-z0-9+/=]{10,} -> Counter({'Basic aHlwbzphZHZpc29yczIwMTgr': 1})
+
+HOSTS:
+  www.w3.org 71
+  a.hypofriend.de 9
+  grwapi.net 8
+  search.google.com 8
+  schema.org 8
+  hypofriend.de 3
+  vuejs.org 2
+  localhost 2
+  www.highcharts.com 2
+  policies.google.com 2
+  property-search.hypofriend.de 1
+  edge.api.flagsmith.com 1
+  next.vuex.vuejs.org 1
+
+GRAPHQL-ish PATHS: []
+
+CSRF tokens: Counter()
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re
+from collections import Counter
+s = open('Yk1WCsof.js', encoding='utf-8', errors='replace').read()
+
+# Where is the Basic cred used - context
+i = s.find('Basic aHlwbzphZHZpc29yczIwMTgr')
+print("CONTEXT:", repr(s[max(0,i-400):i+200]))
+print("="*70)
+# property-search.hypofriend.de context
+j = s.find('property-search.hypofriend.de')
+print("PS CONTEXT:", repr(s[max(0,j-300):j+300]))
+print("="*70)
+# a.hypofriend.de contexts
+for m in re.finditer(r'a\.hypofriend\.de[^"\']{0,80}', s):
+    print("A:", repr(m.group(0)))
+EOF
+CONTEXT: 'ct.fromEntries(document.cookie.split("; ").map(m=>m.split(/=(.*)/).map(decodeURIComponent)));Object.entries(h).forEach(([m,_])=>{c.append(`attribution[${m}]`,_)})}return s.post("",c,{headers:a})}function Fk(e){const{coreApiUrl:t}=Es();return Ms(`${t}/api/v3/`).get(e)}function E8(e){if(!e)throw new Error("Endpoint is required");return Ms(e,{headers:{"Content-Type":"application/json",Authorization:"Basic aHlwbzphZHZpc29yczIwMTgr"}}).get()}function K3(e,t,n=""){const{propertySearchApiUrl:r}=Es();if(!e)throw new Error("Data is required");const s=Ms(r),a={"Content-Type":"application/json"},c={query'
+======================================================================
+PS CONTEXT: 'ectApiUrl||k0.NUXT_PUBLIC_PROTECT_API_URL||t,contentApiUrl:e.contentApiUrl||k0.NUXT_PUBLIC_CONTENT_API_URL||k0.NUXT_ENV_CONTENT_API_URL||"https://hypofriend.de/content",propertySearchApiUrl:e.propertySearchApiUrl||k0.NUXT_PUBLIC_PROPERTY_SEARCH_API_URL||k0.NUXT_ENV_PROPERTY_SEARCH_API_URL||"https://property-search.hypofriend.de",advisorEndpoint:e.advisorEndpoint||k0.NUXT_PUBLIC_ADVISOR_ENDPOINT||k0.NUXT_ENV_ADVISOR_ENDPOINT||""}}const Ms=(e,t={})=>{const n=et.create({baseURL:e,withCredentials:!0,...t,headers:{"X-Application-Source":kk,"X-Request-Host":Sk(),"X-Request-Path":Pa(),...t.headers||{'
+======================================================================
+A: 'a.hypofriend.de/n/advisors/${claimedAdvisorOfReferrerLead(e)}.png`,privacyPoints:()=>['
+A: 'a.hypofriend.de/hypofriend-house.png'
+A: 'a.hypofriend.de/hypofriend-house.png'
+A: 'a.hypofriend.de/hypofriend-house.png'
+A: 'a.hypofriend.de/hypofriend-house.png'
+A: 'a.hypofriend.de/hypofriend-house.png'
+A: 'a.hypofriend.de/hypofriend-house.png'
+A: 'a.hypofriend.de/hypofriend-house.png'
+A: 'a.hypofriend.de/hypofriend-house.png'
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re
+s = open('Yk1WCsof.js', encoding='utf-8', errors='replace').read()
+
+for fn in ['E8(','K3(','Fk(']:
+    print("### callers of", fn)
+    for m in re.finditer(re.escape(fn), s):
+        i=m.start()
+        # skip definition site (function Fk( ... function E8() etc)
+        ctx = s[max(0,i-160):i+120]
+        print("   ...", repr(ctx[-280:]))
+    print()
+
+# is property-search-api mentioned at all?
+print("property-search-api mentions:", re.findall(r'property-search-api[^"\']{0,60}', s))
+print("coreApiUrl default:", re.findall(r'coreApiUrl:[^,}]{0,140}', s))
+EOF
+### callers of E8(
+   ... 'h(([m,_])=>{c.append(`attribution[${m}]`,_)})}return s.post("",c,{headers:a})}function Fk(e){const{coreApiUrl:t}=Es();return Ms(`${t}/api/v3/`).get(e)}function E8(e){if(!e)throw new Error("Endpoint is required");return Ms(e,{headers:{"Content-Type":"application/json",Authorizatio'
+   ... '"object"?e.endpoint:void 0;return{async fetchAllAdvisors(){const n=y7(t);if(!n)return console.error("Advisor endpoint has not been set"),!1;const{data:r}=await E8(n);return r?r.map(C7):!1},async fetchAdvisor(n){const r=y7(t);if(!r)return console.error("Advisor endpoint has not be'
+   ... '}=await E8(n);return r?r.map(C7):!1},async fetchAdvisor(n){const r=y7(t);if(!r)return console.error("Advisor endpoint has not been set"),!1;const{data:s}=await E8(r);if(!s)return!1;const a=s.find(c=>c.enumValue===n);return a?C7(a):!1}}}const PT=["Baden-Württemberg","Bayern","Berl'
+
+### callers of K3(
+   ... 'hrow new Error("Endpoint is required");return Ms(e,{headers:{"Content-Type":"application/json",Authorization:"Basic aHlwbzphZHZpc29yczIwMTgr"}}).get()}function K3(e,t,n=""){const{propertySearchApiUrl:r}=Es();if(!e)throw new Error("Data is required");const s=Ms(r),a={"Content-Type'
+   ... 'te\n         geo {\n           lat\n           lng\n         }\n       }\n      }\n  `};function tB(e={}){const t={...eB,...e};return{async fetchCities(){return(await K3(t.fetchCities(),!1,"fetchCities"))?.data?.data?.citiesV2??[]},async fetchExposes(n,r){const s=await K3(t.startPropert'
+   ... 't t={...eB,...e};return{async fetchCities(){return(await K3(t.fetchCities(),!1,"fetchCities"))?.data?.data?.citiesV2??[]},async fetchExposes(n,r){const s=await K3(t.startPropertySearch({city:n,type:r}),!1,"propertySearch");await new Promise(h=>setTimeout(h,250));const a=s?.data?.'
+   ... ' Promise(h=>setTimeout(h,250));const a=s?.data?.data?.propertySearch?.searchId;return a===void 0?(console.error(`Failed: City: ${n} and Type: ${r}`),[]):(await K3(t.fetchExposes({searchId:a}),!1,"propertySearchResult"))?.data?.data?.exposes??[]}}}const nB={saveLeadName:e=>`\n    m'
+
+### callers of Fk(
+   ... 'ap(m=>m.split(/=(.*)/).map(decodeURIComponent)));Object.entries(h).forEach(([m,_])=>{c.append(`attribution[${m}]`,_)})}return s.post("",c,{headers:a})}function Fk(e){const{coreApiUrl:t}=Es();return Ms(`${t}/api/v3/`).get(e)}function E8(e){if(!e)throw new Error("Endpoint is requir'
+   ... 'sync unclaimLead(){const{data:n}=await Ke(t.unclaimLead(),!1,"unclaimLead");return n?.data?.unclaimLead?.success||!1},async clearCookie(){const{status:n}=await Fk("delete-cookie");return n===200}}}const XT={requestLogin:e=>`\n    mutation requestAccountLink {\n      requestAccountL'
+
+property-search-api mentions: []
+coreApiUrl default: ['coreApiUrl:t', 'coreApiUrl:h', 'coreApiUrl:r', 'coreApiUrl:t']
+[0m
+[0m$ [0mcd /tmp/opencode && ls -la; echo "=== repo files ==="; ls -la /home/runner/work/hypofriend-hunt/hypofriend-hunt
+total 1332
+drwxr-xr-x  2 runner runner    4096 Oct 17 14:07 .
+drwxrwxrwt 15 root   root      4096 Oct 17 14:01 ..
+-rw-r--r--  1 runner runner 1347963 Oct 17 14:07 Yk1WCsof.js
+-rw-r--r--  1 runner runner     543 Oct 17 14:07 hdr.txt
+=== repo files ===
+total 1456
+drwxr-xr-x 12 runner runner   4096 Oct 17 14:01 .
+drwxr-xr-x  3 runner runner   4096 Oct 17 14:00 ..
+drwxr-xr-x  7 runner runner   4096 Oct 17 14:01 .git
+drwxr-xr-x  3 runner runner   4096 Oct 17 14:00 .github
+-rw-r--r--  1 runner runner   1885 Oct 17 14:00 README.md
+-rw-r--r--  1 runner runner  21225 Oct 17 14:08 analyst-out.txt
+-rw-r--r--  1 runner runner 647066 Oct 17 14:01 analyst-prompt.txt
+-rw-r--r--  1 runner runner 643191 Oct 17 14:01 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 inventory
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 leads
+-rw-r--r--  1 runner runner  74201 Oct 17 14:00 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 reports
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 reposcan-raw
+-rw-r--r--  1 runner runner   3288 Oct 17 14:00 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 scripts
+-rw-r--r--  1 runner runner     33 Oct 17 14:00 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct 17 14:00 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct 17 14:00 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct 17 14:00 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct 17 14:00 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct 17 14:00 state_nemotron3.json
+drwxr-xr-x  2 runner runner  16384 Oct 17 14:00 triage
+[0m
+Let me look at the repo structure to understand the workflow. Let me check the inventory, leads, knowledge dirs, and the scripts.</think>
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt && ls -la inventory knowledge leads recon-notes reports scripts; echo "=== state ==="; cat state_bigpickle.json; echo; cat README.md
+inventory:
+total 312
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 .
+drwxr-xr-x 12 runner runner   4096 Oct 17 14:01 ..
+-rw-r--r--  1 runner runner 311029 Oct 17 14:00 hypofriend.md
+
+knowledge:
+total 320
+drwxr-xr-x  2 runner runner   4096 Oct 17 14:00 .
+drwxr-xr-x 12 runner runner   4096 Oct 17 14:01 ..
+-rw-r--r--  1 runner runner 319420 Oct 17 14:00 index.md
+
+leads:
+total 4720
+drwxr-xr-x  2 runner runner    4096 Oct 17 14:00 .
+drwxr-xr-x 12 runner runner    4096 Oct 17 14:01 ..
+-rw-r--r--  1 runner runner 1494389 Oct 17 14:00 lead-bigpickle.md
+-rw-r--r--  1 runner runner   13107 Oct 17 14:00 lead-laguna.md
+-rw-r--r--  1 runner runner   12850 Oct 17 14:00 lead-ling3.md
+-rw-r--r--  1 runner runner   13364 Oct 17 14:00 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Oct 17 14:00 lead-mimo.md
+-rw-r--r--  1 runner runner 3214122 Oct 17 14:00 lead-nemotron3.md
+-rw-r--r--  1 runner runner   58974 Oct 17 14:00 reposcan-hypofriend.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Oct 17 14:00 .
+drwxr-xr-x 12 runner runner 4096 Oct 17 14:01 ..
+-rw-r--r--  1 runner runner  824 Oct 17 14:00 DEDICATED-DEEP.md
+
+reports:
+total 11500
+drwxr-xr-x  2 runner runner    4096 Oct 17 14:00 .
+drwxr-xr-x 12 runner runner    4096 Oct 17 14:01 ..
+-rw-r--r--  1 runner runner 6221433 Oct 17 14:00 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   55769 Oct 17 14:00 analyst-laguna.log
+-rw-r--r--  1 runner runner   55512 Oct 17 14:00 analyst-ling3.log
+-rw-r--r--  1 runner runner   56026 Oct 17 14:00 analyst-longcat.log
+-rw-r--r--  1 runner runner 4608862 Oct 17 14:00 analyst-nemotron3.log
+-rw-r--r--  1 runner runner      54 Oct 17 14:00 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Oct 17 14:00 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Oct 17 14:00 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Oct 17 14:00 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner      54 Oct 17 14:00 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  825449 Oct 17 14:00 hypotheses.md
+-rw-r--r--  1 runner runner    2703 Oct 17 14:00 reposcan-mimo.md
+-rw-r--r--  1 runner runner    4370 Oct 17 14:00 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Oct 17 14:00 .
+drwxr-xr-x 12 runner runner  4096 Oct 17 14:01 ..
+-rw-r--r--  1 runner runner 16987 Oct 17 14:00 sync-issues.py
+=== state ===
+{"phase": "POC", "target": "api"}
+# hypofriend-hunt
+
+24/7 deep multi-model bug-hunting automation for **Hypofriend GmbH** (Oliver Maicher bug-bounty hub).
+
+Scope: All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands
+(full exclusion + rules list in `scope.yml`)
+
+Pipeline (all workflows run every 20 minutes):
+
+- **Deep Hunt** (`hunt.yml`): analyst hunts the discovered inventory + hypotheses, emits structured
+  leads, chains primitives, self-critiques. Models: mimo.
+- **Triager** (`triage.yml`): second-model 7-Question Gate validation + live passive probe; keeps
+  running count in `reports/valid-bugs.md`.
+- **Reposcan** (`reposcan.yml`): deep source scan of any public GitHub org (if configured).
+- **Sync Issues** (`sync-issues.yml`): mirrors leads to GitHub issues.
+
+Testing discipline: rate-limited (1 rps), no DoS/account-lockout, writes only on non-prod/test
+assets, no exposure of customer/employee/financial/auth data, secrets committed only as hashes.
+
+> IMPORTANT: the pipeline produces CANDIDATE leads. A reportable, validated finding requires
+> human triage + proof against the program's gate. No finding is fabricated; scanner output alone
+> is never accepted. Active testing is gated behind the in-scope hosts in `inventory/hypofriend.md` and
+> must stay within the program's published scope.
+
+Artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+| `reports/valid-bugs.md` | Validated findings + running count |
+| `scope.yml` | Program scope and exclusions (edit to adjust) |
+
+Program description: German digital mortgage broker and financial technology company providing mortgage comparison, financing advice, property search, pension, and investment services
+[0m
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt && echo "=== valid-bugs.md ==="; cat reports/valid-bugs.md; echo; echo "=== analyst-out.txt (tail) ==="; tail -c 3000 analyst-out.txt
+=== valid-bugs.md ===
+# Validated findings (running count 0)
+
+- 1 lead(s) marked VALID at 2026-09-04 14:11:03 UTC
+  - | **VALID** | GraphQL BOLA/IDOR on `favoritedExposes`/`favoriteExpose` — arbitrary leadId read+write with no auth, exposing cross-tenant PII (broker phone/email/surname) on a financial mortgage platfo
+
+- 4 lead(s) marked VALID at 2026-09-07 17:48:26 UTC
+  - | Q7 Reasonable | **Yes** — auth-free R/W BOLA over customer-scoped IDs on a mortgage platform is a textbook valid bug |
+  - **VERDICT: VALID**
+  - | Q2 Reachable | **Partially** — endpoint returns 401, but no valid credentials confirmed |
+  - | 1 | GraphQL BOLA/IDOR (favoritedExposes/favoriteExpose) | **VALID** | 8.6 | bugs.olivermaicher.eu |
+
+- 14 lead(s) marked VALID at 2026-09-08 08:58:20 UTC
+  - **Verdict: VALID** — Read-only proof: POST introspection query. **Impact: Medium** (enabler). **CVSS 3.1: 5.3 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: execute GraphQL queries as shown. **Impact: CRITICAL**. **CVSS 3.1: 8.6 (High)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: call mutation with arbitrary leadId, observe error differential. **Impact: High**. **CVSS 3.1: 8.1 (High)**. **Report via:** bugs.olivermaicher.eu
+  - | Q3 Impact? | YES | Returns appointment data for arbitrary lead_id; zero-UUID returns `[]` but valid UUIDs may return booked appointment details |
+  - **Verdict: VALID** — Read-only: POST with zero-UUID. **Impact: Medium-High**. **CVSS 3.1: 6.5 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: OPTIONS request with custom Origin. **Impact: High** (session hijack if authenticated users exist). **CVSS 3.1: 8.1 (High)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: VALID** — Read-only: `curl -I` to origin vs edge. **Impact: Medium**. **CVSS 3.1: 5.3 (Medium)**. **Report via:** bugs.olivermaicher.eu
+  - **Verdict: HOLD** — Needs active validation to confirm takeover is possible. Risk of false positive if ngrok re-registers. **Impact: Medium if confirmed**. **CVSS 3.1: 6.5 (Medium)** if valid.
+  - | 1 | GraphQL introspection enabled | **VALID** | 5.3 (M) | Enabler for PII leak |
+  - | 2 | Unauthenticated PII enumeration | **VALID** | 8.6 (H) | Direct customer data exposure |
+  - | 3 | Cross-tenant write via `favoriteExpose` | **VALID** | 8.1 (H) | IDOR write + oracle |
+  - | 4 | BOLA on `already_booked_appointments` | **VALID** | 6.5 (M) | Unauth appointment data |
+  - | 5 | Open credentialed CORS on `/q` | **VALID** | 8.1 (H) | Session hijack vector |
+  - | 7 | Direct-origin CloudFront bypass | **VALID** | 5.3 (M) | WAF/security-header bypass |
+
+- 1 lead(s) marked VALID at 2026-09-13 06:46:05 UTC
+  - Please paste the lead findings (URLs, probe results, descriptions) and I'll run each through the 7-Question Gate with the verdict, reasoning, and (for VALID) minimal proof steps, impact assessment, CV
+
+- 4 lead(s) marked VALID at 2026-09-16 01:20:41 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL BOLA/IDOR (property-search-api) | **VALID** | 8.6 High |
+  - | 2 | GraphQL Introspection + Stack-Trace Leak | **VALID** | 5.3 Medium |
+
+- 8 lead(s) marked VALID at 2026-09-18 11:30:54 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID** (bundle with Finding 1 in a single report)
+  - | 1 | GraphQL IDOR/BOLA on property-search-api | **VALID** | 8.6 | Report to program |
+  - | 2 | Open Credentialed CORS on /q endpoints | **VALID** | 8.1 | Report to program |
+  - | 3 | Unauthenticated /q resolvers (rates_table, etc.) | **VALID** | 5.3 | Report to program |
+  - | 7 | GraphQL introspection enabled | **VALID** | 5.3 | Bundle with #1 |
+
+- 4 lead(s) marked VALID at 2026-09-21 17:09:26 UTC
+  - **VERDICT: VALID**
+  - **VERDICT: VALID**
+  - | 1 | GraphQL BOLA favoritedExposes/favoriteExpose | **VALID** | HIGH | 7.4 |
+  - | 2 | Auth-free expose(id) PII dump | **VALID** | HIGH | 7.5 |
+
+- 6 lead(s) marked VALID at 2026-09-22 05:12:16 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | GraphQL BOLA/IDOR property-search-api PII dump | **VALID** | 8.6 | HIGH |
+  - | 2 | Open credentialed CORS on `/q` | **VALID** | 9.1 | CRITICAL |
+  - | 3 | Open CORS + auth-free mutations on `/en/health/q` & `/en/plus/q` | **VALID** | 8.8 | HIGH |
+
+=== analyst-out.txt (tail) ===
+ner runner 6221433 Oct 17 14:00 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   55769 Oct 17 14:00 analyst-laguna.log
+-rw-r--r--  1 runner runner   55512 Oct 17 14:00 analyst-ling3.log
+-rw-r--r--  1 runner runner   56026 Oct 17 14:00 analyst-longcat.log
+-rw-r--r--  1 runner runner 4608862 Oct 17 14:00 analyst-nemotron3.log
+-rw-r--r--  1 runner runner      54 Oct 17 14:00 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Oct 17 14:00 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Oct 17 14:00 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Oct 17 14:00 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner      54 Oct 17 14:00 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  825449 Oct 17 14:00 hypotheses.md
+-rw-r--r--  1 runner runner    2703 Oct 17 14:00 reposcan-mimo.md
+-rw-r--r--  1 runner runner    4370 Oct 17 14:00 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Oct 17 14:00 .
+drwxr-xr-x 12 runner runner  4096 Oct 17 14:01 ..
+-rw-r--r--  1 runner runner 16987 Oct 17 14:00 sync-issues.py
+=== state ===
+{"phase": "POC", "target": "api"}
+# hypofriend-hunt
+
+24/7 deep multi-model bug-hunting automation for **Hypofriend GmbH** (Oliver Maicher bug-bounty hub).
+
+Scope: All company-owned infrastructure, mortgage platforms, financial recommendation engines, customer portals, APIs, mobile and web applications, websites, and domains operated by Hypofriend GmbH and its affiliated brands
+(full exclusion + rules list in `scope.yml`)
+
+Pipeline (all workflows run every 20 minutes):
+
+- **Deep Hunt** (`hunt.yml`): analyst hunts the discovered inventory + hypotheses, emits structured
+  leads, chains primitives, self-critiques. Models: mimo.
+- **Triager** (`triage.yml`): second-model 7-Question Gate validation + live passive probe; keeps
+  running count in `reports/valid-bugs.md`.
+- **Reposcan** (`reposcan.yml`): deep source scan of any public GitHub org (if configured).
+- **Sync Issues** (`sync-issues.yml`): mirrors leads to GitHub issues.
+
+Testing discipline: rate-limited (1 rps), no DoS/account-lockout, writes only on non-prod/test
+assets, no exposure of customer/employee/financial/auth data, secrets committed only as hashes.
+
+> IMPORTANT: the pipeline produces CANDIDATE leads. A reportable, validated finding requires
+> human triage + proof against the program's gate. No finding is fabricated; scanner output alone
+> is never accepted. Active testing is gated behind the in-scope hosts in `inventory/hypofriend.md` and
+> must stay within the program's published scope.
+
+Artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+| `reports/valid-bugs.md` | Validated findings + running count |
+| `scope.yml` | Program scope and exclusions (edit to adjust) |
+
+Program description: German digital mortgage broker and financial technology company providing mortgage comparison, financing advice, property search, pension, and investment services
+[0m
+[0m
+This is an automated bug bounty pipeline. My role is likely the analyst. Let me check the state and what phase. The task says "POC, target api". Let me look at the analyst-out.txt and analyst-prompt.txt to understand what I should produce. But actually the user message was "What did we do so far?" then "Continue if you have next steps..." So this is a continuation of the analyst workflow. Let me look at the most recent lead and understand current state.
+
+Let me read the tail of the bigpickle lead and analyst-out.txt, and the valid-bugs.md.</think>
+Now I understand. This is a bug bounty pipeline. My previous response was an analyst cycle output. I ran the next probe (bundle fetch) and mined it. Now I should continue the 8-step cycle with the probe results — analyze the deltas and produce output.
+
+Key findings from the bundle:
+1. Hardcoded Basic `aHlwbzphZHZpc29yczIwMTgr` still present in entry bundle, used in `E8()` for the advisor endpoint GET.
+2. The entry bundle defaults `propertySearchApiUrl` to `https://property-search.hypofriend.de` — but the BOLA chain is on `hypofriend.de/property-search-api`. This is a NEW insight: the client default points to the 503 host, but the working BOLA endpoint is a different path. Let me verify the property-search-api path still works.
+3. Mutation defs changed? Baseline said 10 named ops. Now 10 mutation defs / 9 unique. Let me compare properly with prior.
+
+Let me check the analyst-out / lead to see exactly what baseline was. Actually let me check the hypothesis ranking to understand.
+
+The important delta: the hardcoded Basic credential is still in the new bundle. And `propertySearchApiUrl` default = property-search.hypofriend.de (503), while BOLA is at hypofriend.de/property-search-api. That mismatch is interesting: maybe the property search API is served under hypofriend.de/property-search-api AND property-search.hypofriend.de.
+
+Let me do a couple more read-only checks to make the cycle meaningful: verify property-search-api endpoint and the mutation template diff.
+
+But should I keep probing? The task: "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed." I have next steps. Let me do a focused, passive probe of the property-search-api endpoint and re-verify the BOLA surface (read-only, no PII exposure). Actually KB says do not expose PII; the auth-free crawl chain POST is HUMAN-gated. But an OPTIONS/GET check is fine.
+
+Let me also diff mutations against prior baseline. I have the previous bundle? No. But I can check the analysis log for prior mutation names. Let me grep the lead file for the prior mutation baseline.
+
+Actually, let me stay focused and produce the cycle output. But first, make the probe count — do the pending reads. Let me run:
+- OPTIONS + GET on hypofriend.de/property-search-api
+- HEAD on core.hypofriend.de/q, /graphiql
+- exchange forge re-check
+
+But rate limit 1 rps. Let me do a small batch with sleep.
+
+Let me check what the prior baseline mutation counts were. Search lead-bigpickle.md.</think>
+[0m$ [0mcd /home/runner/work/hypofriend-hunt/hypofriend-hunt && grep -n "uploadDocumentExtended\|createGoogleConversion\|calculateCityTax\|propertySearchApiUrl\|property-search.hypofriend.de\|Yk1WCsof\|Bitus3YJ" leads/lead-bigpickle.md | tail -40
+6575:reasoning: All three legs are now read directly out of the shipped bundle. `createUploadUrl(input:{fileName, contentType})` returns `{s3Key, presignedUrl}`; the client then does a direct credential-free `PUT` to that URL and finally calls `uploadDocumentExtended(input:{type, file_name, file_type, file_link, document_type, applicant_type})` where `file_link` is the S3 key and `JSON.stringify` is applied to `fileName` but **not** to `file_link` or `contentType`. Neither the query `lead { documents { document_attachments { id } } }` nor any mutation input in the bundle carries a `leadId`, so object selection is by opaque identifier alone. `deleteLeadDocumentAttachment(input:{id})` is the same shape and is destructive. `selectOffer`/`requestOfferRenewal` take `offerProductId` and `setOfferViewedByCustomerAt` takes `offerId`, and `offerId` is confirmed client-visible as response data. All five documented coercion-satisfying mutations returned `301 → https://hypofriend.de/` with empty bodies and no 401/403 anywhere, so the only observed gate is a redirect, not an authorization decision.
+6584:reasoning: Introspection is off, yet `undefinedField` returns the parent `typeName` (`HypofriendType`, `Lead`) and the did-you-mean suggester resolves real names (`formAuthenticityToken` → `form_authenticity_token`). The coercion channel already yielded four input-object names with their required attributes and exact types — `SelectOfferInput.offerProductId`, `UpdatePropertyInput.id`, `RequestOfferRenewalInput.offerProductId`, `DeleteLeadDocumentAttachmentInput.id`, plus `S3FileInput.{s3_key,file_name}` — with zero records read, because coercion precedes resolution. **No new evidence was gathered on this asset this cycle and the confidence is deliberately not moved.** The `createUploadUrl` / `uploadDocumentExtended` documents recovered passively this cycle are consistent with, but do not extend, the channel: they were read from a public static asset, not from the error channel.
+6586:verify_steps: 1) `POST https://core.hypofriend.de/q` `{"query":"mutation { createUploadUrl(input:{fileName:\"poc\", __nope__:1}) { presignedUrl } }"}` and read `argumentNotAccepted` `extensions.inputObjectType` / `argumentName`; 2) same shape for `uploadDocumentExtended`; 3) diff against the 2026-09-29 readings to measure the delta.
+6601:[PARKED] `sendVerifiedListingEmail` deliverability, `submitDocumentAnalysis`/`uploadDocumentExtended` state changes, `createUploadUrl` presign retrieval: all remain blocked — the first needs a real mailbox, the latter two need an authenticated account or a mutation I am not sending.
+6605:[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q: the upload chain's full document set is now known, and `file_link` in `uploadDocumentExtended` is a caller-supplied S3 key on an input object with no ownership argument. That materially strengthens the standing object-addressing hypothesis without a single mutation being sent — the evidence came from a public static asset.
+6616:verify_steps: 1) `POST https://core.hypofriend.de/q` -H 'Content-Type: application/json' -H 'Origin: https://evil.example' --data '{"query":"mutation { uploadDocumentExtended(input:{}) { __typename } }"}' — read `extensions.inputObjectType` / `argumentName` / `argumentType`; 2) re-send with `Origin: https://evil.example` and confirm ACAO+ACAC on the 200; 3) diff against the 2026-09-29 four-type baseline.
+6623:reasoning: Bundle evidence is unchanged and re-verified this cycle (sha256 `4304a744…`, `createUploadUrl`×4, `uploadDocumentExtended`×3, `file_link`, `s3Key`, `presignedUrl`; no `leadId` on any document mutation). **Confidence lowered 64 -> 52, and the reason is this cycle's control, not new bundle detail.** The 2x2 paired probe shows the gate that returns `301` is (a) reached only after coercion succeeds and (b) fires identically with and without a session jar. So a client-side session is not the credential the gate reads, and the "send it with a jar" discriminator I had queued is now answered — it does not advance the hypothesis. What remains unknown is whether the resolver runs before the 301, because a 301 carries no GraphQL body. The claim "possible absent authorization" is not supported by anything I have measured; the claim "unreachable without a real lead session" is equally unproven.
+6925:reasoning: Introspection is confirmed off on all three GraphQL instances this cycle (property-search-api: __schema and __type both undefinedField on origin AND edge, with {__typename} positive control returning data; /q and /content/q/ already recorded off). The fix removes the vendor's own schema-dump vector but does not touch the graphql-ruby coercion handler, which today returns real names unsolicited: one request against POST /q with `mutation { uploadDocumentExtended(input:{}){ success } zzzControlPoison }` returned 4 errors, 3 of them missingRequiredInputObjectAttribute carrying argumentName=type, argumentName=document_type, argumentName=applicant_type, each with argumentType String! and inputObjectType DocumentUploadExtendedInput. The fourth is the poison control and returns undefinedField on Mutation. The `data` key is absent, which proves batch suppression held and zero resolvers executed and zero records were read. did-you-mean suggestions were NOT present, so name recovery rides on the coercion handler specifically, not on undefinedField.
+6927:verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" --data '{"query":"mutation { uploadDocumentExtended(input:{}){ success } zzzControlPoison }"}' — expect HTTP 200, 3 missingRequiredInputObjectAttribute errors naming DocumentUploadExtendedInput, undefinedField on Mutation for the poison, NO data key, ACAO echo plus ACAC true and vary: Origin,Accept-Encoding.
+6948:[NEXT] PROBE: `POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" --data '{"query":"mutation { uploadDocumentExtended(input:{type:\"x\",document_type:\"y\",applicant_type:\"z\"}){ success } selectOffer(input:{}){ success } updateProperty(input:{}){ property{id} } deleteLeadDocumentAttachment(input:{id:\"00000000-0000-0000-0000-000000000000\"}){ success } zzzControlPoison }"}'` — the coercion handler only reveals **required** attributes, so satisfying `DocumentUploadExtendedInput`'s three known required arguments should release the coercion errors on the other three legs in a single document. Expect HTTP 200, `missingRequiredInputObjectAttribute` naming `SelectOfferInput` and `PropertyMutationsUpdateInput` attributes, `undefinedField` for the poison, and **no `data` key** — the paired control proving zero resolvers executed.
+7232:reasoning: All five names resolve to one previously unrecorded origin IP, distinct from every other Hypofriend fleet, and the origin accepts no TCP on :80 or :443. These are A records, not dangling CNAMEs to a SaaS provider, so classic subdomain takeover does not apply today — nothing serves the names, so there is no live hijack to demonstrate. The residual risk is that `52.14.251.223` is an AWS address that, if ever released back to the general pool, silently transfers five high-value names including the natural host for the documented `createUploadUrl`/`uploadDocumentExtended` presigned-PUT chain and for admin tooling. The decisive check (whether the address is still allocated to the customer) is cloud-side and not remotely observable.
+7430:reasoning: Introspection is confirmed off on all three GraphQL instances this cycle (property-search-api: __schema and __type both undefinedField on origin AND edge, with {__typename} positive control returning data; /q and /content/q/ already recorded off). The fix removes the vendor's own schema-dump vector but does not touch the graphql-ruby coercion handler, which today returns real names unsolicited: one request against POST /q with `mutation { uploadDocumentExtended(input:{}){ success } zzzControlPoison }` returned 4 errors, 3 of them missingRequiredInputObjectAttribute carrying argumentName=type, argumentName=document_type, argumentName=applicant_type, each with argumentType String! a
+7432:verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" --data '{"query":"mutation { uploadDocumentExtended(input:{}){ success } zzzControlPoison }"}' — expect HTTP 200, 3 missingRequiredInputObjectAttribute errors naming DocumentUploadExtendedInput, undefinedField on Mutation for the poison, NO data key, ACAO echo plus ACAC true and vary: Origin,Accept-Encoding.
+7672:reasoning: /en/account deploy (separate Nuxt bundle, 2,468,656B) contains 37 mutations including 4 object-addressing mutations taking caller-supplied IDs with no lead/tenant argument: selectOffer(offerProductId), updateProperty(id), deleteLeadDocumentAttachment(id), requestOfferRenewal(offerProductId). uploadDocumentExtended file_link is caller-supplied S3 key with no ownership check. createUploadUrl returns presigned S3 PUT URL. Global credentialed CORS on core.hypofriend.de + SameSite=None;Secure cookies on /en/health + credentials:"same-origin" on /en/account = cross-origin exploit primitive for authenticated sessions. sendVerifiedListingEmail (12+ fields incl. recipient email, free-text body) is vendor-mail send primitive. submitDocumentAnalysis(files: JSON-stringified blob) is 3rd object-addressing input. offerId is client-visible via Vuex setOptimalOfferId from query responses.
+7673:evidence_needed: Demonstrate at least one of the 4 object-addressing mutations executes 200 and returns/modifies data for an object ID not owned by the caller's session, using credentials:include from attacker origin; demonstrate uploadDocumentExtended with attacker-controlled file_link writes to arbitrary S3 key
+7674:verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { selectOffer(input: {offerProductId: \"<foreign-offer-id>\"}) { success } }"}' with credentials:include — test all 4 object-addressing mutations; enumerate object IDs via query responses (offerProductId visible) or sequential probing; test uploadDocumentExtended with attacker-controlled file_link; test sendVerifiedListingEmail with attacker-controlled recipient/body
+7740:reasoning: Separate deploy bundle (2,468,656B) ships 37 mutations; four address objects by caller-supplied ID with no lead/tenant argument — selectOffer(offerProductId), updateProperty(id), deleteLeadDocumentAttachment(id), requestOfferRenewal(offerProductId). uploadDocumentExtended takes a caller-supplied file_link (S3 key); createUploadUrl returns a presigned PUT; sendVerifiedListingEmail exposes 12+ caller fields incl. recipient + free-text body; submitDocumentAnalysis takes a files JSON blob whose S3FileInput requires s3_key and file_name; offerId is client-visible via setOptimalOfferId. Global credentialed CORS on core + SameSite=None cookies give the cross-origin primitive. Server closes the attribute set (PropertyMutationsUpdateInput) — mass-assignment sub-claim stays rejected; surviving surface is object addressing plus file/upload. No mutating requests executed this cycle.
+7742:verify_steps: With an owned test account: POST https://core.hypofriend.de/q -H "Origin: https://evil.example" with credentials:include — selectOffer(input:{offerProductId:"<foreign-id>"}) and deleteLeadDocumentAttachment(input:{id:"<foreign-id>"}) → success indicates missing ownership check, permission error indicates enforcement; uploadDocumentExtended with file_link against a non-prod key only; never against customer records.
+7804:reasoning: `/en/account` deploy ships 37 mutations; 4 take caller-supplied object identifiers with no lead/tenant argument: `selectOffer(offerProductId)`, `updateProperty(id)`, `deleteLeadDocumentAttachment(id)`, `requestOfferRenewal(offerProductId)`. `uploadDocumentExtended` accepts caller-supplied `file_link` (S3 key); `createUploadUrl` returns `{s3Key,presignedUrl}` (presigned PUT chain); `sendVerifiedListingEmail` accepts 12+ caller fields incl. recipient + free-text body; `submitDocumentAnalysis` accepts `files` as JSON blob (`S3FileInput` requires `s3_key`,`file_name`). `offerId` is client-visible (response-fed). Global credentialed CORS on `core.hypofriend.de/q` enables cross-origin credentialed calls. Server rejects unknown keys on `PropertyMutationsUpdateInput` (mass-assignment bounded) but object-addressing + upload/mail primitives remain. No mutating requests executed this cycle (program constraint).
+7860:reasoning: /en/account deploy ships mutations with caller-supplied object identifiers and no lead/tenant arg (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key); createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail accepts recipient + free-text body; submitDocumentAnalysis accepts files as JSON blob. Global credentialed CORS on /q enables cross-origin calls.
+7904:reasoning: Public /en/account deploy ships mutations with caller-supplied object identifiers and no lead/tenant argument (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key) with no ownership argument; createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail accepts recipient address and free-text body; submitDocumentAnalysis accepts files as a JSON blob. Global credentialed CORS on /q enables cross-origin calls.
+7953:reasoning: Public /en/account deploy ships mutations with caller-supplied object identifiers and no lead/tenant argument (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key) with no ownership argument; createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail accepts recipient address and free-text body; submitDocumentAnalysis accepts files as JSON blob. Global credentialed CORS on /q enables cross-origin calls.
+8052:reasoning: Public /en/account deploy ships mutations with caller-supplied object identifiers and no lead/tenant argument (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key) with no ownership argument; createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail accepts recipient address and free-text body; submitDocumentAnalysis accepts files as JSON blob. Global credentialed CORS on /q enables cross-origin calls.
+8113:reasoning: Public /en/account bundle ships mutations with caller-supplied object identifiers and no lead/tenant argument (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key) with no ownership argument; createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail and submitDocumentAnalysis accept caller-supplied data; global credentialed CORS on /q enables cross-origin calls.
+8142:evidence_needed: Demonstrate at least one of the 4 object-addressing mutations executes 200 and returns/modifies data for an object ID not owned by the caller's session, using credentials:include from attacker origin; demonstrate uploadDocumentExtended with attacker-controlled file_link writes to arbitrary S3 key  
+8143:verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { selectOffer(input: {offerProductId: \"<foreign-offer-id>\"}) { success } }"}' with credentials:include — test all 4 object-addressing mutations; enumerate object IDs via query responses (offerProductId visible) or sequential probing; test uploadDocumentExtended with attacker-controlled file_link; test sendVerifiedListingEmail with attacker-controlled recipient/body  
+8201:reasoning: /en/account deploy (separate Nuxt bundle, 2,468,656B) contains 37 mutations including 4 object-addressing mutations taking caller-supplied IDs with no lead/tenant argument: selectOffer(offerProductId), updateProperty(id), deleteLeadDocumentAttachment(id), requestOfferRenewal(offerProductId). uploadDocumentExtended file_link is caller-supplied S3 key with no ownership check. createUploadUrl returns presigned S3 PUT URL. Global credentialed CORS on core.hypofriend.de + SameSite=None;Secure cookies on /en/health + credentials:"same-origin" on /en/account = cross-origin exploit primitive for authenticated sessions. sendVerifiedListingEmail (12+ fields incl. recipient email, free-text body) is vendor-mail send primitive. submitDocumentAnalysis(files: JSON-stringified blob) is 3rd object-addressing input. offerId is client-visible via Vuex setOptimalOfferId from query responses.
+8202:evidence_needed: Demonstrate at least one of the 4 object-addressing mutations executes 200 and returns/modifies data for an object ID not owned by the caller's session, using credentials:include from attacker origin; demonstrate uploadDocumentExtended with attacker-controlled file_link writes to arbitrary S3 key
+8203:verify_steps: POST https://core.hypofriend.de/q -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"query":"mutation { selectOffer(input: {offerProductId: \"<foreign-offer-id>\"}) { success } }"}' with credentials:include — test all 4 object-addressing mutations; enumerate object IDs via query responses (offerProductId visible) or sequential probing; test uploadDocumentExtended with attacker-controlled file_link; test sendVerifiedListingEmail with attacker-controlled recipient/body
+8252:reasoning: Public /en/account deploy ships mutations with caller-supplied object identifiers and no lead/tenant argument (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key) with no ownership argument; createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail accepts recipient address and free-text body; submitDocumentAnalysis accepts files as JSON blob. Global credentialed CORS on /q enables cross-origin calls.
+8306:reasoning: Public /en/account bundle ships mutations with caller-supplied object identifiers and no lead/tenant argument (selectOffer:offerProductId, updateProperty:id, deleteLeadDocumentAttachment:id, requestOfferRenewal:offerProductId); uploadDocumentExtended accepts caller-supplied file_link (S3 key) with no ownership argument; createUploadUrl returns s3Key/presignedUrl; sendVerifiedListingEmail and submitDocumentAnalysis accept caller-supplied data; global credentialed CORS on /q enables cross-origin calls.
+8883:[CHANGED] hypofriend.de entry bundle rotated Bitus3YJ.js -> Yk1WCsof.js (1,347,963B, Last-Modified 2026-10-16T22:23:43Z); /en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7...).
+8884:[CHANGED] property-search.hypofriend.de root: 3.65.251.207 (AWS) -> 503 awselb/2.0 (no healthy target); bundled as API host in new entry but no live listener (already in inventory, 12 refs).
+8917:[PARKED] property-search.hypofriend.de dedicated host: root 503 ELB zero-target, no live surface.
+8920:[LEARN] REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0, no healthy target) — bundled host reference is a routing label, not a live dedicated surface; and inventory already listed it (12 refs) so my "new host" delta was a false positive — verify inventory before [NEW].
+8924:[NEW] none — property-search.hypofriend.de was already in inventory (12 refs); earlier "new host" read retracted.
+8925:[CHANGED] hypofriend.de entry bundle rotated Bitus3YJ.js -> Yk1WCsof.js (1,347,963B, Last-Modified 2026-10-16T22:23:43Z); /en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7…).
+8926:[CHANGED] property-search.hypofriend.de root = 3.65.251.207 (AWS) -> 503 awselb/2.0 (no healthy target); bundled as API host in new entry but no live listener.
+8957:[PARKED] property-search.hypofriend.de dedicated host: root 503 (awselb/2.0, zero healthy targets) — no live surface; also already in inventory.
+8963:[LEARN] REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0) is a routing label, not a live dedicated host; and inventory already listed it — check inventory before emitting [NEW] host deltas.
+[0m
+Let me understand what the deliverable is. The workflow: analyst emits structured leads. Let me check the lead file's latest entries and the format. Let me look at the "hypotheses-bigpickle.txt" and understand. Actually, this is a continuation of the analyst session. My next move (from context) was to re-mine the new bundle. I did. Now I should report the delta.
+
+Let me compare mutation counts baseline: prior baseline: 10 named ops, count set requestAccountLink=3/requestAppointmentLink=7/unclaimLead=9/setNameAppointment=2/setLocale=24. Now mutation defs = 10, unique 9. setLocale=14 (was 24 in baseline). Hmm.
+
+Actually the "count" numbers from earlier baseline (requestAccountLink=3, requestAppointmentLink=7, unclaimLead=9, setNameAppointment=2, setLocale=24) — my current token hits: setLocale=14, unclaimLead=9, requestAppointmentLink=7, requestAccountLink=3, setNameAppointment=2. So setLocale dropped 24→14. That's a delta.
+
+New mutations found: calculateCityTax, createGoogleConversion, requestFacebookConversion, uploadDocumentExtended. Let me compare to baseline which had 10 ops including requestAccountLink/unclaimLead/etc. The baseline list wasn't given fully.
+
+Let me get a clean full list of mutation definitions and operation templates from the bundle. Also I should check whether new ones are security-relevant (createGoogleConversion, createFacebookConversion — potential server-side conversion forgery, no auth?).
+
+Actually, this is significant: `createGoogleConversion` and `createFacebookConversion` mutations suggest unauth conversion event injection. Let me examine them.
+
+But I need to be careful about scope/discipline. Let me mine the actual mutation bodies.</think>Let me mine the new bundle's mutation bodies in detail, especially the newly-seen conversion mutations.
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re
+s = open('Yk1WCsof.js', encoding='utf-8', errors='replace').read()
+
+for name in ['calculateCityTax','createGoogleConversion','createFacebookConversion','uploadDocumentExtended','requestAccountLink','requestAppointmentLink','setNameAppointment','unclaimLead','setLocale']:
+    idxs=[m.start() for m in re.finditer(r'mutation\s+'+name+r'\b', s)]
+    print("###", name, "defs:", len(idxs))
+    if idxs:
+        i=idxs[0]
+        print(s[i-40:i+520].replace('\n',' ')[:560])
+    print()
+EOF
+### calculateCityTax defs: 2
+ityFee:({city_or_postal_code:e})=>`     mutation calculateCityTax {       calculateCityTax(input: { city_or_postal_code: "${e}" }) {         formatted_tax         tax       }     }   `,fetchRegionCityFee:({region:e})=>`     mutation calculateCityTax {       calculateCityTax(input: { region: "${e}" }) {         formatted_tax         tax       }     }   `,fetchRatesTable:({loan_amount:e,property_price:t,repayment:n,region:r})=>{const s=KT(r),a=s?`region: ${s}`:"";return`       query RatesTable {         root {           rates_table(             loan_amount
+
+### createGoogleConversion defs: 1
+gleConversion:({conversionId:e})=>`     mutation createGoogleConversion {       createGoogleConversion(input: {         gclid: "${e}"       }) {         success       }     }   `,fetchRegionsAndCities:()=>`     query {       root {         locality {           regionsDE: regions(locale: "de") {             name             urlSuffix             hrefLangDeWithUmlaut             hrefLangDeWithoutUmlaut             hrefLangEn             canonicalPathname             cities(restricted: true) {               name               urlSuffix               hrefLan
+
+### createFacebookConversion defs: 0
+
+### uploadDocumentExtended defs: 1
+   }     }   `,uploadDocument:()=>`     mutation uploadDocumentExtended($type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!) {       uploadDocumentExtended(input: { type: $type, file: $files, document_type: $document_type, applicant_type: $applicant_type }) {         step       }     },   `};function WT(e={}){const t={...zT,...e};return{async submitApplicantsInformation(n){const{data:r}=await Ke(t.submitApplicantsInformation(n),!1,"submitApplicantsInformation");return!!r.data.success},async submitPropertyCertificate(n){con
+
+### requestAccountLink defs: 1
+==200}}}const XT={requestLogin:e=>`     mutation requestAccountLink {       requestAccountLink(input: {email: "${e}"}) {         step         leadPresent         firstName       }     }   `,requestAppointmentLink:e=>`     mutation requestAppointmentLink {       requestAppointmentLink(input: {email: "${e}"}) {         leadPresent         firstName       }     }   `,getAdminCookie:()=>`     query {       root {         lead {           has_admin_cookie         }       }     }   `};function YT(e={}){const t={...XT,...e};return{async requestLogin(n){return(a
+
+### requestAppointmentLink defs: 1
+  }   `,requestAppointmentLink:e=>`     mutation requestAppointmentLink {       requestAppointmentLink(input: {email: "${e}"}) {         leadPresent         firstName       }     }   `,getAdminCookie:()=>`     query {       root {         lead {           has_admin_cookie         }       }     }   `};function YT(e={}){const t={...XT,...e};return{async requestLogin(n){return(await Ke(t.requestLogin(n),{forceCoreApi:!0}))?.data?.data?.requestAccountLink||!1},async requestAppointmentLink(n){return(await Ke(t.requestAppointmentLink(n)))?.data?.data?.requestA
+
+### setNameAppointment defs: 1
+s??[]}}}const nB={saveLeadName:e=>`     mutation setNameAppointment {       setNameAppointment(input: {         name: "${e}"       }) { step }     }   `,saveOriginalSignupFlow:e=>`     mutation {       setOriginalSignupFlow(input: {         originalSignupFlow: "${e}"       }) {         step       }     }   `};function rB(e={}){const t={...nB,...e};return{async saveLeadName(n){await Ke(t.saveLeadName(n),{forceCoreApi:!0})},async saveLeadEmail(n){await Ik({email:n})},async saveOriginalSignupFlow(n){await Ke(t.saveOriginalSignupFlow(n),{forceCoreApi:!0})}}}
+
+### unclaimLead defs: 1
+      }     }   `,unclaimLead:()=>`     mutation unclaimLead {       unclaimLead(input: {}) {         success       }     }   `};function GT(e={}){const t={...qT,...e};return{async fetchClaimedAdvisor(n){const{data:r}=await Ke(t.fetchClaimedAdvisor(n),!1,"fetchClaimedAdvisor");return r.data.root.lead?r.data.root.lead:!1},async fetchDefaultAdvisor(n){const{data:r}=await Ke(t.fetchDefaultAdvisor(n),!1,"fetchDefaultAdvisor");return r.data.root.lead?r.data.root.lead:!1},async fetchUserInfo(){const{data:n}=await Ke(t.fetchUserInfo(),!1,"fetchUserInfo");return
+
+### setLocale defs: 1
+}       }     }   `,setLocale:()=>`     mutation setLocale($locale: LocaleEnum!) {       setLocale(input: { locale: $locale }) {         step       }     }   `,unclaimLead:()=>`     mutation unclaimLead {       unclaimLead(input: {}) {         success       }     }   `};function GT(e={}){const t={...qT,...e};return{async fetchClaimedAdvisor(n){const{data:r}=await Ke(t.fetchClaimedAdvisor(n),!1,"fetchClaimedAdvisor");return r.data.root.lead?r.data.root.lead:!1},async fetchDefaultAdvisor(n){const{data:r}=await Ke(t.fetchDefaultAdvisor(n),!1,"fetchDefaultAd
+[0m
+Notable: `uploadDocumentExtended` mutation now takes `$type: String!, $files: [File!]!, $document_type: String!, $applicant_type: String!` with `file: $files` — this is a file-upload GraphQL mutation. Previously the lead said `uploadDocumentExtended(input:{type, file_name, file_type, file_link, document_type, applicant_type})`. Now the entry bundle has a different signature using `File!` multipart. Interesting delta but in entry bundle.
+
+Also `createGoogleConversion(gclid)` — server-side conversion forgery primitive, unauthenticated? It takes gclid and posts conversion. That could be a marketing-conversion-injection finding but low impact.
+
+Key delta to report:
+1. Hardcoded Basic credential STILL present in rotated bundle (E8 → advisor endpoint GET).
+2. New mutation in entry bundle: `createGoogleConversion(input:{gclid})` — unauth conversion injection.
+3. `uploadDocumentExtended` signature changed to include `$files: [File!]!` (multipart file) with `file` field.
+
+Now, let me verify baseline. The prior baseline mutation count was "10 named ops, count set requestAccountLink=3/requestAppointmentLink=7/unclaimLead=9/setNameAppointment=2/setLocale=24". Wait those counts were token-hit counts. Now setLocale=14. Let me check what setLocale=24 meant — maybe from a different bundle (/en/account). Hmm.
+
+Actually I should focus and produce the cycle. But the deliverable format — should I write to a file? The pipeline produces leads. Let me check how analyst output is written — is analyst-out.txt the output? Let me check the workflow.
+
+Actually, looking again: the user prompt said "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed." My previous turn ended with a NEXT action (probe bundle). I ran it. Now I continue the cycle: report probe results and produce the 8-step output.
+
+I think the right thing is to produce the analyst cycle output as text (STEP 1-7), incorporating the bundle probe results. No need to write files unless asked. But the pipeline may expect me to append a lead. Given ambiguity, and that the previous assistant produced a text cycle output, I'll continue in that format.
+
+But wait — is the property-search-api path still valid? The bundle default points to property-search.hypofriend.de. Let me do a quick read-only verification of the BOLA endpoint surface (OPTIONS/GET) and core /q, to make the delta meaningful. Rate limit 1 rps.
+
+Actually, the KB already says endpoint re-confirmed live this cycle (OPTIONS 200, GET 400 POST-only). That was "this cycle" from prior context. Let me not over-probe. But the bundle default to property-search.hypofriend.de raises a question: is the BOLA chain at `hypofriend.de/property-search-api` or at `property-search.hypofriend.de`? Let me quickly check both read-only (GET should be 400 POST-only per KB).
+
+Let me do a small controlled batch.</think>Let me verify the two property-search surfaces read-only (GET/OPTIONS, ≤1 rps) since the new bundle defaults `propertySearchApiUrl` to the 503 host.
+[0m$ [0mcd /tmp/opencode
+for u in "https://hypofriend.de/property-search-api" "https://property-search.hypofriend.de/property-search-api" "https://core.hypofriend.de/q"; do
+  echo "=== $u"
+  curl -s -o /dev/null -w "  GET  http=%{http_code} type=%{content_type}\n" -H "Origin: https://evil.example" "$u"
+  sleep 1
+  curl -s -o /dev/null -w "  OPT  http=%{http_code}\n" -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" "$u"
+  sleep 1
+done
+=== https://hypofriend.de/property-search-api
+  GET  http=400 type=application/json
+  OPT  http=200
+=== https://property-search.hypofriend.de/property-search-api
+  GET  http=503 type=text/html
+  OPT  http=503
+=== https://core.hypofriend.de/q
+  GET  http=301 type=text/html; charset=utf-8
+  OPT  http=200
+[0m
+Good. So:
+- hypofriend.de/property-search-api: GET 400 (POST-only), OPTIONS 200 — live, BOLA endpoint confirmed.
+- property-search.hypofriend.de/property-search-api: 503 — dead (matches root 503).
+- core.hypofriend.de/q: GET 301, OPTIONS 200.
+
+Important clarification: entry bundle `propertySearchApiUrl` default = `https://property-search.hypofriend.de`, but that host is 503; meanwhile the live BOLA endpoint is `https://hypofriend.de/property-search-api`. Wait — actually the client builds `Ms(r)` where r = propertySearchApiUrl then appends nothing? For K3 it uses `Ms(r)` directly. Hmm the bundle default is property-search.hypofriend.de but BOLA works at hypofriend.de/property-search-api. This suggests maybe there's a runtime config override, OR the entry bundle is a stale/alternate build. Actually, this is a meaningful observation: the shipped default propertySearchApiUrl (property-search.hypofriend.de) currently 503s, while the working endpoint is hypofriend.de/property-search-api. That's a config/deployment inconsistency — worth noting but not a vuln.
+
+Actually wait, maybe I misread. Let me check the Es() definition — the propertySearchApiUrl default. Earlier: `propertySearchApiUrl:e.propertySearchApiUrl||k0.NUXT_PUBLIC_PROPERTY_SEARCH_API_URL||k0.NUXT_ENV_PROPERTY_SEARCH_API_URL||"https://property-search.hypofriend.de"`. Yes.
+
+And the BOLA chain in KB is at `https://hypofriend.de/property-search-api`. So either the deployed Nuxt runtime config overrides NUXT_PUBLIC_PROPERTY_SEARCH_API_URL to hypofriend.de/property-search-api, or the app is currently broken for property search. Either way, the live BOLA endpoint remains hypofriend.de/property-search-api.
+
+Let me verify the CORS reflection on core /q OPTIONS (the credentialed CORS finding). Read-only OPTIONS.
+
+Actually I already have OPTIONS 200. Let me capture headers for the CORS evidence freshness. That's passive.
+
+Let me do one focused check with headers.</think>
+[0m$ [0msleep 1; curl -s -D - -o /dev/null -X OPTIONS "https://core.hypofriend.de/q" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" | grep -i "access-control\|vary\|HTTP/"
+HTTP/2 200 
+access-control-allow-origin: https://evil.example
+access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+access-control-expose-headers: 
+access-control-max-age: 7200
+access-control-allow-credentials: true
+vary: Accept-Encoding
+[0m
+Confirmed credentialed CORS still live (evil.example echo, ACAC true, 7 methods).
+
+Now I have enough to produce the cycle. Let me also quickly check the GraphiQL cross-origin readability and the exchange forge for freshness, but the KB already has those. I'll limit probes to avoid noise. Actually let me do a quick check on /graphiql token rotation read-only (GET, passive).
+
+Let me check the exchange forge too quickly. Actually, keep it tight. I have the key delta.
+
+Let me now compose the analyst output. The format from previous turn: STEP 1 DELTA, STEP 2 PRIORITIZE, STEP 3 HYPOTHESES, STEP 4 SELF-CRITIQUE, STEP 5 NEXT, STEP 6 LEARNING, STEP 7 RISK.
+
+Delta from bundle probe:
+- [CONFIRMED] hardcoded Basic aHlwbzphZHZpc29yczIwMTgr still ships in rotated entry bundle Yk1WCsof.js, used by E8() on the advisor endpoint GET (Authorization header, no per-user token).
+- [NEW] mutation createGoogleConversion(input:{gclid}) present in entry bundle — unauth?? Actually client calls it; likely on conversion page. Server-side click-conversion injection primitive (gclid attacker-controlled). Low impact (ad-fraud / conversion poisoning), MEDIUM-LOW. Could be unauth.
+- [CHANGED] uploadDocumentExtended signature in entry bundle now uses $type:String!, $files:[File!]!, $document_type:String!, $applicant_type:String! with file:$files (multipart) — differs from /en/account bundle's file_link S3-key signature. Two distinct implementations.
+- [CHANGED] entry bundle propertySearchApiUrl default = https://property-search.hypofriend.de which is currently 503, while live BOLA endpoint is https://hypofriend.de/property-search-api (GET 400/OPTIONS 200). Deployment/config inconsistency.
+- [CONFIRMED] core.hypofriend.de/q OPTIONS 200, ACAO echo evil.example, ACAC true, 7 methods (credentialed CORS live).
+
+Mutation baseline: 9 unique mutation defs in entry bundle.
+
+Now the cycle. Let me be concise but complete. I'll note risk unchanged.
+
+Actually, should I write this to files (leads/)? The pipeline likely has the analyst append to leads. But the user just asked to continue. Given the earlier assistant output was plain text, and the repo has lead-bigpickle.md already containing cycles, I think the output is the text. But there might be an expectation to append. Let me check if analyst-out.txt is the capture of my stdout. It's 21KB and contains the ls output too — looks like a captured terminal log. So plain text output to user is the deliverable.
+
+I'll produce the cycle output now. Keep it structured and concise.
+
+Let me reconsider the createGoogleConversion — is it in the entry bundle? Yes, definition present. The client function fetchGoogleConversion calls it. This is a real surface: POST to property-search-api (or core /q?) — which endpoint? It's in the propertySearch API client K3 probably. Let me check which API the conversion mutation goes to. The mutation string is in object with fetchRatesTable etc. which uses K3 (propertySearchApiUrl) → so it goes to hypofriend.de/property-search-api. Unauth? property-search-api is unauth per BOLA finding. So createGoogleConversion is likely unauthenticated and lets anyone forge Google Ads conversion events → ad-fraud / conversion poisoning. Low severity but a real unauth write primitive (state change: records a conversion). Worth a hypothesis, but it mutates → not passive. Evidence needed read-only: a coercion probe (no conversion actually created) could reveal the input type; sending the real mutation is a write → HUMAN gate.
+
+Hmm — that is a genuinely new unauth write surface (mutation on an unauthenticated API). Worth logging as a hypothesis at low confidence.
+
+Let me finalize.
+
+For STEP 2 PRIORITIZE, I'll keep the three assets and add createGoogleConversion as a smaller one, or fold into property-search-api.
+
+I'll keep concise.</think>Probe results in. Producing the cycle delta.
+
+[STEP 1 — DELTA]
+[CONFIRMED] Rotated entry bundle `m/_nuxt/Yk1WCsof.js` (200, 1,347,963B, LM 2026-10-16T22:23:43Z, S3/CloudFront) still ships the hardcoded credential: `E8()` sends `Authorization: Basic aHlwbzphZHZpc29yczIwMTgr` on every advisor-endpoint GET (`fetchAllAdvisors`/`fetchAdvisor`) — unchanged from prior bundle.
+[NEW] Entry bundle exposes mutation `createGoogleConversion(input:{ gclid: "${e}" }){ success }` — client-supplied `gclid`, no auth arg, riding the same unauthenticated `propertySearchApiUrl` client. A possible unauth server-side conversion-injection write primitive (ad-fraud/attribution poisoning), LOW impact.
+[CHANGED] Entry bundle's `uploadDocumentExtended` uses a **different signature** than the `/en/account` bundle: `$type:String!, $files:[File!]!, $document_type:String!, $applicant_type:String!` → `input:{type, file:$files, ...}` (multipart `File`), not the S3-key `file_link` form. Two divergent implementations of the same named mutation.
+[CHANGED] Shipped default `propertySearchApiUrl` = `https://property-search.hypofriend.de` (503, awselb/2.0) — yet the live BOLA endpoint is `https://hypofriend.de/property-search-api` (GET 400 POST-only, OPTIONS 200). Deployment/runtime-config inconsistency; confirms the working chain is the `hypofriend.de` path, not the bundled default.
+[CONFIRMED] `core.hypofriend.de/q` OPTIONS 200: `access-control-allow-origin: https://evil.example`, `access-control-allow-credentials: true`, methods `GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD` — origin-global credentialed CORS still live.
+[NEW] none — no new in-scope host surfaced.
+
+[STEP 2 — PRIORITIZE]
+[PRIO] hypofriend.de/property-search-api,9.00 — attack9/bv10/tech9/gate10/cloud6/fresh9 (endpoint re-confirmed live this cycle)
+[PRIO] core.hypofriend.de/q (+/graphiql,/content/graphiql),8.10 — attack8/bv8/tech9/gate9/cloud7/fresh8
+[PRIO] hypofriend.de/en/exchange,6.40 — attack6/bv6/tech4/gate10/cloud5/fresh8
+
+[STEP 3 — HYPOTHESES]
+[HYP] Unauthenticated full-DB BOLA: `expose(id)` returns broker/owner PII on property-search-api
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: Bundle re-confirms the entire auth-free client chain lives in the entry deploy: `K3(fetchCities/startPropertySearch/fetchExposes)` posts to `propertySearchApiUrl` with no credential; live checks this cycle: GET 400 (POST-only), OPTIONS 200. KB confirms `propertySearch(city,propertyType)→searchId→exposes(id)→expose(id)` returns `propertyOwnerLastName/providerEmail/phoneNumber/cellPhoneNumber`.
+evidence_needed: one read-only POST returning non-owned PII via the auth-free crawl chain.
+verify_steps: POST `/property-search-api` `{"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"}` → `{exposes(id:"<searchId>"){id}}` → `{expose(id:"<real-id>"){id title price propertyOwnerLastName providerEmail phoneNumber}}` (HUMAN authorization for PII fields).
+impact: cross-tenant broker/owner PII dump, zero credentials, financial platform — HIGH/CRITICAL.
+testability: HUMAN_ONLY
+[HYP] Origin-global credentialed CORS + public GraphiQL leaks rotating CSRF tokens and schema
+class: MISCONFIG
+asset: core.hypofriend.de/q
+confidence: 82
+reasoning: OPTIONS re-confirmed live this cycle (evil.example echo, ACAC:true, 7 methods); KB documents 3 unauth GraphiQL IDEs (`/graphiql`,`/content/graphiql`) with cross-origin-readable bodies carrying a rotating 86-char `X-CSRF-Token`, plus coercion/error-channel schema reconstruction (introspection off).
+evidence_needed: cross-origin credentialed GET of GraphiQL body carrying token (already proven; freshness re-check only).
+verify_steps: OPTIONS `https://core.hypofriend.de/q` `-H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST"`; GET `https://core.hypofriend.de/graphiql -H "Origin: https://evil.example"`.
+impact: any-origin credentialed GraphQL read + schema reconstruction + CSRF-token disclosure; ATO sub-claim REJECTED (Lax cookie). MEDIUM.
+testability: PASSIVE
+[HYP] Unauth Google-Ads conversion injection via `createGoogleConversion(gclid)`
+class: BUSLOGIC
+asset: hypofriend.de/property-search-api
+confidence: 40
+reasoning: Mut mutation newly observed in entry bundle; the client (`propertySearchApiUrl`) is entirely credential-free (BOLA chain), so the mutation likely executes unauthenticated; `gclid` is fully attacker-controlled. State change = recorded conversion (ad-fraud/attribution poisoning), not data read.
+evidence_needed: read-only coercion probe (`{__typename}` control + `createGoogleConversion(input:{})` to confirm the input type) before any real write; actual conversion write is HUMAN-gated.
+verify_steps: POST `https://hypofriend.de/property-search-api` `{"query":"mutation { createGoogleConversion(input:{}) { success } __typename }"}` (read-only coercion, no conversion id supplied).
+impact: unauth marketing-conversion forgery / ad-spend attribution poisoning — LOW.
+testability: PASSIVE (coercion) / HUMAN (live write)
+
+[STEP 4 — SELF-CRITIQUE]
+[PARKED] per-victim GraphiQL token theft → ATO: `_hf` SameSite-unset (Lax) — REJECTED as ATO class; retained only as CORS-readable token disclosure.
+[PARKED] property-search.hypofriend.de dedicated host: root + `/property-search-api` both 503 awselb/2.0 zero-target — no live surface; already inventoried (12 refs).
+[PARKED] hardcoded Basic cred: 200-proof on advisor endpoint requires sending the credential — HUMAN-gated, not sent.
+[PARKED] `uploadDocumentExtended` signature divergence: bundle-only observation, no runtime differential measured; do not over-read into the object-addressing claim.
+[FINAL] 1) property-search-api unauth BOLA (88) > 2) core /q credentialed CORS + GraphiQL (82) > 3) /en/exchange forge (68) > 4) createGoogleConversion injection (40).
+
+[STEP 5 — NEXT ACTION]
+[NEXT] PROBE (read-only coercion): `POST https://hypofriend.de/property-search-api -H "Content-Type: application/json" --data '{"query":"mutation { createGoogleConversion(input:{}) { success } __typename }"}'` — confirm the mutation is reachable, unauth, and capture `extensions.inputObjectType`/`argumentName`; the `{__typename}` control proves batch suppression and zero resolvers executed. Does NOT create a conversion (no `gclid` supplied).
+
+[STEP 6 — LEARNING]
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q: origin-global credentialed CORS re-confirmed this cycle (OPTIONS 200, evil.example echo, ACAC:true, 7 methods).
+[LEARN] ACCEPTED MISCONFIG @ hypofriend.de entry bundle: hardcoded `Basic aHlwbzphZHZpc29yczIwMTgr` persists across the bundle rotation — a code-level credential in a public static asset; still do not replay it live.
+[LEARN] REJECTED MISCONFIG @ property-search.hypofriend.de: bundled-default host is 503; the live chain is `hypofriend.de/property-search-api` — bundle config ≠ live deployment; always probe the path, not the bundled default.
+
+[STEP 7 — RISK]
+[RISK] Hypofriend: 88 — unauthenticated production GraphQL (`property-search-api`) exposes broker/owner PII via auth-free `expose(id)` BOLA; origin-global credentialed CORS on `core.hypofriend.de/q` enables cross-origin GraphiQL/CSRF-token/contract reads; public bundle ships a hardcoded Basic credential; plus a share-link attribution forge and a new unauth conversion-injection mutation on a mortgage/financial platform.

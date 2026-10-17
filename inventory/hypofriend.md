@@ -2395,3 +2395,13 @@ www.hypofriend.de
 - CHANGED property-search.hypofriend.de root = 3.65.251.207 (AWS) -> 503 awselb/2.0 (no healthy target); bundled as API host in new entry but no live listener.
 
 ## 2026-10-17 11:09:12 UTC
+
+## 2026-10-17 14:10:25 UTC
+- CHANGED hypofriend.de/m/_nuxt entry bundle rotated Bitus3YJ.js → Yk1WCsof.js (200, 1,347,963B, Last-Modified 2026-10-16T22:23:43Z) — grew ~11.3KB vs prior 1,336,611B; mutation-template surface needs re-baseli
+- CHANGED property-search.hypofriend.de A 3.65.251.207 → 503 awselb/2.0 zero-target; bundled as API host in new entry but no live listener — already in inventory (12 refs), not a new host.
+- CHANGED hypofriend.de/en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7…).
+- CHANGED exchange forge re-confirmed live 2026-10-17 (302 /en/account/property-search/expose-<link_id>?ts=1792217688&utm_*=attacker) after a prior false-retirement caused by an incomplete control (omitted link
+- NEW Entry bundle exposes mutation `createGoogleConversion(input:{ gclid: "${e}" }){ success }` — client-supplied `gclid`, no auth arg, riding the same unauthenticated `propertySearchApiUrl` client. A poss
+- CHANGED Entry bundle's `uploadDocumentExtended` uses a **different signature** than the `/en/account` bundle: `$type:String!, $files:[File!]!, $document_type:String!, $applicant_type:String!` → `input:{type, 
+- CHANGED Shipped default `propertySearchApiUrl` = `https://property-search.hypofriend.de` (503, awselb/2.0) — yet the live BOLA endpoint is `https://hypofriend.de/property-search-api` (GET 400 POST-only, OPTIO
+- NEW none — no new in-scope host surfaced.

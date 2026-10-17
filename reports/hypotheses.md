@@ -5385,3 +5385,13 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin-global credentialed rack-cors re-confirmed this cycle (evil.example echo + ACAC:true + 7 methods).
 
 ## RANKED HYPOTHESES 2026-10-17 11:09:12 UTC
+
+## RANKED HYPOTHESES 2026-10-17 14:10:25 UTC
+- [88] hypofriend.de/property-search-api: Unauthenticated full-DB BOLA: expose(id) returns broker/owner PII on property-search-api (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://hypofriend.de/m/_nuxt/Yk1WCsof.js — re-mine the fresh entry bundle (1,347,963B, LM 2026-10-16T22:23:43Z, ~+11.3KB vs prior) and diff named mu
+- LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0 zero healthy target) is a routing label, not a live dedicated surface, and inventory al
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin-global credentialed rack-cors re-confirmed this cycle (evil.example echo + ACAC:true + 7 methods).
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: an initial 301-to-canonical reading was a bad control (omitted link_id/redirect), not a real retirement — always 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: origin-global credentialed CORS re-confirmed this cycle (OPTIONS 200, evil.example echo, ACAC:true, 7 methods).
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de entry bundle: hardcoded `Basic aHlwbzphZHZpc29yczIwMTgr` persists across the bundle rotation — a code-level credential in a p
+- LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: bundled-default host is 503; the live chain is `hypofriend.de/property-search-api` — bundle config ≠ live de
