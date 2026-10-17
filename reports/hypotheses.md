@@ -5422,3 +5422,12 @@
 - LEARN: CONFIRMED @ core.hypofriend.de/q: OPTIONS preflight re-proven (ACAO echo, ACAC:true, allow-headers content-type,x-csrf-token, vary:Accept-Encoding only) — globa
 - LEARN: CONFIRMED NG @ hypofriend.de/en: edge S3/CloudFront static snapshot (server: AmazonS3, x-cache: Hit, age:2651, no set-cookie) — /en HTML not a live Rails respon
 - LEARN: CONFIRMED NG @ api.hypofriend.de: dead 58th consecutive cycle (000 @10s timeout, A 52.15.184.3) — POC phase pinned to dead host
+
+## RANKED HYPOTHESES 2026-10-17 19:46:49 UTC
+- [88] hypofriend.de/property-search-api: Unauthenticated full-DB BOLA exposes broker/owner PII on property-search-api (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST https://hypofriend.de/property-search-api -H "Content-Type: application/json" --data '{"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){
+- LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0 zero healthy target) is a routing label, not a live dedicated surface; already inventor
+- LEARN: REJECTED PHASE-GATE @ api.hypofriend.de: designated POC target dead 58+ consecutive cycles (000 on :443/:80, A 52.15.184.3). Do not substitute target silently; 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q family: credentialed CORS echoes any Origin + ACAC:true; GraphiQL IDEs expose rotating X-CSRF-Token readable cross-ori
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: initial 301-to-canonical control was incomplete (omitted link_id/redirect). Always replay the exact previously-wo
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + /content/graphiql: cross-origin body readability PROVEN (ACAO echo + ACAC:true) with per-request X-CSRF-Token

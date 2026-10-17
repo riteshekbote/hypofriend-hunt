@@ -1742,3 +1742,9 @@ https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&
 https://hypofriend.de/m/_nuxt/Yk1WCsof.js -> 200 len=1347963
 https://core.hypofriend.de/q` -> 200 len=244939
 https://hypofriend.de/property-search-api -> HTTP 400
+
+## 2026-10-17 19:46:58 UTC
+https://hypofriend.de/property-search-api -> HTTP 400
+https://core.hypofriend.de/q -> 200 len=244939
+https://core.hypofriend.de/graphiql -> 200 len=0
+https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&link_id=11111111-2222-3333-4444-555555555555&redirect=account&utm_source=attacker&utm_medium=x&utm_campaign=evil&format=json -> 200 len=3766

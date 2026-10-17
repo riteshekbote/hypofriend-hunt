@@ -2418,3 +2418,5 @@ www.hypofriend.de
 - CHANGED Shipped default `propertySearchApiUrl` = `https://property-search.hypofriend.de` (503 awselb/2.0, no healthy target) but live BOLA chain is at `https://hypofriend.de/property-search-api`
 - CHANGED Exchange forge re-confirmed live 2026-10-17 (302 /en/account/property-search/expose-<link_id>?ts=1792217688&utm_*=attacker) after prior false retirement from incomplete control
 - CHANGED api.hypofriend.de remains dead 58+ consecutive cycles (000, 10s connect-timeout, A 52.15.184.3) — POC phase pinned to dead host
+
+## 2026-10-17 19:46:49 UTC

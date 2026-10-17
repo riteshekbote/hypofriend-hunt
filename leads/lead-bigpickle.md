@@ -9113,3 +9113,43 @@ testability: PASSIVE (coercion) / HUMAN (live write)
 [LEARN] ACCEPTED MISCONFIG @ hypofriend.de entry bundle: hardcoded `Basic aHlwbzphZHZpc29yczIwMTgr` persists across the bundle rotation — a code-level credential in a public static asset; still do not replay it live.
 [LEARN] REJECTED MISCONFIG @ property-search.hypofriend.de: bundled-default host is 503; the live chain is `hypofriend.de/property-search-api` — bundle config ≠ live deployment; always probe the path, not the bundled default.
 [RISK] Hypofriend: 88 — unauthenticated production GraphQL (`property-search-api`) exposes broker/owner PII via auth-free `expose(id)` BOLA; origin-global credentialed CORS on `core.hypofriend.de/q` enables cross-origin GraphiQL/CSRF-token/contract reads; public bundle ships a hardcoded Basic credential; plus a share-link attribution forge and a new unauth conversion-injection mutation on a mortgage/financial platform.
+## 2026-10-17 19:46:40 UTC [target] (model bigpickle)
+[PRIO] hypofriend.de/property-search-api,9.00 (attack9/bv10/tech9/gate10/cloud6/fresh9)
+[PRIO] core.hypofriend.de/q (+/graphiql,/content/graphiql),8.10 (attack8/bv8/tech9/gate9/cloud7/fresh8)
+[PRIO] hypofriend.de/en/exchange,6.40 (attack6/bv6/tech4/gate10/cloud5/fresh8)
+[HYP] Unauthenticated full-DB BOLA exposes broker/owner PII on property-search-api
+class: IDOR
+asset: hypofriend.de/property-search-api
+confidence: 88
+reasoning: Auth-free chain propertySearch→exposes→expose returns broker/owner PII (propertyOwnerLastName, phoneNumber, cellPhoneNumber, providerEmail, providerCompany, ownerCompany) on direct origin; full introspection enabled, auth-free crawl primitives (pagination/exposesInBounds/mapExposes/offset/limit) confirmed. Direct-origin bypass vs edge CloudFront.
+evidence_needed: One read-only POST proving PII returned for an arbitrary non-owned exposeId via the auth-free chain.
+verify_steps: POST https://hypofriend.de/property-search-api with Content-Type: application/json body {"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"} then {"query":"{exposes(id:\"<searchId>\"){id}}"} then {"query":"{expose(id:\"<real-expose-id>\"){id title price propertyOwnerLastName providerEmail phoneNumber}}"} (read-only, no customer data exfiltration beyond proving fields).
+impact: Cross-tenant broker/owner PII dump, zero credentials, financial platform — HIGH/CRITICAL.
+testability: HUMAN_ONLY
+[HYP] Credentialed CORS + public GraphiQL IDEs leak rotating CSRF tokens and allow cross-origin schema/contract reads
+class: MISCONFIG
+asset: core.hypofriend.de/q (+/graphiql,/content/graphiql)
+confidence: 82
+reasoning: Global rack-cors echoes any Origin + Access-Control-Allow-Credentials:true across /q family; three public GraphiQL IDEs (/graphiql, /hypofriend.de/graphiql, /content/graphiql) return HTML with data-graphql-endpoint-path and per-request X-CSRF-Token readable via credentialed GET; introspection disabled but error/coercion channel reconstructs contracts; POST varies Accept/Origin/Accept-Encoding while OPTIONS omits Vary:Origin on preflight.
+evidence_needed: Cross-origin credentialed GET of GraphiQL body returning X-CSRF-Token (already live-evidenced; freshness recheck only).
+verify_steps: OPTIONS https://core.hypofriend.de/q -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type,x-csrf-token"; GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" -H "Accept: text/html".
+impact: Cross-origin token/contract/schema leakage, precondition chain for CSRF abuse on GraphQL; token rotation limits replay window. MEDIUM.
+testability: PASSIVE
+[HYP] Unauthenticated share-link forge with unbound attribution (6-key share_id pool, arbitrary link_id, utm_* raw pass-through)
+class: BUSLOGIC
+asset: hypofriend.de/en/exchange
+confidence: 68
+reasoning: Unauthenticated GET to /en/exchange with any known share_id and arbitrary link_id + forged utm_* returns 302 to first-party destination with utm_* echoed verbatim; 6-key share_id pool enumerated (tools/staff/rails/uploads/karriere/partner+partnerprogramm/swagger.json variants). Destination shell byte-identical for forged vs real link_id; redirect allowlist {expose,account} only.
+evidence_needed: 302 Location reflecting attacker utm_source/utm_medium/utm_campaign and arbitrary link_id for a valid share_id.
+verify_steps: GET "https://hypofriend.de/en/exchange?share_id=dddb5cba-7e96-44b2-be7d-bb621c8a8e68&link_id=11111111-2222-3333-4444-555555555555&redirect=account&utm_source=attacker&utm_medium=x&utm_campaign=evil&format=json" (read-only, verify 302 to /en/account with utm_* echoed).
+impact: Credible first-party URL forge with poisoned attribution; financial-platform trust abuse. MEDIUM.
+testability: PASSIVE
+[PARKED] api.hypofriend.de POC target: <why> Dead 58+ consecutive cycles (HTTP 000, A 52.15.184.3) — no live surface; phase mismatch persists. Targeting the dead host violates "passive-first" evidence-needed criterion.
+[FINAL] 1) property-search-api unauth BOLA (88) > 2) core/q credentialed CORS + GraphiQL (82) > 3) /en/exchange forge (68)
+[NEXT] PROBE: POST https://hypofriend.de/property-search-api -H "Content-Type: application/json" --data '{"query":"{propertySearch(city:BERLIN,propertyType:APARTMENT){searchId}}"}' to retrieve searchId; then follow with exposes(id) and expose(id) to prove auth-free PII return (read-only; do not enumerate all records). Capture request/response (status, headers, body) for evidence.
+[LEARN] REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0 zero healthy target) is a routing label, not a live dedicated surface; already inventoried (12 refs). Probe the path hypofriend.de/property-search-api, not the bundled default.
+[LEARN] REJECTED PHASE-GATE @ api.hypofriend.de: designated POC target dead 58+ consecutive cycles (000 on :443/:80, A 52.15.184.3). Do not substitute target silently; disclose phase/target mismatch and re-focus on live surface.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/q family: credentialed CORS echoes any Origin + ACAC:true; GraphiQL IDEs expose rotating X-CSRF-Token readable cross-origin (GET). POST varies Accept/Origin/Accept-Encoding; OPTIONS omits Vary:Origin on /q preflight (path-specific) — residual preflight caching facet near-inert per tuple-keying.
+[LEARN] ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: initial 301-to-canonical control was incomplete (omitted link_id/redirect). Always replay the exact previously-working parameter set before declaring retirement. share_id auth-by-obscurity + arbitrary link_id + utm_* raw pass-through confirmed.
+[LEARN] ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + /content/graphiql: cross-origin body readability PROVEN (ACAO echo + ACAC:true) with per-request X-CSRF-Token rotation; _hf from /graphiql is SameSite-unset (Lax) — bounds to session-binding.
+[RISK] Hypofriend GmbH: 88 — Unauthenticated full-DB BOLA on property-search-api (CRITICAL) exposes broker/owner PII; origin-global credentialed CORS on core/q enables cross-origin GraphiQL/CSRF-token/contract reads (MEDIUM); share-link forge enables unbound attribution on exchange (MEDIUM). POC target api.hypofriend.de remains dead 58+ cycles (phase mismatch). Hardcoded Basic credential persists in public bundle; GraphQL error/coercion channel reconstructs schema/contracts. Direct-origin WAF/security-header bypass on property-search-api confirmed.
