@@ -5395,3 +5395,30 @@
 - LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: origin-global credentialed CORS re-confirmed this cycle (OPTIONS 200, evil.example echo, ACAC:true, 7 methods).
 - LEARN: ACCEPTED MISCONFIG @ hypofriend.de entry bundle: hardcoded `Basic aHlwbzphZHZpc29yczIwMTgr` persists across the bundle rotation — a code-level credential in a p
 - LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: bundled-default host is 503; the live chain is `hypofriend.de/property-search-api` — bundle config ≠ live de
+
+## RANKED HYPOTHESES 2026-10-17 17:21:19 UTC
+- [90] core.hypofriend.de/property-search-api: Auth-free full-DB BOLA via propertySearch→exposes→expose chain returns broker/owner PII on direct origin (from art/lead_nemotron3.txt)
+- [68] hypofriend.de/en/exchange: Unauthenticated full-DB BOLA: `expose(id)` returns broker/owner PII on property-search-api (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://hypofriend.de/m/_nuxt/Yk1WCsof.js — re-mine the fresh entry bundle (1,347,963B, LM 2026-10-16T22:23:43Z, ~+11.3KB vs prior) and diff named mu
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://core.hypofriend.de/graphiql -H "Origin: https://evil.example" --cookie-jar /tmp/jar.txt -H "Accept: text/html" — verify GraphiQL IDE accessib
+- LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: root 503 (awselb/2.0 zero healthy target) is a routing label, not a live dedicated surface, and inventory al
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: origin-global credentialed rack-cors re-confirmed this cycle (evil.example echo + ACAC:true + 7 methods).
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: an initial 301-to-canonical reading was a bad control (omitted link_id/redirect), not a real retirement — always 
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/q: origin-global credentialed CORS re-confirmed this cycle (OPTIONS 200, evil.example echo, ACAC:true, 7 methods).
+- LEARN: ACCEPTED MISCONFIG @ hypofriend.de entry bundle: hardcoded `Basic aHlwbzphZHZpc29yczIwMTgr` persists across the bundle rotation — a code-level credential in a p
+- LEARN: REJECTED MISCONFIG @ property-search.hypofriend.de: bundled-default host is 503; the live chain is `hypofriend.de/property-search-api` — bundle config ≠ live de
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/graphiql + hypofriend.de/graphiql: production GraphiQL IDE reachable unauthenticated (GET 200/697B, fresh `_hf` session)
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/content/graphiql: second GraphiQL IDE on 4th GraphQL app (GET 200/705B, `data-graphql-endpoint-path="/content/q"`)
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: mint set grows 7→8 stems and usable share_id pool 6→7 keys — `/swagger.json` mints deterministic pair
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: full 6-key pool now enumerated by value — `/staff` `f46e3e93...`, `/uploads` `40595fb5...`, `/karriere` `c0c7f5c2
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de: global rack-cors re-confirmed via OPTIONS `/q` and `/content/q` (evil.example echo, ACAC:true, 7 methods, Max-Age 7200,
+- LEARN: ACCEPTED MISCONFIG @ core.hypofriend.de/property-search-api: GET → 400 JSON "exclusively POST requests" with `vary: Origin` and no ACAO — endpoint live and CORS
+- LEARN: ACCEPTED BUSLOGIC @ hypofriend.de/en/exchange: forge re-confirmed by GET — `dddb5cba...` + nil link_id + attacker utm_* → 302 `/en/account?ts=1791380154&utm_cam
+- LEARN: ACCEPTED NG @ api.hypofriend.de: dead 56th+ consecutive cycle (000 on :443 and :80 at 8s connect-timeout, A `52.15.184.3` clean) — POC phase pinned to a dead ho
+- LEARN: REJECTED MISCONFIG @ core.hypofriend.de/en/plus/graphiql + /en/health/graphiql: IDE is not mounted per-instance — both 301 to `/` (controls), so GraphiQL exposu
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/graphiql + /content/graphiql: cross-origin response-body readability PROVEN (GET, Origin evil.example → ACAO echo + ACA
+- LEARN: CONFIRMED MISCONFIG @ core.hypofriend.de/graphiql: per-request CSRF token rotation within same session (token1 YIs4Da3... → token2 _FrjXZ..., ETag 3ada→1535b) —
+- LEARN: BOUND @ core.hypofriend.de/graphiql: `_hf` minted here is SameSite-unset (browser default Lax) → cross-site fetch binds token to anonymous session; per-victim t
+- LEARN: CONFIRMED @ core.hypofriend.de/q: OPTIONS preflight re-proven (ACAO echo, ACAC:true, allow-headers content-type,x-csrf-token, vary:Accept-Encoding only) — globa
+- LEARN: CONFIRMED NG @ hypofriend.de/en: edge S3/CloudFront static snapshot (server: AmazonS3, x-cache: Hit, age:2651, no set-cookie) — /en HTML not a live Rails respon
+- LEARN: CONFIRMED NG @ api.hypofriend.de: dead 58th consecutive cycle (000 @10s timeout, A 52.15.184.3) — POC phase pinned to dead host

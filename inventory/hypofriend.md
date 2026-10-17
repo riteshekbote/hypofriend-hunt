@@ -2405,3 +2405,16 @@ www.hypofriend.de
 - CHANGED Entry bundle's `uploadDocumentExtended` uses a **different signature** than the `/en/account` bundle: `$type:String!, $files:[File!]!, $document_type:String!, $applicant_type:String!` → `input:{type, 
 - CHANGED Shipped default `propertySearchApiUrl` = `https://property-search.hypofriend.de` (503, awselb/2.0) — yet the live BOLA endpoint is `https://hypofriend.de/property-search-api` (GET 400 POST-only, OPTIO
 - NEW none — no new in-scope host surfaced.
+
+## 2026-10-17 17:21:19 UTC
+- NEW Entry bundle exposes mutation `createGoogleConversion(input:{ gclid: "${e}" }){ success }` — client-supplied `gclid`, no auth arg, riding the same unauthenticated `propertySearchApiUrl` client. A poss
+- CHANGED Entry bundle's `uploadDocumentExtended` uses a **different signature** than the `/en/account` bundle: `$type:String!, $files:[File!]!, $document_type:String!, $applicant_type:String!` → `input:{type, 
+- CHANGED Shipped default `propertySearchApiUrl` = `https://property-search.hypofriend.de` (503, awselb/2.0) — yet the live BOLA endpoint is `https://hypofriend.de/property-search-api` (GET 400 POST-only, OPTIO
+- NEW none — no new in-scope host surfaced.
+- NEW hypofriend.de/m/_nuxt entry bundle rotated: Bitus3YJ.js → Yk1WCsof.js (200, 1,347,963B, LM 2026-10-16T22:23:43Z, +11.3KB vs prior)
+- NEW hypofriend.de/en/plus re-deployed (LM 2026-10-16T22:24:36Z, etag 785fa8d7)
+- NEW Entry bundle exposes new mutation `createGoogleConversion(input:{ gclid: "${e}" })` — client-supplied gclid, no auth arg
+- CHANGED uploadDocumentExtended signature differs between entry bundle (`$type:String!,$files:[File!]!,$document_type:String!,$applicant_type:String!`) and /en/account bundle (`input:{type,file_name,file_type,
+- CHANGED Shipped default `propertySearchApiUrl` = `https://property-search.hypofriend.de` (503 awselb/2.0, no healthy target) but live BOLA chain is at `https://hypofriend.de/property-search-api`
+- CHANGED Exchange forge re-confirmed live 2026-10-17 (302 /en/account/property-search/expose-<link_id>?ts=1792217688&utm_*=attacker) after prior false retirement from incomplete control
+- CHANGED api.hypofriend.de remains dead 58+ consecutive cycles (000, 10s connect-timeout, A 52.15.184.3) — POC phase pinned to dead host
